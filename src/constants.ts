@@ -115,7 +115,7 @@ export const DEFAULT_VERSION = "{version}";
 
 export const CANVAS_ONLY_ACTIONS = ["selectAll"];
 
-export const GRID_SIZE = 20; // TODO make it configurable?
+export const GRID_SIZE = 50; // TODO make it configurable?
 
 export const IMAGE_MIME_TYPES = {
   svg: "image/svg+xml",

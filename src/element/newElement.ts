@@ -1,40 +1,4 @@
-import {
-  ExcalidrawElement,
-  ExcalidrawImageElement,
-  ExcalidrawTextElement,
-  ExcalidrawLinearElement,
-  ExcalidrawGenericElement,
-  NonDeleted,
-  TextAlign,
-  GroupId,
-  VerticalAlign,
-  Arrowhead,
-  ExcalidrawFreeDrawElement,
-  FontFamilyValues,
-  ExcalidrawTextContainer,
-  ExcalidrawFrameElement,
-} from "../element/types";
-import {
-  arrayToMap,
-  getFontString,
-  getUpdatedTimestamp,
-  isTestEnv,
-} from "../utils";
-import { randomInteger, randomId } from "../random";
-import { bumpVersion, newElementWith } from "./mutateElement";
-import { getNewGroupIdsForDuplication } from "../groups";
-import { AppState } from "../types";
 import { getElementAbsoluteCoords } from ".";
-import { adjustXYWithRotation } from "../math";
-import { getResizedElementAbsoluteCoords } from "./bounds";
-import {
-  getContainerElement,
-  measureText,
-  normalizeText,
-  wrapText,
-  getBoundTextMaxWidth,
-  getDefaultLineHeight,
-} from "./textElement";
 import {
   DEFAULT_ELEMENT_PROPS,
   DEFAULT_FONT_FAMILY,
@@ -43,7 +7,43 @@ import {
   DEFAULT_VERTICAL_ALIGN,
   VERTICAL_ALIGN,
 } from "../constants";
+import {
+  Arrowhead,
+  ExcalidrawElement,
+  ExcalidrawFrameElement,
+  ExcalidrawFreeDrawElement,
+  ExcalidrawGenericElement,
+  ExcalidrawImageElement,
+  ExcalidrawLinearElement,
+  ExcalidrawTextContainer,
+  ExcalidrawTextElement,
+  FontFamilyValues,
+  GroupId,
+  NonDeleted,
+  TextAlign,
+  VerticalAlign,
+} from "../element/types";
+import { getNewGroupIdsForDuplication } from "../groups";
+import { adjustXYWithRotation } from "../math";
+import { randomId, randomInteger } from "../random";
+import { AppState } from "../types";
 import { MarkOptional, Merge, Mutable } from "../utility-types";
+import {
+  arrayToMap,
+  getFontString,
+  getUpdatedTimestamp,
+  isTestEnv,
+} from "../utils";
+import { getResizedElementAbsoluteCoords } from "./bounds";
+import { bumpVersion, newElementWith } from "./mutateElement";
+import {
+  getBoundTextMaxWidth,
+  getContainerElement,
+  getDefaultLineHeight,
+  measureText,
+  normalizeText,
+  wrapText,
+} from "./textElement";
 
 type ElementConstructorOpts = MarkOptional<
   Omit<ExcalidrawGenericElement, "id" | "type" | "isDeleted" | "updated">,
@@ -543,6 +543,10 @@ export const duplicateElements = (
     /** NOTE also updates version flags and `updated` */
     randomizeSeed: boolean;
   },
+  onCgroupIdsChange?: (
+    prev: readonly string[],
+    next: readonly string[],
+  ) => void,
 ) => {
   const clonedElements: ExcalidrawElement[] = [];
 
@@ -582,13 +586,20 @@ export const duplicateElements = (
       bumpVersion(clonedElement);
     }
 
+    // NAV Here we change group id
     if (clonedElement.groupIds) {
+      const prev = clonedElement.groupIds;
+
       clonedElement.groupIds = clonedElement.groupIds.map((groupId) => {
         if (!groupNewIdsMap.has(groupId)) {
           groupNewIdsMap.set(groupId, regenerateId(groupId));
         }
         return groupNewIdsMap.get(groupId)!;
       });
+
+      if (onCgroupIdsChange) {
+        onCgroupIdsChange(prev, clonedElement.groupIds);
+      }
     }
 
     if ("containerId" in clonedElement && clonedElement.containerId) {

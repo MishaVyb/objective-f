@@ -1,9 +1,17 @@
+import clsx from "clsx";
 import React, { useState } from "react";
+import { actionToggleZenMode } from "../actions";
 import { ActionManager } from "../actions/manager";
+import { trackEvent } from "../analytics";
+import { useDevice } from "../components/App";
 import { getNonDeletedElements } from "../element";
+import {
+  shouldAllowVerticalAlign,
+  suppportsHorizontalAlign,
+} from "../element/textElement";
+import { hasBoundTextElement } from "../element/typeChecks";
 import { ExcalidrawElement, PointerType } from "../element/types";
 import { t } from "../i18n";
-import { useDevice } from "../components/App";
 import {
   canChangeRoundness,
   canHaveArrowheads,
@@ -13,31 +21,24 @@ import {
   hasStrokeWidth,
   hasText,
 } from "../scene";
+import { hasStrokeColor } from "../scene/comparisons";
 import { SHAPES } from "../shapes";
 import { UIAppState, Zoom } from "../types";
 import {
   capitalizeString,
   isTransparent,
-  updateActiveTool,
   setCursorForShape,
+  updateActiveTool,
 } from "../utils";
 import Stack from "./Stack";
 import { ToolButton } from "./ToolButton";
-import { hasStrokeColor } from "../scene/comparisons";
-import { trackEvent } from "../analytics";
-import { hasBoundTextElement } from "../element/typeChecks";
-import clsx from "clsx";
-import { actionToggleZenMode } from "../actions";
 import { Tooltip } from "./Tooltip";
-import {
-  shouldAllowVerticalAlign,
-  suppportsHorizontalAlign,
-} from "../element/textElement";
 
+import { KEYS } from "../keys";
+import { getElementsMetas } from "../vbrn/selectors/selectors";
 import "./Actions.scss";
 import DropdownMenu from "./dropdownMenu/DropdownMenu";
 import { extraToolsIcon, frameToolIcon } from "./icons";
-import { KEYS } from "../keys";
 
 export const SelectedShapeActions = ({
   appState,
@@ -48,6 +49,10 @@ export const SelectedShapeActions = ({
   elements: readonly ExcalidrawElement[];
   renderAction: ActionManager["renderAction"];
 }) => {
+  // console.log(targetElements)
+  // console.log(elements.map(e => e.groupIds))
+  const [showOBJStyle, setShowOBJStyle] = useState(false);
+
   const targetElements = getTargetElements(
     getNonDeletedElements(elements),
     appState,
@@ -87,129 +92,159 @@ export const SelectedShapeActions = ({
     }
   }
 
+  // NAV actions
+  const metas = getElementsMetas(targetElements);
+  const meta = metas.length > 0 ? metas[0] : null; // TODO handle many metas selection
+
   return (
     <div className="panelColumn">
-      <div>
-        {((hasStrokeColor(appState.activeTool.type) &&
-          appState.activeTool.type !== "image" &&
-          commonSelectedType !== "image" &&
-          commonSelectedType !== "frame") ||
-          targetElements.some((element) => hasStrokeColor(element.type))) &&
-          renderAction("changeStrokeColor")}
-      </div>
-      {showChangeBackgroundIcons && (
-        <div>{renderAction("changeBackgroundColor")}</div>
-      )}
-      {showFillIcons && renderAction("changeFillStyle")}
-
-      {(hasStrokeWidth(appState.activeTool.type) ||
-        targetElements.some((element) => hasStrokeWidth(element.type))) &&
-        renderAction("changeStrokeWidth")}
-
-      {(appState.activeTool.type === "freedraw" ||
-        targetElements.some((element) => element.type === "freedraw")) &&
-        renderAction("changeStrokeShape")}
-
-      {(hasStrokeStyle(appState.activeTool.type) ||
-        targetElements.some((element) => hasStrokeStyle(element.type))) && (
-        <>
-          {renderAction("changeStrokeStyle")}
-          {renderAction("changeSloppiness")}
-        </>
-      )}
-
-      {(canChangeRoundness(appState.activeTool.type) ||
-        targetElements.some((element) => canChangeRoundness(element.type))) && (
-        <>{renderAction("changeRoundness")}</>
-      )}
-
-      {(hasText(appState.activeTool.type) ||
-        targetElements.some((element) => hasText(element.type))) && (
-        <>
-          {renderAction("changeFontSize")}
-
-          {renderAction("changeFontFamily")}
-
-          {suppportsHorizontalAlign(targetElements) &&
-            renderAction("changeTextAlign")}
-        </>
-      )}
-
-      {shouldAllowVerticalAlign(targetElements) &&
-        renderAction("changeVerticalAlign")}
-      {(canHaveArrowheads(appState.activeTool.type) ||
-        targetElements.some((element) => canHaveArrowheads(element.type))) && (
-        <>{renderAction("changeArrowhead")}</>
-      )}
-
-      {renderAction("changeOpacity")}
-
-      <fieldset>
-        <legend>{t("labels.layers")}</legend>
-        <div className="buttonList">
-          {renderAction("sendToBack")}
-          {renderAction("sendBackward")}
-          {renderAction("bringToFront")}
-          {renderAction("bringForward")}
-        </div>
-      </fieldset>
-
-      {targetElements.length > 1 && !isSingleElementBoundContainer && (
-        <fieldset>
-          <legend>{t("labels.align")}</legend>
-          <div className="buttonList">
-            {
-              // swap this order for RTL so the button positions always match their action
-              // (i.e. the leftmost button aligns left)
-            }
-            {isRTL ? (
-              <>
-                {renderAction("alignRight")}
-                {renderAction("alignHorizontallyCentered")}
-                {renderAction("alignLeft")}
-              </>
-            ) : (
-              <>
-                {renderAction("alignLeft")}
-                {renderAction("alignHorizontallyCentered")}
-                {renderAction("alignRight")}
-              </>
-            )}
-            {targetElements.length > 2 &&
-              renderAction("distributeHorizontally")}
-            {/* breaks the row ˇˇ */}
-            <div style={{ flexBasis: "100%", height: 0 }} />
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: ".5rem",
-                marginTop: "-0.5rem",
-              }}
-            >
-              {renderAction("alignTop")}
-              {renderAction("alignVerticallyCentered")}
-              {renderAction("alignBottom")}
-              {targetElements.length > 2 &&
-                renderAction("distributeVertically")}
-            </div>
-          </div>
-        </fieldset>
-      )}
-      {!isEditing && targetElements.length > 0 && (
-        <fieldset>
-          <legend>{t("labels.actions")}</legend>
-          <div className="buttonList">
-            {!device.isMobile && renderAction("duplicateSelection")}
-            {!device.isMobile && renderAction("deleteSelectedElements")}
-            {renderAction("group")}
-            {renderAction("ungroup")}
-            {showLinkIcon && renderAction("hyperlink")}
-          </div>
-        </fieldset>
-      )}
+      {meta && objectiveActions()}
+      {meta && objectiveStyleButton()}
+      {(!meta || showOBJStyle) && excalidrawActions()}
     </div>
   );
+
+  function objectiveActions() {
+    return <>{renderAction("actionChangeMetaTitle")}</>;
+  }
+
+  function objectiveStyleButton() {
+    return (
+      <button onClick={() => setShowOBJStyle(!showOBJStyle)}>
+        {showOBJStyle ? "hide style" : "show style"}
+      </button>
+    );
+  }
+
+  function excalidrawActions() {
+    return (
+      <>
+        <div>
+          {((hasStrokeColor(appState.activeTool.type) &&
+            appState.activeTool.type !== "image" &&
+            commonSelectedType !== "image" &&
+            commonSelectedType !== "frame") ||
+            targetElements.some((element) => hasStrokeColor(element.type))) &&
+            renderAction("changeStrokeColor")}
+        </div>
+        {showChangeBackgroundIcons && (
+          <div>{renderAction("changeBackgroundColor")}</div>
+        )}
+
+        {!meta && excalidrawExtraActions()}
+
+        {shouldAllowVerticalAlign(targetElements) &&
+          renderAction("changeVerticalAlign")}
+        {(canHaveArrowheads(appState.activeTool.type) ||
+          targetElements.some((element) =>
+            canHaveArrowheads(element.type),
+          )) && <>{renderAction("changeArrowhead")}</>}
+
+        {renderAction("changeOpacity")}
+
+        <fieldset>
+          <legend>{t("labels.layers")}</legend>
+          <div className="buttonList">
+            {renderAction("sendToBack")}
+            {renderAction("sendBackward")}
+            {renderAction("bringToFront")}
+            {renderAction("bringForward")}
+          </div>
+        </fieldset>
+
+        {targetElements.length > 1 && !isSingleElementBoundContainer && (
+          <fieldset>
+            <legend>{t("labels.align")}</legend>
+            <div className="buttonList">
+              {
+                // swap this order for RTL so the button positions always match their action
+                // (i.e. the leftmost button aligns left)
+              }
+              {isRTL ? (
+                <>
+                  {renderAction("alignRight")}
+                  {renderAction("alignHorizontallyCentered")}
+                  {renderAction("alignLeft")}
+                </>
+              ) : (
+                <>
+                  {renderAction("alignLeft")}
+                  {renderAction("alignHorizontallyCentered")}
+                  {renderAction("alignRight")}
+                </>
+              )}
+              {targetElements.length > 2 &&
+                renderAction("distributeHorizontally")}
+              {/* breaks the row ˇˇ */}
+              <div style={{ flexBasis: "100%", height: 0 }} />
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: ".5rem",
+                  marginTop: "-0.5rem",
+                }}
+              >
+                {renderAction("alignTop")}
+                {renderAction("alignVerticallyCentered")}
+                {renderAction("alignBottom")}
+                {targetElements.length > 2 &&
+                  renderAction("distributeVertically")}
+              </div>
+            </div>
+          </fieldset>
+        )}
+        {!isEditing && targetElements.length > 0 && (
+          <fieldset>
+            <legend>{t("labels.actions")}</legend>
+            <div className="buttonList">
+              {!device.isMobile && renderAction("duplicateSelection")}
+              {!device.isMobile && renderAction("deleteSelectedElements")}
+              {renderAction("group")}
+              {renderAction("ungroup")}
+              {showLinkIcon && renderAction("hyperlink")}
+            </div>
+          </fieldset>
+        )}
+      </>
+    );
+  }
+
+  function excalidrawExtraActions() {
+    return (
+      <>
+        {showFillIcons && renderAction("changeFillStyle")}
+        {(hasStrokeWidth(appState.activeTool.type) ||
+          targetElements.some((element) => hasStrokeWidth(element.type))) &&
+          renderAction("changeStrokeWidth")}
+        {(appState.activeTool.type === "freedraw" ||
+          targetElements.some((element) => element.type === "freedraw")) &&
+          renderAction("changeStrokeShape")}
+        {(hasStrokeStyle(appState.activeTool.type) ||
+          targetElements.some((element) => hasStrokeStyle(element.type))) && (
+          <>
+            {renderAction("changeStrokeStyle")}
+            {renderAction("changeSloppiness")}
+          </>
+        )}
+        {(canChangeRoundness(appState.activeTool.type) ||
+          targetElements.some((element) =>
+            canChangeRoundness(element.type),
+          )) && <>{renderAction("changeRoundness")}</>}
+        {(hasText(appState.activeTool.type) ||
+          targetElements.some((element) => hasText(element.type))) && (
+          <>
+            {renderAction("changeFontSize")}
+
+            {renderAction("changeFontFamily")}
+
+            {suppportsHorizontalAlign(targetElements) &&
+              renderAction("changeTextAlign")}
+          </>
+        )}
+      </>
+    );
+  }
 };
 
 export const ShapesSwitcher = ({

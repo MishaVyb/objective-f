@@ -186,6 +186,7 @@ export const LibraryMenu = () => {
 
   const onInsertLibraryItems = useCallback(
     (libraryItems: LibraryItems) => {
+      // NAV triggered when add lib item by CLICK
       onInsertElements(distributeLibraryItemsOnSquareGrid(libraryItems));
     },
     [onInsertElements],

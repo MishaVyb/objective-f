@@ -10,7 +10,12 @@ export const LIB_CHARACTERS = {
       kind: ObjecitveKinds.CHARACTER,
       elements: [
         {
-          type: 'ellipse',
+          customData: {
+            kind: ObjecitveKinds.CHARACTER,
+            title: undefined,
+            comment: undefined,
+          },
+          type: "ellipse",
           version: 723,
           versionNonce: 194620121,
           isDeleted: false,
