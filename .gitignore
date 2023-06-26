@@ -27,3 +27,4 @@ src/packages/excalidraw/example/public/excalidraw-assets-dev
 src/packages/excalidraw/example/public/excalidraw.development.js
 coverage
 *.tmp*
+cspell.config.yaml
