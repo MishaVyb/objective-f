@@ -86,8 +86,8 @@ import {
 import { isBrowserStorageStateNewer } from "./data/tabSync";
 
 import { ResolutionType } from "../utility-types";
-import { LIB_CAMERAS } from "../vbrn/lib/cameras.library";
-import { LIB_CHARACTERS } from "../vbrn/lib/characters.library";
+import { LIB_CAMERAS } from "../_objective_/lib/cameras.library";
+import { LIB_CHARACTERS } from "../_objective_/lib/characters.library";
 import "./index.scss";
 
 polyfill();

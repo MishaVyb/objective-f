@@ -1,4 +1,4 @@
-import { ObjecitveKinds } from '../../types'
+import { ObjectiveKinds } from '../../types'
 
 export const LIB_CHARACTERS = {
   type: 'excalidrawlib',
@@ -7,15 +7,15 @@ export const LIB_CHARACTERS = {
   libraryItems: [
     {
       status: 'unpublished',
-      kind: ObjecitveKinds.CHARACTER,
+      kind: ObjectiveKinds.CHARACTER,
       elements: [
         {
           customData: {
-            kind: ObjecitveKinds.CHARACTER,
+            kind: ObjectiveKinds.CHARACTER,
             title: undefined,
             comment: undefined,
           },
-          type: "ellipse",
+          type: 'ellipse',
           version: 723,
           versionNonce: 194620121,
           isDeleted: false,
@@ -125,7 +125,7 @@ export const LIB_CHARACTERS = {
     },
     {
       status: 'unpublished',
-      kind: ObjecitveKinds.CHARACTER,
+      kind: ObjectiveKinds.CHARACTER,
       elements: [
         {
           type: 'ellipse',
@@ -238,7 +238,7 @@ export const LIB_CHARACTERS = {
     },
     {
       status: 'unpublished',
-      kind: ObjecitveKinds.CHARACTER,
+      kind: ObjectiveKinds.CHARACTER,
       elements: [
         {
           type: 'ellipse',
@@ -351,7 +351,7 @@ export const LIB_CHARACTERS = {
     },
     {
       status: 'unpublished',
-      kind: ObjecitveKinds.CHARACTER,
+      kind: ObjectiveKinds.CHARACTER,
       elements: [
         {
           type: 'ellipse',
@@ -464,7 +464,7 @@ export const LIB_CHARACTERS = {
     },
     {
       status: 'unpublished',
-      kind: ObjecitveKinds.CHARACTER,
+      kind: ObjectiveKinds.CHARACTER,
       elements: [
         {
           type: 'ellipse',
@@ -539,7 +539,7 @@ export const LIB_CHARACTERS = {
     },
     {
       status: 'unpublished',
-      kind: ObjecitveKinds.CHARACTER,
+      kind: ObjectiveKinds.CHARACTER,
       elements: [
         {
           type: 'ellipse',
@@ -614,7 +614,7 @@ export const LIB_CHARACTERS = {
     },
     {
       status: 'unpublished',
-      kind: ObjecitveKinds.CHARACTER,
+      kind: ObjectiveKinds.CHARACTER,
       elements: [
         {
           type: 'ellipse',
@@ -689,7 +689,7 @@ export const LIB_CHARACTERS = {
     },
     {
       status: 'unpublished',
-      kind: ObjecitveKinds.CHARACTER,
+      kind: ObjectiveKinds.CHARACTER,
       elements: [
         {
           type: 'ellipse',

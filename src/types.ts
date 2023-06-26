@@ -259,7 +259,7 @@ export type LibraryItem_v1 = readonly NonDeleted<ExcalidrawElement>[];
 /** @deprecated legacy: do not use outside of migration paths */
 type LibraryItems_v1 = readonly LibraryItem_v1[];
 
-export enum ObjecitveKinds {
+export enum ObjectiveKinds {
   CAMERA = "obj:camera",
   CHARACTER = "obj:character",
 }
@@ -268,7 +268,7 @@ export enum ObjecitveKinds {
 export type LibraryItem = {
   id: string;
   status: "published" | "unpublished";
-  kind?: ObjecitveKinds;
+  kind?: ObjectiveKinds;
   elements: readonly NonDeleted<ExcalidrawElement>[];
   /** timestamp in epoch (ms) */
   created: number;

@@ -35,7 +35,7 @@ import { ToolButton } from "./ToolButton";
 import { Tooltip } from "./Tooltip";
 
 import { KEYS } from "../keys";
-import { getElementsMetas } from "../vbrn/selectors/selectors";
+import { getElementsMetas } from "../_objective_/selectors/selectors";
 import "./Actions.scss";
 import DropdownMenu from "./dropdownMenu/DropdownMenu";
 import { extraToolsIcon, frameToolIcon } from "./icons";

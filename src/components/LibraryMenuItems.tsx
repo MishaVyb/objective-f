@@ -15,7 +15,7 @@ import {
   ExcalidrawProps,
   LibraryItem,
   LibraryItems,
-  ObjecitveKinds,
+  ObjectiveKinds,
   UIAppState,
 } from "../types";
 import { arrayToMap } from "../utils";
@@ -74,11 +74,11 @@ export default function LibraryMenuItems({
 
   // VBRN objects as lib items
   const camerasLibItems = useMemo(
-    () => libraryItems.filter((item) => item.kind === ObjecitveKinds.CAMERA),
+    () => libraryItems.filter((item) => item.kind === ObjectiveKinds.CAMERA),
     [libraryItems],
   );
   const charactersLibItems = useMemo(
-    () => libraryItems.filter((item) => item.kind === ObjecitveKinds.CHARACTER),
+    () => libraryItems.filter((item) => item.kind === ObjectiveKinds.CHARACTER),
     [libraryItems],
   );
 

@@ -21,7 +21,7 @@ import {
   LibraryItems,
   LibraryItemsSource,
 } from "../types";
-import { LIB_CAMERAS } from "../vbrn/lib/cameras.library";
+import { LIB_CAMERAS } from "../_objective_/lib/cameras.library";
 import { loadLibraryFromBlob } from "./blob";
 import { restoreLibraryItems } from "./restore";
 
