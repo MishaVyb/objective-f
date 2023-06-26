@@ -188,6 +188,13 @@ export const actionChangeMetaTitle = register({
     };
   },
   PanelComponent: ({ elements, appState, updateData, appProps }) => {
+    // Doesnt work :(
+    const kind = getFormValue(
+      elements,
+      appState,
+      (element) => element.customData?.kind,
+      null,
+    );
     const title = getFormValue(
       elements,
       appState,
@@ -196,9 +203,9 @@ export const actionChangeMetaTitle = register({
     );
     return (
       <TextField
-        value={title}
-        label="Camera name"
+        label={kind}
         placeholder="Camera name"
+        value={title || ""}
         onChange={(v) => updateData(v)}
         onKeyDown={(event) =>
           event.key === KEYS.ENTER && focusNearestParent(event.target)
