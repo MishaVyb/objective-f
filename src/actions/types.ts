@@ -3,8 +3,8 @@ import { ExcalidrawElement } from "../element/types";
 import {
   AppClassProperties,
   AppState,
-  ExcalidrawProps,
   BinaryFiles,
+  ExcalidrawProps,
 } from "../types";
 import { MarkOptional } from "../utility-types";
 
@@ -121,7 +121,10 @@ export type ActionName =
   | "toggleFrameRendering"
   | "setFrameAsActiveTool"
   | "createContainerFromText"
-  | "wrapTextInContainer";
+  | "wrapTextInContainer"
+
+  // VBRN actions:
+  | "actionChangeMetaTitle";
 
 export type PanelComponentProps = {
   elements: readonly ExcalidrawElement[];

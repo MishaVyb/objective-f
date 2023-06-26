@@ -10,6 +10,12 @@ export const LIB_CAMERAS = {
       kind: ObjecitveKinds.CAMERA,
       elements: [
         {
+          customData: {
+            kind: ObjecitveKinds.CAMERA,
+            title: "Camera A",
+            comment: undefined,
+            focalLenth: undefined,
+          },
           id: "PZGwPWiIKFcZK_YLLEFgL",
           type: "diamond",
           x: 566.9601611801477,

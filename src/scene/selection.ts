@@ -1,15 +1,15 @@
+import { getElementAbsoluteCoords, getElementBounds } from "../element";
+import { isBoundToContainer } from "../element/typeChecks";
 import {
   ExcalidrawElement,
   NonDeletedExcalidrawElement,
 } from "../element/types";
-import { getElementAbsoluteCoords, getElementBounds } from "../element";
-import { AppState } from "../types";
-import { isBoundToContainer } from "../element/typeChecks";
 import {
   elementOverlapsWithFrame,
   getContainingFrame,
   getFrameElements,
 } from "../frame";
+import { AppState } from "../types";
 
 /**
  * Frames and their containing elements are not to be selected at the same time.
@@ -113,6 +113,7 @@ export const getCommonAttributeOfSelectedElements = <T>(
   return attributes.length === 1 ? attributes[0] : null;
 };
 
+// NAV function to find out selected elements
 export const getSelectedElements = (
   elements: readonly NonDeletedExcalidrawElement[],
   appState: Pick<AppState, "selectedElementIds">,

@@ -275,6 +275,9 @@ class Library {
 
 export default Library;
 
+/*
+NAV on add lib item:
+*/
 export const distributeLibraryItemsOnSquareGrid = (
   libraryItems: LibraryItems,
 ) => {

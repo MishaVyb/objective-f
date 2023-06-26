@@ -193,6 +193,7 @@ export default function LibraryMenuItems({
     [selectedItems],
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onAddToLibraryClick = useCallback(() => {
     onAddToLibrary(pendingElements);
   }, [pendingElements, onAddToLibrary]);
@@ -200,6 +201,7 @@ export default function LibraryMenuItems({
   const onItemClick = useCallback(
     (id: LibraryItem["id"] | null) => {
       if (id) {
+        // NAV trigered on add lib item by click
         onInsertLibraryItems(getInsertedElements(id));
       }
     },

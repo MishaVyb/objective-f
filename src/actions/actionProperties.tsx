@@ -1,14 +1,15 @@
 import { AppState } from "../../src/types";
+import { trackEvent } from "../analytics";
 import {
   DEFAULT_ELEMENT_BACKGROUND_COLOR_PALETTE,
   DEFAULT_ELEMENT_BACKGROUND_PICKS,
   DEFAULT_ELEMENT_STROKE_COLOR_PALETTE,
   DEFAULT_ELEMENT_STROKE_PICKS,
 } from "../colors";
-import { trackEvent } from "../analytics";
 import { ButtonIconSelect } from "../components/ButtonIconSelect";
 import { ColorPicker } from "../components/ColorPicker/ColorPicker";
 import { IconPicker } from "../components/IconPicker";
+import { TextField } from "../components/TextField";
 // TODO barnabasmolnar/editor-redesign
 // TextAlignTopIcon, TextAlignBottomIcon,TextAlignMiddleIcon,
 // ArrowHead icons
@@ -16,35 +17,35 @@ import {
   ArrowheadArrowIcon,
   ArrowheadBarIcon,
   ArrowheadDotIcon,
-  ArrowheadTriangleIcon,
   ArrowheadNoneIcon,
-  StrokeStyleDashedIcon,
-  StrokeStyleDottedIcon,
-  TextAlignTopIcon,
-  TextAlignBottomIcon,
-  TextAlignMiddleIcon,
-  FillHachureIcon,
+  ArrowheadTriangleIcon,
+  EdgeRoundIcon,
+  EdgeSharpIcon,
   FillCrossHatchIcon,
+  FillHachureIcon,
   FillSolidIcon,
+  FillZigZagIcon,
+  FontFamilyCodeIcon,
+  FontFamilyNormalIcon,
+  FontSizeExtraLargeIcon,
+  FontSizeLargeIcon,
+  FontSizeMediumIcon,
+  FontSizeSmallIcon,
+  FreedrawIcon,
   SloppinessArchitectIcon,
   SloppinessArtistIcon,
   SloppinessCartoonistIcon,
+  StrokeStyleDashedIcon,
+  StrokeStyleDottedIcon,
   StrokeWidthBaseIcon,
   StrokeWidthBoldIcon,
   StrokeWidthExtraBoldIcon,
-  FontSizeSmallIcon,
-  FontSizeMediumIcon,
-  FontSizeLargeIcon,
-  FontSizeExtraLargeIcon,
-  EdgeSharpIcon,
-  EdgeRoundIcon,
-  FreedrawIcon,
-  FontFamilyNormalIcon,
-  FontFamilyCodeIcon,
-  TextAlignLeftIcon,
+  TextAlignBottomIcon,
   TextAlignCenterIcon,
+  TextAlignLeftIcon,
+  TextAlignMiddleIcon,
   TextAlignRightIcon,
-  FillZigZagIcon,
+  TextAlignTopIcon,
 } from "../components/icons";
 import {
   DEFAULT_FONT_FAMILY,
@@ -90,7 +91,8 @@ import {
   isSomeElementSelected,
 } from "../scene";
 import { hasStrokeColor } from "../scene/comparisons";
-import { arrayToMap, getShortcutKey } from "../utils";
+import { arrayToMap, focusNearestParent, getShortcutKey } from "../utils";
+
 import { register } from "./register";
 
 const FONT_SIZE_RELATIVE_INCREASE_STEP = 0.1;
@@ -162,6 +164,51 @@ const offsetElementAfterFontResize = (
     false,
   );
 };
+
+// -----------------------------------------------------------------------------
+
+export const actionChangeMetaTitle = register({
+  name: "actionChangeMetaTitle",
+  trackEvent: false,
+  perform: (elements, appState, value) => {
+    const title = value;
+    return {
+      ...{
+        elements: changeProperty(elements, appState, (el) =>
+          newElementWith(el, {
+            customData: { ...el.customData, title },
+          }),
+        ),
+      },
+      appState: {
+        ...appState,
+        ...value,
+      },
+      commitToHistory: !!title,
+    };
+  },
+  PanelComponent: ({ elements, appState, updateData, appProps }) => {
+    const title = getFormValue(
+      elements,
+      appState,
+      (element) => element.customData?.title,
+      null,
+    );
+    return (
+      <TextField
+        value={title}
+        label="Camera name"
+        placeholder="Camera name"
+        onChange={(v) => updateData(v)}
+        onKeyDown={(event) =>
+          event.key === KEYS.ENTER && focusNearestParent(event.target)
+        }
+      />
+    );
+  },
+});
+
+// -----------------------------------------------------------------------------
 
 const changeFontSize = (
   elements: readonly ExcalidrawElement[],
