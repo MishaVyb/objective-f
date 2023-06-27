@@ -1,4 +1,5 @@
-import { ObjectiveKinds } from '../../types'
+import { ObjectiveKinds } from "../types/types";
+
 
 export const LIB_CHARACTERS = {
   type: 'excalidrawlib',
@@ -12,8 +13,9 @@ export const LIB_CHARACTERS = {
         {
           customData: {
             kind: ObjectiveKinds.CHARACTER,
-            title: undefined,
-            comment: undefined,
+            name: undefined,
+            description: undefined,
+            focalLength: undefined,
           },
           type: 'ellipse',
           version: 723,

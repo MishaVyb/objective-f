@@ -1,4 +1,5 @@
 import { AppState } from "../../src/types";
+import { isMeta } from "../_objective_/types/types";
 import { trackEvent } from "../analytics";
 import {
   DEFAULT_ELEMENT_BACKGROUND_COLOR_PALETTE,
@@ -92,7 +93,6 @@ import {
 } from "../scene";
 import { hasStrokeColor } from "../scene/comparisons";
 import { arrayToMap, focusNearestParent, getShortcutKey } from "../utils";
-
 import { register } from "./register";
 
 const FONT_SIZE_RELATIVE_INCREASE_STEP = 0.1;
@@ -171,12 +171,12 @@ export const actionChangeMetaTitle = register({
   name: "actionChangeMetaTitle",
   trackEvent: false,
   perform: (elements, appState, value) => {
-    const title = value;
+    const name = value;
     return {
       ...{
         elements: changeProperty(elements, appState, (el) =>
           newElementWith(el, {
-            customData: { ...el.customData, title },
+            customData: { ...el.customData, name },
           }),
         ),
       },
@@ -184,28 +184,30 @@ export const actionChangeMetaTitle = register({
         ...appState,
         ...value,
       },
-      commitToHistory: !!title,
+      commitToHistory: !!name,
     };
   },
   PanelComponent: ({ elements, appState, updateData, appProps }) => {
-    // Doesnt work :(
     const kind = getFormValue(
       elements,
       appState,
       (element) => element.customData?.kind,
       null,
     );
-    const title = getFormValue(
+    const name = getFormValue(
       elements,
       appState,
-      (element) => element.customData?.title,
+      (element) => element.customData?.name,
       null,
     );
+    const meta = { kind, name };
+    if (!isMeta(meta)) return <></>;
+
     return (
       <TextField
-        label={kind}
-        placeholder="Camera name"
-        value={title || ""}
+        label={meta.kind}
+        placeholder="Nickname"
+        value={meta.name || ""}
         onChange={(v) => updateData(v)}
         onKeyDown={(event) =>
           event.key === KEYS.ENTER && focusNearestParent(event.target)

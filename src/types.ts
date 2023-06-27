@@ -34,6 +34,7 @@ import { isOverScrollBars } from "./scene";
 import { SHAPES } from "./shapes";
 import { ForwardRef, Merge, ValueOf } from "./utility-types";
 import type { ResolvablePromise, throttleRAF } from "./utils";
+import { ObjectiveKinds } from "./_objective_/types/types";
 
 export type Point = Readonly<RoughPoint>;
 
@@ -258,11 +259,6 @@ export declare class GestureEvent extends UIEvent {
 export type LibraryItem_v1 = readonly NonDeleted<ExcalidrawElement>[];
 /** @deprecated legacy: do not use outside of migration paths */
 type LibraryItems_v1 = readonly LibraryItem_v1[];
-
-export enum ObjectiveKinds {
-  CAMERA = "obj:camera",
-  CHARACTER = "obj:character",
-}
 
 /** v2 library item */
 export type LibraryItem = {

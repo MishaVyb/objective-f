@@ -1,12 +1,13 @@
 import { ExcalidrawElement } from '../../element/types'
-import { ObjectiveBaseMeta } from '../types/types'
+import { ObjectiveMeta } from '../types/types'
 
 export const getElementsMetas = (elements: readonly ExcalidrawElement[]) => {
-  const metas: ObjectiveBaseMeta[] = []
+  const metas: ObjectiveMeta[] = []
   elements.forEach((e) =>
     e.customData && e.customData.kind
-      ? metas.push(e.customData as ObjectiveBaseMeta) // add link on element / element group ???
+      ? metas.push(e.customData as ObjectiveMeta) // add link on element / element group ???
       : null
   )
   return metas
 }
+
