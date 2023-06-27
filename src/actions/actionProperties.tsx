@@ -1,5 +1,5 @@
 import { AppState } from "../../src/types";
-import { isMeta } from "../_objective_/types/types";
+import { isCameraElement } from "../_objective_/types/types";
 import { trackEvent } from "../analytics";
 import {
   DEFAULT_ELEMENT_BACKGROUND_COLOR_PALETTE,
@@ -167,8 +167,94 @@ const offsetElementAfterFontResize = (
 
 // -----------------------------------------------------------------------------
 
-export const actionChangeMetaTitle = register({
-  name: "actionChangeMetaTitle",
+export const actionChangeMetaCameraShot = register({
+  name: "actionChangeMetaCameraShot",
+  trackEvent: false,
+  perform: (elements, appState, value) => {
+    const isShot = value;
+    return {
+      ...{
+        elements: changeProperty(elements, appState, (el) =>
+          newElementWith(el, {
+            customData: { ...el.customData, isShot },
+          }),
+        ),
+      },
+      appState: {
+        ...appState,
+        ...value,
+      },
+      commitToHistory: true,
+    };
+  },
+  PanelComponent: ({ elements, appState, updateData, appProps }) => {
+    const isShot = getFormValue(
+      elements,
+      appState,
+      (element) => element.customData?.isShot,
+      null,
+    );
+
+    if (!isShot)
+      return (
+        <fieldset>
+          <legend>{t("labels.camera", null, "Camera")}</legend>
+          <ButtonIconSelect
+            group="stroke-width"
+            options={[
+              {
+                value: 1,
+                text: t("labels.cameraAddToShotlist", null, "Add to shotlist"),
+                icon: <>➕</>,
+              },
+            ]}
+            value={0}
+            onChange={(value) => updateData(value)}
+          />
+        </fieldset>
+      );
+
+    const shotNumber = getFormValue(
+      elements,
+      appState,
+      (element) => isCameraElement(element) && element.customData.shotNumber,
+      null,
+    );
+    const shotVersion = getFormValue(
+      elements,
+      appState,
+      (element) => isCameraElement(element) && element.customData.shotVersion,
+      null,
+    );
+
+    return (
+      <>
+        <h2>
+          {t("labels.camera", null, "Camera")}
+          {shotNumber}-{shotVersion}
+        </h2>
+        <fieldset>
+          {/* <legend>{t("labels.camera", null, "Camera")}</legend> */}
+          <ButtonIconSelect
+            group="stroke-width"
+            options={[
+              {
+                value: 0,
+                text: t("labels.cameraRemoveFromShotlist", null, "Remove from shotlist"),
+                icon: <>➖</>,
+              },
+            ]}
+            value={1}
+            onChange={(value) => updateData(value)}
+          />
+        </fieldset>
+      </>
+    );
+  },
+});
+
+export const actionChangeMetaName = register({
+  name: "actionChangeMetaName",
   trackEvent: false,
   perform: (elements, appState, value) => {
     const name = value;
@@ -188,26 +274,17 @@ export const actionChangeMetaTitle = register({
     };
   },
   PanelComponent: ({ elements, appState, updateData, appProps }) => {
-    const kind = getFormValue(
-      elements,
-      appState,
-      (element) => element.customData?.kind,
-      null,
-    );
     const name = getFormValue(
       elements,
       appState,
       (element) => element.customData?.name,
       null,
     );
-    const meta = { kind, name };
-    if (!isMeta(meta)) return <></>;
 
     return (
       <TextField
-        label={meta.kind}
-        placeholder="Nickname"
-        value={meta.name || ""}
+        placeholder={t("labels.metaName", null, "Nickname")}
+        value={name || ""}
         onChange={(v) => updateData(v)}
         onKeyDown={(event) =>
           event.key === KEYS.ENTER && focusNearestParent(event.target)

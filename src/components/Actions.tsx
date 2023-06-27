@@ -127,7 +127,12 @@ export const SelectedShapeActions = ({
   );
 
   function objectiveActions() {
-    return <>{renderAction("actionChangeMetaTitle")}</>;
+    return (
+      <>
+        {renderAction("actionChangeMetaCameraShot")}
+        {renderAction("actionChangeMetaName")}
+      </>
+    );
   }
 
   function objectiveStyleButton() {

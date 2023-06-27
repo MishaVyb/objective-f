@@ -1,5 +1,4 @@
-import { ObjectiveKinds } from "../types/types";
-
+import { ObjectiveKinds } from '../types/types'
 
 export const LIB_CAMERAS = {
   type: 'excalidrawlib',
