@@ -375,6 +375,10 @@ const ExcalidrawActionManagerContext = React.createContext<ActionManager>(
 );
 ExcalidrawActionManagerContext.displayName = "ExcalidrawActionManagerContext";
 
+/*
+NAV
+All App context providers shortcuts
+*/
 export const useApp = () => useContext(AppContext);
 export const useAppProps = () => useContext(AppPropsContext);
 export const useDevice = () => useContext<Device>(DeviceContext);
@@ -482,7 +486,12 @@ class App extends React.Component<AppProps, AppState> {
       const readyPromise =
         ("current" in excalidrawRef && excalidrawRef.current?.readyPromise) ||
         resolvablePromise<ExcalidrawImperativeAPI>();
+      /*
+      NAV Imperative API
+      - Could be used outsied App. For example: src/excalidraw-app/index.tsx ExcalidrawWrapper
+      - Good reference for usefull internal methods. Could be access by AppContext.
 
+      */
       const api: ExcalidrawImperativeAPI = {
         ready: true,
         readyPromise,

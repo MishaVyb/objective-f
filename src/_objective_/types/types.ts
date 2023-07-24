@@ -11,7 +11,7 @@ export interface ObjectiveMeta {
   description?: string
 }
 
-export interface OBJCameraMeta extends ObjectiveMeta {
+export interface CameraMeta extends ObjectiveMeta {
   kind: ObjectiveKinds.CAMERA
 
   isShot?: boolean // is camera in shot list
@@ -23,7 +23,7 @@ export interface OBJCameraMeta extends ObjectiveMeta {
 // FIXME Omit
 // export type ObjectiveElement = Omit<ExcalidrawElement, 'customData'> & { customData: ObjectiveMeta }
 export type ObjectiveElement = ExcalidrawElement & { customData: ObjectiveMeta }
-export type CameraElement = ExcalidrawElement & { customData: OBJCameraMeta }
+export type CameraElement = ExcalidrawElement & { customData: CameraMeta }
 
 export const isMeta = (customData: any): customData is ObjectiveMeta => !!customData?.kind
 export const isObjective = (el: ExcalidrawElement): el is ObjectiveElement => isMeta(el.customData)
@@ -32,7 +32,9 @@ export const isAllElementsObjective = (elements: readonly ExcalidrawElement[]) =
 export const isAnyElementsObjective = (elements: readonly ExcalidrawElement[]) =>
   elements.some((e) => isObjective(e))
 
-export const isCameraMeta = (customData: any): customData is OBJCameraMeta =>
+export const isCameraMeta = (customData: any): customData is CameraMeta =>
   customData?.kind === ObjectiveKinds.CAMERA
 export const isCameraElement = (el: ExcalidrawElement): el is CameraElement =>
   isCameraMeta(el.customData)
+
+export const getMeta = (el: ObjectiveElement) => el.customData

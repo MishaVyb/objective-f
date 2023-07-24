@@ -1,11 +1,15 @@
 
+import { useState } from 'react'
 import { changeProperty, getFormValue } from '../../actions/actionProperties'
 
 import { ButtonIconSelect } from '../../components/ButtonIconSelect'
 import { newElementWith } from '../../element/mutateElement'
 import { t } from '../../i18n'
-import { isCameraElement } from '../types/types'
+import { AppState } from '../../types'
+import { CameraElement, CameraMeta, isCameraElement } from '../types/types'
 import { register } from './register'
+import { useExcalidrawElements } from '../../components/App'
+import { getCameraMetas, selectCameraElements } from '../selectors/selectors'
 
 export const actionChangeMetaCameraShot = register({
   name: 'actionChangeMetaCameraShot',
@@ -29,7 +33,10 @@ export const actionChangeMetaCameraShot = register({
   },
   // eslint-disable-next-line react/prop-types
   PanelComponent: ({ elements, appState, updateData, appProps }) => {
+    const cameras = getCameraMetas(useExcalidrawElements())
     const isShot = getFormValue(elements, appState, (element) => element.customData?.isShot, null)
+
+    console.log({cameras})
 
     if (!isShot)
       return (
@@ -90,3 +97,14 @@ export const actionChangeMetaCameraShot = register({
     )
   },
 })
+
+
+// TODO
+//
+const getNextShotNumber = (cameras: Readonly<CameraMeta>[]) => {
+  return 
+}
+
+const getNextShotVersion = (cameras: Readonly<CameraMeta>[]) => {
+  return
+}
