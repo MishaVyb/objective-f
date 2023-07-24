@@ -1,12 +1,4 @@
-import React, { useContext } from "react";
-import { flushSync } from "react-dom";
-
-import clsx from "clsx";
-import { nanoid } from "nanoid";
-import { RoughCanvas } from "roughjs/bin/canvas";
-import rough from "roughjs/bin/rough";
-
-import throttle from "lodash.throttle";
+import { actions as objectiveActions } from "../_objective_/actions";
 import {
   actionAddToLibrary,
   actionBindText,
@@ -51,7 +43,7 @@ import {
 import { createRedoAction, createUndoAction } from "../actions/actionHistory";
 import { actionToggleViewMode } from "../actions/actionToggleViewMode";
 import { ActionManager } from "../actions/manager";
-import { actions } from "../actions/register";
+import { actions as excalidrawActions } from "../actions/register";
 import { ActionResult } from "../actions/types";
 import { trackEvent } from "../analytics";
 import {
@@ -330,6 +322,13 @@ import {
 import { activeEyeDropperAtom } from "./EyeDropper";
 import LayerUI from "./LayerUI";
 import { Toast } from "./Toast";
+import clsx from "clsx";
+import throttle from "lodash.throttle";
+import { nanoid } from "nanoid";
+import React, { useContext } from "react";
+import { flushSync } from "react-dom";
+import { RoughCanvas } from "roughjs/bin/canvas";
+import rough from "roughjs/bin/rough";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -533,7 +532,8 @@ class App extends React.Component<AppProps, AppState> {
       () => this.scene.getElementsIncludingDeleted(),
       this,
     );
-    this.actionManager.registerAll(actions);
+    this.actionManager.registerAll(excalidrawActions);
+    this.actionManager.registerAll(objectiveActions);
 
     this.actionManager.registerAction(createUndoAction(this.history));
     this.actionManager.registerAction(createRedoAction(this.history));

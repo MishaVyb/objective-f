@@ -1,36 +1,36 @@
-import { KEYS } from "../keys";
-import { register } from "./register";
-import { ExcalidrawElement } from "../element/types";
-import { duplicateElement, getNonDeletedElements } from "../element";
-import { isSomeElementSelected } from "../scene";
 import { ToolButton } from "../components/ToolButton";
-import { t } from "../i18n";
-import { arrayToMap, getShortcutKey } from "../utils";
-import { LinearElementEditor } from "../element/linearElementEditor";
-import {
-  selectGroupsForSelectedElements,
-  getSelectedGroupForElement,
-  getElementsInGroup,
-} from "../groups";
-import { AppState } from "../types";
-import { fixBindingsAfterDuplication } from "../element/binding";
-import { ActionResult } from "./types";
+import { DuplicateIcon } from "../components/icons";
 import { GRID_SIZE } from "../constants";
+import { duplicateElement, getNonDeletedElements } from "../element";
+import { fixBindingsAfterDuplication } from "../element/binding";
+import { LinearElementEditor } from "../element/linearElementEditor";
+import { normalizeElementOrder } from "../element/sortElements";
 import {
   bindTextToShapeAfterDuplication,
   getBoundTextElement,
 } from "../element/textElement";
 import { isBoundToContainer, isFrameElement } from "../element/typeChecks";
-import { normalizeElementOrder } from "../element/sortElements";
-import { DuplicateIcon } from "../components/icons";
+import { ExcalidrawElement } from "../element/types";
 import {
   bindElementsToFramesAfterDuplication,
   getFrameElements,
 } from "../frame";
 import {
+  selectGroupsForSelectedElements,
+  getSelectedGroupForElement,
+  getElementsInGroup,
+} from "../groups";
+import { t } from "../i18n";
+import { KEYS } from "../keys";
+import { isSomeElementSelected } from "../scene";
+import {
   excludeElementsInFramesFromSelection,
   getSelectedElements,
 } from "../scene/selection";
+import { AppState } from "../types";
+import { arrayToMap, getShortcutKey } from "../utils";
+import { register } from "./register";
+import { ActionResult } from "./types";
 
 export const actionDuplicateSelection = register({
   name: "duplicateSelection",
