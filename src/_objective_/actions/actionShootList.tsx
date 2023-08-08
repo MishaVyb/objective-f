@@ -1,11 +1,11 @@
 import { changeProperty, getFormValue } from '../../actions/actionProperties'
-import { useExcalidrawElements } from '../../components/App'
 import { ButtonIconSelect } from '../../components/ButtonIconSelect'
 import { getNonDeletedElements } from '../../element'
 import { newElementWith } from '../../element/mutateElement'
 import { t } from '../../i18n'
+import { getSelectedElements } from '../../scene'
 import { getCameraMetas } from '../selectors/selectors'
-import { CameraMeta, isCameraElement } from '../types/types'
+import { CameraMeta, isAllElementsCameras, isCameraElement, isObjective } from '../types/types'
 import { register } from './register'
 
 export const actionChangeMetaCameraShot = register({
@@ -33,15 +33,13 @@ export const actionChangeMetaCameraShot = register({
   },
   // eslint-disable-next-line react/prop-types
   PanelComponent: ({ elements, appState, updateData, appProps }) => {
-    const cameras = getCameraMetas(useExcalidrawElements())
+    if (!isAllElementsCameras(getSelectedElements(elements, appState))) return <></>
     const isShot = getFormValue(elements, appState, (element) => element.customData?.isShot, null)
-
-    console.log({ cameras })
 
     if (!isShot)
       return (
         <fieldset>
-          <legend>{t('labels.camera', null, 'Camera')}</legend>
+          <legend>{t('labels.shotList', null, 'Shot list')}</legend>
           <ButtonIconSelect
             group='stroke-width'
             options={[
@@ -57,29 +55,10 @@ export const actionChangeMetaCameraShot = register({
         </fieldset>
       )
 
-    const shotNumber = getFormValue(
-      elements,
-      appState,
-      (element) => isCameraElement(element) && element.customData.shotNumber,
-      null
-    )
-    const shotVersion = getFormValue(
-      elements,
-      appState,
-      (element) => isCameraElement(element) && element.customData.shotVersion,
-      null
-    )
-
     return (
       <>
-        <h2>
-          {t('labels.cam', null, 'Cam')}
-          {shotNumber}
-          {'-'}
-          {shotVersion}
-        </h2>
         <fieldset>
-          {/* <legend>{t("labels.camera", null, "Camera")}</legend> */}
+          <legend>{t('labels.shotList', null, 'Shot list')}</legend>
           <ButtonIconSelect
             group='stroke-width'
             options={[
@@ -103,7 +82,7 @@ const determineCameraMeta = (cameras: Readonly<CameraMeta>[], isShot: boolean) =
     return {
       isShot: true,
       shotNumber: Math.max(...cameras.map((c) => c.shotNumber || 0)) + 1,
-      shotVersion: Math.max(...cameras.map((c) => c.shotVersion || 0)) + 1,
+      shotVersion: undefined,
     }
 
   return {
@@ -112,3 +91,44 @@ const determineCameraMeta = (cameras: Readonly<CameraMeta>[], isShot: boolean) =
     shotVersion: undefined,
   }
 }
+
+export const representationMeta = register({
+  name: 'representationMeta',
+  trackEvent: false,
+  perform: (elements, appState, value) => {
+    return {
+      elements,
+      appState,
+      commitToHistory: false,
+    }
+  },
+  // eslint-disable-next-line react/prop-types
+  PanelComponent: ({ elements, appState, updateData, appProps }) => {
+    const metaKind = getFormValue(
+      elements,
+      appState,
+      (element) => isObjective(element) && element.customData.kind,
+      null
+    )
+    const shotNumber = getFormValue(
+      elements,
+      appState,
+      (element) => isCameraElement(element) && element.customData.shotNumber,
+      null
+    )
+    const shotVersion = getFormValue(
+      elements,
+      appState,
+      (element) => isCameraElement(element) && element.customData.shotVersion,
+      null
+    )
+
+    return (
+      <h2>
+        {metaKind && t('labels.metaKind', null, metaKind)}
+        {shotNumber && ` ${shotNumber}`}
+        {shotVersion && ` (${shotVersion})`}
+      </h2>
+    )
+  },
+})

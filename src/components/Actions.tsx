@@ -128,8 +128,9 @@ export const SelectedShapeActions = ({
   function objectiveActions() {
     return (
       <>
-        {renderAction("actionChangeMetaCameraShot")}
+        {renderAction("representationMeta")}
         {renderAction("actionChangeMetaName")}
+        {renderAction("actionChangeMetaCameraShot")}
       </>
     );
   }

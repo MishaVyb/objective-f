@@ -37,4 +37,7 @@ export const isCameraMeta = (customData: any): customData is CameraMeta =>
 export const isCameraElement = (el: ExcalidrawElement): el is CameraElement =>
   isCameraMeta(el.customData)
 
+export const isAllElementsCameras = (elements: readonly ExcalidrawElement[]) =>
+  elements.every((e) => isCameraElement(e))
+
 export const getMeta = (el: ObjectiveElement) => el.customData
