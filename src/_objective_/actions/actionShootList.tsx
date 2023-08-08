@@ -1,15 +1,12 @@
-
-import { useState } from 'react'
 import { changeProperty, getFormValue } from '../../actions/actionProperties'
-
+import { useExcalidrawElements } from '../../components/App'
 import { ButtonIconSelect } from '../../components/ButtonIconSelect'
+import { getNonDeletedElements } from '../../element'
 import { newElementWith } from '../../element/mutateElement'
 import { t } from '../../i18n'
-import { AppState } from '../../types'
-import { CameraElement, CameraMeta, isCameraElement } from '../types/types'
+import { getCameraMetas } from '../selectors/selectors'
+import { CameraMeta, isCameraElement } from '../types/types'
 import { register } from './register'
-import { useExcalidrawElements } from '../../components/App'
-import { getCameraMetas, selectCameraElements } from '../selectors/selectors'
 
 export const actionChangeMetaCameraShot = register({
   name: 'actionChangeMetaCameraShot',
@@ -20,7 +17,10 @@ export const actionChangeMetaCameraShot = register({
       ...{
         elements: changeProperty(elements, appState, (el) =>
           newElementWith(el, {
-            customData: { ...el.customData, isShot },
+            customData: {
+              ...el.customData,
+              ...determineCameraMeta(getCameraMetas(getNonDeletedElements(elements)), isShot),
+            },
           })
         ),
       },
@@ -36,7 +36,7 @@ export const actionChangeMetaCameraShot = register({
     const cameras = getCameraMetas(useExcalidrawElements())
     const isShot = getFormValue(elements, appState, (element) => element.customData?.isShot, null)
 
-    console.log({cameras})
+    console.log({ cameras })
 
     if (!isShot)
       return (
@@ -98,13 +98,17 @@ export const actionChangeMetaCameraShot = register({
   },
 })
 
+const determineCameraMeta = (cameras: Readonly<CameraMeta>[], isShot: boolean) => {
+  if (isShot)
+    return {
+      isShot: true,
+      shotNumber: Math.max(...cameras.map((c) => c.shotNumber || 0)) + 1,
+      shotVersion: Math.max(...cameras.map((c) => c.shotVersion || 0)) + 1,
+    }
 
-// TODO
-//
-const getNextShotNumber = (cameras: Readonly<CameraMeta>[]) => {
-  return 
-}
-
-const getNextShotVersion = (cameras: Readonly<CameraMeta>[]) => {
-  return
+  return {
+    isShot: false,
+    shotNumber: undefined,
+    shotVersion: undefined,
+  }
 }

@@ -1,5 +1,5 @@
 import { ExcalidrawElement } from '../../element/types'
-import { ObjectiveMeta, getMeta, isCameraElement, isObjective } from '../types/types'
+import { CameraMeta, ObjectiveMeta, getMeta, isCameraElement, isObjective } from '../types/types'
 
 /**
  * Extract objective metas from elements.
@@ -13,13 +13,6 @@ export const getObjectiveMetas = (
   elements: readonly ExcalidrawElement[],
   objectivePredicate = isObjective // TODO Type...
 ) => {
-  // elements.forEach((e) =>
-  //   e.customData && e.customData.kind
-  //     ? metas.push(e.customData as ObjectiveMeta) // add link on element / element group ???
-  //     : null
-  // )
-  // return metas
-
   const metas: Readonly<ObjectiveMeta>[] = []
   const takenGroups = new Set()
   elements.filter(objectivePredicate).forEach((e) => {
@@ -35,7 +28,7 @@ export const getObjectiveMetas = (
 }
 
 export const getCameraMetas = (elements: readonly ExcalidrawElement[]) =>
-  getObjectiveMetas(elements, isCameraElement)
+  getObjectiveMetas(elements, isCameraElement) as Readonly<CameraMeta>[]
 
 export const selectObjectiveElements = (elements: readonly ExcalidrawElement[]) =>
   elements.filter(isObjective)
