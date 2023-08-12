@@ -1,9 +1,9 @@
 import { changeProperty, getFormValue } from '../../actions/actionProperties'
-import { TextField } from '../../components/TextField'
 import { newElementWith } from '../../element/mutateElement'
 import { t } from '../../i18n'
 import { KEYS } from '../../keys'
 import { focusNearestParent } from '../../utils'
+import { TextField } from '../UI/TextField'
 import { register } from './register'
 
 export const actionChangeMetaName = register({
@@ -32,7 +32,7 @@ export const actionChangeMetaName = register({
 
     return (
       <TextField
-        placeholder={t('labels.metaName', null, 'Nickname')}
+        placeholder={t('labels.metaName', null, 'Label')}
         value={name || ''}
         onChange={(v) => updateData(v)}
         onKeyDown={(event) => event.key === KEYS.ENTER && focusNearestParent(event.target)}

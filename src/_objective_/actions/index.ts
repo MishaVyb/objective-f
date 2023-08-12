@@ -1,4 +1,5 @@
 export { actionChangeMetaCameraShot } from './actionShootList'
 export { actionChangeMetaName } from './actionChangeTitle'
+export { representationMeta } from './actionRepresentation'
 export { register } from './register'
 export { actions } from './register'
