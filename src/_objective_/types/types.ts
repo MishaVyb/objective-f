@@ -39,5 +39,3 @@ export const isCameraElement = (el: ExcalidrawElement): el is CameraElement =>
 
 export const isAllElementsCameras = (elements: readonly ExcalidrawElement[]) =>
   elements.every((e) => isCameraElement(e))
-
-export const getMeta = (el: ObjectiveElement) => el.customData

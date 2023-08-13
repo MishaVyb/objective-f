@@ -744,7 +744,9 @@ const ExcalidrawWrapper = () => {
           onDock={(docked) => setShotListSidebarDocked(docked)}
         >
           <Sidebar.Header>
-            {t("toolBar.shotList", null, "Shot List")}
+            <div className="sidebar-title">
+              {t("toolBar.shotList", null, "Shot List")}
+            </div>
           </Sidebar.Header>
           {excalidrawAPI && (
             <ShotListSidebarContent

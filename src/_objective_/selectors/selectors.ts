@@ -1,12 +1,14 @@
+import { getNonDeletedElements } from '../../element'
 import { ExcalidrawElement } from '../../element/types'
 import {
   CameraMeta,
   ObjectiveElement,
   ObjectiveMeta,
-  getMeta,
   isCameraElement,
   isObjective,
 } from '../types/types'
+
+export const getMeta = (el: ObjectiveElement) => el.customData as ObjectiveMeta
 
 /**
  * Any Objective is always a group of excalidraw element and it is always first group id.
@@ -24,21 +26,22 @@ export const getObjectiveId = (element: ObjectiveElement) => element.groupIds[0]
  * As each excalidraw element in group contains meta, we omit meta duplicates.
  *
  * @param elements any elements
- * @returns unique meta instances (readonly)
+ * @returns unique meta instances (non deleted  & readonly)
  */
 export const getObjectiveMetas = (
   elements: readonly ExcalidrawElement[],
   objectivePredicate = isObjective // TODO Type...
 ) => {
-  const metas: Readonly<ObjectiveMeta>[] = []
   const takenGroups = new Set()
-  elements.filter(objectivePredicate).forEach((e) => {
-    const objectiveId = getObjectiveId(e)
-    if (takenGroups.has(objectiveId)) return // omit meta duplicates
-    takenGroups.add(objectiveId)
-    metas.push(getMeta(e))
-  })
-  return metas
+  return getNonDeletedElements(elements)
+    .filter(objectivePredicate)
+    .filter((e) => {
+      const objectiveId = getObjectiveId(e)
+      if (takenGroups.has(objectiveId)) return false // omit meta duplicates
+      takenGroups.add(objectiveId)
+      return true
+    })
+    .map((e) => getMeta(e))
 }
 
 /**
@@ -48,7 +51,7 @@ export const getCameraMetas = (elements: readonly ExcalidrawElement[]) =>
   getObjectiveMetas(elements, isCameraElement) as Readonly<CameraMeta>[]
 
 /**
- * Select all Objective primitive elements.
+ * Select all Objective primitive elements (including *deleted)*.
  * For example, it returns all excalidraw elements for single Camera Element
  * as every single Camera represented by a few elements, not the only one.
  */
@@ -56,7 +59,7 @@ export const selectObjectiveElements = (elements: readonly ExcalidrawElement[]) 
   elements.filter(isObjective)
 
 /**
- * Select all Camera primitive elements.
+ * Select all Camera primitive elements (including *deleted)*.
  * For example, it returns all excalidraw elements for single Camera Element
  * as every single Camera represented by a few elements, not the only one.
  */

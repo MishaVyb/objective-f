@@ -102,3 +102,12 @@
     }
   }
 }
+
+.sidebar-title {
+  color: var(--color-primary);
+  font-size: 1.2em;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
