@@ -95,7 +95,7 @@ export const SelectedShapeActions = ({
     }
   }
 
-  // NAV actions
+  // NAV actions: SelectedShapeActions
   const isAllObjective = isAllElementsObjective(targetElements);
   const isAnyObjective = isAnyElementsObjective(targetElements);
   const isAllExcali = !isAnyObjective;
