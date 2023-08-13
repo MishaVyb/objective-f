@@ -1,7 +1,8 @@
-import clsx from "clsx";
-import LanguageDetector from "i18next-browser-languagedetector";
-import { Provider, atom, useAtom, useAtomValue } from "jotai";
-import { useEffect, useRef, useState } from "react";
+import ShotListSidebarContent from "../_objective_/components/ShotListSidebarContent";
+import { LIB_CAMERAS } from "../_objective_/lib/cameras.library";
+import { LIB_CHARACTERS } from "../_objective_/lib/characters.library";
+import { getCameraMetas } from "../_objective_/selectors/selectors";
+import { CameraMeta } from "../_objective_/types/types";
 import { trackEvent } from "../analytics";
 import { getDefaultAppState } from "../appState";
 import { ErrorDialog } from "../components/ErrorDialog";
@@ -27,11 +28,7 @@ import {
 import { useCallbackRefState } from "../hooks/useCallbackRefState";
 import { t } from "../i18n";
 import { useAtomWithInitialValue } from "../jotai";
-import {
-  Excalidraw,
-  LiveCollaborationTrigger,
-  defaultLang,
-} from "../packages/excalidraw/index";
+import { Excalidraw, Sidebar, defaultLang } from "../packages/excalidraw/index";
 import polyfill from "../polyfill";
 import {
   AppState,
@@ -41,11 +38,13 @@ import {
   LibraryItems,
   UIAppState,
 } from "../types";
+import { ResolutionType } from "../utility-types";
 import {
   ResolvablePromise,
   debounce,
   getFrame,
   getVersion,
+  isShallowEqual,
   isTestEnv,
   preventUnload,
   resolvablePromise,
@@ -84,11 +83,11 @@ import {
   importUsernameFromLocalStorage,
 } from "./data/localStorage";
 import { isBrowserStorageStateNewer } from "./data/tabSync";
-
-import { ResolutionType } from "../utility-types";
-import { LIB_CAMERAS } from "../_objective_/lib/cameras.library";
-import { LIB_CHARACTERS } from "../_objective_/lib/characters.library";
 import "./index.scss";
+import clsx from "clsx";
+import LanguageDetector from "i18next-browser-languagedetector";
+import { Provider, atom, useAtom, useAtomValue } from "jotai";
+import { useEffect, useRef, useState } from "react";
 
 polyfill();
 
@@ -240,6 +239,8 @@ const ExcalidrawWrapper = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [langCode, setLangCode] = useAtom(appLangCodeAtom);
   const isCollabDisabled = true; // VBRN disable collabaration
+  const [isShotListSidebarDocked, setShotListSidebarDocked] = useState(true);
+  const [cameraMetas, setCameraMetas] = useState<readonly CameraMeta[]>([]);
 
   // initial state
   // ---------------------------------------------------------------------------
@@ -349,7 +350,7 @@ const ExcalidrawWrapper = () => {
     initializeScene({ collabAPI, excalidrawAPI }).then(async (data) => {
       loadImages(data, /* isInitialLoad */ true);
       // VBRN Set initial Lib items
-      // FIXME do i not here, but in <Excalidraw initialData={...} >
+      // FIXME do it not here, but in <Excalidraw initialData={...} >
       //@ts-ignore
       data.scene.libraryItems = [
         ...LIB_CAMERAS.libraryItems,
@@ -530,6 +531,20 @@ const ExcalidrawWrapper = () => {
 
     setTheme(appState.theme);
 
+    // NOTE
+    // We have to handle cameras state separate from excalidrawAPI.getSceneElements,
+    // as it is do not trigger re-render of components where it's used automatically (ShotListSdiebar).
+    // So we update local cameras state on every scene change.
+    // To avoid `Maximum update depth exceeded` we implement kind of DeepEqual check.
+    //
+    setCameraMetas((prev) => {
+      const current = getCameraMetas(elements);
+      if (prev.length !== current.length) return current;
+      if (prev.every((meta, index) => isShallowEqual(meta, current[index])))
+        return prev;
+      return current;
+    });
+
     // this check is redundant, but since this is a hot path, it's best
     // not to evaludate the nested expression every time
     if (!LocalData.isSavePaused()) {
@@ -638,7 +653,10 @@ const ExcalidrawWrapper = () => {
         onPointerUpdate={collabAPI?.onPointerUpdate}
         UIOptions={{
           canvasActions: {
-            toggleTheme: true,
+            // VBRN custom UI options
+            changeViewBackgroundColor: false,
+            toggleTheme: false,
+            //
             export: {
               onExportToBackend,
               renderCustomUI: (elements, appState, files) => {
@@ -668,14 +686,34 @@ const ExcalidrawWrapper = () => {
         autoFocus={true}
         theme={theme}
         renderTopRightUI={(isMobile) => {
-          if (isMobile || !collabAPI || isCollabDisabled) {
-            return null;
-          }
+          // NAV Trigger collab
+          // if (isMobile || !collabAPI || isCollabDisabled) {
+          //   return null;
+          // }
+          // return (
+          //   <LiveCollaborationTrigger
+          //     isCollaborating={isCollaborating}
+          //     onSelect={() => setCollabDialogShown(true)}
+          //   />
+          // );
           return (
-            <LiveCollaborationTrigger
-              isCollaborating={isCollaborating}
-              onSelect={() => setCollabDialogShown(true)}
-            />
+            <Sidebar.Trigger
+              tab="ShotList"
+              name="ShotList"
+              icon={<>📸</>}
+              title={t("toolBar.shotList", null, "Shot List")}
+              onToggle={(open) => {
+                if (open) {
+                  trackEvent(
+                    "sidebar",
+                    `ShotList (open)`,
+                    `button (${isMobile ? "mobile" : "desktop"})`,
+                  );
+                }
+              }}
+            >
+              {t("toolBar.shotList", null, "Shot List")}
+            </Sidebar.Trigger>
           );
         }}
       >
@@ -697,6 +735,24 @@ const ExcalidrawWrapper = () => {
         {excalidrawAPI && !isCollabDisabled && (
           <Collab excalidrawAPI={excalidrawAPI} />
         )}
+
+        <Sidebar
+          name="ShotList"
+          key="ShotList"
+          className={clsx("default-sidebar")}
+          docked={isShotListSidebarDocked}
+          onDock={(docked) => setShotListSidebarDocked(docked)}
+        >
+          <Sidebar.Header>
+            {t("toolBar.shotList", null, "Shot List")}
+          </Sidebar.Header>
+          {excalidrawAPI && (
+            <ShotListSidebarContent
+              excalidrawAPI={excalidrawAPI}
+              cameraMetas={cameraMetas}
+            />
+          )}
+        </Sidebar>
       </Excalidraw>
       {errorMessage && (
         <ErrorDialog onClose={() => setErrorMessage("")}>
