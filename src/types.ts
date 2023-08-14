@@ -1,5 +1,4 @@
-import React from "react";
-import { Point as RoughPoint } from "roughjs/bin/geometry";
+import { ObjectiveKinds } from "./_objective_/types/types";
 import { Spreadsheet } from "./charts";
 import { ClipboardData } from "./clipboard";
 import type App from "./components/App";
@@ -34,7 +33,8 @@ import { isOverScrollBars } from "./scene";
 import { SHAPES } from "./shapes";
 import { ForwardRef, Merge, ValueOf } from "./utility-types";
 import type { ResolvablePromise, throttleRAF } from "./utils";
-import { ObjectiveKinds } from "./_objective_/types/types";
+import React from "react";
+import { Point as RoughPoint } from "roughjs/bin/geometry";
 
 export type Point = Readonly<RoughPoint>;
 

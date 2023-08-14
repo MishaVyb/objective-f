@@ -1,14 +1,14 @@
 import { FC } from 'react'
 
-import { ExcalidrawImperativeAPI } from '../../types'
-import { CameraMeta } from '../types/types'
+import { useExcalidrawElements, useObjectiveCameras } from '../../components/App'
+import { getCameraMetas } from '../selectors/selectors'
 import ShotListSidebarCameraElement from './ShotListSidebarCameraElement'
 import style from './ShotListSidebarContent.module.css'
 
-const ShotListSidebarContent: FC<{
-  excalidrawAPI: ExcalidrawImperativeAPI
-  cameraMetas: readonly CameraMeta[]
-}> = ({ excalidrawAPI, cameraMetas }) => {
+const ShotListSidebarContent: FC = () => {
+  // const cameraMetas = getCameraMetas(useExcalidrawElements())
+  const cameraMetas = useObjectiveCameras()
+  console.log('render')
   return (
     <aside className={style.container}>
       {cameraMetas.map((cameraMeta, i) => (

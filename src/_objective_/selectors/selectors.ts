@@ -8,7 +8,14 @@ import {
   isObjective,
 } from '../types/types'
 
-export const getMeta = (el: ObjectiveElement) => el.customData as ObjectiveMeta
+/**
+ * Get *COPY* of element's meta (customData) with current Objective id.
+ * @param el
+ * @returns Objective's meta
+ */
+export const getMeta = (el: ObjectiveElement, elementIds?: string[]) => {
+  return { ...el.customData, id: getObjectiveId(el), elementIds } as ObjectiveMeta
+}
 
 /**
  * Any Objective is always a group of excalidraw element and it is always first group id.
@@ -23,7 +30,11 @@ export const getObjectiveId = (element: ObjectiveElement) => element.groupIds[0]
 /**
  * Extract unique objective metas from elements.
  * Useful shortcut to access objective metas to handle any Objective logic.
- * As each excalidraw element in group contains meta, we omit meta duplicates.
+ * As each excalidraw element in group contains meta, we omit meta duplicates,
+ * but populate `meta.elementIds` with every element id.
+ *
+ * NOTE:
+ * The same list of elementIds could be accessed 
  *
  * @param elements any elements
  * @returns unique meta instances (non deleted  & readonly)
@@ -32,16 +43,23 @@ export const getObjectiveMetas = (
   elements: readonly ExcalidrawElement[],
   objectivePredicate = isObjective // TODO Type...
 ) => {
-  const takenGroups = new Set()
+  const groups = new Map<string, Array<string>>() // groupId : [element.id, element.id, ...]
+
   return getNonDeletedElements(elements)
     .filter(objectivePredicate)
     .filter((e) => {
       const objectiveId = getObjectiveId(e)
-      if (takenGroups.has(objectiveId)) return false // omit meta duplicates
-      takenGroups.add(objectiveId)
+
+      // meta duplicates: append element id and omit meta duplicate
+      if (groups.has(objectiveId)) {
+        groups.get(objectiveId)?.push(e.id)
+        return false
+      }
+
+      groups.set(objectiveId, [e.id])
       return true
     })
-    .map((e) => getMeta(e))
+    .map((e) => getMeta(e, groups.get(getObjectiveId(e))))
 }
 
 /**

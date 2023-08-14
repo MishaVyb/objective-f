@@ -1,0 +1,26 @@
+.container {
+  display: flex;
+  justify-content: space-around;
+}
+
+.metaKind {
+  /* text style */
+  color: var(--color-gray-50);
+  font-size: 1.4em;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.shotNumber {
+  margin-right: 10px;
+
+  /* text style */
+  color: var(--color-primary);
+  font-size: 1.4em;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}

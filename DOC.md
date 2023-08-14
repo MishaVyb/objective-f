@@ -7,9 +7,23 @@ index.tsx
     - оборачивает в еще один провайдер appJotaiStore
 ⬇️
 ## src/excalidraw-app/index.tsx - ExcalidrawWrapper
+Все взаимодействие с Excalidraw, как с отдельной сущностью из отдельного пакета,
+реализовано в этом компоненте. Все, что описано в документации, как можно дополнять и кастомизировать
+дефолтный Excalidraw из пакета, настраивается именно в этом месте.
+    - передает все `childred`, это AppMainMenu, AppFooter, AppWelcomeScreen, Sidebar и тд
+    // NOTE: children инициализируется здесь, но рендерится внутри компонента App
+    // Это значит, что во всех детях доступных все хуки и инструменты из компоненты App)
+    // NOTE:
+    // excalidrawAPI.getSceneElements do not trigger re-render of components where it's used **automatically**
+    // So you have to update local `ExcalidrawWrapper` state on every scene change and use this state to access attributes.
+    // To avoid `Maximum update depth exceeded` use DeepEqual check `lodash.isEqual`.
+    //
+
+    - настраивает UIOptions
     - реализует работу с CollabAPI
     - реализует работу с LocalData (сохраняет все в local storage)
     - взаимодействует с `excalidrawAPI, excalidrawRefCallback`
+
 
 ---------------------- package --------------------
 ⬇️
@@ -25,6 +39,6 @@ index.tsx
 ⬇️
 ## src/components/App.tsx - App
     - содержит все контекст провайдеры
-    - рендерит весь UI, в тч контекст меню и тоаст
+    - рендерит весь UI, в тч контекст меню и тосты
     - рендерит канвас
     - наполняет excalidrawAPI, тем самым все состояния компонента App может быть доступно выше ⬆️

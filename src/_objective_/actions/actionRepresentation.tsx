@@ -1,6 +1,7 @@
 import { getFormValue } from '../../actions/actionProperties'
 import { t } from '../../i18n'
 import { isCameraElement, isObjective } from '../types/types'
+import style from './actionRepresentation.module.css'
 import { register } from './register'
 
 export const representationMeta = register({
@@ -35,11 +36,13 @@ export const representationMeta = register({
     )
 
     return (
-      <h2>
-        {metaKind && t('labels.metaKind', null, metaKind)}
-        {shotNumber && ` ${shotNumber}`}
-        {shotVersion && ` (${shotVersion})`}
-      </h2>
+      <div className={style.container}>
+        <div className={style.metaKind}>{metaKind && t('labels.metaKind', null, metaKind)}</div>
+        <div className={style.shotNumber}>
+          {shotNumber && ` ${shotNumber}`}
+          {shotVersion && ` (${shotVersion})`}
+        </div>
+      </div>
     )
   },
 })

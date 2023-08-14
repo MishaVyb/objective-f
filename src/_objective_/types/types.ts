@@ -6,8 +6,11 @@ export enum ObjectiveKinds {
 }
 
 export interface ObjectiveMeta {
+  id: string // excalidraw group id for all primitives of this Objective element
+  elementIds: string[] // excalidraw element ids
+
   kind: ObjectiveKinds
-  name?: string
+  name?: string // aka title / label
   description?: string
 }
 

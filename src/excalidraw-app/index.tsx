@@ -1,8 +1,6 @@
 import ShotListSidebarContent from "../_objective_/components/ShotListSidebarContent";
 import { LIB_CAMERAS } from "../_objective_/lib/cameras.library";
 import { LIB_CHARACTERS } from "../_objective_/lib/characters.library";
-import { getCameraMetas } from "../_objective_/selectors/selectors";
-import { CameraMeta } from "../_objective_/types/types";
 import { trackEvent } from "../analytics";
 import { getDefaultAppState } from "../appState";
 import { ErrorDialog } from "../components/ErrorDialog";
@@ -44,7 +42,6 @@ import {
   debounce,
   getFrame,
   getVersion,
-  isShallowEqual,
   isTestEnv,
   preventUnload,
   resolvablePromise,
@@ -240,7 +237,6 @@ const ExcalidrawWrapper = () => {
   const [langCode, setLangCode] = useAtom(appLangCodeAtom);
   const isCollabDisabled = true; // VBRN disable collabaration
   const [isShotListSidebarDocked, setShotListSidebarDocked] = useState(true);
-  const [cameraMetas, setCameraMetas] = useState<readonly CameraMeta[]>([]);
 
   // initial state
   // ---------------------------------------------------------------------------
@@ -531,20 +527,6 @@ const ExcalidrawWrapper = () => {
 
     setTheme(appState.theme);
 
-    // NOTE
-    // We have to handle cameras state separate from excalidrawAPI.getSceneElements,
-    // as it is do not trigger re-render of components where it's used automatically (ShotListSdiebar).
-    // So we update local cameras state on every scene change.
-    // To avoid `Maximum update depth exceeded` we implement kind of DeepEqual check.
-    //
-    setCameraMetas((prev) => {
-      const current = getCameraMetas(elements);
-      if (prev.length !== current.length) return current;
-      if (prev.every((meta, index) => isShallowEqual(meta, current[index])))
-        return prev;
-      return current;
-    });
-
     // this check is redundant, but since this is a hot path, it's best
     // not to evaludate the nested expression every time
     if (!LocalData.isSavePaused()) {
@@ -748,12 +730,7 @@ const ExcalidrawWrapper = () => {
               {t("toolBar.shotList", null, "Shot List")}
             </div>
           </Sidebar.Header>
-          {excalidrawAPI && (
-            <ShotListSidebarContent
-              excalidrawAPI={excalidrawAPI}
-              cameraMetas={cameraMetas}
-            />
-          )}
+          <ShotListSidebarContent />
         </Sidebar>
       </Excalidraw>
       {errorMessage && (
