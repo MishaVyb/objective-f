@@ -1,6 +1,5 @@
 import { actions as objectiveActions } from "../_objective_/actions";
-import { getCameraMetas } from "../_objective_/selectors/selectors";
-import { CameraMeta } from "../_objective_/types/types";
+import ObjectiveWrapper from "../_objective_/components/ObjectiveWrapper";
 import {
   actionAddToLibrary,
   actionBindText,
@@ -356,9 +355,6 @@ const ExcalidrawElementsContext = React.createContext<
 >([]);
 ExcalidrawElementsContext.displayName = "ExcalidrawElementsContext";
 
-const ObjectiveCamerasContext = React.createContext<readonly CameraMeta[]>([]);
-ObjectiveCamerasContext.displayName = "ObjectiveCamerasContext";
-
 const ExcalidrawAppStateContext = React.createContext<AppState>({
   ...getDefaultAppState(),
   width: 0,
@@ -397,11 +393,6 @@ export const useExcalidrawSetAppState = () =>
   useContext(ExcalidrawSetAppStateContext);
 export const useExcalidrawActionManager = () =>
   useContext(ExcalidrawActionManagerContext);
-
-/**
- * Objective context
- */
-export const useObjectiveCameras = () => useContext(ObjectiveCamerasContext);
 
 let didTapTwice: boolean = false;
 let tappedTwiceTimer = 0;
@@ -855,14 +846,10 @@ class App extends React.Component<AppProps, AppState> {
                     <ExcalidrawElementsContext.Provider
                       value={this.scene.getNonDeletedElements()}
                     >
-                      <ObjectiveCamerasContext.Provider
-                        value={getCameraMetas(
-                          this.scene.getNonDeletedElements(),
-                        )}
+                      <ExcalidrawActionManagerContext.Provider
+                        value={this.actionManager}
                       >
-                        <ExcalidrawActionManagerContext.Provider
-                          value={this.actionManager}
-                        >
+                        <ObjectiveWrapper>
                           <LayerUI
                             canvas={this.canvas}
                             appState={this.state}
@@ -924,8 +911,8 @@ class App extends React.Component<AppProps, AppState> {
                           )}
                           <main>{this.renderCanvas()}</main>
                           {this.renderFrameNames()}
-                        </ExcalidrawActionManagerContext.Provider>
-                      </ObjectiveCamerasContext.Provider>
+                        </ObjectiveWrapper>
+                      </ExcalidrawActionManagerContext.Provider>
                     </ExcalidrawElementsContext.Provider>
                   </ExcalidrawAppStateContext.Provider>
                 </ExcalidrawSetAppStateContext.Provider>
