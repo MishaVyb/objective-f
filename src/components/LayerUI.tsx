@@ -1,6 +1,3 @@
-import clsx from "clsx";
-import { Provider, useAtom, useAtomValue } from "jotai";
-import React from "react";
 import { actionToggleStats } from "../actions/actionToggleStats";
 import { ActionManager } from "../actions/manager";
 import { trackEvent } from "../analytics";
@@ -35,6 +32,7 @@ import { HintViewer } from "./HintViewer";
 import { ImageExportDialog } from "./ImageExportDialog";
 import { Island } from "./Island";
 import { JSONExportDialog } from "./JSONExportDialog";
+import "./LayerUI.scss";
 import { LoadingMessage } from "./LoadingMessage";
 import { LockButton } from "./LockButton";
 import { MobileMenu } from "./MobileMenu";
@@ -44,13 +42,14 @@ import { Section } from "./Section";
 import { isSidebarDockedAtom } from "./Sidebar/Sidebar";
 import Stack from "./Stack";
 import { Stats } from "./Stats";
+import "./Toolbar.scss";
 import { UserList } from "./UserList";
 import Footer from "./footer/Footer";
 import { LibraryIcon } from "./icons";
 import MainMenu from "./main-menu/MainMenu";
-
-import "./LayerUI.scss";
-import "./Toolbar.scss";
+import clsx from "clsx";
+import { Provider, useAtom, useAtomValue } from "jotai";
+import React from "react";
 
 interface LayerUIProps {
   actionManager: ActionManager;
@@ -342,7 +341,6 @@ const LayerUI = ({
         }}
         tab={DEFAULT_SIDEBAR.defaultTab}
       >
-        {/* VBRN library titled as Objects */}
         {t("toolBar.objects", null, "Objects")}
       </DefaultSidebar.Trigger>
       {/* ------------------------------------------------------------------ */}

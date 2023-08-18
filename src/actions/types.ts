@@ -1,4 +1,3 @@
-import React from "react";
 import { ExcalidrawElement } from "../element/types";
 import {
   AppClassProperties,
@@ -7,6 +6,7 @@ import {
   ExcalidrawProps,
 } from "../types";
 import { MarkOptional } from "../utility-types";
+import React from "react";
 
 export type ActionSource = "ui" | "keyboard" | "contextMenu" | "api";
 
@@ -124,7 +124,9 @@ export type ActionName =
   | "wrapTextInContainer"
 
   // VBRN actions:
-  | "actionChangeMetaTitle";
+  | "actionChangeMetaName"
+  | "actionChangeMetaCameraShot"
+  | "representationMeta";
 
 export type PanelComponentProps = {
   elements: readonly ExcalidrawElement[];

@@ -1,5 +1,7 @@
-import clsx from "clsx";
-import React, { useState } from "react";
+import {
+  isAllElementsObjective,
+  isAnyElementsObjective,
+} from "../_objective_/types/types";
 import { actionToggleZenMode } from "../actions";
 import { ActionManager } from "../actions/manager";
 import { trackEvent } from "../analytics";
@@ -12,6 +14,7 @@ import {
 import { hasBoundTextElement } from "../element/typeChecks";
 import { ExcalidrawElement, PointerType } from "../element/types";
 import { t } from "../i18n";
+import { KEYS } from "../keys";
 import {
   canChangeRoundness,
   canHaveArrowheads,
@@ -30,15 +33,15 @@ import {
   setCursorForShape,
   updateActiveTool,
 } from "../utils";
+import "./Actions.scss";
 import Stack from "./Stack";
 import { ToolButton } from "./ToolButton";
 import { Tooltip } from "./Tooltip";
-
-import { KEYS } from "../keys";
-import { getElementsMetas } from "../vbrn/selectors/selectors";
-import "./Actions.scss";
 import DropdownMenu from "./dropdownMenu/DropdownMenu";
 import { extraToolsIcon, frameToolIcon } from "./icons";
+import { act } from "@testing-library/react";
+import clsx from "clsx";
+import React, { useState } from "react";
 
 export const SelectedShapeActions = ({
   appState,
@@ -92,20 +95,44 @@ export const SelectedShapeActions = ({
     }
   }
 
-  // NAV actions
-  const metas = getElementsMetas(targetElements);
-  const meta = metas.length > 0 ? metas[0] : null; // TODO handle many metas selection
+  // NAV actions: SelectedShapeActions
+  const isAllObjective = isAllElementsObjective(targetElements);
+  const isAnyObjective = isAnyElementsObjective(targetElements);
+  const isAllExcali = !isAnyObjective;
+  const isObjAndExcali = !isAllObjective && isAnyObjective;
+
+  const actionsToRender = {
+    stroke: isAllExcali,
+    fill: isAllExcali || showOBJStyle,
+    fillStyle: isAllExcali || showOBJStyle,
+    strokeWidth: isAllExcali,
+    strokeStyle: isAllExcali,
+    sloppiness: isAllExcali,
+    roundness: isAllExcali,
+    arrowheads: isAllExcali,
+    textStyle: isAllExcali,
+    opacity: isAllExcali || showOBJStyle || isObjAndExcali,
+    layers: isAllExcali || showOBJStyle || isObjAndExcali,
+    align: isAllExcali || showOBJStyle || isObjAndExcali,
+    actions: isAllExcali || showOBJStyle || isObjAndExcali,
+  };
 
   return (
     <div className="panelColumn">
-      {meta && objectiveActions()}
-      {meta && objectiveStyleButton()}
-      {(!meta || showOBJStyle) && excalidrawActions()}
+      {isAllObjective && objectiveActions()}
+      {isAllObjective && objectiveStyleButton()}
+      {excalidrawActions()}
     </div>
   );
 
   function objectiveActions() {
-    return <>{renderAction("actionChangeMetaTitle")}</>;
+    return (
+      <>
+        {renderAction("representationMeta")}
+        {renderAction("actionChangeMetaName")}
+        {renderAction("actionChangeMetaCameraShot")}
+      </>
+    );
   }
 
   function objectiveStyleButton() {
@@ -125,76 +152,80 @@ export const SelectedShapeActions = ({
             commonSelectedType !== "image" &&
             commonSelectedType !== "frame") ||
             targetElements.some((element) => hasStrokeColor(element.type))) &&
+            actionsToRender.stroke &&
             renderAction("changeStrokeColor")}
         </div>
-        {showChangeBackgroundIcons && (
+        {actionsToRender.fill && showChangeBackgroundIcons && (
           <div>{renderAction("changeBackgroundColor")}</div>
         )}
 
-        {!meta && excalidrawExtraActions()}
+        {excalidrawExtraActions()}
 
         {shouldAllowVerticalAlign(targetElements) &&
           renderAction("changeVerticalAlign")}
         {(canHaveArrowheads(appState.activeTool.type) ||
-          targetElements.some((element) =>
-            canHaveArrowheads(element.type),
-          )) && <>{renderAction("changeArrowhead")}</>}
+          targetElements.some((element) => canHaveArrowheads(element.type))) &&
+          actionsToRender.arrowheads && <>{renderAction("changeArrowhead")}</>}
 
-        {renderAction("changeOpacity")}
+        {actionsToRender.opacity && renderAction("changeOpacity")}
 
-        <fieldset>
-          <legend>{t("labels.layers")}</legend>
-          <div className="buttonList">
-            {renderAction("sendToBack")}
-            {renderAction("sendBackward")}
-            {renderAction("bringToFront")}
-            {renderAction("bringForward")}
-          </div>
-        </fieldset>
-
-        {targetElements.length > 1 && !isSingleElementBoundContainer && (
+        {actionsToRender.layers && (
           <fieldset>
-            <legend>{t("labels.align")}</legend>
+            <legend>{t("labels.layers")}</legend>
             <div className="buttonList">
-              {
-                // swap this order for RTL so the button positions always match their action
-                // (i.e. the leftmost button aligns left)
-              }
-              {isRTL ? (
-                <>
-                  {renderAction("alignRight")}
-                  {renderAction("alignHorizontallyCentered")}
-                  {renderAction("alignLeft")}
-                </>
-              ) : (
-                <>
-                  {renderAction("alignLeft")}
-                  {renderAction("alignHorizontallyCentered")}
-                  {renderAction("alignRight")}
-                </>
-              )}
-              {targetElements.length > 2 &&
-                renderAction("distributeHorizontally")}
-              {/* breaks the row ˇˇ */}
-              <div style={{ flexBasis: "100%", height: 0 }} />
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: ".5rem",
-                  marginTop: "-0.5rem",
-                }}
-              >
-                {renderAction("alignTop")}
-                {renderAction("alignVerticallyCentered")}
-                {renderAction("alignBottom")}
-                {targetElements.length > 2 &&
-                  renderAction("distributeVertically")}
-              </div>
+              {renderAction("sendToBack")}
+              {renderAction("sendBackward")}
+              {renderAction("bringToFront")}
+              {renderAction("bringForward")}
             </div>
           </fieldset>
         )}
-        {!isEditing && targetElements.length > 0 && (
+
+        {targetElements.length > 1 &&
+          !isSingleElementBoundContainer &&
+          actionsToRender.align && (
+            <fieldset>
+              <legend>{t("labels.align")}</legend>
+              <div className="buttonList">
+                {
+                  // swap this order for RTL so the button positions always match their action
+                  // (i.e. the leftmost button aligns left)
+                }
+                {isRTL ? (
+                  <>
+                    {renderAction("alignRight")}
+                    {renderAction("alignHorizontallyCentered")}
+                    {renderAction("alignLeft")}
+                  </>
+                ) : (
+                  <>
+                    {renderAction("alignLeft")}
+                    {renderAction("alignHorizontallyCentered")}
+                    {renderAction("alignRight")}
+                  </>
+                )}
+                {targetElements.length > 2 &&
+                  renderAction("distributeHorizontally")}
+                {/* breaks the row ˇˇ */}
+                <div style={{ flexBasis: "100%", height: 0 }} />
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: ".5rem",
+                    marginTop: "-0.5rem",
+                  }}
+                >
+                  {renderAction("alignTop")}
+                  {renderAction("alignVerticallyCentered")}
+                  {renderAction("alignBottom")}
+                  {targetElements.length > 2 &&
+                    renderAction("distributeVertically")}
+                </div>
+              </div>
+            </fieldset>
+          )}
+        {actionsToRender.actions && !isEditing && targetElements.length > 0 && (
           <fieldset>
             <legend>{t("labels.actions")}</legend>
             <div className="buttonList">
@@ -213,35 +244,40 @@ export const SelectedShapeActions = ({
   function excalidrawExtraActions() {
     return (
       <>
-        {showFillIcons && renderAction("changeFillStyle")}
+        {actionsToRender.fillStyle &&
+          showFillIcons &&
+          renderAction("changeFillStyle")}
         {(hasStrokeWidth(appState.activeTool.type) ||
           targetElements.some((element) => hasStrokeWidth(element.type))) &&
+          actionsToRender.strokeWidth &&
           renderAction("changeStrokeWidth")}
         {(appState.activeTool.type === "freedraw" ||
           targetElements.some((element) => element.type === "freedraw")) &&
+          actionsToRender.strokeStyle &&
           renderAction("changeStrokeShape")}
         {(hasStrokeStyle(appState.activeTool.type) ||
-          targetElements.some((element) => hasStrokeStyle(element.type))) && (
-          <>
-            {renderAction("changeStrokeStyle")}
-            {renderAction("changeSloppiness")}
-          </>
-        )}
+          targetElements.some((element) => hasStrokeStyle(element.type))) &&
+          actionsToRender.strokeStyle && (
+            <>
+              {renderAction("changeStrokeStyle")}
+              {renderAction("changeSloppiness")}
+            </>
+          )}
         {(canChangeRoundness(appState.activeTool.type) ||
-          targetElements.some((element) =>
-            canChangeRoundness(element.type),
-          )) && <>{renderAction("changeRoundness")}</>}
+          targetElements.some((element) => canChangeRoundness(element.type))) &&
+          actionsToRender.roundness && <>{renderAction("changeRoundness")}</>}
         {(hasText(appState.activeTool.type) ||
-          targetElements.some((element) => hasText(element.type))) && (
-          <>
-            {renderAction("changeFontSize")}
+          targetElements.some((element) => hasText(element.type))) &&
+          actionsToRender.textStyle && (
+            <>
+              {renderAction("changeFontSize")}
 
-            {renderAction("changeFontFamily")}
+              {renderAction("changeFontFamily")}
 
-            {suppportsHorizontalAlign(targetElements) &&
-              renderAction("changeTextAlign")}
-          </>
-        )}
+              {suppportsHorizontalAlign(targetElements) &&
+                renderAction("changeTextAlign")}
+            </>
+          )}
       </>
     );
   }

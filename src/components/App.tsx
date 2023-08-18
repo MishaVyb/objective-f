@@ -1,12 +1,5 @@
-import React, { useContext } from "react";
-import { flushSync } from "react-dom";
-
-import clsx from "clsx";
-import { nanoid } from "nanoid";
-import { RoughCanvas } from "roughjs/bin/canvas";
-import rough from "roughjs/bin/rough";
-
-import throttle from "lodash.throttle";
+import { actions as objectiveActions } from "../_objective_/actions";
+import ObjectiveWrapper from "../_objective_/components/ObjectiveWrapper";
 import {
   actionAddToLibrary,
   actionBindText,
@@ -51,7 +44,7 @@ import {
 import { createRedoAction, createUndoAction } from "../actions/actionHistory";
 import { actionToggleViewMode } from "../actions/actionToggleViewMode";
 import { ActionManager } from "../actions/manager";
-import { actions } from "../actions/register";
+import { actions as excalidrawActions } from "../actions/register";
 import { ActionResult } from "../actions/types";
 import { trackEvent } from "../analytics";
 import {
@@ -330,6 +323,13 @@ import {
 import { activeEyeDropperAtom } from "./EyeDropper";
 import LayerUI from "./LayerUI";
 import { Toast } from "./Toast";
+import clsx from "clsx";
+import throttle from "lodash.throttle";
+import { nanoid } from "nanoid";
+import React, { useContext } from "react";
+import { flushSync } from "react-dom";
+import { RoughCanvas } from "roughjs/bin/canvas";
+import rough from "roughjs/bin/rough";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -376,6 +376,10 @@ const ExcalidrawActionManagerContext = React.createContext<ActionManager>(
 );
 ExcalidrawActionManagerContext.displayName = "ExcalidrawActionManagerContext";
 
+/*
+NAV
+All App context providers shortcuts
+*/
 export const useApp = () => useContext(AppContext);
 export const useAppProps = () => useContext(AppPropsContext);
 export const useDevice = () => useContext<Device>(DeviceContext);
@@ -483,7 +487,12 @@ class App extends React.Component<AppProps, AppState> {
       const readyPromise =
         ("current" in excalidrawRef && excalidrawRef.current?.readyPromise) ||
         resolvablePromise<ExcalidrawImperativeAPI>();
+      /*
+      NAV Imperative API
+      - Could be used outsied App. For example: src/excalidraw-app/index.tsx ExcalidrawWrapper
+      - Good reference for usefull internal methods. Could be access by AppContext.
 
+      */
       const api: ExcalidrawImperativeAPI = {
         ready: true,
         readyPromise,
@@ -533,7 +542,8 @@ class App extends React.Component<AppProps, AppState> {
       () => this.scene.getElementsIncludingDeleted(),
       this,
     );
-    this.actionManager.registerAll(actions);
+    this.actionManager.registerAll(excalidrawActions);
+    this.actionManager.registerAll(objectiveActions);
 
     this.actionManager.registerAction(createUndoAction(this.history));
     this.actionManager.registerAction(createRedoAction(this.history));
@@ -839,67 +849,69 @@ class App extends React.Component<AppProps, AppState> {
                       <ExcalidrawActionManagerContext.Provider
                         value={this.actionManager}
                       >
-                        <LayerUI
-                          canvas={this.canvas}
-                          appState={this.state}
-                          files={this.files}
-                          setAppState={this.setAppState}
-                          actionManager={this.actionManager}
-                          elements={this.scene.getNonDeletedElements()}
-                          onLockToggle={this.toggleLock}
-                          onPenModeToggle={this.togglePenMode}
-                          onHandToolToggle={this.onHandToolToggle}
-                          langCode={getLanguage().code}
-                          renderTopRightUI={renderTopRightUI}
-                          renderCustomStats={renderCustomStats}
-                          showExitZenModeBtn={
-                            typeof this.props?.zenModeEnabled === "undefined" &&
-                            this.state.zenModeEnabled
-                          }
-                          UIOptions={this.props.UIOptions}
-                          onImageAction={this.onImageAction}
-                          onExportImage={this.onExportImage}
-                          renderWelcomeScreen={
-                            !this.state.isLoading &&
-                            this.state.showWelcomeScreen &&
-                            this.state.activeTool.type === "selection" &&
-                            !this.state.zenModeEnabled &&
-                            !this.scene.getElementsIncludingDeleted().length
-                          }
-                        >
-                          {this.props.children}
-                        </LayerUI>
-                        <div className="excalidraw-textEditorContainer" />
-                        <div className="excalidraw-contextMenuContainer" />
-                        <div className="excalidraw-eye-dropper-container" />
-                        {selectedElement.length === 1 &&
-                          !this.state.contextMenu &&
-                          this.state.showHyperlinkPopup && (
-                            <Hyperlink
-                              key={selectedElement[0].id}
-                              element={selectedElement[0]}
-                              setAppState={this.setAppState}
-                              onLinkOpen={this.props.onLinkOpen}
+                        <ObjectiveWrapper>
+                          <LayerUI
+                            canvas={this.canvas}
+                            appState={this.state}
+                            files={this.files}
+                            setAppState={this.setAppState}
+                            actionManager={this.actionManager}
+                            elements={this.scene.getNonDeletedElements()}
+                            onLockToggle={this.toggleLock}
+                            onPenModeToggle={this.togglePenMode}
+                            onHandToolToggle={this.onHandToolToggle}
+                            langCode={getLanguage().code}
+                            renderTopRightUI={renderTopRightUI}
+                            renderCustomStats={renderCustomStats}
+                            showExitZenModeBtn={
+                              typeof this.props?.zenModeEnabled ===
+                                "undefined" && this.state.zenModeEnabled
+                            }
+                            UIOptions={this.props.UIOptions}
+                            onImageAction={this.onImageAction}
+                            onExportImage={this.onExportImage}
+                            renderWelcomeScreen={
+                              !this.state.isLoading &&
+                              this.state.showWelcomeScreen &&
+                              this.state.activeTool.type === "selection" &&
+                              !this.state.zenModeEnabled &&
+                              !this.scene.getElementsIncludingDeleted().length
+                            }
+                          >
+                            {this.props.children}
+                          </LayerUI>
+                          <div className="excalidraw-textEditorContainer" />
+                          <div className="excalidraw-contextMenuContainer" />
+                          <div className="excalidraw-eye-dropper-container" />
+                          {selectedElement.length === 1 &&
+                            !this.state.contextMenu &&
+                            this.state.showHyperlinkPopup && (
+                              <Hyperlink
+                                key={selectedElement[0].id}
+                                element={selectedElement[0]}
+                                setAppState={this.setAppState}
+                                onLinkOpen={this.props.onLinkOpen}
+                              />
+                            )}
+                          {this.state.toast !== null && (
+                            <Toast
+                              message={this.state.toast.message}
+                              onClose={() => this.setToast(null)}
+                              duration={this.state.toast.duration}
+                              closable={this.state.toast.closable}
                             />
                           )}
-                        {this.state.toast !== null && (
-                          <Toast
-                            message={this.state.toast.message}
-                            onClose={() => this.setToast(null)}
-                            duration={this.state.toast.duration}
-                            closable={this.state.toast.closable}
-                          />
-                        )}
-                        {this.state.contextMenu && (
-                          <ContextMenu
-                            items={this.state.contextMenu.items}
-                            top={this.state.contextMenu.top}
-                            left={this.state.contextMenu.left}
-                            actionManager={this.actionManager}
-                          />
-                        )}
-                        <main>{this.renderCanvas()}</main>
-                        {this.renderFrameNames()}
+                          {this.state.contextMenu && (
+                            <ContextMenu
+                              items={this.state.contextMenu.items}
+                              top={this.state.contextMenu.top}
+                              left={this.state.contextMenu.left}
+                              actionManager={this.actionManager}
+                            />
+                          )}
+                          <main>{this.renderCanvas()}</main>
+                          {this.renderFrameNames()}
+                        </ObjectiveWrapper>
                       </ExcalidrawActionManagerContext.Provider>
                     </ExcalidrawElementsContext.Provider>
                   </ExcalidrawAppStateContext.Provider>
@@ -1985,9 +1997,7 @@ class App extends React.Component<AppProps, AppState> {
     const onCgroupIdsChange = (
       prev: readonly string[],
       next: readonly string[],
-    ) => {
-      console.log(`${prev} -> ${next}`);
-    };
+    ) => {};
 
     const newElements = duplicateElements(
       elements.map((element) => {

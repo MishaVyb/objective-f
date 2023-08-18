@@ -1,4 +1,6 @@
-import React from "react";
+import { trackEvent } from "../analytics";
+import { ExcalidrawElement } from "../element/types";
+import { AppClassProperties, AppState } from "../types";
 import {
   Action,
   UpdaterFn,
@@ -7,9 +9,7 @@ import {
   PanelComponentProps,
   ActionSource,
 } from "./types";
-import { ExcalidrawElement } from "../element/types";
-import { AppClassProperties, AppState } from "../types";
-import { trackEvent } from "../analytics";
+import React from "react";
 
 const trackAction = (
   action: Action,

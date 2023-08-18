@@ -1,9 +1,8 @@
-import { useExcalidrawSetAppState } from "../App";
-import { SidebarTriggerProps } from "./common";
 import { useUIAppState } from "../../context/ui-appState";
-import clsx from "clsx";
-
+import { useExcalidrawSetAppState } from "../App";
 import "./SidebarTrigger.scss";
+import { SidebarTriggerProps } from "./common";
+import clsx from "clsx";
 
 export const SidebarTrigger = ({
   name,
@@ -17,6 +16,9 @@ export const SidebarTrigger = ({
 }: SidebarTriggerProps) => {
   const setAppState = useExcalidrawSetAppState();
   const appState = useUIAppState();
+
+  // VBRN: do not render, if sidebar is open
+  if (appState.openSidebar?.name === name) return <></>;
 
   return (
     <label title={title}>

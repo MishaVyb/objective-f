@@ -9,7 +9,6 @@ import {
 import { ButtonIconSelect } from "../components/ButtonIconSelect";
 import { ColorPicker } from "../components/ColorPicker/ColorPicker";
 import { IconPicker } from "../components/IconPicker";
-import { TextField } from "../components/TextField";
 // TODO barnabasmolnar/editor-redesign
 // TextAlignTopIcon, TextAlignBottomIcon,TextAlignMiddleIcon,
 // ArrowHead icons
@@ -91,13 +90,12 @@ import {
   isSomeElementSelected,
 } from "../scene";
 import { hasStrokeColor } from "../scene/comparisons";
-import { arrayToMap, focusNearestParent, getShortcutKey } from "../utils";
-
+import { arrayToMap, getShortcutKey } from "../utils";
 import { register } from "./register";
 
 const FONT_SIZE_RELATIVE_INCREASE_STEP = 0.1;
 
-const changeProperty = (
+export const changeProperty = (
   elements: readonly ExcalidrawElement[],
   appState: AppState,
   callback: (element: ExcalidrawElement) => ExcalidrawElement,
@@ -120,7 +118,7 @@ const changeProperty = (
   });
 };
 
-const getFormValue = function <T>(
+export const getFormValue = function <T>(
   elements: readonly ExcalidrawElement[],
   appState: AppState,
   getAttribute: (element: ExcalidrawElement) => T,
@@ -164,58 +162,6 @@ const offsetElementAfterFontResize = (
     false,
   );
 };
-
-// -----------------------------------------------------------------------------
-
-export const actionChangeMetaTitle = register({
-  name: "actionChangeMetaTitle",
-  trackEvent: false,
-  perform: (elements, appState, value) => {
-    const title = value;
-    return {
-      ...{
-        elements: changeProperty(elements, appState, (el) =>
-          newElementWith(el, {
-            customData: { ...el.customData, title },
-          }),
-        ),
-      },
-      appState: {
-        ...appState,
-        ...value,
-      },
-      commitToHistory: !!title,
-    };
-  },
-  PanelComponent: ({ elements, appState, updateData, appProps }) => {
-    // Doesnt work :(
-    const kind = getFormValue(
-      elements,
-      appState,
-      (element) => element.customData?.kind,
-      null,
-    );
-    const title = getFormValue(
-      elements,
-      appState,
-      (element) => element.customData?.title,
-      null,
-    );
-    return (
-      <TextField
-        label={kind}
-        placeholder="Camera name"
-        value={title || ""}
-        onChange={(v) => updateData(v)}
-        onKeyDown={(event) =>
-          event.key === KEYS.ENTER && focusNearestParent(event.target)
-        }
-      />
-    );
-  },
-});
-
-// -----------------------------------------------------------------------------
 
 const changeFontSize = (
   elements: readonly ExcalidrawElement[],

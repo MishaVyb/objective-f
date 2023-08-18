@@ -1,16 +1,16 @@
-import { CODES, KEYS } from "../keys";
-import { register } from "./register";
 import {
   copyTextToSystemClipboard,
   copyToClipboard,
   probablySupportsClipboardBlob,
   probablySupportsClipboardWriteText,
 } from "../clipboard";
-import { actionDeleteSelected } from "./actionDeleteSelected";
-import { getSelectedElements } from "../scene/selection";
 import { exportCanvas } from "../data/index";
 import { getNonDeletedElements, isTextElement } from "../element";
 import { t } from "../i18n";
+import { CODES, KEYS } from "../keys";
+import { getSelectedElements } from "../scene/selection";
+import { actionDeleteSelected } from "./actionDeleteSelected";
+import { register } from "./register";
 
 export const actionCopy = register({
   name: "copy",

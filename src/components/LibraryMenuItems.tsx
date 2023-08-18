@@ -15,7 +15,6 @@ import {
   ExcalidrawProps,
   LibraryItem,
   LibraryItems,
-  ObjecitveKinds,
   UIAppState,
 } from "../types";
 import { arrayToMap } from "../utils";
@@ -29,6 +28,7 @@ import Stack from "./Stack";
 
 import "./LibraryMenuItems.scss";
 import Spinner from "./Spinner";
+import { ObjectiveKinds } from "../_objective_/types/types";
 
 // using an odd number of items per batch so the rendering creates an irregular
 // pattern which looks more organic
@@ -74,11 +74,11 @@ export default function LibraryMenuItems({
 
   // VBRN objects as lib items
   const camerasLibItems = useMemo(
-    () => libraryItems.filter((item) => item.kind === ObjecitveKinds.CAMERA),
+    () => libraryItems.filter((item) => item.kind === ObjectiveKinds.CAMERA),
     [libraryItems],
   );
   const charactersLibItems = useMemo(
-    () => libraryItems.filter((item) => item.kind === ObjecitveKinds.CHARACTER),
+    () => libraryItems.filter((item) => item.kind === ObjectiveKinds.CHARACTER),
     [libraryItems],
   );
 

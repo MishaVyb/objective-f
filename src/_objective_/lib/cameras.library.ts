@@ -1,4 +1,4 @@
-import { ObjecitveKinds } from '../../types'
+import { ObjectiveKinds } from '../types/types'
 
 export const LIB_CAMERAS = {
   type: 'excalidrawlib',
@@ -7,14 +7,14 @@ export const LIB_CAMERAS = {
   libraryItems: [
     {
       status: 'unpublished',
-      kind: ObjecitveKinds.CAMERA,
+      kind: ObjectiveKinds.CAMERA,
       elements: [
         {
           customData: {
-            kind: ObjecitveKinds.CAMERA,
-            title: "Camera A",
-            comment: undefined,
-            focalLenth: undefined,
+            kind: ObjectiveKinds.CAMERA,
+            name: undefined,
+            description: undefined,
+            focalLength: undefined,
           },
           id: 'PZGwPWiIKFcZK_YLLEFgL',
           type: 'diamond',
@@ -43,6 +43,12 @@ export const LIB_CAMERAS = {
           locked: false,
         },
         {
+          customData: {
+            kind: ObjectiveKinds.CAMERA,
+            name: undefined,
+            description: undefined,
+            focalLength: undefined,
+          },
           id: '7M9_OY8MMfCmXii1LvZX2',
           type: 'rectangle',
           x: 567.3522726333862,

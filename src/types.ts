@@ -1,5 +1,4 @@
-import React from "react";
-import { Point as RoughPoint } from "roughjs/bin/geometry";
+import { ObjectiveKinds } from "./_objective_/types/types";
 import { Spreadsheet } from "./charts";
 import { ClipboardData } from "./clipboard";
 import type App from "./components/App";
@@ -34,6 +33,8 @@ import { isOverScrollBars } from "./scene";
 import { SHAPES } from "./shapes";
 import { ForwardRef, Merge, ValueOf } from "./utility-types";
 import type { ResolvablePromise, throttleRAF } from "./utils";
+import React from "react";
+import { Point as RoughPoint } from "roughjs/bin/geometry";
 
 export type Point = Readonly<RoughPoint>;
 
@@ -259,16 +260,11 @@ export type LibraryItem_v1 = readonly NonDeleted<ExcalidrawElement>[];
 /** @deprecated legacy: do not use outside of migration paths */
 type LibraryItems_v1 = readonly LibraryItem_v1[];
 
-export enum ObjecitveKinds {
-  CAMERA = "obj:camera",
-  CHARACTER = "obj:character",
-}
-
 /** v2 library item */
 export type LibraryItem = {
   id: string;
   status: "published" | "unpublished";
-  kind?: ObjecitveKinds;
+  kind?: ObjectiveKinds;
   elements: readonly NonDeleted<ExcalidrawElement>[];
   /** timestamp in epoch (ms) */
   created: number;

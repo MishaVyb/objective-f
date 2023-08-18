@@ -1,3 +1,4 @@
+import { isMeta } from "../_objective_/types/types";
 import { getElementAbsoluteCoords, getElementBounds } from "../element";
 import { isBoundToContainer } from "../element/typeChecks";
 import {
@@ -103,13 +104,21 @@ export const getCommonAttributeOfSelectedElements = <T>(
   appState: Pick<AppState, "selectedElementIds">,
   getAttribute: (element: ExcalidrawElement) => T,
 ): T | null => {
-  const attributes = Array.from(
-    new Set(
-      getSelectedElements(elements, appState).map((element) =>
-        getAttribute(element),
-      ),
-    ),
+  const selected = getSelectedElements(elements, appState);
+
+  // If selected Objective and Excalidraw elements - return
+  const selectedMetas = Array.from(
+    new Set(selected.map((v) => isMeta(v.customData))),
   );
+  if (selectedMetas.length === 2) return null;
+
+  const attributes = Array.from(
+    new Set(selected.map((element) => getAttribute(element))),
+  );
+
+  if (attributes.some((v) => isMeta(v)))
+    throw Error("For meta, you have to access attributes directly. Not all. ");
+
   return attributes.length === 1 ? attributes[0] : null;
 };
 
