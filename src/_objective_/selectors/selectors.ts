@@ -4,8 +4,10 @@ import {
   CameraMeta,
   ObjectiveElement,
   ObjectiveMeta,
+  ShotCameraMeta,
   isCameraElement,
   isObjective,
+  isShotCameraElement,
 } from '../types/types'
 
 /**
@@ -13,8 +15,11 @@ import {
  * @param el
  * @returns Objective's meta
  */
-export const getMeta = (el: ObjectiveElement, elementIds?: string[]) => {
-  return { ...el.customData, id: getObjectiveId(el), elementIds } as ObjectiveMeta
+export const getMeta = <TMeta extends ObjectiveMeta>(
+  el: ObjectiveElement<TMeta>,
+  elementIds: readonly string[] = []
+): TMeta => {
+  return { ...el.customData, id: getObjectiveId(el), elementIds: [...elementIds] }
 }
 
 /**
@@ -34,20 +39,20 @@ export const getObjectiveId = (element: ObjectiveElement) => element.groupIds[0]
  * but populate `meta.elementIds` with every element id.
  *
  * NOTE:
- * The same list of elementIds could be accessed 
+ * The same list of elementIds could be accessed
  *
  * @param elements any elements
  * @returns unique meta instances (non deleted  & readonly)
  */
-export const getObjectiveMetas = (
+export const getObjectiveMetas = <TMeta extends ObjectiveMeta>(
   elements: readonly ExcalidrawElement[],
-  objectivePredicate = isObjective // TODO Type...
-) => {
+  objectivePredicate: typeof isObjective = isObjective
+): readonly Readonly<TMeta>[] => {
   const groups = new Map<string, Array<string>>() // groupId : [element.id, element.id, ...]
 
   return getNonDeletedElements(elements)
-    .filter(objectivePredicate)
-    .filter((e) => {
+    .filter((e): e is ObjectiveElement<TMeta> => {
+      if (!objectivePredicate(e)) return false
       const objectiveId = getObjectiveId(e)
 
       // meta duplicates: append element id and omit meta duplicate
@@ -66,7 +71,13 @@ export const getObjectiveMetas = (
  * Extract unique Camera metas from elements.
  */
 export const getCameraMetas = (elements: readonly ExcalidrawElement[]) =>
-  getObjectiveMetas(elements, isCameraElement) as Readonly<CameraMeta>[]
+  getObjectiveMetas<CameraMeta>(elements, isCameraElement)
+
+/**
+ * Extract unique Camera metas from elements (only cameras in Shot List).
+ */
+export const getShotCameraMetas = (elements: readonly ExcalidrawElement[]) =>
+  getObjectiveMetas<ShotCameraMeta>(elements, isShotCameraElement)
 
 /**
  * Select all Objective primitive elements (including *deleted)*.
@@ -83,3 +94,10 @@ export const selectObjectiveElements = (elements: readonly ExcalidrawElement[]) 
  */
 export const selectCameraElements = (elements: readonly ExcalidrawElement[]) =>
   elements.filter(isCameraElement)
+
+//--------------------- TS tests ------------------------ //
+
+const __test = () => {
+  const obj = {} as ObjectiveElement<CameraMeta>
+  const aaa = getMeta(obj)
+}

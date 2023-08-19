@@ -1,6 +1,5 @@
 import { changeProperty, getFormValue } from '../../actions/actionProperties'
 import { PanelComponentProps } from '../../actions/types'
-import { ButtonIconSelect } from '../../components/ButtonIconSelect'
 import { ToolButton } from '../../components/ToolButton'
 import { getNonDeletedElements } from '../../element'
 import { newElementWith } from '../../element/mutateElement'
@@ -107,7 +106,7 @@ const changeCameraIsShot = (
     determineCameraMeta(getCameraMetas(getNonDeletedElements(elements)), isShot)
   )
 
-const determineCameraMeta = (cameras: Readonly<CameraMeta>[], isShot: boolean) => {
+const determineCameraMeta = (cameras: readonly CameraMeta[], isShot: boolean) => {
   if (isShot)
     return {
       isShot: true,

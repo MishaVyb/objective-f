@@ -126,7 +126,8 @@ export type ActionName =
   // VBRN actions:
   | "actionChangeMetaName"
   | "actionChangeMetaCameraShot"
-  | "representationMeta";
+  | "representationMeta"
+  | "actionInitStoryboard";
 
 export type PanelComponentProps = {
   elements: readonly ExcalidrawElement[];

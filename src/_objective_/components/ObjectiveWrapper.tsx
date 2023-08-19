@@ -24,7 +24,7 @@ const ObjectiveWrapper: FC<{ children: ReactNode }> = ({ children }) => {
    * If we pass currentCameras to context value directly it will produce *NEW* value for every
    * elements changing, even if cameras left unchanged.
    */
-  const [cameras, setCameras] = useState<CameraMeta[]>([])
+  const [cameras, setCameras] = useState<readonly CameraMeta[]>([])
 
   useEffect(() => {
     const currentCameras = getCameraMetas(elements)
