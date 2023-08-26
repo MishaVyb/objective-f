@@ -83,7 +83,7 @@ const changeCameraIsShot = (
   appState: AppState,
   isShot: boolean
 ) =>
-  changeElementsMeta(
+  changeElementsMeta<CameraMeta>(
     elements,
     appState,
     determineCameraMeta(getCameraMetas(getNonDeletedElements(elements)), isShot)
@@ -94,12 +94,12 @@ const determineCameraMeta = (cameras: readonly CameraMeta[], isShot: boolean) =>
     return {
       isShot: true,
       shotNumber: Math.max(...cameras.map((c) => c.shotNumber || 0)) + 1,
-      shotVersion: undefined,
+      shotVersion: undefined, // not implemented yet
     }
 
   return {
     isShot: false,
     shotNumber: undefined,
-    shotVersion: undefined,
+    shotVersion: undefined, // not implemented yet
   }
 }
