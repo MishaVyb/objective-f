@@ -1,14 +1,14 @@
-import { changeProperty, getFormValue } from '../../actions/actionProperties'
+import { getFormValue } from '../../actions/actionProperties'
 import { PanelComponentProps } from '../../actions/types'
 import { ToolButton } from '../../components/ToolButton'
 import { getNonDeletedElements } from '../../element'
-import { newElementWith } from '../../element/mutateElement'
 import { ExcalidrawElement } from '../../element/types'
 import { t } from '../../i18n'
 import { getSelectedElements } from '../../scene'
 import { AppState } from '../../types'
 import { getCameraMetas } from '../selectors/selectors'
 import { CameraMeta, isAllElementsCameras } from '../types/types'
+import { changeElementsMeta } from './helpers'
 import { register } from './register'
 
 export const actionChangeMetaCameraShot = register({
@@ -20,11 +20,11 @@ export const actionChangeMetaCameraShot = register({
       case 'remove':
         return changeCameraIsShot(elements, appState, value === 'init' ? true : false)
       case 'incraseShotNumber':
-        return changeElementsMeta(elements, appState, (m) => ({
+        return changeElementsMeta(elements, appState, (m: CameraMeta) => ({
           shotNumber: m.shotNumber && m.shotNumber + 1,
         }))
       case 'decraseShotNumber':
-        return changeElementsMeta(elements, appState, (m) => ({
+        return changeElementsMeta(elements, appState, (m: CameraMeta) => ({
           shotNumber: m.shotNumber && m.shotNumber > 1 ? m.shotNumber - 1 : m.shotNumber,
         }))
     }
@@ -76,23 +76,6 @@ export const actionChangeMetaCameraShot = register({
       </>
     )
   },
-})
-
-const changeElementsMeta = (
-  elements: readonly ExcalidrawElement[],
-  appState: AppState,
-  newMeta: Record<string, any> | ((meta: CameraMeta) => Record<string, any>)
-) => ({
-  elements: changeProperty(elements, appState, (el) =>
-    newElementWith(el, {
-      customData: {
-        ...el.customData,
-        ...(typeof newMeta === 'function' ? newMeta(el.customData as CameraMeta) : newMeta),
-      },
-    })
-  ),
-  appState: appState,
-  commitToHistory: true,
 })
 
 const changeCameraIsShot = (

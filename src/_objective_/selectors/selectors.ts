@@ -19,6 +19,8 @@ export const getMeta = <TMeta extends ObjectiveMeta>(
   el: ObjectiveElement<TMeta>,
   elementIds: readonly string[] = []
 ): TMeta => {
+  // WARNIGN
+  // DeepCopy here?
   return { ...el.customData, id: getObjectiveId(el), elementIds: [...elementIds] }
 }
 
@@ -39,7 +41,7 @@ export const getObjectiveId = (element: ObjectiveElement) => element.groupIds[0]
  * but populate `meta.elementIds` with every element id.
  *
  * NOTE:
- * The same list of elementIds could be accessed
+ * The same list of elementIds could be accessed from groupId
  *
  * @param elements any elements
  * @returns unique meta instances (non deleted  & readonly)

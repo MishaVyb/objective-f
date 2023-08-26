@@ -11,7 +11,10 @@ import {
   shouldAllowVerticalAlign,
   suppportsHorizontalAlign,
 } from "../element/textElement";
-import { hasBoundTextElement } from "../element/typeChecks";
+import {
+  hasBoundTextElement,
+  isInitializedImageElement,
+} from "../element/typeChecks";
 import { ExcalidrawElement, PointerType } from "../element/types";
 import { t } from "../i18n";
 import { KEYS } from "../keys";
@@ -100,6 +103,7 @@ export const SelectedShapeActions = ({
   const isAnyObjective = isAnyElementsObjective(targetElements);
   const isAllExcali = !isAnyObjective;
   const isObjAndExcali = !isAllObjective && isAnyObjective;
+  const isSingleImage = isInitializedImageElement(targetElements[0]);
 
   const actionsToRender = {
     stroke: isAllExcali,
@@ -119,6 +123,7 @@ export const SelectedShapeActions = ({
 
   return (
     <div className="panelColumn">
+      {isSingleImage && renderAction("actionInitStoryboard")}
       {isAllObjective && objectiveActions()}
       {isAllObjective && objectiveStyleButton()}
       {excalidrawActions()}

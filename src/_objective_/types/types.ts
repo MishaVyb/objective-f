@@ -24,6 +24,9 @@ export interface CameraMeta extends ObjectiveMeta {
   shotNumber?: number // Cam A / Cam B
   shotVersion?: number // Cam A-1 / Cam A-2
   focalLength?: number
+
+  // relationships
+  relatedImages?: readonly string[] // images id
 }
 
 export interface ShotCameraMeta extends CameraMeta {
@@ -71,6 +74,12 @@ export const isShotCameraElement = (el: MaybeExcalidrawElement): el is CameraEle
 
 export const isAllElementsCameras = (elements: readonly ExcalidrawElement[]) =>
   elements.every((e) => isCameraElement(e))
+
+export const isElementRelatedToMeta = <TMeta extends ObjectiveMeta>(
+  el: ExcalidrawElement,
+  relatedMeta: TMeta
+): el is ObjectiveElement<TMeta> => relatedMeta.elementIds.includes(el.id)
+
 
 //--------------------- TS tests ------------------------ //
 

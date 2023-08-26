@@ -1,0 +1,48 @@
+@import '../../css/variables.module';
+
+.camera-item {
+  margin: 1px;
+  padding: 10px;
+
+  display: flex;
+  border: 1px solid var(--color-primary-light);
+  border-radius: 5px;
+
+  cursor: pointer;
+
+  &.active {
+    background-color: var(--color-primary-light-darker);
+  }
+
+  &.active {
+    background-color: var(--color-primary-light-darker);
+  }
+
+  &:hover {
+    background-color: var(--color-primary-light-darker);
+    &.active {
+      background-color: var( --color-primary-light);
+    }
+  }
+
+  .shot-number {
+    flex-basis: 30px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-right: 1px solid grey;
+    text-align: center;
+
+    /* text style */
+    color: var(--color-primary);
+    font-size: 1.2em;
+    font-weight: bold;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .name {
+    padding-left: 10px;
+    padding-right: 10px;
+    text-align: center;
+  }
+}
