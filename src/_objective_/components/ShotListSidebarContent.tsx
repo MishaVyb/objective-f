@@ -2,16 +2,15 @@ import { FC } from 'react'
 
 import { useObjectiveCameras } from './ObjectiveWrapper'
 import ShotListSidebarCameraElement from './ShotListSidebarCameraElement'
-import style from './ShotListSidebarContent.module.css'
+import './../scss/cameraItem.scss'
 
 const ShotListSidebarContent: FC = () => {
-  const cameraMetas = useObjectiveCameras()
-  console.log('render')
+  const cameras = useObjectiveCameras()
   return (
-    <aside className={style.container}>
-      {cameraMetas.map((cameraMeta, i) => (
+    <aside className='cameras-list'>
+      {cameras.map((camera, i) => (
         // TODO add internal meta.cameraKey attribute to handle cameras manual ordering
-        <ShotListSidebarCameraElement key={i} cameraMeta={cameraMeta} />
+        <ShotListSidebarCameraElement key={i} camera={camera} />
       ))}
     </aside>
   )

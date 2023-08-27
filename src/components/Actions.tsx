@@ -1,3 +1,4 @@
+import Button from "../_objective_/UI/Button";
 import {
   isAllElementsObjective,
   isAnyElementsObjective,
@@ -103,7 +104,8 @@ export const SelectedShapeActions = ({
   const isAnyObjective = isAnyElementsObjective(targetElements);
   const isAllExcali = !isAnyObjective;
   const isObjAndExcali = !isAllObjective && isAnyObjective;
-  const isSingleImage = isInitializedImageElement(targetElements[0]);
+  const isSingleImage =
+    targetElements.length === 1 && isInitializedImageElement(targetElements[0]);
 
   const actionsToRender = {
     stroke: isAllExcali,
@@ -136,15 +138,16 @@ export const SelectedShapeActions = ({
         {renderAction("representationMeta")}
         {renderAction("actionChangeMetaName")}
         {renderAction("actionChangeMetaCameraShot")}
+        {renderAction("actionStoryboard")}
       </>
     );
   }
 
   function objectiveStyleButton() {
     return (
-      <button onClick={() => setShowOBJStyle(!showOBJStyle)}>
+      <Button onClick={() => setShowOBJStyle(!showOBJStyle)}>
         {showOBJStyle ? "hide style" : "show style"}
-      </button>
+      </Button>
     );
   }
 

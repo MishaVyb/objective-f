@@ -1,4 +1,5 @@
 import { getFormValue } from '../../actions/actionProperties'
+import { PanelComponentProps } from '../../actions/types'
 import { t } from '../../i18n'
 import { isCameraElement, isObjective } from '../types/types'
 import style from './actionRepresentation.module.css'
@@ -14,8 +15,7 @@ export const representationMeta = register({
       commitToHistory: false,
     }
   },
-  // eslint-disable-next-line react/prop-types
-  PanelComponent: ({ elements, appState, updateData, appProps }) => {
+  PanelComponent: ({ elements, appState, updateData, appProps }: PanelComponentProps) => {
     const metaKind = getFormValue(
       elements,
       appState,
@@ -46,3 +46,4 @@ export const representationMeta = register({
     )
   },
 })
+

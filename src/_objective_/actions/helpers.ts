@@ -4,26 +4,26 @@ import { ExcalidrawElement } from '../../element/types'
 import { AppState } from '../../types'
 import { ObjectiveElement, ObjectiveMeta, isElementRelatedToMeta } from '../types/types'
 
-type TNewMeta<TMeta extends ObjectiveMeta> =
-  | Partial<TMeta>
-  | ((meta: TMeta) => Partial<TMeta>)
+/**
+ * New propertries generic type. Where `T` is `ObjectiveMeta` or `ExcalidrawElement`.
+ */
+type TNewProperties<T = unknown> = Partial<T> | ((meta: T) => Partial<T>)
 
 /**
- * As newElementWith, but only for Objective meta properties.
+ * As `newElementWith`, but only for Objective meta properties.
  */
 export const newMetaWith = <TMeta extends ObjectiveMeta>(
   el: ObjectiveElement<TMeta>,
-  newMeta: TNewMeta<TMeta>
+  newProperties: TNewProperties<TMeta>
 ) =>
   newElementWith(el, {
     customData: {
       // WARNING
       // Deep copy here ?
       ...el.customData,
-      ...(typeof newMeta === 'function' ? newMeta(el.customData) : newMeta),
+      ...(typeof newProperties === 'function' ? newProperties(el.customData) : newProperties),
     },
   })
-
 
 /**
  * Shortcut to change elements metas for all selected (target) elements.
@@ -38,7 +38,7 @@ export const newMetaWith = <TMeta extends ObjectiveMeta>(
 export const changeElementsMeta = <TMeta extends ObjectiveMeta>(
   allCanvasElements: readonly ExcalidrawElement[],
   appState: AppState,
-  newMeta: TNewMeta<TMeta>
+  newMeta: TNewProperties<TMeta>
 ) => ({
   // @ts-ignore
   elements: changeProperty(allCanvasElements, appState, (el) => newMetaWith(el, newMeta)),
@@ -47,17 +47,42 @@ export const changeElementsMeta = <TMeta extends ObjectiveMeta>(
 })
 
 /**
- * As `changeElementsMeta`, but when we want to change specific element (not selected).
+ * As `changeElementsMeta`, but for known single element (target).
+ * It's used, when we want to change specific element (not selected).
  */
 export const changeElementMeta = <TMeta extends ObjectiveMeta>(
   allCanvasElements: readonly ExcalidrawElement[],
   target: TMeta,
   appState: AppState,
-  newMeta: TNewMeta<TMeta>
+  newProperties: TNewProperties<TMeta>
 ) => ({
   elements: allCanvasElements.map((el) =>
-    isElementRelatedToMeta(el, target) ? newMetaWith(el, newMeta) : el
+    isElementRelatedToMeta(el, target) ? newMetaWith(el, newProperties) : el
   ),
+  appState: appState,
+  commitToHistory: true,
+})
+
+/**
+ * As `changeProperty`, but for known single element (target).
+ * It's used, when we want to change specific element (not selected).
+ */
+export const changeElementProperty = <TElement extends ExcalidrawElement>(
+  allCanvasElements: readonly ExcalidrawElement[],
+  target: TElement,
+  appState: AppState,
+  newProperties: TNewProperties<TElement>
+) => ({
+  elements: allCanvasElements.map((el) =>
+    el.id === target.id
+      ? newElementWith(el, {
+          ...el,
+          // @ts-ignore
+          ...(typeof newProperties === 'function' ? newProperties(el) : newProperties),
+        })
+      : el
+  ),
+
   appState: appState,
   commitToHistory: true,
 })

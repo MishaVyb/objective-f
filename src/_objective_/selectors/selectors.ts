@@ -1,8 +1,13 @@
+import { useMemo } from 'react'
+
+import { useExcalidrawElements } from '../../components/App'
 import { getNonDeletedElements } from '../../element'
-import { ExcalidrawElement } from '../../element/types'
+import { ExcalidrawElement, InitializedExcalidrawImageElement } from '../../element/types'
+import { useExcalidrawFiles } from '../components/ObjectiveWrapper'
 import {
   CameraMeta,
   ObjectiveElement,
+  ObjectiveImageElement,
   ObjectiveMeta,
   ShotCameraMeta,
   isCameraElement,
@@ -96,6 +101,51 @@ export const selectObjectiveElements = (elements: readonly ExcalidrawElement[]) 
  */
 export const selectCameraElements = (elements: readonly ExcalidrawElement[]) =>
   elements.filter(isCameraElement)
+
+/**
+ * NOTE: If element type is known from context, it could be specified via generic.
+ * But be aware, there are no checks for type guard for real.
+ */
+export const getElementById = <TElement extends ExcalidrawElement>(
+  elements: readonly ExcalidrawElement[],
+  id: string
+) => elements.find((el) => el.id === id) as TElement | undefined
+
+/**
+ * NOTE: If element type is known from context, it could be specified via generic.
+ * But be aware, there are no checks for type guard for real.
+ */
+export const getElementsByIds = <TElement extends ExcalidrawElement>(
+  elements: readonly ExcalidrawElement[],
+  ids: readonly string[]
+) =>
+  elements.reduce<TElement[]>((accumulator, element) => {
+    if (ids.includes(element.id)) accumulator.push(element as TElement)
+    return accumulator
+  }, [])
+
+// -------------------------- selectors hooks -----------------------//
+
+export const useCamerasImages = (cameras: readonly CameraMeta[]) => {
+  const files = useExcalidrawFiles()
+  const elements = useExcalidrawElements()
+
+  return useMemo(() => {
+    const imageElementIds: string[] = []
+    cameras.forEach((c) => imageElementIds.push(...c.relatedImages))
+    const imageElements = getElementsByIds<InitializedExcalidrawImageElement>(
+      elements,
+      imageElementIds
+    )
+    const images: ObjectiveImageElement[] = []
+    imageElements.forEach((e) =>
+      files[e.fileId] ? images.push({ ...files[e.fileId], ...e }) : null
+    )
+    return images
+  }, [files, elements, cameras])
+}
+
+export const useCameraImages = (camera: CameraMeta) => useCamerasImages([camera])
 
 //--------------------- TS tests ------------------------ //
 

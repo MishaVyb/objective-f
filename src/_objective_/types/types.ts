@@ -1,4 +1,9 @@
-import { ExcalidrawElement, ExcalidrawFrameElement } from '../../element/types'
+import {
+  ExcalidrawElement,
+  ExcalidrawFrameElement,
+  InitializedExcalidrawImageElement,
+} from '../../element/types'
+import { BinaryFileData } from '../../types'
 
 export enum ObjectiveKinds {
   CAMERA = 'obj:camera',
@@ -17,6 +22,14 @@ export interface ObjectiveMeta {
   description?: string
 }
 
+/**
+ * Special interface to represent `ExcalidrawImage` with prepopulated `BinaryFile`properties.
+ * NOTE: Property `id` are taken from `ExcalidrawImage.id` (not `fileId`).
+ */
+export interface ObjectiveImageElement
+  extends InitializedExcalidrawImageElement,
+    Omit<BinaryFileData, 'id'> {}
+
 export interface CameraMeta extends ObjectiveMeta {
   kind: ObjectiveKinds.CAMERA
 
@@ -25,8 +38,27 @@ export interface CameraMeta extends ObjectiveMeta {
   shotVersion?: number // Cam A-1 / Cam A-2
   focalLength?: number
 
-  // relationships
-  relatedImages?: readonly string[] // images id
+  /**
+   * Storyboard images. Source `ExcalidrawImage.id` (not `fileId`).
+   */
+  relatedImages: readonly string[] // images id
+}
+
+export const cameraInitialMeta: CameraMeta = {
+  // Type guard (constant)
+  kind: ObjectiveKinds.CAMERA,
+
+  // Mock defaults. Will be overridden by `getMeta`
+  id: '',
+  elementIds: [],
+
+  // Optional props
+  name: undefined,
+  description: undefined,
+  focalLength: undefined,
+
+  // Relationships.
+  relatedImages: [],
 }
 
 export interface ShotCameraMeta extends CameraMeta {
@@ -80,6 +112,7 @@ export const isElementRelatedToMeta = <TMeta extends ObjectiveMeta>(
   relatedMeta: TMeta
 ): el is ObjectiveElement<TMeta> => relatedMeta.elementIds.includes(el.id)
 
+export const isDisplayed = (el: ExcalidrawElement) => (el.opacity > 5 ? true : false)
 
 //--------------------- TS tests ------------------------ //
 
