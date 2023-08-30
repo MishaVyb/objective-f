@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
 import { useExcalidrawElements } from '../../components/App'
-import { getNonDeletedElements } from '../../element'
+import { getNonDeletedElements, isNonDeletedElement } from '../../element'
 import { ExcalidrawElement, InitializedExcalidrawImageElement } from '../../element/types'
 import { useExcalidrawFiles } from '../components/ObjectiveWrapper'
 import {
@@ -12,6 +12,7 @@ import {
   ShotCameraMeta,
   isCameraElement,
   isObjective,
+  isPointerElement,
   isShotCameraElement,
 } from '../types/types'
 
@@ -123,6 +124,23 @@ export const getElementsByIds = <TElement extends ExcalidrawElement>(
     if (ids.includes(element.id)) accumulator.push(element as TElement)
     return accumulator
   }, [])
+
+export const getPointerBetween = (
+  elements: readonly ExcalidrawElement[],
+  one: ExcalidrawElement,
+  another: ExcalidrawElement
+) => {
+  const ids =
+    one.boundElements?.filter((elOne) =>
+      another.boundElements?.some((elAnother) => elAnother.id === elOne.id)
+    ) || []
+  const pointers = elements.filter(
+    (e) => isPointerElement(e) && isNonDeletedElement(e) && ids.some((o) => o.id === e.id)
+  )
+  if (pointers.length === 0) return null
+  if (pointers.length > 1) console.warn('Found more than 1 pointers.')
+  return pointers[0]
+}
 
 // -------------------------- selectors hooks -----------------------//
 

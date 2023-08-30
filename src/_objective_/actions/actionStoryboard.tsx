@@ -1,20 +1,38 @@
 import * as Popover from '@radix-ui/react-popover'
 import clsx from 'clsx'
+import { logger } from 'workbox-core/_private'
 
 import { PanelComponentProps } from '../../actions/types'
 import { useDevice } from '../../components/App'
 import { ToolButton } from '../../components/ToolButton'
-import { ExcalidrawElement, ExcalidrawImageElement } from '../../element/types'
+import { newLinearElement } from '../../element'
+import { bindLinearElement, unbindLinearElements, updateBoundElements } from '../../element/binding'
+import {
+  ExcalidrawBindableElement,
+  ExcalidrawElement,
+  ExcalidrawImageElement,
+  ExcalidrawLinearElement,
+  NonDeleted,
+} from '../../element/types'
 import { getSelectedElements } from '../../scene'
 import { AppState } from '../../types'
+import { newMockPointer, newPointerBeetween } from '../objects/primitives'
 import '../scss/cameraItem.scss'
 import '../scss/popover.scss'
 import {
   getCameraMetas,
+  getElementById,
+  getPointerBetween,
   getShotCameraMetas,
-  useCamerasImages
+  useCamerasImages,
 } from '../selectors/selectors'
-import { CameraMeta, ObjectiveImageElement, isDisplayed } from '../types/types'
+import {
+  CameraMeta,
+  ObjectiveImageElement,
+  ObjectiveKinds,
+  isDisplayed,
+  isImageRelatedToCamera,
+} from '../types/types'
 import './../scss/actionStoryboard.scss'
 import { changeElementMeta, changeElementProperty } from './helpers'
 import { register } from './register'
@@ -32,13 +50,48 @@ const getSelectedImage = (elements: readonly ExcalidrawElement[], appState: AppS
 export const actionInitStoryboard = register({
   name: 'actionInitStoryboard',
   trackEvent: false,
+
+  /**
+   *
+   * @param elements *ALL* canvas elements, including deleted!
+   */
   perform: (elements, appState, camera: CameraMeta) => {
     const image = getSelectedImage(elements, appState)
-    return changeElementMeta(elements, camera, appState, {
-      relatedImages: camera.relatedImages.includes(image.id)
-        ? [...camera.relatedImages].filter((id) => id !== image.id) // remove prev
-        : [...camera.relatedImages, image.id], // add new (first)
-    })
+    const cameraBasis = getElementById(elements, camera.elementIds[0]) as ExcalidrawBindableElement // camera circle
+    const action = camera.relatedImages.includes(image.id) ? 'unlink' : 'link'
+    const pointer = getPointerBetween(elements, image, cameraBasis)
+
+    if (action === 'unlink') {
+      if (pointer) {
+        // [1.1] unbind and delete
+        unbindLinearElements([pointer])
+        elements = changeElementProperty(elements, pointer, { isDeleted: true })
+      }
+      // [1.2] unlink
+      elements = changeElementMeta(elements, camera, {
+        relatedImages: [...camera.relatedImages].filter((id) => id !== image.id), // remove prev
+      })
+    } else {
+      if (pointer) {
+        logger.error('Camera and related Image are not linked, but have pointer already!')
+        return false
+      }
+
+      // [2] Create pointer and link
+      elements = changeElementMeta(
+        elements,
+        camera,
+        {
+          relatedImages: [...camera.relatedImages, image.id], // add new link
+        },
+        [newPointerBeetween(image, cameraBasis)] // add new pointer
+      )
+    }
+
+    return {
+      elements: elements,
+      commitToHistory: true,
+    }
   },
   PanelComponent: ({ elements, appState, updateData, appProps }: PanelComponentProps) => {
     const image = getSelectedImage(elements, appState)
@@ -64,10 +117,7 @@ export const actionInitStoryboard = register({
           >
             {cameras.map((camera, index) => (
               <div
-                className={clsx('camera-item', {
-                  // is image related already to this camera
-                  active: camera.relatedImages ? camera.relatedImages.includes(image.id) : false,
-                })}
+                className={clsx('camera-item', { active: isImageRelatedToCamera(camera, image) })}
                 key={index}
                 onClick={() => onClick(camera)}
               >
@@ -91,38 +141,33 @@ interface IPerformValue {
 export const actionStoryboard = register({
   name: 'actionStoryboard',
   trackEvent: false,
-  perform: (elements, appState, { camera, image, action }: IPerformValue, app, manager) => {
+  perform: (elements, appState, { camera, image, action }: IPerformValue) => {
     switch (action) {
       case 'display':
-        return changeElementProperty(elements, image, appState, {
+        elements = changeElementProperty(elements, image, {
           opacity: isDisplayed(image) ? 0 : 100,
           locked: isDisplayed(image),
         })
+        break
       case 'unlink':
-        // NOTE: Double change is called here. For cameraMeta and for image.
-        return changeElementProperty(
-          changeElementMeta(elements, camera, appState, {
-            // [1] remove target image in related camera images
-            relatedImages: camera.relatedImages.filter((id) => id !== image.id),
-          }).elements,
-          image,
-          appState,
-          {
-            // [2] make target image visible, if not
-            opacity: isDisplayed(image) ? image.opacity : 100,
-            locked: isDisplayed(image) ? image.locked : false,
-          }
-        )
-      case 'remove':
-        return changeElementProperty(elements, image, appState, {
-          isDeleted: true,
+        // [1] remove target image in related camera images
+        elements = changeElementMeta(elements, camera, {
+          relatedImages: camera.relatedImages.filter((id) => id !== image.id),
         })
-      default:
-        return {
-          elements,
-          appState,
-          commitToHistory: true,
-        }
+        // [2] make target image visible, if not
+        elements = changeElementProperty(elements, image, {
+          opacity: isDisplayed(image) ? image.opacity : 100,
+          locked: isDisplayed(image) ? image.locked : false,
+        })
+        break
+      case 'remove':
+        elements = changeElementProperty(elements, image, { isDeleted: true })
+        break
+    }
+    return {
+      elements,
+      appState,
+      commitToHistory: true,
     }
   },
   PanelComponent: ({
@@ -149,7 +194,6 @@ export const actionStoryboard = register({
               onClick={() => updateData({ camera, image, action: 'display' })}
               title={'Show on canvas'}
               aria-label={'undefined'}
-              // visible={!isShot}
             />
             <ToolButton
               type='button'
@@ -157,7 +201,6 @@ export const actionStoryboard = register({
               onClick={() => updateData({ camera, image, action: 'unlink' })}
               title={'Disable storyboard'}
               aria-label={'undefined'}
-              // visible={isShot}
             />
             <ToolButton
               type='button'
@@ -165,7 +208,6 @@ export const actionStoryboard = register({
               onClick={() => updateData({ camera, image, action: 'remove' })}
               title={'Remove image'}
               aria-label={'undefined'}
-              // visible={isShot}
             />
           </fieldset>
         ))}

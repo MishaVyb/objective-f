@@ -18,18 +18,24 @@ export const actionChangeMetaCameraShot = register({
     switch (value) {
       case 'init':
       case 'remove':
-        return changeCameraIsShot(elements, appState, value === 'init' ? true : false)
+        elements = changeCameraIsShot(elements, appState, value === 'init' ? true : false)
+        break
       case 'incraseShotNumber':
-        return changeElementsMeta(elements, appState, (m: CameraMeta) => ({
-          shotNumber: m.shotNumber && m.shotNumber + 1,
+        elements = changeElementsMeta(elements, appState, (c: CameraMeta) => ({
+          shotNumber: c.shotNumber && c.shotNumber + 1,
         }))
+        break
       case 'decraseShotNumber':
-        return changeElementsMeta(elements, appState, (m: CameraMeta) => ({
-          shotNumber: m.shotNumber && m.shotNumber > 1 ? m.shotNumber - 1 : m.shotNumber,
+        elements = changeElementsMeta(elements, appState, (c: CameraMeta) => ({
+          shotNumber: c.shotNumber && c.shotNumber > 1 ? c.shotNumber - 1 : c.shotNumber,
         }))
+        break
     }
 
-    throw Error
+    return {
+      elements: elements,
+      commitToHistory: true
+    }
   },
 
   PanelComponent: ({ elements, appState, updateData, appProps }: PanelComponentProps) => {

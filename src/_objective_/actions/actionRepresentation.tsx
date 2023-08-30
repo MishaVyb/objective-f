@@ -9,11 +9,7 @@ export const representationMeta = register({
   name: 'representationMeta',
   trackEvent: false,
   perform: (elements, appState, value) => {
-    return {
-      elements,
-      appState,
-      commitToHistory: false,
-    }
+    return false // No perform action, actually
   },
   PanelComponent: ({ elements, appState, updateData, appProps }: PanelComponentProps) => {
     const metaKind = getFormValue(
