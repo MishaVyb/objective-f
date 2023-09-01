@@ -126,12 +126,14 @@ export type ActionName =
   // VBRN actions:
   | "actionChangeMetaName"
   | "actionChangeMetaCameraShot"
-  | "representationMeta";
+  | "representationMeta"
+  | "actionInitStoryboard"
+  | "actionStoryboard";
 
-export type PanelComponentProps = {
+export type PanelComponentProps<TFormData = any> = {
   elements: readonly ExcalidrawElement[];
   appState: AppState;
-  updateData: (formData?: any) => void;
+  updateData: (formData?: TFormData) => void;
   appProps: ExcalidrawProps;
   data?: Record<string, any>;
 };

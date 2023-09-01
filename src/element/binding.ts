@@ -1,32 +1,33 @@
-import {
-  ExcalidrawLinearElement,
-  ExcalidrawBindableElement,
-  NonDeleted,
-  NonDeletedExcalidrawElement,
-  PointBinding,
-  ExcalidrawElement,
-} from "./types";
+import { isPointerElement } from "../_objective_/types/types";
+import { KEYS } from "../keys";
 import { getElementAtPosition } from "../scene";
+import Scene from "../scene/Scene";
 import { AppState } from "../types";
+import { arrayToMap, tupleToCoors } from "../utils";
+import {
+  bindingBorderTest,
+  determineFocusDistance,
+  determineFocusPoint,
+  distanceToBindableElement,
+  intersectElementWithLine,
+  maxBindingGap,
+} from "./collision";
+import { LinearElementEditor } from "./linearElementEditor";
+import { mutateElement } from "./mutateElement";
+import { getBoundTextElement, handleBindTextResize } from "./textElement";
 import {
   isBindableElement,
   isBindingElement,
   isLinearElement,
 } from "./typeChecks";
 import {
-  bindingBorderTest,
-  distanceToBindableElement,
-  maxBindingGap,
-  determineFocusDistance,
-  intersectElementWithLine,
-  determineFocusPoint,
-} from "./collision";
-import { mutateElement } from "./mutateElement";
-import Scene from "../scene/Scene";
-import { LinearElementEditor } from "./linearElementEditor";
-import { arrayToMap, tupleToCoors } from "../utils";
-import { KEYS } from "../keys";
-import { getBoundTextElement, handleBindTextResize } from "./textElement";
+  ExcalidrawBindableElement,
+  ExcalidrawElement,
+  ExcalidrawLinearElement,
+  NonDeleted,
+  NonDeletedExcalidrawElement,
+  PointBinding,
+} from "./types";
 
 export type SuggestedBinding =
   | NonDeleted<ExcalidrawBindableElement>
@@ -190,7 +191,7 @@ export const maybeBindLinearElement = (
   }
 };
 
-const bindLinearElement = (
+export const bindLinearElement = (
   linearElement: NonDeleted<ExcalidrawLinearElement>,
   hoveredElement: ExcalidrawBindableElement,
   startOrEnd: "start" | "end",
@@ -282,6 +283,8 @@ const calculateFocusAndGap = (
   hoveredElement: ExcalidrawBindableElement,
   startOrEnd: "start" | "end",
 ): { focus: number; gap: number } => {
+  if (isPointerElement(linearElement)) return { focus: 0, gap: 5 }; // VBRN
+
   const direction = startOrEnd === "start" ? -1 : 1;
   const edgePointIndex = direction === -1 ? 0 : linearElement.points.length - 1;
   const adjacentPointIndex = edgePointIndex - direction;
@@ -309,6 +312,12 @@ export const updateBoundElements = (
   options?: {
     simultaneouslyUpdated?: readonly ExcalidrawElement[];
     newSize?: { width: number; height: number };
+
+    // VBRN
+    // For updating newly created arrows.
+    // As they are not in a Scene yet, we have to provide them directly.
+    justCreatedBounds?: readonly ExcalidrawElement[];
+    justCreatedBoundsAreBoundTo?: readonly ExcalidrawBindableElement[];
   },
 ) => {
   const boundLinearElements = (changedElement.boundElements ?? []).filter(
@@ -322,10 +331,13 @@ export const updateBoundElements = (
     simultaneouslyUpdated,
   );
 
-  getNonDeletedElements(
-    Scene.getScene(changedElement)!,
-    boundLinearElements.map((el) => el.id),
-  ).forEach((element) => {
+  [
+    ...getNonDeletedElements(
+      Scene.getScene(changedElement)!,
+      boundLinearElements.map((el) => el.id),
+    ),
+    ...(options?.justCreatedBounds || []), // This elements not in a scene yet. Append new elements.
+  ].forEach((element) => {
     if (!isLinearElement(element)) {
       return;
     }
@@ -355,12 +367,14 @@ export const updateBoundElements = (
       "start",
       startBinding,
       changedElement as ExcalidrawBindableElement,
+      options?.justCreatedBoundsAreBoundTo,
     );
     updateBoundPoint(
       element,
       "end",
       endBinding,
       changedElement as ExcalidrawBindableElement,
+      options?.justCreatedBoundsAreBoundTo,
     );
     const boundText = getBoundTextElement(element);
     if (boundText) {
@@ -390,6 +404,9 @@ const updateBoundPoint = (
   startOrEnd: "start" | "end",
   binding: PointBinding | null | undefined,
   changedElement: ExcalidrawBindableElement,
+
+  // VBRN Extra newly created elements, that are not in scene yet
+  extraSceneElements: readonly ExcalidrawElement[] = [],
 ): void => {
   if (
     binding == null ||
@@ -398,9 +415,23 @@ const updateBoundPoint = (
   ) {
     return;
   }
-  const bindingElement = Scene.getScene(linearElement)!.getElement(
-    binding.elementId,
-  ) as ExcalidrawBindableElement | null;
+
+  // NOTE:
+  // Initialize `bindingElement` for provided binding `point` on `linerElement` Scene.
+  // If `linerElement` has no scene. it means it's newly created element and we handle getting
+  // bindingElement from extra `extraSceneElements`
+  const elementScene = Scene.getScene(linearElement);
+  let bindingElement: ExcalidrawBindableElement | null = null;
+  if (elementScene) {
+    bindingElement = elementScene.getElement(
+      binding.elementId,
+    ) as ExcalidrawBindableElement | null;
+  } else {
+    bindingElement = extraSceneElements.find(
+      (e) => e.id === binding.elementId,
+    ) as ExcalidrawBindableElement | null;
+  }
+
   if (bindingElement == null) {
     // We're not cleaning up after deleted elements atm., so handle this case
     return;

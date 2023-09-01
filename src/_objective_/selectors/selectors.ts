@@ -1,11 +1,23 @@
-import { getNonDeletedElements } from '../../element'
-import { ExcalidrawElement } from '../../element/types'
+import { useMemo } from 'react'
+
+import { useExcalidrawElements } from '../../components/App'
+import { isNonDeletedElement } from '../../element'
+import {
+  ExcalidrawBindableElement,
+  ExcalidrawElement,
+  InitializedExcalidrawImageElement,
+} from '../../element/types'
+import { useExcalidrawFiles } from '../components/ObjectiveWrapper'
 import {
   CameraMeta,
   ObjectiveElement,
+  ObjectiveImageElement,
   ObjectiveMeta,
+  ShotCameraMeta,
   isCameraElement,
   isObjective,
+  isPointerElement,
+  isShotCameraElement,
 } from '../types/types'
 
 /**
@@ -13,8 +25,13 @@ import {
  * @param el
  * @returns Objective's meta
  */
-export const getMeta = (el: ObjectiveElement, elementIds?: string[]) => {
-  return { ...el.customData, id: getObjectiveId(el), elementIds } as ObjectiveMeta
+export const getMeta = <TMeta extends ObjectiveMeta>(
+  el: ObjectiveElement<TMeta>,
+  elementIds: readonly string[] = []
+): TMeta => {
+  // WARNIGN
+  // DeepCopy here?
+  return { ...el.customData, id: getObjectiveId(el), elementIds: [...elementIds] }
 }
 
 /**
@@ -34,20 +51,29 @@ export const getObjectiveId = (element: ObjectiveElement) => element.groupIds[0]
  * but populate `meta.elementIds` with every element id.
  *
  * NOTE:
- * The same list of elementIds could be accessed 
+ * The same list of elementIds could be accessed from groupId
  *
  * @param elements any elements
+ * @param extraPredicate takes only specific metas (custom filter)
+ * @param objectivePredicate takes only specific object kinds (camera \ character \ etc)
  * @returns unique meta instances (non deleted  & readonly)
  */
-export const getObjectiveMetas = (
+export const getObjectiveMetas = <TMeta extends ObjectiveMeta>(
   elements: readonly ExcalidrawElement[],
-  objectivePredicate = isObjective // TODO Type...
-) => {
+  opts?: {
+    objectivePredicate?: typeof isObjective
+    extraPredicate?: (meta: TMeta) => boolean
+    includingDelited?: boolean
+  }
+): readonly Readonly<TMeta>[] => {
+  const objectivePredicate = opts?.objectivePredicate || isObjective
+  const extraPredicate = opts?.extraPredicate || (() => true)
   const groups = new Map<string, Array<string>>() // groupId : [element.id, element.id, ...]
 
-  return getNonDeletedElements(elements)
-    .filter(objectivePredicate)
-    .filter((e) => {
+  return elements
+    .filter((e): e is ObjectiveElement<TMeta> => {
+      if (!opts?.includingDelited && e.isDeleted) return false // Omit deleted element
+      if (!objectivePredicate(e)) return false // Omit another Objective Element kind
       const objectiveId = getObjectiveId(e)
 
       // meta duplicates: append element id and omit meta duplicate
@@ -60,13 +86,34 @@ export const getObjectiveMetas = (
       return true
     })
     .map((e) => getMeta(e, groups.get(getObjectiveId(e))))
+    .filter((meta) => extraPredicate(meta))
 }
 
 /**
  * Extract unique Camera metas from elements.
  */
-export const getCameraMetas = (elements: readonly ExcalidrawElement[]) =>
-  getObjectiveMetas(elements, isCameraElement) as Readonly<CameraMeta>[]
+export const getCameraMetas = (
+  elements: readonly ExcalidrawElement[],
+  opts?: {
+    extraPredicate?: (meta: CameraMeta) => boolean
+    includingDelited?: boolean
+  }
+) => getObjectiveMetas<CameraMeta>(elements, { ...opts, objectivePredicate: isCameraElement })
+
+/**
+ * Extract unique Camera metas from elements (only cameras in Shot List).
+ */
+export const getShotCameraMetas = (
+  elements: readonly ExcalidrawElement[],
+  opts?: {
+    extraPredicate?: (meta: CameraMeta) => boolean
+    includingDelited?: boolean
+  }
+) =>
+  getObjectiveMetas<ShotCameraMeta>(elements, {
+    ...opts,
+    objectivePredicate: isShotCameraElement,
+  })
 
 /**
  * Select all Objective primitive elements (including *deleted)*.
@@ -83,3 +130,86 @@ export const selectObjectiveElements = (elements: readonly ExcalidrawElement[]) 
  */
 export const selectCameraElements = (elements: readonly ExcalidrawElement[]) =>
   elements.filter(isCameraElement)
+
+/**
+ * Camera Basis is a half-transparent circle. Camera are located inside it.
+ * We bind any pointer to this circle by default.
+ */
+export const getCameraBasis = (elements: readonly ExcalidrawElement[], camera: CameraMeta) =>
+  getElementById(elements, camera.elementIds[0]) as ExcalidrawBindableElement | undefined
+
+/**
+ * NOTE: If element type is known from context, it could be specified via generic.
+ * But be aware, there are no checks for type guard for real.
+ */
+export const getElementById = <TElement extends ExcalidrawElement>(
+  elements: readonly ExcalidrawElement[],
+  id: string | undefined
+) => id && (elements.find((el) => el.id === id) as TElement | undefined)
+
+/**
+ * NOTE: If element type is known from context, it could be specified via generic.
+ * But be aware, there are no checks for type guard for real.
+ */
+export const getElementsByIds = <TElement extends ExcalidrawElement>(
+  elements: readonly ExcalidrawElement[],
+  ids: readonly string[]
+) =>
+  elements.reduce<TElement[]>((accumulator, element) => {
+    if (ids.includes(element.id)) accumulator.push(element as TElement)
+    return accumulator
+  }, [])
+
+export const getPointerBetween = (
+  elements: readonly ExcalidrawElement[],
+  one: ExcalidrawElement | undefined,
+  another: ExcalidrawElement | undefined
+) => {
+  if (!another || !one)
+    throw Error(
+      'Cannot get pointer for undefined element. ' +
+        'You are probably getting Objective basis element not properly' +
+        `${one} ${another}`
+    )
+
+  const ids =
+    one.boundElements?.filter((elOne) =>
+      another.boundElements?.some((elAnother) => elAnother.id === elOne.id)
+    ) || []
+  const pointers = elements.filter(
+    (e) => isPointerElement(e) && isNonDeletedElement(e) && ids.some((o) => o.id === e.id)
+  )
+  if (pointers.length === 0) return null
+  if (pointers.length > 1) console.warn('Found more than 1 pointers.')
+  return pointers[0]
+}
+
+// -------------------------- selectors hooks -----------------------//
+
+export const useCamerasImages = (cameras: readonly CameraMeta[]) => {
+  const files = useExcalidrawFiles()
+  const elements = useExcalidrawElements()
+
+  return useMemo(() => {
+    const imageElementIds: string[] = []
+    cameras.forEach((c) => imageElementIds.push(...c.relatedImages))
+    const imageElements = getElementsByIds<InitializedExcalidrawImageElement>(
+      elements,
+      imageElementIds
+    )
+    const images: ObjectiveImageElement[] = []
+    imageElements.forEach((e) =>
+      files[e.fileId] ? images.push({ ...files[e.fileId], ...e }) : null
+    )
+    return images
+  }, [files, elements, cameras])
+}
+
+export const useCameraImages = (camera: CameraMeta) => useCamerasImages([camera])
+
+//--------------------- TS tests ------------------------ //
+
+const __test = () => {
+  const obj = {} as ObjectiveElement<CameraMeta>
+  const aaa = getMeta(obj)
+}

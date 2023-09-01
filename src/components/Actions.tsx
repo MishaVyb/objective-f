@@ -1,3 +1,4 @@
+import Button from "../_objective_/UI/Button";
 import {
   isAllElementsObjective,
   isAnyElementsObjective,
@@ -11,7 +12,10 @@ import {
   shouldAllowVerticalAlign,
   suppportsHorizontalAlign,
 } from "../element/textElement";
-import { hasBoundTextElement } from "../element/typeChecks";
+import {
+  hasBoundTextElement,
+  isInitializedImageElement,
+} from "../element/typeChecks";
 import { ExcalidrawElement, PointerType } from "../element/types";
 import { t } from "../i18n";
 import { KEYS } from "../keys";
@@ -100,6 +104,8 @@ export const SelectedShapeActions = ({
   const isAnyObjective = isAnyElementsObjective(targetElements);
   const isAllExcali = !isAnyObjective;
   const isObjAndExcali = !isAllObjective && isAnyObjective;
+  const isSingleImage =
+    targetElements.length === 1 && isInitializedImageElement(targetElements[0]);
 
   const actionsToRender = {
     stroke: isAllExcali,
@@ -119,6 +125,7 @@ export const SelectedShapeActions = ({
 
   return (
     <div className="panelColumn">
+      {isSingleImage && renderAction("actionInitStoryboard")}
       {isAllObjective && objectiveActions()}
       {isAllObjective && objectiveStyleButton()}
       {excalidrawActions()}
@@ -131,15 +138,16 @@ export const SelectedShapeActions = ({
         {renderAction("representationMeta")}
         {renderAction("actionChangeMetaName")}
         {renderAction("actionChangeMetaCameraShot")}
+        {renderAction("actionStoryboard")}
       </>
     );
   }
 
   function objectiveStyleButton() {
     return (
-      <button onClick={() => setShowOBJStyle(!showOBJStyle)}>
+      <Button onClick={() => setShowOBJStyle(!showOBJStyle)}>
         {showOBJStyle ? "hide style" : "show style"}
-      </button>
+      </Button>
     );
   }
 

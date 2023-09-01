@@ -1,4 +1,4 @@
-import { isMeta } from "../_objective_/types/types";
+import { MaybeMeta, isMeta } from "../_objective_/types/types";
 import { getElementAbsoluteCoords, getElementBounds } from "../element";
 import { isBoundToContainer } from "../element/typeChecks";
 import {
@@ -116,13 +116,12 @@ export const getCommonAttributeOfSelectedElements = <T>(
     new Set(selected.map((element) => getAttribute(element))),
   );
 
-  if (attributes.some((v) => isMeta(v)))
+  if (attributes.some((v) => isMeta(v as MaybeMeta)))
     throw Error("For meta, you have to access attributes directly. Not all. ");
 
   return attributes.length === 1 ? attributes[0] : null;
 };
 
-// NAV function to find out selected elements
 export const getSelectedElements = (
   elements: readonly NonDeletedExcalidrawElement[],
   appState: Pick<AppState, "selectedElementIds">,

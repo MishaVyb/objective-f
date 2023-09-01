@@ -1,15 +1,14 @@
-import { changeProperty, getFormValue } from '../../actions/actionProperties'
+import { getFormValue } from '../../actions/actionProperties'
 import { PanelComponentProps } from '../../actions/types'
-import { ButtonIconSelect } from '../../components/ButtonIconSelect'
 import { ToolButton } from '../../components/ToolButton'
 import { getNonDeletedElements } from '../../element'
-import { newElementWith } from '../../element/mutateElement'
 import { ExcalidrawElement } from '../../element/types'
 import { t } from '../../i18n'
 import { getSelectedElements } from '../../scene'
 import { AppState } from '../../types'
 import { getCameraMetas } from '../selectors/selectors'
-import { CameraMeta, isAllElementsCameras } from '../types/types'
+import { CameraMeta, isAllElementsCameras, isCameraElement } from '../types/types'
+import { changeElementsMeta } from './helpers'
 import { register } from './register'
 
 export const actionChangeMetaCameraShot = register({
@@ -19,23 +18,34 @@ export const actionChangeMetaCameraShot = register({
     switch (value) {
       case 'init':
       case 'remove':
-        return changeCameraIsShot(elements, appState, value === 'init' ? true : false)
+        elements = changeCameraIsShot(elements, appState, value === 'init' ? true : false)
+        break
       case 'incraseShotNumber':
-        return changeElementsMeta(elements, appState, (m) => ({
-          shotNumber: m.shotNumber && m.shotNumber + 1,
+        elements = changeElementsMeta(elements, appState, (c: CameraMeta) => ({
+          shotNumber: c.shotNumber && c.shotNumber + 1,
         }))
+        break
       case 'decraseShotNumber':
-        return changeElementsMeta(elements, appState, (m) => ({
-          shotNumber: m.shotNumber && m.shotNumber > 1 ? m.shotNumber - 1 : m.shotNumber,
+        elements = changeElementsMeta(elements, appState, (c: CameraMeta) => ({
+          shotNumber: c.shotNumber && c.shotNumber > 1 ? c.shotNumber - 1 : c.shotNumber,
         }))
+        break
     }
 
-    throw Error
+    return {
+      elements: elements,
+      commitToHistory: true,
+    }
   },
 
   PanelComponent: ({ elements, appState, updateData, appProps }: PanelComponentProps) => {
     if (!isAllElementsCameras(getSelectedElements(elements, appState))) return <></>
-    const isShot = getFormValue(elements, appState, (element) => element.customData?.isShot, null)
+    const isShot = getFormValue(
+      elements,
+      appState,
+      (element) => (isCameraElement(element) ? element.customData.isShot : false),
+      false
+    )
 
     return (
       <>
@@ -79,45 +89,28 @@ export const actionChangeMetaCameraShot = register({
   },
 })
 
-const changeElementsMeta = (
-  elements: readonly ExcalidrawElement[],
-  appState: AppState,
-  newMeta: Record<string, any> | ((meta: CameraMeta) => Record<string, any>)
-) => ({
-  elements: changeProperty(elements, appState, (el) =>
-    newElementWith(el, {
-      customData: {
-        ...el.customData,
-        ...(typeof newMeta === 'function' ? newMeta(el.customData as CameraMeta) : newMeta),
-      },
-    })
-  ),
-  appState: appState,
-  commitToHistory: true,
-})
-
 const changeCameraIsShot = (
   elements: readonly ExcalidrawElement[],
   appState: AppState,
   isShot: boolean
 ) =>
-  changeElementsMeta(
+  changeElementsMeta<CameraMeta>(
     elements,
     appState,
     determineCameraMeta(getCameraMetas(getNonDeletedElements(elements)), isShot)
   )
 
-const determineCameraMeta = (cameras: Readonly<CameraMeta>[], isShot: boolean) => {
+const determineCameraMeta = (cameras: readonly CameraMeta[], isShot: boolean) => {
   if (isShot)
     return {
       isShot: true,
       shotNumber: Math.max(...cameras.map((c) => c.shotNumber || 0)) + 1,
-      shotVersion: undefined,
+      shotVersion: undefined, // not implemented yet
     }
 
   return {
     isShot: false,
     shotNumber: undefined,
-    shotVersion: undefined,
+    shotVersion: undefined, // not implemented yet
   }
 }

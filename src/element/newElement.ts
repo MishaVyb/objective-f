@@ -119,6 +119,7 @@ const _newElementBase = <T extends ExcalidrawElement>(
     updated: getUpdatedTimestamp(),
     link,
     locked,
+    customData: rest.customData, // VBRN
   };
   return element;
 };
