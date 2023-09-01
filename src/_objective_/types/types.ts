@@ -14,8 +14,13 @@ export enum ObjectiveKinds {
 
 // ---------------------------------------------------------------------- Base
 
-export type MaybeExcalidrawElement = Record<string, any> | undefined | null
-export type MaybeMeta = Record<string, any> | undefined | null
+type AnyExceptMeta<T> = T extends ObjectiveMeta ? never : T //FIXME
+
+export type MaybeExcalidrawElement<T extends ExcalidrawElement = ExcalidrawElement> =
+  | T
+  | undefined
+  | null
+export type MaybeMeta<T extends ObjectiveMeta = ObjectiveMeta> = T | undefined | null
 
 export interface ObjectiveMeta {
   id: string // excalidraw group id for all primitives of this Objective element
@@ -66,8 +71,8 @@ export const isElementRelatedToMeta = <TMeta extends ObjectiveMeta>(
  */
 export const isElementTarget = <TElement extends ExcalidrawElement>(
   el: ExcalidrawElement,
-  target: TElement
-): el is TElement => el.id === target.id
+  target: TElement | TElement['id']
+): el is TElement => el.id === (typeof target === 'string' ? target : target.id)
 // ---------------------------------------------------------------------- Camera
 
 export interface CameraMeta extends ObjectiveMeta {
@@ -151,10 +156,16 @@ export const isDisplayed = (el: ExcalidrawElement) => (el.opacity > 5 ? true : f
 
 const __test = () => {
   const element = {} as ExcalidrawElement
+  const meta = {} as ObjectiveMeta
   const maybe = {} as MaybeExcalidrawElement
   const obj = {} as ObjectiveElement
 
   const typeGuard = (el: ExcalidrawElement): el is ObjectiveElement => {
     return true
   }
+
+  const myFoo = (el: AnyExceptMeta<Record<string, any>>) => 123
+  myFoo(meta)
+  // @ts-ignore
+  isMeta(element)
 }

@@ -78,7 +78,7 @@ export const changeElementMeta = <TMeta extends ObjectiveMeta>(
  */
 export const changeElementProperty = <TElement extends ExcalidrawElement>(
   allCanvasElements: readonly ExcalidrawElement[],
-  target: TElement,
+  target: TElement | TElement['id'],
   newProperties: TNewElementAttrs<TElement>,
   newElements: ExcalidrawElement[] = []
 ) => [

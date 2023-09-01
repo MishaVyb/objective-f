@@ -1,4 +1,4 @@
-import { Point } from "../types";
+import { ObjectiveMeta } from "../_objective_/types/types";
 import {
   FONT_FAMILY,
   ROUNDNESS,
@@ -6,6 +6,7 @@ import {
   THEME,
   VERTICAL_ALIGN,
 } from "../constants";
+import { Point } from "../types";
 import { MarkNonNullable, ValueOf } from "../utility-types";
 
 export type ChartType = "bar" | "line";
@@ -65,7 +66,7 @@ type _ExcalidrawElementBase = Readonly<{
   updated: number;
   link: string | null;
   locked: boolean;
-  customData?: Record<string, any>;
+  customData?: ObjectiveMeta;
 }>;
 
 export type ExcalidrawSelectionElement = _ExcalidrawElementBase & {

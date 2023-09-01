@@ -18,7 +18,7 @@ export const newMockPointer = () =>
     ],
     startArrowhead: null,
     endArrowhead: null,
-    customData: { kind: ObjectiveKinds.POINTER },
+    customData: { kind: ObjectiveKinds.POINTER, id: '', elementIds: [] },
   })
 
 /**
@@ -28,9 +28,16 @@ export const newMockPointer = () =>
  * @returns new arrow
  */
 export const newPointerBeetween = (
-  one: ExcalidrawBindableElement,
-  another: ExcalidrawBindableElement
+  one: ExcalidrawBindableElement | undefined,
+  another: ExcalidrawBindableElement | undefined
 ) => {
+  if (!another || !one)
+    throw Error(
+      'Cannot get pointer for undefined element. ' +
+        'You are probably getting Objective basis element not properly' +
+        `${one} ${another}`
+    )
+
   const newPointer = newMockPointer()
   bindLinearElement(newPointer, one, 'start')
   bindLinearElement(newPointer, another, 'end')

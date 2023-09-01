@@ -5,23 +5,16 @@ import { logger } from 'workbox-core/_private'
 import { PanelComponentProps } from '../../actions/types'
 import { useDevice } from '../../components/App'
 import { ToolButton } from '../../components/ToolButton'
-import { newLinearElement } from '../../element'
-import { bindLinearElement, unbindLinearElements, updateBoundElements } from '../../element/binding'
-import {
-  ExcalidrawBindableElement,
-  ExcalidrawElement,
-  ExcalidrawImageElement,
-  ExcalidrawLinearElement,
-  NonDeleted,
-} from '../../element/types'
+import { unbindLinearElements } from '../../element/binding'
+import { ExcalidrawElement, ExcalidrawImageElement } from '../../element/types'
 import { getSelectedElements } from '../../scene'
 import { AppState } from '../../types'
-import { newMockPointer, newPointerBeetween } from '../objects/primitives'
+import { newPointerBeetween } from '../objects/primitives'
 import '../scss/cameraItem.scss'
 import '../scss/popover.scss'
 import {
+  getCameraBasis,
   getCameraMetas,
-  getElementById,
   getPointerBetween,
   getShotCameraMetas,
   useCamerasImages,
@@ -29,7 +22,6 @@ import {
 import {
   CameraMeta,
   ObjectiveImageElement,
-  ObjectiveKinds,
   isDisplayed,
   isImageRelatedToCamera,
 } from '../types/types'
@@ -57,7 +49,7 @@ export const actionInitStoryboard = register({
    */
   perform: (elements, appState, camera: CameraMeta) => {
     const image = getSelectedImage(elements, appState)
-    const cameraBasis = getElementById(elements, camera.elementIds[0]) as ExcalidrawBindableElement // camera circle
+    const cameraBasis = getCameraBasis(elements, camera)
     const action = camera.relatedImages.includes(image.id) ? 'unlink' : 'link'
     const pointer = getPointerBetween(elements, image, cameraBasis)
 
@@ -142,11 +134,34 @@ export const actionStoryboard = register({
   name: 'actionStoryboard',
   trackEvent: false,
   perform: (elements, appState, { camera, image, action }: IPerformValue) => {
+    const cameraBasis = getCameraBasis(elements, camera)
+    const pointer = getPointerBetween(elements, image, cameraBasis)
+    const otherCamerasRelatedToImage = getCameraMetas(elements, {
+      extraPredicate: (c) => c.relatedImages.includes(image.id),
+    })
+
     switch (action) {
       case 'display':
+        // [1] change display for pointer
+        if (pointer)
+          elements = changeElementProperty(elements, pointer, {
+            opacity: isDisplayed(image) ? 0 : 100,
+            locked: isDisplayed(image),
+          })
+        // [2] change display for image
         elements = changeElementProperty(elements, image, {
           opacity: isDisplayed(image) ? 0 : 100,
           locked: isDisplayed(image),
+        })
+        // [3] change display for other pointers
+        otherCamerasRelatedToImage.forEach((camera) => {
+          const cameraBasis = getCameraBasis(elements, camera)
+          const pointer = getPointerBetween(elements, image, cameraBasis)
+          if (pointer)
+            elements = changeElementProperty(elements, pointer, {
+              opacity: isDisplayed(image) ? 0 : 100,
+              locked: isDisplayed(image),
+            })
         })
         break
       case 'unlink':
@@ -154,14 +169,35 @@ export const actionStoryboard = register({
         elements = changeElementMeta(elements, camera, {
           relatedImages: camera.relatedImages.filter((id) => id !== image.id),
         })
-        // [2] make target image visible, if not
+        // [2] remove pointer
+        if (pointer)
+          elements = changeElementProperty(elements, pointer, {
+            isDeleted: true,
+          })
+        // [3] make target image visible, if not
         elements = changeElementProperty(elements, image, {
           opacity: isDisplayed(image) ? image.opacity : 100,
           locked: isDisplayed(image) ? image.locked : false,
         })
         break
       case 'remove':
+        // [1] remove image
         elements = changeElementProperty(elements, image, { isDeleted: true })
+        // [2] remove pointer
+        if (pointer)
+          elements = changeElementProperty(elements, pointer, {
+            isDeleted: true,
+          })
+        // [3] remove other pointers
+        otherCamerasRelatedToImage.forEach((camera) => {
+          const cameraBasis = getCameraBasis(elements, camera)
+          const pointer = getPointerBetween(elements, image, cameraBasis)
+          if (pointer)
+            elements = changeElementProperty(elements, pointer, {
+              isDeleted: true,
+            })
+        })
+        console.log('remove image', { imageId: image.id, camera, otherCamerasRelatedToImage })
         break
     }
     return {

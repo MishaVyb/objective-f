@@ -7,7 +7,7 @@ import { t } from '../../i18n'
 import { getSelectedElements } from '../../scene'
 import { AppState } from '../../types'
 import { getCameraMetas } from '../selectors/selectors'
-import { CameraMeta, isAllElementsCameras } from '../types/types'
+import { CameraMeta, isAllElementsCameras, isCameraElement } from '../types/types'
 import { changeElementsMeta } from './helpers'
 import { register } from './register'
 
@@ -34,13 +34,18 @@ export const actionChangeMetaCameraShot = register({
 
     return {
       elements: elements,
-      commitToHistory: true
+      commitToHistory: true,
     }
   },
 
   PanelComponent: ({ elements, appState, updateData, appProps }: PanelComponentProps) => {
     if (!isAllElementsCameras(getSelectedElements(elements, appState))) return <></>
-    const isShot = getFormValue(elements, appState, (element) => element.customData?.isShot, null)
+    const isShot = getFormValue(
+      elements,
+      appState,
+      (element) => (isCameraElement(element) ? element.customData.isShot : false),
+      false
+    )
 
     return (
       <>
