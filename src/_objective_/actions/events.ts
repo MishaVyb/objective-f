@@ -1,3 +1,4 @@
+import { newElementWith } from '../../element/mutateElement'
 import { isImageElement } from '../../element/typeChecks'
 import { ExcalidrawElement } from '../../element/types'
 import { AppState } from '../../types'
@@ -18,23 +19,34 @@ import { changeElementProperty } from './helpers'
  */
 export const deleteEventHandler = (
   elements: readonly ExcalidrawElement[],
-  deletingElements: Set<ExcalidrawElement>,
+  deletingElements: Set<ExcalidrawElement> | Array<ExcalidrawElement>,
   appState: AppState
 ) => {
-  elements = deleteExcalidrawElements(deletingElements, elements)
+  // - Handle if deleting element not marked as deleted (in case direct call)
+  elements = elements.map((el) =>
+    el.isDeleted
+      ? el
+      : [...deletingElements].some((delitingEl) => delitingEl.id === el.id)
+      ? newElementWith(el, { isDeleted: true })
+      : el
+  )
 
+  // - Handle Excalidraw
+  elements = deleteExcalidrawElements(elements, deletingElements)
+
+  // - Handle Objective
   const delitingMetas = getObjectiveMetas(elements, {
     extraPredicate: (meta) => [...deletingElements].some((el) => meta.elementIds.includes(el.id)),
     includingDelited: true,
   })
-  elements = deleteObjectiveMetas(delitingMetas, elements)
+  elements = deleteObjectiveMetas(elements, delitingMetas)
 
   return elements
 }
 
-const deleteExcalidrawElements = (
-  deletingElements: Set<ExcalidrawElement>,
-  elements: readonly ExcalidrawElement[]
+export const deleteExcalidrawElements = (
+  elements: readonly ExcalidrawElement[],
+  deletingElements: Set<ExcalidrawElement> | Array<ExcalidrawElement>
 ) => {
   deletingElements.forEach((target) => {
     // [case 1] delete image
@@ -43,9 +55,6 @@ const deleteExcalidrawElements = (
       const otherCamerasRelatedToImage = getCameraMetas(elements, {
         extraPredicate: (c) => c.relatedImages.includes(image.id),
       })
-
-      console.log('remove image hook', { imageId: image.id, otherCamerasRelatedToImage })
-
       otherCamerasRelatedToImage.forEach((camera) => {
         const cameraBasis = getCameraBasis(elements, camera)
         const pointer = getPointerBetween(elements, image, cameraBasis)
@@ -61,9 +70,9 @@ const deleteExcalidrawElements = (
   return elements
 }
 
-const deleteObjectiveMetas = (
-  delitingMetas: readonly Readonly<ObjectiveMeta>[],
-  elements: readonly ExcalidrawElement[]
+export const deleteObjectiveMetas = (
+  elements: readonly ExcalidrawElement[],
+  delitingMetas: readonly Readonly<ObjectiveMeta>[]
 ) => {
   delitingMetas.forEach((target) => {
     // [case 2] delete camera
@@ -72,12 +81,10 @@ const deleteObjectiveMetas = (
       const otherImagesRelatedToCamera = elements.filter(
         (element) => element.type === 'image' && camera.relatedImages.includes(element.id)
       )
-
-      // console.log('remove image hook', { imageId: image.id, otherCamerasRelatedToImage })
       otherImagesRelatedToCamera.forEach((image) => {
         const cameraBasis = getCameraBasis(elements, camera)
 
-        // in case we handle deliting not camera basis, but another camera primitive
+        // UNUSED... in case we handle deliting not whole Camera, but separate camera primitive
         if (!cameraBasis) return
 
         const pointer = getPointerBetween(elements, image, cameraBasis)

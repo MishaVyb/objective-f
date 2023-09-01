@@ -26,6 +26,7 @@ import {
   isImageRelatedToCamera,
 } from '../types/types'
 import './../scss/actionStoryboard.scss'
+import { deleteEventHandler } from './events'
 import { changeElementMeta, changeElementProperty } from './helpers'
 import { register } from './register'
 
@@ -182,22 +183,7 @@ export const actionStoryboard = register({
         break
       case 'remove':
         // [1] remove image
-        elements = changeElementProperty(elements, image, { isDeleted: true })
-        // [2] remove pointer
-        if (pointer)
-          elements = changeElementProperty(elements, pointer, {
-            isDeleted: true,
-          })
-        // [3] remove other pointers
-        otherCamerasRelatedToImage.forEach((camera) => {
-          const cameraBasis = getCameraBasis(elements, camera)
-          const pointer = getPointerBetween(elements, image, cameraBasis)
-          if (pointer)
-            elements = changeElementProperty(elements, pointer, {
-              isDeleted: true,
-            })
-        })
-        console.log('remove image', { imageId: image.id, camera, otherCamerasRelatedToImage })
+        elements = deleteEventHandler(elements, [image], appState)
         break
     }
     return {
