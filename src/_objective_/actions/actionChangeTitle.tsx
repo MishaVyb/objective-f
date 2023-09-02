@@ -22,21 +22,25 @@ import { register } from './register'
 export const actionChangeMetaName = register({
   name: 'actionChangeMetaName',
   trackEvent: false,
-  perform: (elements, appState, { name, app }: { name: string; app: AppClassProperties }) => {
+  perform: (
+    elements,
+    appState,
+    { newTextValue, app }: { newTextValue: string; app: AppClassProperties }
+  ) => {
     const selectedCameras = getCameraMetas(getSelectedElements(elements, appState))
     selectedCameras.forEach((camera) => {
-      if (name && !camera.nameRepr) {
+      if (newTextValue && !camera.nameRepr) {
         // add name repr:
-        const [rectangle, text] = newNameRepr(camera, name)
+        const [rectangle, text] = newNameRepr(camera, newTextValue)
         elements = changeElementMeta(elements, camera, { nameRepr: rectangle.id })
         elements = [...elements, rectangle, text]
         //-------------------------------------//
-      } else if (name && camera.nameRepr) {
+      } else if (newTextValue && camera.nameRepr) {
         //
         // change repr text
         const container = elements.find((e) => e.id === camera.nameRepr) as ExcalidrawElement
         const textElement = getBoundTextElement(container)
-        handleBindTextResize(container, false, { newOriginalText: name })
+        handleBindTextResize(container, false, { newOriginalText: newTextValue })
 
         // HACK
         // If we do not replace prev text element with mutated text element, it won't take effect.
@@ -46,7 +50,7 @@ export const actionChangeMetaName = register({
         elements = changeElementProperty(elements, textElement!, textElement!)
 
         //-------------------------------------//
-      } else if (!name && camera.nameRepr) {
+      } else if (!newTextValue && camera.nameRepr) {
         //
         // remove name repr:
         elements = changeElementMeta(elements, camera, { nameRepr: undefined })
@@ -59,10 +63,10 @@ export const actionChangeMetaName = register({
       }
     })
 
-    elements = changeElementsMeta(elements, appState, { name })
+    elements = changeElementsMeta(elements, appState, { name: newTextValue })
     return {
       elements: elements,
-      commitToHistory: !!name,
+      commitToHistory: !!newTextValue,
     }
   },
   PanelComponent: ({ elements, appState, updateData, appProps }: PanelComponentProps) => {
@@ -73,7 +77,7 @@ export const actionChangeMetaName = register({
       <TextField
         placeholder={t('labels.metaName', null, 'Label')}
         value={name || ''}
-        onChange={(name) => updateData({ name, app })}
+        onChange={(newTextValue) => updateData({ newTextValue, app })}
         onKeyDown={(event) => event.key === KEYS.ENTER && focusNearestParent(event.target)}
       />
     )

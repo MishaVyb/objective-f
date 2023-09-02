@@ -1,6 +1,7 @@
 import { newElementWith } from '../../element/mutateElement'
 import { isImageElement } from '../../element/typeChecks'
-import { ExcalidrawElement } from '../../element/types'
+import { ExcalidrawElement, NonDeletedExcalidrawElement } from '../../element/types'
+import Scene from '../../scene/Scene'
 import { AppState } from '../../types'
 import {
   getCameraBasis,
@@ -98,4 +99,24 @@ export const deleteObjectiveMetas = (
     // .... other handlers per Objective kind
   })
   return elements
+}
+
+/**
+ * Populate `elementsToUpdate` with new elements to move it alongside with selected.
+ */
+export const dragEventHandler = (
+  selectedElements: NonDeletedExcalidrawElement[],
+  elementsToUpdate: Set<NonDeletedExcalidrawElement>,
+  scene: Scene
+) => {
+  //
+  // - handle camera drag
+  const metas = getCameraMetas(selectedElements)
+  metas.forEach((meta) => {
+    if (meta.nameRepr) {
+      const nameReprContainer = scene.getNonDeletedElement(meta.nameRepr)
+      if (nameReprContainer) elementsToUpdate.add(nameReprContainer)
+    }
+  })
+  // handle other elements drag
 }

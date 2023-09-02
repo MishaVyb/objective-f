@@ -1,4 +1,4 @@
-import { getCameraMetas } from "../_objective_/selectors/selectors";
+import { dragEventHandler } from "../_objective_/actions/events";
 import { isSelectedViaGroup } from "../groups";
 import Scene from "../scene/Scene";
 import { AppState, PointerDownState } from "../types";
@@ -43,9 +43,7 @@ export const dragSelectedElements = (
     elementsInFrames.forEach((element) => elementsToUpdate.add(element));
   }
 
-  // TODO
-  const metas = getCameraMetas(selectedElements);
-  console.log("drag: ", metas);
+  dragEventHandler(selectedElements, elementsToUpdate, scene);
 
   elementsToUpdate.forEach((element) => {
     updateElementCoords(

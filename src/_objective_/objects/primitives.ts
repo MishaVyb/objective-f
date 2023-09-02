@@ -59,7 +59,7 @@ export const newPointerBeetween = (
 
 export const newNameRepr = (meta: ObjectiveMeta, initialValue: string) => {
   const basis = getObjectiveBasis(meta)
-  const gap = 20
+  const gap = 10
   const [w, h] = [120, 30]
   const container = newElement({
     type: 'rectangle',
@@ -67,16 +67,17 @@ export const newNameRepr = (meta: ObjectiveMeta, initialValue: string) => {
     strokeWidth: 1,
     strokeStyle: 'solid',
     roughness: 0,
-    opacity: 40,
+    opacity: 30,
     x: basis.x + basis.width / 2 - w / 2,
     y: basis.y + basis.height + gap,
     strokeColor: 'transparent',
-    backgroundColor: '#ced4da',
+    backgroundColor: basis.backgroundColor,
     width: w,
     height: h,
     roundness: {
       type: 3,
     },
+    locked: true, // For better User's elements select experience. But User cannot change style anymore.
   })
 
   // All other props generated dynamically inside
@@ -92,14 +93,13 @@ export const newNameRepr = (meta: ObjectiveMeta, initialValue: string) => {
     strokeWidth: 1,
     strokeStyle: 'solid',
     roughness: 1,
-    opacity: 40,
+    opacity: 100,
     text: initialValue,
     fontSize: 16,
     fontFamily: 3,
     textAlign: 'center',
     verticalAlign: 'middle',
     containerId: container.id,
-
   })
   // @ts-ignore
   container.boundElements = [
