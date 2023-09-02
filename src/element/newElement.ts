@@ -190,6 +190,9 @@ export const newTextElement = (
     getFontString({ fontFamily, fontSize }),
     lineHeight,
   );
+  metrics.width = opts.width || metrics.width;
+  metrics.height = opts.height || metrics.height;
+
   const textAlign = opts.textAlign || DEFAULT_TEXT_ALIGN;
   const verticalAlign = opts.verticalAlign || DEFAULT_VERTICAL_ALIGN;
   const offsets = getTextElementPositionOffsets(

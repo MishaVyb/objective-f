@@ -1,13 +1,14 @@
+import { getCameraMetas } from "../_objective_/selectors/selectors";
+import { isSelectedViaGroup } from "../groups";
+import Scene from "../scene/Scene";
+import { AppState, PointerDownState } from "../types";
 import { updateBoundElements } from "./binding";
 import { getCommonBounds } from "./bounds";
 import { mutateElement } from "./mutateElement";
 import { getPerfectElementSize } from "./sizeHelpers";
-import { NonDeletedExcalidrawElement } from "./types";
-import { AppState, PointerDownState } from "../types";
 import { getBoundTextElement } from "./textElement";
-import { isSelectedViaGroup } from "../groups";
-import Scene from "../scene/Scene";
 import { isFrameElement } from "./typeChecks";
+import { NonDeletedExcalidrawElement } from "./types";
 
 export const dragSelectedElements = (
   pointerDownState: PointerDownState,
@@ -41,6 +42,10 @@ export const dragSelectedElements = (
 
     elementsInFrames.forEach((element) => elementsToUpdate.add(element));
   }
+
+  // TODO
+  const metas = getCameraMetas(selectedElements);
+  console.log("drag: ", metas);
 
   elementsToUpdate.forEach((element) => {
     updateElementCoords(

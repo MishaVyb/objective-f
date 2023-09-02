@@ -1,14 +1,4 @@
-import { getFontString, arrayToMap, isTestEnv } from "../utils";
-import {
-  ExcalidrawElement,
-  ExcalidrawTextContainer,
-  ExcalidrawTextElement,
-  ExcalidrawTextElementWithContainer,
-  FontFamilyValues,
-  FontString,
-  NonDeletedExcalidrawElement,
-} from "./types";
-import { mutateElement } from "./mutateElement";
+import { isTextElement } from ".";
 import {
   BOUND_TEXT_PADDING,
   DEFAULT_FONT_FAMILY,
@@ -18,21 +8,31 @@ import {
   TEXT_ALIGN,
   VERTICAL_ALIGN,
 } from "../constants";
-import { MaybeTransformHandleType } from "./transformHandles";
-import Scene from "../scene/Scene";
-import { isTextElement } from ".";
-import { isBoundToContainer, isArrowElement } from "./typeChecks";
-import { LinearElementEditor } from "./linearElementEditor";
-import { AppState } from "../types";
-import { isTextBindableContainer } from "./typeChecks";
 import { getElementAbsoluteCoords } from "../element";
 import { getSelectedElements } from "../scene";
+import Scene from "../scene/Scene";
+import { AppState } from "../types";
+import { ExtractSetType } from "../utility-types";
+import { getFontString, arrayToMap, isTestEnv } from "../utils";
 import { isHittingElementNotConsideringBoundingBox } from "./collision";
+import { LinearElementEditor } from "./linearElementEditor";
+import { mutateElement } from "./mutateElement";
 import {
   resetOriginalContainerCache,
   updateOriginalContainerCache,
 } from "./textWysiwyg";
-import { ExtractSetType } from "../utility-types";
+import { MaybeTransformHandleType } from "./transformHandles";
+import { isBoundToContainer, isArrowElement } from "./typeChecks";
+import { isTextBindableContainer } from "./typeChecks";
+import {
+  ExcalidrawElement,
+  ExcalidrawTextContainer,
+  ExcalidrawTextElement,
+  ExcalidrawTextElementWithContainer,
+  FontFamilyValues,
+  FontString,
+  NonDeletedExcalidrawElement,
+} from "./types";
 
 export const normalizeText = (text: string) => {
   return (
@@ -155,9 +155,10 @@ export const bindTextToShapeAfterDuplication = (
 export const handleBindTextResize = (
   container: NonDeletedExcalidrawElement,
   transformHandleType: MaybeTransformHandleType,
+  opts?: {
+    newOriginalText?: string;
+  },
 ) => {
-  console.log('handleBindTextResize', {container, transformHandleType})
-  
   const boundTextElementId = getBoundTextElementId(container);
   if (!boundTextElementId) {
     return;
@@ -174,6 +175,7 @@ export const handleBindTextResize = (
     textElement = Scene.getScene(container)!.getElement(
       boundTextElementId,
     ) as ExcalidrawTextElement;
+    const originalText = opts?.newOriginalText || textElement.originalText;
     let text = textElement.text;
     let nextHeight = textElement.height;
     let nextWidth = textElement.width;
@@ -187,11 +189,7 @@ export const handleBindTextResize = (
     let nextBaseLine = textElement.baseline;
     if (transformHandleType !== "n" && transformHandleType !== "s") {
       if (text) {
-        text = wrapText(
-          textElement.originalText,
-          getFontString(textElement),
-          maxWidth,
-        );
+        text = wrapText(originalText, getFontString(textElement), maxWidth);
       }
       const metrics = measureText(
         text,
@@ -225,6 +223,7 @@ export const handleBindTextResize = (
     }
 
     mutateElement(textElement, {
+      originalText, // VBRN it is maybe changed, if pass newOriginalText was provided
       text,
       width: nextWidth,
       height: nextHeight,

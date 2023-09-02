@@ -78,11 +78,13 @@ export const newNameRepr = (meta: ObjectiveMeta, initialValue: string) => {
       type: 3,
     },
   })
+
+  // All other props generated dynamically inside
+  const widthExtension = 12
   const text = newTextElement({
     x: container.x + container.width / 2,
     y: container.y + container.height / 2,
-    width: container.width, // ???
-    height: container.height, // ???
+    width: container.width / 2 + widthExtension,
     angle: 0,
     strokeColor: '#1e1e1e',
     backgroundColor: 'transparent',
@@ -92,17 +94,12 @@ export const newNameRepr = (meta: ObjectiveMeta, initialValue: string) => {
     roughness: 1,
     opacity: 40,
     text: initialValue,
-    originalText: initialValue, // ???
-
     fontSize: 16,
     fontFamily: 3,
     textAlign: 'center',
     verticalAlign: 'middle',
     containerId: container.id,
 
-    // @ts-ignore
-    lineHeight: 1.2, // ???
-    baseline: 15, // ???
   })
   // @ts-ignore
   container.boundElements = [
