@@ -1,7 +1,12 @@
-import { newLinearElement } from '../../element'
+import { newElement, newLinearElement, newTextElement } from '../../element'
 import { bindLinearElement, updateBoundElements } from '../../element/binding'
-import { ExcalidrawBindableElement } from '../../element/types'
-import { ObjectiveKinds } from '../types/types'
+import {
+  ExcalidrawBindableElement,
+  ExcalidrawRectangleElement,
+  ExcalidrawTextElementWithContainer,
+} from '../../element/types'
+import { getObjectiveBasis } from '../selectors/selectors'
+import { ObjectiveKinds, ObjectiveMeta } from '../types/types'
 
 export const newMockPointer = () =>
   newLinearElement({
@@ -18,7 +23,7 @@ export const newMockPointer = () =>
     ],
     startArrowhead: null,
     endArrowhead: null,
-    customData: { kind: ObjectiveKinds.POINTER, id: '', elementIds: [] },
+    customData: { kind: ObjectiveKinds.POINTER, id: '', elementIds: [], elements: [] },
   })
 
 /**
@@ -50,4 +55,61 @@ export const newPointerBeetween = (
     justCreatedBoundsAreBoundTo: [another, one],
   })
   return newPointer
+}
+
+export const newNameRepr = (meta: ObjectiveMeta, initialValue: string) => {
+  const basis = getObjectiveBasis(meta)
+  const gap = 20
+  const [w, h] = [120, 30]
+  const container = newElement({
+    type: 'rectangle',
+    fillStyle: 'solid',
+    strokeWidth: 1,
+    strokeStyle: 'solid',
+    roughness: 0,
+    opacity: 40,
+    x: basis.x + basis.width / 2 - w / 2,
+    y: basis.y + basis.height + gap,
+    strokeColor: 'transparent',
+    backgroundColor: '#ced4da',
+    width: w,
+    height: h,
+    roundness: {
+      type: 3,
+    },
+  })
+  const text = newTextElement({
+    x: container.x + container.width / 2,
+    y: container.y + container.height / 2,
+    width: container.width, // ???
+    height: container.height, // ???
+    angle: 0,
+    strokeColor: '#1e1e1e',
+    backgroundColor: 'transparent',
+    fillStyle: 'hachure',
+    strokeWidth: 1,
+    strokeStyle: 'solid',
+    roughness: 1,
+    opacity: 40,
+    text: initialValue,
+    originalText: initialValue, // ???
+
+    fontSize: 16,
+    fontFamily: 3,
+    textAlign: 'center',
+    verticalAlign: 'middle',
+    containerId: container.id,
+
+    // @ts-ignore
+    lineHeight: 1.2, // ???
+    baseline: 15, // ???
+  })
+  // @ts-ignore
+  container.boundElements = [
+    {
+      type: 'text',
+      id: text.id,
+    },
+  ]
+  return [container, text] as [ExcalidrawRectangleElement, ExcalidrawTextElementWithContainer]
 }

@@ -27,11 +27,12 @@ import {
  */
 export const getMeta = <TMeta extends ObjectiveMeta>(
   el: ObjectiveElement<TMeta>,
-  elementIds: readonly string[] = []
+  elementIds: readonly string[] = [],
+  elements: readonly ExcalidrawElement[] = []
 ): TMeta => {
-  // WARNIGN
+  // WARNING
   // DeepCopy here?
-  return { ...el.customData, id: getObjectiveId(el), elementIds: [...elementIds] }
+  return { ...el.customData, id: getObjectiveId(el), elementIds, elements }
 }
 
 /**
@@ -47,8 +48,10 @@ export const getObjectiveId = (element: ObjectiveElement) => element.groupIds[0]
 /**
  * Extract unique objective metas from elements.
  * Useful shortcut to access objective metas to handle any Objective logic.
- * As each excalidraw element in group contains meta, we omit meta duplicates,
- * but populate `meta.elementIds` with every element id.
+ * As each excalidraw element in group contains meta, we omit meta duplicates.
+ * And populate these props:
+ * - `meta.elementIds` (LEGACY)
+ * - `meta.elements`
  *
  * NOTE:
  * The same list of elementIds could be accessed from groupId
@@ -68,7 +71,8 @@ export const getObjectiveMetas = <TMeta extends ObjectiveMeta>(
 ): readonly Readonly<TMeta>[] => {
   const objectivePredicate = opts?.objectivePredicate || isObjective
   const extraPredicate = opts?.extraPredicate || (() => true)
-  const groups = new Map<string, Array<string>>() // groupId : [element.id, element.id, ...]
+  const idsByGroup = new Map<string, string[]>() // groupId : [element.id, element.id, ...]
+  const elementsByGroups = new Map<string, ExcalidrawElement[]>() // groupId : [{...}, {...}, ...]
 
   return elements
     .filter((e): e is ObjectiveElement<TMeta> => {
@@ -77,15 +81,19 @@ export const getObjectiveMetas = <TMeta extends ObjectiveMeta>(
       const objectiveId = getObjectiveId(e)
 
       // meta duplicates: append element id and omit meta duplicate
-      if (groups.has(objectiveId)) {
-        groups.get(objectiveId)?.push(e.id)
+      if (idsByGroup.has(objectiveId)) {
+        idsByGroup.get(objectiveId)?.push(e.id)
+        elementsByGroups.get(objectiveId)?.push(e)
         return false
       }
 
-      groups.set(objectiveId, [e.id])
+      idsByGroup.set(objectiveId, [e.id])
+      elementsByGroups.set(objectiveId, [e])
       return true
     })
-    .map((e) => getMeta(e, groups.get(getObjectiveId(e))))
+    .map((e) =>
+      getMeta(e, idsByGroup.get(getObjectiveId(e)), elementsByGroups.get(getObjectiveId(e)))
+    )
     .filter((meta) => extraPredicate(meta))
 }
 
@@ -131,6 +139,8 @@ export const selectObjectiveElements = (elements: readonly ExcalidrawElement[]) 
 export const selectCameraElements = (elements: readonly ExcalidrawElement[]) =>
   elements.filter(isCameraElement)
 
+// TODO docstring
+export const getObjectiveBasis = (meta: ObjectiveMeta) => meta.elements[0]
 /**
  * Camera Basis is a half-transparent circle. Camera are located inside it.
  * We bind any pointer to this circle by default.
@@ -145,7 +155,7 @@ export const getCameraBasis = (elements: readonly ExcalidrawElement[], camera: C
 export const getElementById = <TElement extends ExcalidrawElement>(
   elements: readonly ExcalidrawElement[],
   id: string | undefined
-) => id && (elements.find((el) => el.id === id) as TElement | undefined)
+) => id ? (elements.find((el) => el.id === id) as TElement | undefined) : undefined
 
 /**
  * NOTE: If element type is known from context, it could be specified via generic.

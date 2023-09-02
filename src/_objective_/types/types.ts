@@ -2,6 +2,7 @@ import {
   ExcalidrawElement,
   ExcalidrawFrameElement,
   ExcalidrawImageElement,
+  GroupId,
   InitializedExcalidrawImageElement,
 } from '../../element/types'
 import { BinaryFileData } from '../../types'
@@ -23,12 +24,20 @@ export type MaybeExcalidrawElement<T extends ExcalidrawElement = ExcalidrawEleme
 export type MaybeMeta<T extends ObjectiveMeta = ObjectiveMeta> = T | undefined | null
 
 export interface ObjectiveMeta {
-  id: string // excalidraw group id for all primitives of this Objective element
-  elementIds: string[] // excalidraw element ids
+  /** Constant. Populated by lib from initial. */
+  readonly kind: ObjectiveKinds
 
-  kind: ObjectiveKinds
-  name?: string // aka title / label
-  description?: string
+  /** Aka Title / Label. Populated by User from `actionProps` panel. */
+  name?: string
+  /** nameRepr: `rectangle.id` === `containderId` for bound inside text element */
+  nameRepr?: ExcalidrawElement['id']
+
+  /** Excalidraw group id for all primitives of this Objective element. Populated by `getMetas`. */
+  id: GroupId
+  /** **LEGACY**! Excalidraw primetime element ids. Populated by `getMetas` */ // LEGACY
+  elementIds: ExcalidrawElement['id'][]
+  /** Excalidraw primetime elements. Populated by `getMetas` */
+  elements: readonly Readonly<ExcalidrawElement>[]
 }
 
 /**
@@ -90,24 +99,6 @@ export interface CameraMeta extends ObjectiveMeta {
 }
 export type CameraElement = ObjectiveElement<CameraMeta>
 export type ShotCameraElement = ObjectiveElement<ShotCameraMeta>
-
-// TODO move to another module
-export const cameraInitialMeta: CameraMeta = {
-  // Type guard (constant)
-  kind: ObjectiveKinds.CAMERA,
-
-  // Mock defaults. Will be overridden by `getMeta`
-  id: '',
-  elementIds: [],
-
-  // Optional props
-  name: undefined,
-  description: undefined,
-  focalLength: undefined,
-
-  // Relationships.
-  relatedImages: [],
-}
 
 export interface ShotCameraMeta extends CameraMeta {
   isShot: true

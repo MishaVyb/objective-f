@@ -42,3 +42,4 @@ index.tsx
     - рендерит весь UI, в тч контекст меню и тосты
     - рендерит канвас
     - наполняет excalidrawAPI, тем самым все состояния компонента App может быть доступно выше ⬆️
+    excalidrawAPI: https://docs.excalidraw.com/docs/@excalidraw/excalidraw/api/props/ref

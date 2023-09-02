@@ -156,6 +156,8 @@ export const handleBindTextResize = (
   container: NonDeletedExcalidrawElement,
   transformHandleType: MaybeTransformHandleType,
 ) => {
+  console.log('handleBindTextResize', {container, transformHandleType})
+  
   const boundTextElementId = getBoundTextElementId(container);
   if (!boundTextElementId) {
     return;
