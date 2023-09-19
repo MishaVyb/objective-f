@@ -77,7 +77,11 @@ export const newNameRepr = (meta: ObjectiveMeta, initialValue: string) => {
     roundness: {
       type: 3,
     },
-    locked: true, // For better User's elements select experience. But User cannot change style anymore.
+
+    // TODO
+    // By default it's locked. For better User's elements select experience.
+    // But User cannot change style anymore. So we are going to add 🔓 button.
+    locked: true,
   })
 
   // All other props generated dynamically inside

@@ -9,7 +9,7 @@ import {
   getObjectiveMetas,
   getPointerBetween,
 } from '../selectors/selectors'
-import { ObjectiveMeta, isCameraMeta } from '../types/types'
+import { ObjectiveMeta, isCameraMeta, isShotCameraMeta } from '../types/types'
 import { changeElementProperty } from './helpers'
 
 /**
@@ -111,10 +111,14 @@ export const dragEventHandler = (
 ) => {
   //
   // - handle camera drag
-  const metas = getCameraMetas(selectedElements)
+  const metas = getObjectiveMetas(selectedElements)
   metas.forEach((meta) => {
     if (meta.nameRepr) {
       const nameReprContainer = scene.getNonDeletedElement(meta.nameRepr)
+      if (nameReprContainer) elementsToUpdate.add(nameReprContainer)
+    }
+    if (isShotCameraMeta(meta) && meta.shotNumberRepr) {
+      const nameReprContainer = scene.getNonDeletedElement(meta.shotNumberRepr)
       if (nameReprContainer) elementsToUpdate.add(nameReprContainer)
     }
   })

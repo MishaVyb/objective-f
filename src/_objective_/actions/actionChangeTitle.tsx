@@ -1,10 +1,6 @@
 import { getFormValue } from '../../actions/actionProperties'
 import { PanelComponentProps } from '../../actions/types'
 import { useApp } from '../../components/App'
-import { isTextElement } from '../../element'
-import { newElementWith } from '../../element/mutateElement'
-import { getBoundTextElement, handleBindTextResize } from '../../element/textElement'
-import { ExcalidrawElement } from '../../element/types'
 import { t } from '../../i18n'
 import { KEYS } from '../../keys'
 import { getSelectedElements } from '../../scene'
@@ -12,8 +8,8 @@ import { AppClassProperties } from '../../types'
 import { focusNearestParent } from '../../utils'
 import { TextField } from '../UI/TextField'
 import { newNameRepr } from '../objects/primitives'
-import { getCameraMetas } from '../selectors/selectors'
-import { changeElementMeta, changeElementProperty, changeElementsMeta } from './helpers'
+import { getObjectiveMetas } from '../selectors/selectors'
+import { changeElementsMeta, updateMetaRepresentation } from './helpers'
 import { register } from './register'
 
 /**
@@ -27,42 +23,12 @@ export const actionChangeMetaName = register({
     appState,
     { newTextValue, app }: { newTextValue: string; app: AppClassProperties }
   ) => {
-    const selectedCameras = getCameraMetas(getSelectedElements(elements, appState))
-    selectedCameras.forEach((camera) => {
-      if (newTextValue && !camera.nameRepr) {
-        // add name repr:
-        const [rectangle, text] = newNameRepr(camera, newTextValue)
-        elements = changeElementMeta(elements, camera, { nameRepr: rectangle.id })
-        elements = [...elements, rectangle, text]
-        //-------------------------------------//
-      } else if (newTextValue && camera.nameRepr) {
-        //
-        // change repr text
-        const container = elements.find((e) => e.id === camera.nameRepr) as ExcalidrawElement
-        const textElement = getBoundTextElement(container)
-        handleBindTextResize(container, false, { newOriginalText: newTextValue })
+    const metas = getObjectiveMetas(getSelectedElements(elements, appState))
 
-        // HACK
-        // If we do not replace prev text element with mutated text element, it won't take effect.
-        // Because inside `resizeSingleElement` text element is taken from Scene, not from `elements` Array.
-        // And after `perform` call, all Scene elements overwrithe all Scene elements,
-        // even if it was just mutated above, as in our case.
-        elements = changeElementProperty(elements, textElement!, textElement!)
+    // [1] change meta name representation(!)
+    elements = updateMetaRepresentation(elements, metas, 'nameRepr', newTextValue, newNameRepr)
 
-        //-------------------------------------//
-      } else if (!newTextValue && camera.nameRepr) {
-        //
-        // remove name repr:
-        elements = changeElementMeta(elements, camera, { nameRepr: undefined })
-        elements = elements.map((e) =>
-          e.id === camera.nameRepr || (isTextElement(e) && e.containerId === camera.nameRepr)
-            ? newElementWith(e, { isDeleted: true })
-            : e
-        )
-        //-------------------------------//
-      }
-    })
-
+    // [2] change meta name
     elements = changeElementsMeta(elements, appState, { name: newTextValue })
     return {
       elements: elements,

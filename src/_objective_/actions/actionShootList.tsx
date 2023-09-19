@@ -2,30 +2,57 @@ import { getFormValue } from '../../actions/actionProperties'
 import { PanelComponentProps } from '../../actions/types'
 import { ToolButton } from '../../components/ToolButton'
 import { getNonDeletedElements } from '../../element'
-import { ExcalidrawElement } from '../../element/types'
 import { t } from '../../i18n'
 import { getSelectedElements } from '../../scene'
-import { AppState } from '../../types'
+import { newNameRepr } from '../objects/primitives'
 import { getCameraMetas } from '../selectors/selectors'
 import { CameraMeta, isAllElementsCameras, isCameraElement } from '../types/types'
-import { changeElementsMeta } from './helpers'
+import { changeElementsMeta, updateMetaRepresentation } from './helpers'
 import { register } from './register'
 
 export const actionChangeMetaCameraShot = register({
   name: 'actionChangeMetaCameraShot',
   trackEvent: false,
   perform: (elements, appState, value) => {
+    const isShot = value === 'init' ? true : false
+    let newCameraShootProps: ReturnType<typeof determineCameraMeta>
     switch (value) {
       case 'init':
       case 'remove':
-        elements = changeCameraIsShot(elements, appState, value === 'init' ? true : false)
+        newCameraShootProps = determineCameraMeta(
+          getCameraMetas(getNonDeletedElements(elements)),
+          isShot
+        )
+        elements = updateMetaRepresentation(
+          elements,
+          getCameraMetas(getSelectedElements(elements, appState)),
+          'shotNumberRepr',
+          isShot ? `cam ${newCameraShootProps.shotNumber}` : '',
+          newNameRepr
+        )
+        elements = changeElementsMeta<CameraMeta>(elements, appState, newCameraShootProps)
         break
       case 'incraseShotNumber':
+        elements = updateMetaRepresentation(
+          elements,
+          getCameraMetas(getSelectedElements(elements, appState)),
+          'shotNumberRepr',
+          (c: CameraMeta) => `cam ${c.shotNumber && c.shotNumber + 1}`,
+          newNameRepr
+        )
         elements = changeElementsMeta(elements, appState, (c: CameraMeta) => ({
           shotNumber: c.shotNumber && c.shotNumber + 1,
         }))
         break
       case 'decraseShotNumber':
+        elements = updateMetaRepresentation(
+          elements,
+          getCameraMetas(getSelectedElements(elements, appState)),
+          'shotNumberRepr',
+          (c: CameraMeta) =>
+            `cam ${c.shotNumber && c.shotNumber > 1 ? c.shotNumber - 1 : c.shotNumber}`,
+          newNameRepr
+        )
         elements = changeElementsMeta(elements, appState, (c: CameraMeta) => ({
           shotNumber: c.shotNumber && c.shotNumber > 1 ? c.shotNumber - 1 : c.shotNumber,
         }))
@@ -89,16 +116,16 @@ export const actionChangeMetaCameraShot = register({
   },
 })
 
-const changeCameraIsShot = (
-  elements: readonly ExcalidrawElement[],
-  appState: AppState,
-  isShot: boolean
-) =>
-  changeElementsMeta<CameraMeta>(
-    elements,
-    appState,
-    determineCameraMeta(getCameraMetas(getNonDeletedElements(elements)), isShot)
-  )
+// const changeCameraIsShot = (
+//   elements: readonly ExcalidrawElement[],
+//   appState: AppState,
+//   isShot: boolean
+// ) =>
+//   changeElementsMeta<CameraMeta>(
+//     elements,
+//     appState,
+//     determineCameraMeta(getCameraMetas(getNonDeletedElements(elements)), isShot)
+//   )
 
 const determineCameraMeta = (cameras: readonly CameraMeta[], isShot: boolean) => {
   if (isShot)

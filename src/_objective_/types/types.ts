@@ -92,6 +92,9 @@ export interface CameraMeta extends ObjectiveMeta {
   shotVersion?: number // Cam A-1 / Cam A-2
   focalLength?: number
 
+  /** shotNumberRepr: `rectangle.id` === `containderId` for bound inside text element */
+  shotNumberRepr?: ExcalidrawElement['id']
+
   /**
    * Storyboard images. Source `ExcalidrawImage.id` (not `fileId`).
    */
@@ -116,6 +119,8 @@ export const isCameraElement = (el: MaybeExcalidrawElement): el is CameraElement
  */
 export const isShotCameraElement = (el: MaybeExcalidrawElement): el is CameraElement =>
   (isCameraMeta(el?.customData) && el?.customData.isShot) || false
+export const isShotCameraMeta = (meta: MaybeMeta): meta is CameraMeta =>
+  (isCameraMeta(meta) && meta?.isShot) || false
 
 export const isAllElementsCameras = (elements: readonly ExcalidrawElement[]) =>
   elements.every((e) => isCameraElement(e))

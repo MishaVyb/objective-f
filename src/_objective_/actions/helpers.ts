@@ -1,6 +1,12 @@
 import { changeProperty } from '../../actions/actionProperties'
+import { isTextElement } from '../../element'
 import { newElementWith } from '../../element/mutateElement'
-import { ExcalidrawElement } from '../../element/types'
+import { getBoundTextElement, handleBindTextResize } from '../../element/textElement'
+import {
+  ExcalidrawElement,
+  ExcalidrawRectangleElement,
+  ExcalidrawTextElementWithContainer,
+} from '../../element/types'
 import { AppState } from '../../types'
 import {
   ObjectiveElement,
@@ -92,3 +98,59 @@ export const changeElementProperty = <TElement extends ExcalidrawElement>(
   ),
   ...newElements,
 ]
+
+type TNewReprConstructor = (
+  meta: ObjectiveMeta,
+  value: string
+) => [ExcalidrawRectangleElement, ExcalidrawTextElementWithContainer]
+
+/**
+ * Generic function to create\update\remove `on Canvas` representation  for meta information.
+ */
+export const updateMetaRepresentation = <TMeta extends ObjectiveMeta>(
+  elements: readonly ExcalidrawElement[],
+  metas: readonly TMeta[],
+  fieldName: keyof TMeta,
+  newValue: string | ((meta: TMeta) => string),
+  newRepr: TNewReprConstructor
+) => {
+  metas.forEach((meta) => {
+    newValue = typeof newValue === 'function' ? newValue(meta) : newValue
+    if (newValue && !meta[fieldName]) {
+      //
+      // Add repr:
+      const [rectangle, text] = newRepr(meta, newValue)
+      // @ts-ignore
+      elements = changeElementMeta<TMeta>(elements, meta, { [fieldName]: rectangle.id })
+      elements = [...elements, rectangle, text]
+      //-------------------------------------//
+    } else if (newValue && meta[fieldName]) {
+      //
+      // Change repr text
+      const container = elements.find((e) => e.id === meta[fieldName]) as ExcalidrawElement
+      const textElement = getBoundTextElement(container)
+      handleBindTextResize(container, false, { newOriginalText: newValue })
+
+      // HACK
+      // If we do not replace prev text element with mutated text element, it won't take effect.
+      // Because inside `resizeSingleElement` text element is taken from Scene, not from `elements` Array.
+      // And after `perform` call, all Scene elements overwrithe all Scene elements,
+      // even if it was just mutated above, as in our case.
+      elements = changeElementProperty(elements, textElement!, textElement!)
+
+      //-------------------------------------//
+    } else if (!newValue && meta[fieldName]) {
+      //
+      // Remove repr:
+      // @ts-ignore
+      elements = changeElementMeta(elements, meta, { [fieldName]: undefined })
+      elements = elements.map((e) =>
+        e.id === meta[fieldName] || (isTextElement(e) && e.containerId === meta[fieldName])
+          ? newElementWith(e, { isDeleted: true })
+          : e
+      )
+      //-------------------------------//
+    }
+  })
+  return elements
+}
