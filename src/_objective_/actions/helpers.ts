@@ -1,13 +1,13 @@
 import { changeProperty } from '../../actions/actionProperties'
-import { isTextElement } from '../../element'
-import { newElementWith } from '../../element/mutateElement'
+import { mutateElement, newElementWith } from '../../element/mutateElement'
 import { getBoundTextElement, handleBindTextResize } from '../../element/textElement'
 import {
   ExcalidrawElement,
   ExcalidrawRectangleElement,
   ExcalidrawTextElementWithContainer,
 } from '../../element/types'
-import { AppState } from '../../types'
+import Scene from '../../scene/Scene'
+import { AppClassProperties, AppState } from '../../types'
 import {
   ObjectiveElement,
   ObjectiveMeta,
@@ -23,6 +23,7 @@ type TNewMetaAttrs<T extends ObjectiveMeta> = Partial<T> | ((meta: T) => Partial
 type TNewElementAttrs<T extends ExcalidrawElement> = Partial<T> | ((element: T) => Partial<T>)
 
 /**
+ * // LEGACY //
  * As `newElementWith`, but only for Objective meta properties.
  */
 export const newMetaWith = <TMeta extends ObjectiveMeta>(
@@ -38,7 +39,51 @@ export const newMetaWith = <TMeta extends ObjectiveMeta>(
     },
   })
 
+const mutateElementMeta = <TMeta extends ObjectiveMeta>(
+  el: ObjectiveElement<TMeta>,
+  newMeta: TNewMetaAttrs<TMeta>
+) => {
+  return mutateElement(
+    el,
+    {
+      customData: {
+        ...el.customData, // WARNING Deep copy here ?
+        ...(typeof newMeta === 'function' ? newMeta(el.customData) : newMeta),
+      },
+    },
+    false // do not infrom mutation
+  )
+}
+
 /**
+ * Mutate all **selected**.
+ * @requires selected elements should be only Objective elements
+ * @returns selected elements
+ */
+export const mutateElementsMeta = <TMeta extends ObjectiveMeta>(
+  app: AppClassProperties,
+  newMeta: TNewMetaAttrs<TMeta>
+) =>
+  app.scene
+    .getSelectedElements(app.state)
+    // No runtime type guard as we know for shore that *ALL* selected elements are Objective.
+    .map((el) => mutateElementMeta(el as ObjectiveElement<TMeta>, newMeta))
+
+/** mutate target meta */
+export const mutateMeta = <TMeta extends ObjectiveMeta>(
+  target: TMeta,
+  newMeta: TNewMetaAttrs<TMeta>
+) =>
+  // HACK
+  // As meta information are placed across each Objective primitive ExcalidrawElement
+  // we update meta for Each element for target meta
+  target.elementIds.forEach((id) => {
+    const el = Scene.getScene(id)?.getElement(id) as ObjectiveElement<TMeta>
+    mutateElementMeta(el, newMeta)
+  })
+
+/**
+ * // LEGACY //
  * Shortcut to change elements metas for all selected (target) elements.
  *
  * @param elements All excalidraw elements.
@@ -59,6 +104,7 @@ export const changeElementsMeta = <TMeta extends ObjectiveMeta>(
   )
 
 /**
+ * // LEGACY //
  * As `changeElementsMeta`, but for known single element (target).
  * It's used, when we want to change specific element (not selected).
  *
@@ -77,6 +123,7 @@ export const changeElementMeta = <TMeta extends ObjectiveMeta>(
 ]
 
 /**
+ * // LEGACY //
  * As `changeProperty`, but for known single element (target).
  * It's used, when we want to change specific element (not selected).
  *
@@ -108,49 +155,37 @@ type TNewReprConstructor = (
  * Generic function to create\update\remove `on Canvas` representation  for meta information.
  */
 export const updateMetaRepresentation = <TMeta extends ObjectiveMeta>(
-  elements: readonly ExcalidrawElement[],
   metas: readonly TMeta[],
   fieldName: keyof TMeta,
   newValue: string | ((meta: TMeta) => string),
   newRepr: TNewReprConstructor
 ) => {
+  const newEls: ExcalidrawElement[] = []
   metas.forEach((meta) => {
     newValue = typeof newValue === 'function' ? newValue(meta) : newValue
     if (newValue && !meta[fieldName]) {
-      //
-      // Add repr:
+      // Create representation:
       const [rectangle, text] = newRepr(meta, newValue)
       // @ts-ignore
-      elements = changeElementMeta<TMeta>(elements, meta, { [fieldName]: rectangle.id })
-      elements = [...elements, rectangle, text]
-      //-------------------------------------//
+      mutateMeta(meta, { [fieldName]: rectangle.id })
+      newEls.push(rectangle, text)
     } else if (newValue && meta[fieldName]) {
-      //
-      // Change repr text
-      const container = elements.find((e) => e.id === meta[fieldName]) as ExcalidrawElement
-      const textElement = getBoundTextElement(container)
-      handleBindTextResize(container, false, { newOriginalText: newValue })
-
-      // HACK
-      // If we do not replace prev text element with mutated text element, it won't take effect.
-      // Because inside `resizeSingleElement` text element is taken from Scene, not from `elements` Array.
-      // And after `perform` call, all Scene elements overwrithe all Scene elements,
-      // even if it was just mutated above, as in our case.
-      elements = changeElementProperty(elements, textElement!, textElement!)
-
-      //-------------------------------------//
+      // Change representation:
+      const containerId = meta[fieldName] as ExcalidrawElement['id']
+      const container = Scene.getScene(containerId)?.getElement(containerId)
+      handleBindTextResize(container!, false, { newOriginalText: newValue })
     } else if (!newValue && meta[fieldName]) {
-      //
-      // Remove repr:
+      // Unlink representation:
       // @ts-ignore
-      elements = changeElementMeta(elements, meta, { [fieldName]: undefined })
-      elements = elements.map((e) =>
-        e.id === meta[fieldName] || (isTextElement(e) && e.containerId === meta[fieldName])
-          ? newElementWith(e, { isDeleted: true })
-          : e
-      )
-      //-------------------------------//
+      mutateMeta(meta, { [fieldName]: undefined })
+
+      // Delete representation:
+      const containerId = meta[fieldName] as ExcalidrawElement['id']
+      const container = Scene.getScene(containerId)?.getElement(containerId)
+      const text = getBoundTextElement(container!)
+      mutateElement(container!, { isDeleted: true })
+      mutateElement(text!, { isDeleted: true })
     }
   })
-  return elements
+  return newEls
 }

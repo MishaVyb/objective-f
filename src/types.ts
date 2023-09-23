@@ -448,6 +448,9 @@ export type AppClassProperties = {
   onInsertElements: App["onInsertElements"];
   onExportImage: App["onExportImage"];
   lastViewportPosition: App["lastViewportPosition"];
+
+  // VBRN:
+  state: App["state"];
 };
 
 export type PointerDownState = Readonly<{

@@ -43,3 +43,43 @@ index.tsx
     - рендерит канвас
     - наполняет excalidrawAPI, тем самым все состояния компонента App может быть доступно выше ⬆️
     excalidrawAPI: https://docs.excalidraw.com/docs/@excalidraw/excalidraw/api/props/ref
+
+
+------------------------
+
+App.scene = new Scene
+App.actionManager = new ActionManager
+    actionManager.getElementsIncludingDelited <-- app.scene.getElementsIncludingDelited
+
+ActionManager.renderAction(..) --> `<PanelComponent>`
+    - perform `actionFunction` --> `actionResult`
+        > When any `action`/`<PanelComponent>` fires update,
+        > `actionFunction` called with `app.scene.getElementsIncludingDelited`
+
+    - then `actionResult` are passed to App.withBatchedUpdates
+        - where `scene.replaceAllElements` are called (the same app.scene!!!)
+
+So..
+    - Can we mutate this elements. As it was recreated once - for shore
+    - Can we access this elements by id or other custom fileters directly from scene. Yep
+
+
+LEGACY:
+for single provided element:
+    newElementWith (original) / newMetaWith (VBRN)
+
+all selected elements:
+    changeProperty (original) / changeElementsMeta (VBRN)
+
+target element:
+    ...                       / changeElementProperty (VBRN)
+
+NEW:
+for single provided element:
+    mutateElement (original) / mutateElementMeta (VBRN)
+
+all selected elements:
+  ...                        / mutateElementsMeta (VBRN)
+
+target element:
+    ...                      / mutateElement

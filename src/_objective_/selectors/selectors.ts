@@ -7,6 +7,7 @@ import {
   ExcalidrawElement,
   InitializedExcalidrawImageElement,
 } from '../../element/types'
+import { AppState } from '../../types'
 import { useExcalidrawFiles } from '../components/ObjectiveWrapper'
 import {
   CameraMeta,
@@ -107,6 +108,22 @@ export const getCameraMetas = (
     includingDelited?: boolean
   }
 ) => getObjectiveMetas<CameraMeta>(elements, { ...opts, objectivePredicate: isCameraElement })
+/**
+ * Extract unique Camera metas from elements.
+ */
+export const getSelectedCameraMetas = (
+  elements: readonly ExcalidrawElement[],
+  appState: AppState,
+  opts?: {
+    extraPredicate?: (meta: CameraMeta) => boolean
+    includingDelited?: boolean
+  }
+) =>
+  getCameraMetas(elements, {
+    extraPredicate: (meta) =>
+      meta.elementIds.some((id) => appState.selectedElementIds[id]) &&
+      (opts?.extraPredicate ? opts.extraPredicate(meta) : true),
+  })
 
 /**
  * Extract unique Camera metas from elements (only cameras in Shot List).
@@ -155,7 +172,7 @@ export const getCameraBasis = (elements: readonly ExcalidrawElement[], camera: C
 export const getElementById = <TElement extends ExcalidrawElement>(
   elements: readonly ExcalidrawElement[],
   id: string | undefined
-) => id ? (elements.find((el) => el.id === id) as TElement | undefined) : undefined
+) => (id ? (elements.find((el) => el.id === id) as TElement | undefined) : undefined)
 
 /**
  * NOTE: If element type is known from context, it could be specified via generic.

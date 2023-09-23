@@ -1,18 +1,22 @@
 import {
-  ExcalidrawElement,
-  NonDeletedExcalidrawElement,
-  NonDeleted,
-  ExcalidrawFrameElement,
-} from "../element/types";
-import {
   getNonDeletedElements,
   getNonDeletedFrames,
   isNonDeletedElement,
 } from "../element";
 import { LinearElementEditor } from "../element/linearElementEditor";
 import { isFrameElement } from "../element/typeChecks";
+import {
+  ExcalidrawElement,
+  NonDeletedExcalidrawElement,
+  NonDeleted,
+  ExcalidrawFrameElement,
+} from "../element/types";
+import { AppClassProperties, AppState } from "../types";
+import { getSelectedElements } from "./selection";
 
-type ElementIdKey = InstanceType<typeof LinearElementEditor>["elementId"];
+type ElementIdKey =
+  | InstanceType<typeof LinearElementEditor>["elementId"]
+  | ExcalidrawElement["id"]; // VBRN HACK
 type ElementKey = ExcalidrawElement | ElementIdKey;
 
 type SceneStateCallback = () => void;
@@ -50,6 +54,11 @@ class Scene {
     }
   }
 
+  /**
+   * VBRN NOTE:
+   * It's better to use `elementId` as `elementKey` (not element itself).
+   * As when `mapElementToScene` are called, `sceneMapById` populates it both cases.
+   */
   static getScene(elementKey: ElementKey): Scene | null {
     if (isIdKey(elementKey)) {
       return this.sceneMapById.get(elementKey) || null;
@@ -71,6 +80,17 @@ class Scene {
 
   getElementsIncludingDeleted() {
     return this.elements;
+  }
+
+  // VBRN shortcut
+  getSelectedElements(
+    appState: AppState,
+    opts?: {
+      includeBoundTextElement?: boolean;
+      includeElementsInFrames?: boolean;
+    },
+  ) {
+    return getSelectedElements(this.elements, appState, opts);
   }
 
   getNonDeletedElements(): readonly NonDeletedExcalidrawElement[] {
@@ -128,6 +148,19 @@ class Scene {
     return didChange;
   }
 
+  /**
+   * VBRN NOTE:
+   * Called by App on every Scene change
+   *  - after perfrom action
+   *  - ...
+   *
+   * Does:
+   *  - replace all this scene elements
+   *  - map static Scene props: element ---> this scene
+   *    so current scene could be accessed via static `Scene.getScene(element)` --> this scene
+   *    and then we have great-easy-accessing `elementsMap`: `elementId: element`
+   * @param nextElements
+   */
   replaceAllElements(nextElements: readonly ExcalidrawElement[]) {
     this.elements = nextElements;
     const nextFrames: ExcalidrawFrameElement[] = [];

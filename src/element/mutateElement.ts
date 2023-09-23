@@ -7,7 +7,7 @@ import { Point } from "../types";
 import { getUpdatedTimestamp } from "../utils";
 import { Mutable } from "../utility-types";
 
-type ElementUpdate<TElement extends ExcalidrawElement> = Omit<
+export type ElementUpdate<TElement extends ExcalidrawElement> = Omit<
   Partial<TElement>,
   "id" | "version" | "versionNonce"
 >;

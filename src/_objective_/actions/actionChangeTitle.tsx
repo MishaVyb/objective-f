@@ -4,12 +4,11 @@ import { useApp } from '../../components/App'
 import { t } from '../../i18n'
 import { KEYS } from '../../keys'
 import { getSelectedElements } from '../../scene'
-import { AppClassProperties } from '../../types'
 import { focusNearestParent } from '../../utils'
 import { TextField } from '../UI/TextField'
 import { newNameRepr } from '../objects/primitives'
 import { getObjectiveMetas } from '../selectors/selectors'
-import { changeElementsMeta, updateMetaRepresentation } from './helpers'
+import { mutateElementsMeta, updateMetaRepresentation } from './helpers'
 import { register } from './register'
 
 /**
@@ -21,20 +20,22 @@ export const actionChangeMetaName = register({
   perform: (
     elements,
     appState,
-    { newTextValue, app }: { newTextValue: string; app: AppClassProperties }
+    { newTextValue }: { newTextValue: string },
+    app,
   ) => {
+    // [1] change name in representation
     const metas = getObjectiveMetas(getSelectedElements(elements, appState))
+    const newEls = updateMetaRepresentation(metas, 'nameRepr', newTextValue, newNameRepr)
 
-    // [1] change meta name representation(!)
-    elements = updateMetaRepresentation(elements, metas, 'nameRepr', newTextValue, newNameRepr)
+    // [2] change name in meta
+    mutateElementsMeta(app, { name: newTextValue })
 
-    // [2] change meta name
-    elements = changeElementsMeta(elements, appState, { name: newTextValue })
     return {
-      elements: elements,
+      elements: [...elements, ...newEls],
       commitToHistory: !!newTextValue,
     }
   },
+
   PanelComponent: ({ elements, appState, updateData, appProps }: PanelComponentProps) => {
     const app = useApp()
     const name = getFormValue(elements, appState, (element) => element.customData?.name, null)
