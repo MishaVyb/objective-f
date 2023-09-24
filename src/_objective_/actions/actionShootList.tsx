@@ -3,13 +3,13 @@ import { PanelComponentProps } from '../../actions/types'
 import { ToolButton } from '../../components/ToolButton'
 import { mutateElement } from '../../element/mutateElement'
 import { handleBindTextResize } from '../../element/textElement'
+import { ExcalidrawElement } from '../../element/types'
 import { t } from '../../i18n'
 import { getSelectedElements } from '../../scene'
-import Scene from '../../scene/Scene'
-import { newNameRepr, newShotNumberRepr } from '../objects/primitives'
-import { getElement, getElementById, getSelectedCameraMetas } from '../selectors/selectors'
+import { newShotNumberRepr } from '../objects/primitives'
+import { getCameraMetas, getElement, getSelectedCameraMetas } from '../selectors/selectors'
 import { CameraMeta, isAllElementsCameras, isCameraElement } from '../types/types'
-import { mutateElementsMeta, updateMetaRepresentation } from './helpers'
+import { handleMetaRepresentation, mutateElementsMeta } from './helpers'
 import { register } from './register'
 
 type ActionType = 'init' | 'remove' | 'incraseShotNumber' | 'decraseShotNumber'
@@ -21,17 +21,17 @@ export const actionChangeMetaCameraShot = register({
     const cameras = getSelectedCameraMetas(elements, appState)
     const isShot = actionType === 'init' ? true : false
     let newCameraShootProps: ReturnType<typeof determineCameraMeta>
-    let newEls: ReturnType<typeof updateMetaRepresentation> = []
+    let newEls: ReturnType<typeof handleMetaRepresentation> = []
 
     switch (actionType) {
       case 'init':
       case 'remove':
         // [1] change meta
-        newCameraShootProps = determineCameraMeta(cameras, isShot)
+        newCameraShootProps = determineCameraMeta(elements, isShot)
         mutateElementsMeta<CameraMeta>(app, newCameraShootProps)
 
         // [2] create/remove shotNumber repr
-        newEls = updateMetaRepresentation(
+        newEls = handleMetaRepresentation(
           cameras,
           'shotNumberRepr',
           isShot ? `cam ${newCameraShootProps.shotNumber}` : '',
@@ -48,7 +48,7 @@ export const actionChangeMetaCameraShot = register({
 
         break
       case 'incraseShotNumber':
-        newEls = updateMetaRepresentation(
+        newEls = handleMetaRepresentation(
           cameras,
           'shotNumberRepr',
           (c: CameraMeta) => `cam ${c.shotNumber && c.shotNumber + 1}`,
@@ -59,7 +59,7 @@ export const actionChangeMetaCameraShot = register({
         }))
         break
       case 'decraseShotNumber':
-        newEls = updateMetaRepresentation(
+        newEls = handleMetaRepresentation(
           cameras,
           'shotNumberRepr',
           (c: CameraMeta) =>
@@ -134,24 +134,15 @@ export const actionChangeMetaCameraShot = register({
   },
 })
 
-// const changeCameraIsShot = (
-//   elements: readonly ExcalidrawElement[],
-//   appState: AppState,
-//   isShot: boolean
-// ) =>
-//   changeElementsMeta<CameraMeta>(
-//     elements,
-//     appState,
-//     determineCameraMeta(getCameraMetas(getNonDeletedElements(elements)), isShot)
-//   )
-
-const determineCameraMeta = (cameras: readonly CameraMeta[], isShot: boolean) => {
-  if (isShot)
+export const determineCameraMeta = (elements: readonly ExcalidrawElement[], isShot: boolean) => {
+  if (isShot) {
+    const allCameras = getCameraMetas(elements)
     return {
       isShot: true,
-      shotNumber: Math.max(...cameras.map((c) => c.shotNumber || 0)) + 1,
+      shotNumber: Math.max(...allCameras.map((c) => c.shotNumber || 0)) + 1,
       shotVersion: undefined, // not implemented yet
     }
+  }
 
   return {
     isShot: false,

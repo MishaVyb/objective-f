@@ -8,7 +8,7 @@ import { focusNearestParent } from '../../utils'
 import { TextField } from '../UI/TextField'
 import { newNameRepr } from '../objects/primitives'
 import { getObjectiveMetas } from '../selectors/selectors'
-import { mutateElementsMeta, updateMetaRepresentation } from './helpers'
+import { handleMetaRepresentation, mutateElementsMeta } from './helpers'
 import { register } from './register'
 
 /**
@@ -17,15 +17,10 @@ import { register } from './register'
 export const actionChangeMetaName = register({
   name: 'actionChangeMetaName',
   trackEvent: false,
-  perform: (
-    elements,
-    appState,
-    { newTextValue }: { newTextValue: string },
-    app,
-  ) => {
+  perform: (elements, appState, { newTextValue }: { newTextValue: string }, app) => {
     // [1] change name in representation
     const metas = getObjectiveMetas(getSelectedElements(elements, appState))
-    const newEls = updateMetaRepresentation(metas, 'nameRepr', newTextValue, newNameRepr)
+    const newEls = handleMetaRepresentation(metas, 'nameRepr', newTextValue, newNameRepr)
 
     // [2] change name in meta
     mutateElementsMeta(app, { name: newTextValue })

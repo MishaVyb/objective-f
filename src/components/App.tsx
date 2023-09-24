@@ -1993,12 +1993,6 @@ class App extends React.Component<AppProps, AppState> {
 
     const [gridX, gridY] = getGridPoint(dx, dy, this.state.gridSize);
 
-    // VBRN on ids change
-    const onCgroupIdsChange = (
-      prev: readonly string[],
-      next: readonly string[],
-    ) => {};
-
     const newElements = duplicateElements(
       elements.map((element) => {
         return newElementWith(element, {
@@ -2009,8 +2003,8 @@ class App extends React.Component<AppProps, AppState> {
       {
         randomizeSeed: !opts.retainSeed,
       },
-      onCgroupIdsChange,
     );
+    console.log({newElements})
 
     const nextElements = [
       ...this.scene.getElementsIncludingDeleted(),

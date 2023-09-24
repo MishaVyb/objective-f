@@ -34,10 +34,13 @@ export interface ObjectiveMeta {
 
   /** Excalidraw group id for all primitives of this Objective element. Populated by `getMetas`. */
   id: GroupId
-  /** **LEGACY**! Excalidraw primetime element ids. Populated by `getMetas` */ // LEGACY
-  elementIds: ExcalidrawElement['id'][]
+  /**
+   * @deprecated use `elements`
+   * Excalidraw primetime element ids. Populated by `getMetas`
+   */
+  elementIds: readonly ObjectiveElement['id'][]
   /** Excalidraw primetime elements. Populated by `getMetas` */
-  elements: readonly Readonly<ExcalidrawElement>[]
+  elements: readonly ObjectiveElement[]
 }
 
 /**

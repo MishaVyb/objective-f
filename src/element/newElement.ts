@@ -1,5 +1,9 @@
 import { getElementAbsoluteCoords } from ".";
 import {
+  duplicateAsInitialEventHandler,
+  duplicateEventHandler,
+} from "../_objective_/actions/events";
+import {
   DEFAULT_ELEMENT_PROPS,
   DEFAULT_FONT_FAMILY,
   DEFAULT_FONT_SIZE,
@@ -528,6 +532,13 @@ export const duplicateElement = <TElement extends ExcalidrawElement>(
   if (overrides) {
     copy = Object.assign(copy, overrides);
   }
+
+  // duplicateEventHandler([copy], { asInitial: true });
+  duplicateAsInitialEventHandler(copy);
+  // @ts-ignore
+  // copy.customData.shotNumber = undefined
+  // // @ts-ignore
+  // copy.customData.shotNumberRepr = undefined
   return copy;
 };
 
@@ -547,10 +558,6 @@ export const duplicateElements = (
     /** NOTE also updates version flags and `updated` */
     randomizeSeed: boolean;
   },
-  onCgroupIdsChange?: (
-    prev: readonly string[],
-    next: readonly string[],
-  ) => void,
 ) => {
   const clonedElements: ExcalidrawElement[] = [];
 
@@ -590,20 +597,13 @@ export const duplicateElements = (
       bumpVersion(clonedElement);
     }
 
-    // NAV Here we change group id
     if (clonedElement.groupIds) {
-      const prev = clonedElement.groupIds;
-
       clonedElement.groupIds = clonedElement.groupIds.map((groupId) => {
         if (!groupNewIdsMap.has(groupId)) {
           groupNewIdsMap.set(groupId, regenerateId(groupId));
         }
         return groupNewIdsMap.get(groupId)!;
       });
-
-      if (onCgroupIdsChange) {
-        onCgroupIdsChange(prev, clonedElement.groupIds);
-      }
     }
 
     if ("containerId" in clonedElement && clonedElement.containerId) {
@@ -655,5 +655,7 @@ export const duplicateElements = (
     clonedElements.push(clonedElement);
   }
 
+  const extraNewEls = duplicateEventHandler(clonedElements);
+  clonedElements.push(...extraNewEls);
   return clonedElements;
 };

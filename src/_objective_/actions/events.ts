@@ -3,18 +3,62 @@ import { isImageElement } from '../../element/typeChecks'
 import { ExcalidrawElement, NonDeletedExcalidrawElement } from '../../element/types'
 import Scene from '../../scene/Scene'
 import { AppState } from '../../types'
+import { Mutable } from '../../utility-types'
+import { cameraInitialMeta, getBaseInitialMeta } from '../objects/initial'
+import { newNameRepr, newShotNumberRepr } from '../objects/primitives'
 import {
   getCameraBasis,
   getCameraMetas,
   getObjectiveMetas,
   getPointerBetween,
 } from '../selectors/selectors'
-import { ObjectiveMeta, isCameraMeta, isShotCameraMeta } from '../types/types'
-import { changeElementProperty } from './helpers'
+import {
+  ObjectiveMeta,
+  isCameraElement,
+  isCameraMeta,
+  isObjective,
+  isShotCameraMeta,
+} from '../types/types'
+import { changeElementProperty, createMetaRepr, deleteMetaRepr } from './helpers'
 
 /**
- * NOTE:
- * `elements` are **NOT mutating** insice.
+ * It's assumed that meta (`customData`) already copied properly by `_deppCopyElement`
+ * @param elements new (cloned/copied) elements
+ */
+export const duplicateEventHandler = (elements: Mutable<ExcalidrawElement>[]) => {
+  console.log('duplicateEventHandler')
+
+  const extraNewEls: ExcalidrawElement[] = []
+  const metas = getObjectiveMetas(elements) as Mutable<ObjectiveMeta>[] // !!!
+
+  metas.forEach((meta) => {
+    if (meta.nameRepr)
+      extraNewEls.push(...createMetaRepr(meta, 'nameRepr', meta.name!, newNameRepr))
+
+    if (isCameraMeta(meta)) {
+      if (meta.shotNumber) {
+        // ??? incrase shot number on copy/past ?
+        // Object.assign(meta, determineCameraMeta(elements, true))
+      }
+      if (meta.shotNumberRepr)
+        extraNewEls.push(
+          ...createMetaRepr(meta, 'shotNumberRepr', `cam ${meta.shotNumber}`, newShotNumberRepr)
+        )
+
+      meta.relatedImages = []
+    }
+  })
+
+  return extraNewEls
+}
+
+export const duplicateAsInitialEventHandler = (el: Mutable<ExcalidrawElement>) => {
+  if (isCameraElement(el)) Object.assign(el.customData, cameraInitialMeta)
+  else if (isObjective(el)) Object.assign(el.customData, getBaseInitialMeta(el.customData?.kind))
+}
+
+/**
+ * `elements` are **NOT mutating** inside.
  * New changed element created by `changeElementProperty`.
  * @returns New array with unchanged previous elements and new elements with updated properties.
  */
@@ -76,9 +120,14 @@ export const deleteObjectiveMetas = (
   delitingMetas: readonly Readonly<ObjectiveMeta>[]
 ) => {
   delitingMetas.forEach((target) => {
-    // [case 2] delete camera
+    // [0] delete repr
+    deleteMetaRepr(target, 'nameRepr')
+
+    // [1] delete camera
     if (isCameraMeta(target)) {
-      const camera = target // getMeta(target, [])
+      //
+      // [1.1] delete storyboard
+      const camera = target
       const otherImagesRelatedToCamera = elements.filter(
         (element) => element.type === 'image' && camera.relatedImages.includes(element.id)
       )
@@ -94,6 +143,8 @@ export const deleteObjectiveMetas = (
             isDeleted: true,
           })
       })
+      // [1.2] delete delete repr
+      deleteMetaRepr(target, 'shotNumberRepr')
     }
 
     // .... other handlers per Objective kind
@@ -114,12 +165,12 @@ export const dragEventHandler = (
   const metas = getObjectiveMetas(selectedElements)
   metas.forEach((meta) => {
     if (meta.nameRepr) {
-      const nameReprContainer = scene.getNonDeletedElement(meta.nameRepr)
-      if (nameReprContainer) elementsToUpdate.add(nameReprContainer)
+      const container = scene.getNonDeletedElement(meta.nameRepr)
+      if (container) elementsToUpdate.add(container)
     }
     if (isShotCameraMeta(meta) && meta.shotNumberRepr) {
-      const nameReprContainer = scene.getNonDeletedElement(meta.shotNumberRepr)
-      if (nameReprContainer) elementsToUpdate.add(nameReprContainer)
+      const container = scene.getNonDeletedElement(meta.shotNumberRepr)
+      if (container) elementsToUpdate.add(container)
     }
   })
   // handle other elements drag

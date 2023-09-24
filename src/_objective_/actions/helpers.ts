@@ -74,14 +74,24 @@ export const mutateElementsMeta = <TMeta extends ObjectiveMeta>(
 export const mutateMeta = <TMeta extends ObjectiveMeta>(
   target: TMeta,
   newMeta: TNewMetaAttrs<TMeta>
-) =>
+) => {
   // HACK
   // As meta information are placed across each Objective primitive ExcalidrawElement
   // we update meta for Each element for target meta
+
+  // LEGACY:
+  let metaElementsNotFoundAtScene
   target.elementIds.forEach((id) => {
-    const el = Scene.getScene(id)?.getElement(id) as ObjectiveElement<TMeta>
-    mutateElementMeta(el, newMeta)
+    const el = Scene.getScene(id)?.getElement(id) as ObjectiveElement<TMeta> | undefined
+    if (el) mutateElementMeta(el, newMeta)
+    else metaElementsNotFoundAtScene = true
   })
+
+  // NEW:
+  if (metaElementsNotFoundAtScene) {
+    target.elements.forEach((el) => mutateElementMeta(el, newMeta as TMeta))
+  }
+}
 
 /**
  * @deprecated use `mutateElementsMeta`
@@ -125,7 +135,7 @@ export const changeElementMeta = <TMeta extends ObjectiveMeta>(
 
 /**
  * @deprecated use `mutateElement`
- * 
+ *
  * As `changeProperty`, but for known single element (target).
  * It's used, when we want to change specific element (not selected).
  *
@@ -156,7 +166,7 @@ type TNewReprConstructor = (
 /**
  * Generic function to create\update\remove `on Canvas` representation  for meta information.
  */
-export const updateMetaRepresentation = <TMeta extends ObjectiveMeta>(
+export const handleMetaRepresentation = <TMeta extends ObjectiveMeta>(
   metas: readonly TMeta[],
   fieldName: keyof TMeta,
   newValue: string | ((meta: TMeta) => string),
@@ -165,34 +175,55 @@ export const updateMetaRepresentation = <TMeta extends ObjectiveMeta>(
   const newEls: ExcalidrawElement[] = []
   metas.forEach((meta) => {
     newValue = typeof newValue === 'function' ? newValue(meta) : newValue
-    if (newValue && !meta[fieldName]) {
-      //
-      // Create representation:
-      const [rectangle, text] = newRepr(meta, newValue)
-      // @ts-ignore
-      mutateMeta(meta, { [fieldName]: rectangle.id })
-      newEls.push(rectangle, text)
-
-      //
-    } else if (newValue && meta[fieldName]) {
-      //
-      // Change representation:
-      const containerId = meta[fieldName] as ExcalidrawElement['id']
-      const container = getElement(containerId)
-      handleBindTextResize(container!, false, { newOriginalText: newValue })
-      //
-    } else if (!newValue && meta[fieldName]) {
-      // Unlink representation:
-      // @ts-ignore
-      mutateMeta(meta, { [fieldName]: undefined })
-
-      // Delete representation:
-      const containerId = meta[fieldName] as ExcalidrawElement['id']
-      const container = getElement(containerId)
-      const text = getBoundTextElement(container!)
-      mutateElement(container!, { isDeleted: true })
-      mutateElement(text!, { isDeleted: true })
-    }
+    // [1] create
+    if (newValue && !meta[fieldName])
+      newEls.push(...createMetaRepr(meta, fieldName, newValue, newRepr))
+    // [2] update
+    else if (newValue && meta[fieldName]) updateMetaRepr(meta, fieldName, newValue)
+    // [3] change
+    else if (!newValue && meta[fieldName]) deleteMetaRepr(meta, fieldName)
   })
   return newEls
+}
+
+export const createMetaRepr = <TMeta extends ObjectiveMeta>(
+  meta: TMeta,
+  fieldName: keyof TMeta,
+  newValue: string,
+  newRepr: TNewReprConstructor
+) => {
+  const [rectangle, text] = newRepr(meta, newValue)
+  // Link representation:
+  // @ts-ignore
+  mutateMeta(meta, { [fieldName]: rectangle.id })
+  return [rectangle, text]
+}
+
+export const updateMetaRepr = <TMeta extends ObjectiveMeta>(
+  meta: TMeta,
+  fieldName: keyof TMeta,
+  newValue: string
+) => {
+  const containerId = meta[fieldName] as ExcalidrawElement['id']
+  const container = getElement(containerId)
+  handleBindTextResize(container!, false, { newOriginalText: newValue })
+}
+
+export const deleteMetaRepr = <TMeta extends ObjectiveMeta>(
+  meta: TMeta,
+  fieldName: keyof TMeta
+) => {
+  // Unlink representation:
+  // @ts-ignore
+  mutateMeta(meta, { [fieldName]: undefined })
+
+  // Remove repr:
+  const containerId = meta[fieldName] as ExcalidrawElement['id']
+  const container = getElement(containerId)
+  if (!container) return
+  mutateElement(container!, { isDeleted: true })
+
+  const text = getBoundTextElement(container!)
+  if (!text) return
+  mutateElement(text!, { isDeleted: true })
 }
