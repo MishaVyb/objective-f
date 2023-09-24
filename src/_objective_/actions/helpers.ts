@@ -8,6 +8,7 @@ import {
 } from '../../element/types'
 import Scene from '../../scene/Scene'
 import { AppClassProperties, AppState } from '../../types'
+import { getElement } from '../selectors/selectors'
 import {
   ObjectiveElement,
   ObjectiveMeta,
@@ -23,7 +24,7 @@ type TNewMetaAttrs<T extends ObjectiveMeta> = Partial<T> | ((meta: T) => Partial
 type TNewElementAttrs<T extends ExcalidrawElement> = Partial<T> | ((element: T) => Partial<T>)
 
 /**
- * // LEGACY //
+ * @deprecated use `mutateElementMeta`
  * As `newElementWith`, but only for Objective meta properties.
  */
 export const newMetaWith = <TMeta extends ObjectiveMeta>(
@@ -69,7 +70,7 @@ export const mutateElementsMeta = <TMeta extends ObjectiveMeta>(
     // No runtime type guard as we know for shore that *ALL* selected elements are Objective.
     .map((el) => mutateElementMeta(el as ObjectiveElement<TMeta>, newMeta))
 
-/** mutate target meta */
+/** Mutate target meta */
 export const mutateMeta = <TMeta extends ObjectiveMeta>(
   target: TMeta,
   newMeta: TNewMetaAttrs<TMeta>
@@ -83,7 +84,7 @@ export const mutateMeta = <TMeta extends ObjectiveMeta>(
   })
 
 /**
- * // LEGACY //
+ * @deprecated use `mutateElementsMeta`
  * Shortcut to change elements metas for all selected (target) elements.
  *
  * @param elements All excalidraw elements.
@@ -104,7 +105,7 @@ export const changeElementsMeta = <TMeta extends ObjectiveMeta>(
   )
 
 /**
- * // LEGACY //
+ * @deprecated use `mutateMeta`
  * As `changeElementsMeta`, but for known single element (target).
  * It's used, when we want to change specific element (not selected).
  *
@@ -123,7 +124,8 @@ export const changeElementMeta = <TMeta extends ObjectiveMeta>(
 ]
 
 /**
- * // LEGACY //
+ * @deprecated use `mutateElement`
+ * 
  * As `changeProperty`, but for known single element (target).
  * It's used, when we want to change specific element (not selected).
  *
@@ -164,16 +166,21 @@ export const updateMetaRepresentation = <TMeta extends ObjectiveMeta>(
   metas.forEach((meta) => {
     newValue = typeof newValue === 'function' ? newValue(meta) : newValue
     if (newValue && !meta[fieldName]) {
+      //
       // Create representation:
       const [rectangle, text] = newRepr(meta, newValue)
       // @ts-ignore
       mutateMeta(meta, { [fieldName]: rectangle.id })
       newEls.push(rectangle, text)
+
+      //
     } else if (newValue && meta[fieldName]) {
+      //
       // Change representation:
       const containerId = meta[fieldName] as ExcalidrawElement['id']
-      const container = Scene.getScene(containerId)?.getElement(containerId)
+      const container = getElement(containerId)
       handleBindTextResize(container!, false, { newOriginalText: newValue })
+      //
     } else if (!newValue && meta[fieldName]) {
       // Unlink representation:
       // @ts-ignore
@@ -181,7 +188,7 @@ export const updateMetaRepresentation = <TMeta extends ObjectiveMeta>(
 
       // Delete representation:
       const containerId = meta[fieldName] as ExcalidrawElement['id']
-      const container = Scene.getScene(containerId)?.getElement(containerId)
+      const container = getElement(containerId)
       const text = getBoundTextElement(container!)
       mutateElement(container!, { isDeleted: true })
       mutateElement(text!, { isDeleted: true })

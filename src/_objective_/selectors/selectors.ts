@@ -7,6 +7,7 @@ import {
   ExcalidrawElement,
   InitializedExcalidrawImageElement,
 } from '../../element/types'
+import Scene from '../../scene/Scene'
 import { AppState } from '../../types'
 import { useExcalidrawFiles } from '../components/ObjectiveWrapper'
 import {
@@ -166,6 +167,8 @@ export const getCameraBasis = (elements: readonly ExcalidrawElement[], camera: C
   getElementById(elements, camera.elementIds[0]) as ExcalidrawBindableElement | undefined
 
 /**
+ * @deprecated use getElement
+ *
  * NOTE: If element type is known from context, it could be specified via generic.
  * But be aware, there are no checks for type guard for real.
  */
@@ -173,6 +176,15 @@ export const getElementById = <TElement extends ExcalidrawElement>(
   elements: readonly ExcalidrawElement[],
   id: string | undefined
 ) => (id ? (elements.find((el) => el.id === id) as TElement | undefined) : undefined)
+
+/**
+ * Get element by id using `Scene`
+ *
+ * NOTE: If element type is known from context, it could be specified via generic.
+ * But be aware, there are no checks for type guard for real.
+ */
+export const getElement = <TElement extends ExcalidrawElement>(id: string | undefined) =>
+  id ? (Scene.getScene(id)?.getElement(id) as TElement) || undefined : undefined
 
 /**
  * NOTE: If element type is known from context, it could be specified via generic.

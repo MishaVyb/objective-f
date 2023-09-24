@@ -47,6 +47,8 @@ index.tsx
 
 ------------------------
 
+# HOW TO: Scene
+
 App.scene = new Scene
 App.actionManager = new ActionManager
     actionManager.getElementsIncludingDelited <-- app.scene.getElementsIncludingDelited
@@ -63,23 +65,3 @@ So..
     - Can we mutate this elements. As it was recreated once - for shore
     - Can we access this elements by id or other custom fileters directly from scene. Yep
 
-
-LEGACY:
-for single provided element:
-    newElementWith (original) / newMetaWith (VBRN)
-
-all selected elements:
-    changeProperty (original) / changeElementsMeta (VBRN)
-
-target element:
-    ...                       / changeElementProperty (VBRN)
-
-NEW:
-for single provided element:
-    mutateElement (original) / mutateElementMeta (VBRN)
-
-all selected elements:
-  ...                        / mutateElementsMeta (VBRN)
-
-target element:
-    ...                      / mutateElement
