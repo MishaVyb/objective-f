@@ -2004,7 +2004,6 @@ class App extends React.Component<AppProps, AppState> {
         randomizeSeed: !opts.retainSeed,
       },
     );
-    console.log({newElements})
 
     const nextElements = [
       ...this.scene.getElementsIncludingDeleted(),

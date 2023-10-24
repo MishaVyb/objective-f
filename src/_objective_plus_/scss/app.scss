@@ -1,0 +1,50 @@
+@import 'open-color/open-color';
+@import '../../css/variables.module';
+
+@import '@radix-ui/colors/black-alpha.css';
+@import '@radix-ui/colors/violet.css';
+@import '@radix-ui/colors/mauve.css';
+
+// HACK Override style of saved password field in google chrome
+input:-webkit-autofill {
+  -webkit-box-shadow: 200px 200px 100px white inset;
+  box-shadow: 200px 200px 100px white inset;
+  border-radius: var(--radius-3);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.objective-plus-app {
+  // center
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+
+  .objective-card {
+    width: 400px;
+
+    background-color: var(--gray-a2);
+    border-radius: var(--radius-6);
+    border: 1px solid var(--blue-a7);
+  }
+
+  .error-text-field {
+    border: 1.5px solid var(--red-9);
+    border-radius: var(--radius-2);
+  }
+
+  .clickable-icon {
+    &:hover {
+      cursor: pointer;
+    }
+    &:active {
+      background-color: var(--gray-a2);
+    }
+  }
+}

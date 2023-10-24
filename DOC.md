@@ -27,7 +27,8 @@ index.tsx
 
 ---------------------- package --------------------
 ⬇️
-## src/packages/excalidraw/index.tsx - forwardedRefComp
+## src/packages/excalidraw/index.tsx - Excalidraw
+    - forwardedRefComp
     - React.memo функции areEqual, чтобы проверять разные пропсы пришли или нет (нужно ли ре-рендерить)
 ⬇️
 ## src/packages/excalidraw/index.tsx - ExcalidrawBase
