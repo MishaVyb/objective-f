@@ -10,15 +10,30 @@ import {
   TFulfilledAction,
   TPendingAction,
   TRejectedAction,
+  TResetAuth,
   TResetRequestStatusAction,
-  loadLogout,
+  resetAuth,
   resetRequestStatusAction,
 } from './actions'
 
 export interface ITokens {
   /** no 'Bearer' prefix */
   access_token: string
-  token_type: 'bearer'
+  token_type: 'Bearer'
+}
+
+export enum UserRoles {
+  CINEMATOGRAPHY = 'Cinematography',
+  PRODUCER = 'Producer',
+  DIRECTOR = 'Director',
+  DIRECTOR_ASSISTANT = 'Director Assistant',
+  DOP = 'Director of Photography',
+  CAMERA_ASSISTANT = 'Camera Assistant',
+  GAFFER = 'GAFFER',
+  ART_DIRECTOR = 'Art Director',
+  SET_DESIGNER = 'Set Designer',
+  PROP_DESIGNER = 'Prop Designer',
+  OTHER = 'Other',
 }
 
 export interface IUser {
@@ -26,10 +41,11 @@ export interface IUser {
   email: string
 
   /** not required, not unique (any string, not a slug) */
-  username?: string | undefined
-  role?: string | undefined
+  username?: string
+  role?: UserRoles
 }
 
+/** Only User (for loadUser & updateUser) */
 export interface IAuthSimplified {
   user: IUser
 }
@@ -45,10 +61,10 @@ export interface IAuthState extends ITokens {
   pendingRequest: boolean
 }
 
-const initialState: IAuthState = {
-  user: { email: '' },
+export const initialState: IAuthState = {
+  user: { email: '', username: '', role: undefined },
   access_token: '',
-  token_type: 'bearer',
+  token_type: 'Bearer',
   error: undefined,
   pendingRequest: false,
 }
@@ -93,9 +109,12 @@ const reducer = createReducer(initialState, (builder) => {
     }
   )
 
-  // ONLY ON LOGOUT (whatever success or reject)
+  // ON LOGOUT
+  // do nothing with local storage (whatever success or reject)
+
+  // ON RESET AUTH (dispatched by loadLogout thunk)
   builder.addMatcher(
-    (action) => loadLogout.fulfilled.match(action) || loadLogout.rejected.match(action),
+    (action): action is TResetAuth => resetAuth.match(action),
     () => {
       removeFromLocalStorage(AUTH_LOCAL_STORAGE_KEY)
       return initialState

@@ -1,22 +1,12 @@
-import { ExitIcon, LoopIcon, PersonIcon } from '@radix-ui/react-icons'
+import { ExitIcon, PersonIcon } from '@radix-ui/react-icons'
 import { Flex, Text } from '@radix-ui/themes'
-import { FC, MouseEvent, useEffect } from 'react'
+import { FC, MouseEvent } from 'react'
 import { NavLink } from 'react-router-dom'
-import { useDispatch, useSelector } from '../../../hooks/redux'
-import { loadLogout, resetRequestStatusAction } from '../../../store/auth/actions'
-import { selectAuthIsPending } from '../../../store/auth/reducer'
+import { useDispatch } from '../../../hooks/redux'
+import { loadLogout } from '../../../store/auth/actions'
 
 const ProfileNavbar: FC = () => {
   const dispatch = useDispatch()
-
-  const loading = useSelector(selectAuthIsPending)
-
-  useEffect(
-    () => () => {
-      dispatch(resetRequestStatusAction())
-    },
-    [dispatch]
-  )
 
   const onLogout = (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
@@ -32,16 +22,10 @@ const ProfileNavbar: FC = () => {
         </Text>
       </NavLink>
       <a href='.' onClick={onLogout}>
-        {loading ? (
-          <LoopIcon />
-        ) : (
-          <>
-            <ExitIcon />
-            <Text color={'gray'} size={'3'} ml={'2'}>
-              Sign out
-            </Text>
-          </>
-        )}
+        <ExitIcon />
+        <Text color={'gray'} size={'3'} ml={'2'}>
+          Sign out
+        </Text>
       </a>
     </Flex>
   )

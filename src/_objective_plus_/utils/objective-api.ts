@@ -1,4 +1,4 @@
-import { IMakeLoginPayload, IUserPayload } from '../store/auth/actions'
+import { IMakeLoginPayload, IUserUpdatePayload } from '../store/auth/actions'
 import { IAuthFull, ITokens, IUser } from '../store/auth/reducer'
 
 const ROOT = 'http://127.0.0.1:8000'
@@ -7,6 +7,9 @@ enum ENDPOINTS {
   LOGIN = `${ROOT}/api/auth/jwt/login`,
   LOGOUT = `${ROOT}/api/auth/jwt/logout`,
   ME = `${ROOT}/api/users/me`,
+
+  /** DEBUG */
+  ERROR = `${ROOT}/api/error`,
 }
 
 const _DEBUG_TIMEOUT_MS = 500
@@ -31,7 +34,7 @@ export const fetchUser = async (auth: IAuthFull) => {
   return await checkResponse<IUserResponse>(res)
 }
 
-export const fetchUpdateUser = async (body: IUserPayload, auth: ITokens) => {
+export const fetchUpdateUser = async (body: IUserUpdatePayload, auth: ITokens) => {
   await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
 
   const res = await fetch(ENDPOINTS.ME, {
@@ -54,6 +57,8 @@ export const fetchLogin = async (body: IMakeLoginPayload) => {
 }
 
 export const fetchLogout = async (auth: ITokens) => {
+  if (!auth.access_token) return
+
   await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
 
   const res = await fetch(ENDPOINTS.LOGOUT, {

@@ -34,17 +34,17 @@ a {
     border: 1px solid var(--blue-a7);
   }
 
-  .error-text-field {
-    border: 1.5px solid var(--red-9);
-    border-radius: var(--radius-2);
+  .error-border {
+    border: 1px solid var(--red-9);
   }
 
-  .clickable-icon {
-    &:hover {
-      cursor: pointer;
-    }
-    &:active {
-      background-color: var(--gray-a2);
-    }
-  }
+  // LEGACY
+  // .clickable-icon {
+  //   &:hover {
+  //     cursor: pointer;
+  //   }
+  //   &:active {
+  //     background-color: var(--gray-a2);
+  //   }
+  // }
 }

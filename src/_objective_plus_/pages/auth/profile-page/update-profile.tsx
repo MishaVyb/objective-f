@@ -5,45 +5,62 @@ import {
   Pencil1Icon,
   SymbolIcon,
 } from '@radix-ui/react-icons'
-import { Button, Flex, Section, Select, TextField } from '@radix-ui/themes'
-import { ChangeEvent, FC, FormEvent, MouseEvent, useEffect, useState } from 'react'
-import { objectKeys } from '../../../../_objective_/types/utils'
+import { Button, Flex, IconButton, Section, Select, Text, TextField } from '@radix-ui/themes'
+import clsx from 'clsx'
+import { ChangeEvent, FC, FormEvent, RefObject, useEffect, useMemo, useRef, useState } from 'react'
+import { objectEntries, objectKeys } from '../../../../_objective_/types/utils'
 import { useDispatch, useSelector } from '../../../hooks/redux'
 import {
-  IUserPayload,
+  IUserCreatePayload,
   loadUser,
   resetRequestStatusAction,
   updateUser,
 } from '../../../store/auth/actions'
-import { selectAuthError, selectAuthIsPending, selectUser } from '../../../store/auth/reducer'
+import {
+  UserRoles,
+  initialState,
+  selectAuthError,
+  selectAuthIsPending,
+  selectUser,
+} from '../../../store/auth/reducer'
 import ProfileNavbar from './profile-navbar'
 
-enum UserRoles {
-  DIRECTOR = 'Director',
-  DOP = 'Director of Photography',
-  OTHER = 'Other',
-}
 
 const UpdateProfile: FC = () => {
-  const initialFormState: IUserPayload = {
-    ...useSelector(selectUser),
-    password: '',
-  }
+  const user = useSelector(selectUser)
 
-  const initialUpdatesState: { [key in keyof IUserPayload]: boolean } = {
+  const [form, setForm] = useState({ password: '', ...initialState.user })
+
+  // User me be not loaded yet, so we define initialFormState every time `user` changed
+  // and also we setForm values for actual `user` state.
+  const initialFormState: IUserCreatePayload = useMemo(() => {
+    const initial = {
+      ...user,
+      password: '',
+    }
+    setForm(initial)
+    return initial
+  }, [user])
+
+  const initialUpdatesState: Readonly<{ [key in keyof IUserCreatePayload]: boolean }> = {
     username: false,
     email: false,
     password: false,
     role: false,
   }
   const [formUpdates, setFormUpdates] = useState(initialUpdatesState)
+  const [toggleUpdate, setToggleUpdate] = useState(initialUpdatesState)
+
+  const inputRefs: { [key in keyof IUserCreatePayload]: RefObject<HTMLInputElement> } = {
+    email: useRef<HTMLInputElement>(null),
+    username: useRef<HTMLInputElement>(null),
+    password: useRef<HTMLInputElement>(null),
+  }
 
   const loading = useSelector(selectAuthIsPending)
   const error = useSelector(selectAuthError)
 
   const dispatch = useDispatch()
-
-  const [form, setForm] = useState(initialFormState)
 
   const [showPassword, setShowPassword] = useState(false)
   const EyeIcon = showPassword ? EyeOpenIcon : EyeClosedIcon
@@ -52,6 +69,10 @@ const UpdateProfile: FC = () => {
     dispatch(loadUser())
   }, [dispatch])
 
+  useEffect(() => {
+    if (error) setForm(initialFormState)
+  }, [error, initialFormState])
+
   useEffect(
     () => () => {
       dispatch(resetRequestStatusAction())
@@ -59,10 +80,12 @@ const UpdateProfile: FC = () => {
     [dispatch]
   )
 
-  const onFormChange = (e: ChangeEvent<HTMLInputElement>) =>
-    onChange(e.target.name as keyof IUserPayload, e.target.value)
+  const onFormChange = (e: ChangeEvent<HTMLInputElement>) => {
+    onFieldChange(e.target.name as keyof IUserCreatePayload, e.target.value)
+  }
 
-  const onChange = (key: keyof IUserPayload, value: string) => {
+  const onFieldChange = (key: keyof IUserCreatePayload, value: string) => {
+    if (error) dispatch(resetRequestStatusAction()) // if was error, reset error message on edit
     const isChanged = value !== initialFormState[key]
     setFormUpdates({ ...formUpdates, [key]: isChanged })
     setForm({ ...form, [key]: value })
@@ -70,31 +93,62 @@ const UpdateProfile: FC = () => {
 
   const onFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    dispatch(updateUser(form))
+    const partialUpdateData = Object.fromEntries(
+      objectEntries(form).filter(([key, value], index) => value !== initialFormState[key])
+    )
+
+    dispatch(updateUser(partialUpdateData))
     dispatch(resetRequestStatusAction())
     setFormUpdates(initialUpdatesState)
+    setToggleUpdate(initialUpdatesState)
 
     // NOTE: we do not hold password value after form submit: reset form value
     setForm((state) => ({ ...state, password: '' }))
   }
 
-  const onEditCancel = (e: MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
-    setForm(initialFormState)
-    setFormUpdates(initialUpdatesState)
-    dispatch(resetRequestStatusAction())
+  const onEditClick = (key: keyof IUserCreatePayload) => {
+    setTimeout(() => inputRefs[key]?.current?.focus(), 0)
+    setToggleUpdate({ ...toggleUpdate, [key]: true })
+  }
+
+  const onEditCancel = (key?: keyof IUserCreatePayload) => {
+    if (!key) {
+      // bulk cancel for all fields
+      setForm(initialFormState)
+      setFormUpdates(initialUpdatesState)
+      setToggleUpdate(initialUpdatesState)
+    } else {
+      setForm({ ...initialFormState, [key]: initialFormState[key] })
+      setFormUpdates({ ...toggleUpdate, [key]: initialUpdatesState[key] })
+      setToggleUpdate({ ...toggleUpdate, [key]: initialUpdatesState[key] })
+    }
   }
 
   const wasChanged = Object.values(formUpdates).some(Boolean)
 
+  const getToggleUpdateController = (key: keyof IUserCreatePayload) => (
+    <TextField.Slot>
+      {toggleUpdate[key] ? (
+        <IconButton onClick={() => onEditCancel(key)} type='button' variant={'ghost'}>
+          <Cross2Icon />
+        </IconButton>
+      ) : (
+        <IconButton onClick={() => onEditClick(key)} type='button' variant={'ghost'}>
+          <Pencil1Icon />
+        </IconButton>
+      )}
+    </TextField.Slot>
+  )
+
   return (
     <Flex>
       <ProfileNavbar />
-      <Section className='objective-card'>
+      <Section className={clsx('objective-card', { 'error-border': error })}>
         <form onSubmit={(e) => onFormSubmit(e)}>
           <Flex pl={'9'} pr={'9'} justify={'center'} direction={'column'} gap={'1'}>
             <TextField.Root>
               <TextField.Input
+                ref={inputRefs.email}
                 value={form.email}
                 placeholder='Update email'
                 type='email'
@@ -102,32 +156,26 @@ const UpdateProfile: FC = () => {
                 autoComplete={'username'}
                 radius={'large'}
                 onChange={onFormChange}
+                disabled={!toggleUpdate.email}
               />
-
-              {formUpdates.email ? (
-                <TextField.Slot>
-                  <Pencil1Icon height='16' width='16' />
-                </TextField.Slot>
-              ) : null}
+              {getToggleUpdateController('email')}
             </TextField.Root>
             <TextField.Root>
               <TextField.Input
+                ref={inputRefs.username}
                 value={form.username}
                 placeholder='Update username'
                 type='text'
                 name='username'
                 radius={'large'}
                 onChange={onFormChange}
+                disabled={!toggleUpdate.username}
               />
-
-              {formUpdates.username ? (
-                <TextField.Slot>
-                  <Pencil1Icon height='16' width='16' />
-                </TextField.Slot>
-              ) : null}
+              {getToggleUpdateController('username')}
             </TextField.Root>
             <TextField.Root>
               <TextField.Input
+                ref={inputRefs.password}
                 value={form.password}
                 placeholder='Update password'
                 type={showPassword ? 'text' : 'password'}
@@ -135,17 +183,26 @@ const UpdateProfile: FC = () => {
                 autoComplete={'current-password'}
                 radius={'large'}
                 onChange={onFormChange}
+                disabled={!toggleUpdate.password}
               />
-              <TextField.Slot>
-                <EyeIcon
-                  height='16'
-                  width='16'
-                  className='clickable-icon'
-                  onClick={() => setShowPassword(!showPassword)}
-                />
-              </TextField.Slot>
+              {toggleUpdate.password && (
+                <TextField.Slot>
+                  <IconButton
+                    onClick={() => setShowPassword(!showPassword)}
+                    type='button'
+                    variant={'ghost'}
+                  >
+                    <EyeIcon />
+                  </IconButton>
+                </TextField.Slot>
+              )}
+              {getToggleUpdateController('password')}
             </TextField.Root>
-            <Select.Root value={form.role} name='role' onValueChange={(v) => onChange('role', v)}>
+            <Select.Root
+              value={form.role}
+              name='role'
+              onValueChange={(v) => onFieldChange('role', v)}
+            >
               <Select.Trigger radius={'large'} placeholder={'Update Role'} />
               <Select.Content>
                 <Select.Group>
@@ -159,9 +216,19 @@ const UpdateProfile: FC = () => {
               </Select.Content>
             </Select.Root>
 
+            {error && (
+              <Text color={'red'} size={'1'} ml={'1'}>
+                {error}
+              </Text>
+            )}
+
             <Flex justify={'end'} align={'center'} pt={'2'} pr={'2'} gap={'2'}>
-              {/* @ts-ignore */}
-              {wasChanged ? <Cross2Icon className='clickable-icon' onClick={onEditCancel} /> : null}
+              {wasChanged && (
+                <IconButton onClick={() => onEditCancel()} type='button' variant={'ghost'}>
+                  <Cross2Icon />
+                </IconButton>
+              )}
+
               <Button
                 type={'submit'}
                 variant={'outline'}
