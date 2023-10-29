@@ -17,18 +17,28 @@ a {
   color: inherit;
 }
 
+// html,
+// body {
+//     // margin: 0px;
+//     // height: 100%;
+// }
+
+.debug {
+  border: 1px dashed red;
+}
+
 .objective-plus-app {
-  // center
-  margin: 0;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  -ms-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
+
+  // re-define globals at `public/index.html`
+  overflow: scroll;
+
+  header {
+    min-height: 40px;
+    background-color: var(--gray-a2);
+    border-bottom: 1px solid var(--blue-a3);
+  }
 
   .objective-card {
-    width: 400px;
-
     background-color: var(--gray-a2);
     border-radius: var(--radius-6);
     border: 1px solid var(--blue-a7);
@@ -38,13 +48,4 @@ a {
     border: 1px solid var(--red-9);
   }
 
-  // LEGACY
-  // .clickable-icon {
-  //   &:hover {
-  //     cursor: pointer;
-  //   }
-  //   &:active {
-  //     background-color: var(--gray-a2);
-  //   }
-  // }
 }

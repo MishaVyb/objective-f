@@ -1,17 +1,24 @@
 import { AsyncThunk, createAction, createAsyncThunk } from '@reduxjs/toolkit'
 
 import { GetThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk'
-import { fetchLogin, fetchLogout, fetchUpdateUser, fetchUser } from '../../utils/objective-api'
+import {
+  fetchLogin,
+  fetchLogout,
+  fetchRegister,
+  fetchUpdateUser,
+  fetchUser,
+} from '../../utils/objective-api'
 import { RootState } from '../store'
 import { IAuthSimplified, ITokens, UserRoles, selectAuth } from './reducer'
 
-/** email & password */
-export type IMakeLoginPayload = FormData
-
-/** create user */
-export interface IUserCreatePayload {
+/** login */
+export interface IMakeLoginPayload {
   email: string
   password: string
+}
+
+/** create user */
+export interface IUserCreatePayload extends IMakeLoginPayload {
   role?: UserRoles
   username?: string
 }
@@ -75,20 +82,20 @@ export const safeAsyncThunk = async <TResponse>(
 
       // Dispath known errors:
       if (response.status === 400 && response_data.detail === 'LOGIN_BAD_CREDENTIALS')
-        return thunkApi.rejectWithValue(
-          'Invalid credentials. User does not exist or password incorrect. '
-        )
+        throw thunkApi.rejectWithValue('User does not exist or password incorrect. ')
+      if (response.status === 400 && response_data.detail === 'REGISTER_USER_ALREADY_EXISTS')
+        throw thunkApi.rejectWithValue('User with that email already exist. ')
       if (response.status === 400 && response_data.detail === 'UPDATE_USER_EMAIL_ALREADY_EXISTS')
-        return thunkApi.rejectWithValue('User with that email already exist. ')
+        throw thunkApi.rejectWithValue('User with that email already exist. ')
       if (response.status === 401) {
         thunkApi.dispatch(resetAuth())
-        return thunkApi.rejectWithValue('Unauthorized. Please, sign in. ')
+        throw thunkApi.rejectWithValue('Unauthorized. Please, sign in. ')
       }
     }
 
     // Error not a Response or Unknown response error:
     console.error('Unknown error in request: ', response_data || e)
-    return thunkApi.rejectWithValue('Something went wrong. Please, try again. ')
+    throw thunkApi.rejectWithValue('Something went wrong. Please, try again. ')
   }
 }
 
@@ -107,7 +114,32 @@ export const loadUser = createAsyncThunk<IAuthSimplified, void, ThunkApiConfig>(
     }))
 )
 
-export const updateUser = createAsyncThunk<IAuthSimplified, IUserUpdatePayload, ThunkApiConfig>(
+export const loadRegister = createAsyncThunk<IAuthSimplified, IUserCreatePayload, ThunkApiConfig>(
+  'auth/updateUser',
+  (payload, thunkApi) =>
+    safeAsyncThunk(thunkApi, async () => ({
+      //
+      // HACK: `user` is a nested key inside `auth` store
+      user: await fetchRegister(payload),
+    }))
+    
+  // async (payload, thunkApi) => {
+  //   const registerResult = await safeAsyncThunk(thunkApi, async () => ({
+  //     //
+  //     // HACK: `user` is a nested key inside `auth` store
+  //     user: await fetchRegister(payload),
+  //   }))
+
+  //   const formData = new FormData()
+  //   formData.append('username', payload.email) // NOTE `email` is used as `username` on login
+  //   formData.append('password', payload.password)
+
+  //   thunkApi.dispatch(loadLogin(formData))
+  //   return registerResult
+  // }
+)
+
+export const loadUpdateUser = createAsyncThunk<IAuthSimplified, IUserUpdatePayload, ThunkApiConfig>(
   'auth/updateUser',
   (payload, thunkApi) =>
     safeAsyncThunk(thunkApi, async () => ({

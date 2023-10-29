@@ -1,16 +1,17 @@
-import { Button, Flex, IconButton, Section, Text, TextField } from '@radix-ui/themes'
-import clsx from 'clsx'
+import { Button, Flex, Heading, IconButton, Link, Text, TextField } from '@radix-ui/themes'
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from '../../../hooks/redux'
 import { loadLogin, loadUser, resetRequestStatusAction } from '../../../store/auth/actions'
 import { selectAuthError, selectAuthIsPending } from '../../../store/auth/reducer'
 
 import { EyeClosedIcon, EyeOpenIcon, SymbolIcon } from '@radix-ui/react-icons'
+import { useNavigate } from 'react-router-dom'
+import { ObjectiveCard, RootBox } from '../../../components/layoyt'
 
 const LoginPage = () => {
-  const [isFormSubmitted, setIsFormSubmitted] = useState(false)
   const [form, setForm] = useState({ email: '', password: '' })
   const [showPassword, setShowPassword] = useState(false)
+  const navigate = useNavigate()
 
   const dispatch = useDispatch()
   const loading = useSelector(selectAuthIsPending)
@@ -20,10 +21,9 @@ const LoginPage = () => {
 
   useEffect(
     () => () => {
-      if (isFormSubmitted) dispatch(loadUser())
       dispatch(resetRequestStatusAction())
     },
-    [dispatch, isFormSubmitted]
+    [dispatch]
   )
 
   const onFormChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -34,20 +34,22 @@ const LoginPage = () => {
   const onFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    const formData = new FormData()
-    formData.append('username', form.email) // NOTE `email` is used as `username` on login
-    formData.append('password', form.password)
-
-    setIsFormSubmitted(true)
     dispatch(resetRequestStatusAction())
-    dispatch(loadLogin(formData))
+    dispatch(loadLogin(form))
+      .unwrap()
+      .then(() => {
+        dispatch(loadUser())
+      })
   }
 
   return (
-    <Section className={clsx('objective-card', { 'error-border': error })}>
+    <RootBox>
+      {/* <form> tag to handle Enter key down as submit action */}
       <form onSubmit={(e) => onFormSubmit(e)}>
-        <Flex pl={'9'} pr={'9'} justify={'center'} direction={'column'}>
-          <Text ml={'1'}>Enter to Objective Plus</Text>
+        <ObjectiveCard extraClass={{ 'error-border': error }}>
+          <Heading ml={'1'} size={'3'} weight={'medium'}>
+            Enter to Objective Plus
+          </Heading>
           <TextField.Root mt={'5'}>
             <TextField.Input
               placeholder='Enter your email'
@@ -90,12 +92,24 @@ const LoginPage = () => {
 
           <Flex justify={'center'} align={'center'} pt={'2'} pr={'2'} gap={'2'}>
             <Button type={'submit'} variant='surface' size={'2'} disabled={loading}>
-              {loading ? <SymbolIcon /> : 'Sign Up'}
+              {loading ? <SymbolIcon /> : 'Sign In'}
             </Button>
           </Flex>
-        </Flex>
+          <Text mt={'5'} size={'1'} color={'gray'}>
+            Not registered?
+            <Link ml={'1'} color={'blue'} onClick={() => navigate('/register')}>
+              Sign Up
+            </Link>
+          </Text>
+          <Text size={'1'} color={'gray'}>
+            Forgot password?
+            <Link ml={'1'} color={'blue'} onClick={() => navigate('/reset-password')}>
+              Reset password
+            </Link>
+          </Text>
+        </ObjectiveCard>
       </form>
-    </Section>
+    </RootBox>
   )
 }
 

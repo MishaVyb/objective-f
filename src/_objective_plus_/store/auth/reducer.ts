@@ -29,7 +29,7 @@ export enum UserRoles {
   DIRECTOR_ASSISTANT = 'Director Assistant',
   DOP = 'Director of Photography',
   CAMERA_ASSISTANT = 'Camera Assistant',
-  GAFFER = 'GAFFER',
+  GAFFER = 'Gaffer',
   ART_DIRECTOR = 'Art Director',
   SET_DESIGNER = 'Set Designer',
   PROP_DESIGNER = 'Prop Designer',

@@ -9,6 +9,9 @@ import HomePage from '../pages/home'
 import './../scss/app.scss'
 import RouteDispatch from './route-dispatch'
 import UpdateProfile from '../pages/auth/profile-page/update-profile'
+import ResetPasswordPage from '../pages/auth/reset-password-page/reset-password-page'
+import RegisterPage from '../pages/auth/register-page/register-page'
+import {ObjectiveHeader} from './header'
 
 const ObjectivePlusApp: FC = () => {
   const location = useLocation()
@@ -21,56 +24,58 @@ const ObjectivePlusApp: FC = () => {
     )
 
   return (
-    <div className='objective-plus-app'>
-      <Theme appearance='light' accentColor='blue'>
-        <Flex justify={'center'}>
-          <Routes>
-            <Route path='*' element={<NotFoundPage />} />
-            <Route path='/' element={<HomePage />} />
-            <Route
-              path='/login'
-              element={
-                <RouteDispatch>
-                  <LoginPage />
-                </RouteDispatch>
-              }
-            />
-            <Route
-              path='/profile'
-              element={
-                <RouteDispatch loginRequired>
-                  <UpdateProfile />
-                </RouteDispatch>
-              }
-            />
-            {/* <Route
-        path="/register"
-        element={
-          <RouteDispatch>
-            <RegisterPage />
-          </RouteDispatch>
-        }
-      />
-      <Route
-        path="/forgot-password"
-        element={
-          <RouteDispatch>
-            <ForgotPasswordPage />
-          </RouteDispatch>
-        }
-      />
-      <Route
-        path="/reset-password"
-        element={
-          <RouteDispatch>
-            <ResetPasswordPage />
-          </RouteDispatch>
-        }
-      />*/}
-          </Routes>
-        </Flex>
-      </Theme>
-    </div>
+    <Theme appearance='light' accentColor='blue' radius={'medium'}>
+      {/* Base Layout container for the whole APP */}
+      <Flex style={{ height: '100vh' }} className='objective-plus-app' direction={'column'}>
+        <ObjectiveHeader />
+        <Routes>
+          <Route path='*' element={<NotFoundPage />} />
+          <Route path='/' element={<HomePage />} />
+          <Route
+            path='/login'
+            element={
+              <RouteDispatch>
+                <LoginPage />
+              </RouteDispatch>
+            }
+          />
+          <Route
+            path='/profile'
+            element={
+              <RouteDispatch loginRequired>
+                <UpdateProfile />
+              </RouteDispatch>
+            }
+          />
+          <Route
+            path='/register'
+            element={
+              <RouteDispatch>
+                <RegisterPage />
+              </RouteDispatch>
+            }
+          />
+          <Route
+            path='/reset-password'
+            element={
+              <RouteDispatch>
+                <ResetPasswordPage />
+              </RouteDispatch>
+            }
+          />
+          {/*
+              TODO
+              <Route
+                path="/confirm-reset-password"
+                element={
+                  <RouteDispatch>
+                    <ResetPasswordPage />
+                  </RouteDispatch>
+                }
+          />*/}
+        </Routes>
+      </Flex>
+    </Theme>
   )
 }
 

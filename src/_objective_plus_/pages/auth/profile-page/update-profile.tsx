@@ -5,16 +5,16 @@ import {
   Pencil1Icon,
   SymbolIcon,
 } from '@radix-ui/react-icons'
-import { Button, Flex, IconButton, Section, Select, Text, TextField } from '@radix-ui/themes'
-import clsx from 'clsx'
+import { Button, Flex, IconButton, Select, Text, TextField } from '@radix-ui/themes'
 import { ChangeEvent, FC, FormEvent, RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { objectEntries, objectKeys } from '../../../../_objective_/types/utils'
+import { ObjectiveCard, RootBox } from '../../../components/layoyt'
 import { useDispatch, useSelector } from '../../../hooks/redux'
 import {
   IUserCreatePayload,
+  loadUpdateUser,
   loadUser,
   resetRequestStatusAction,
-  updateUser,
 } from '../../../store/auth/actions'
 import {
   UserRoles,
@@ -24,7 +24,6 @@ import {
   selectUser,
 } from '../../../store/auth/reducer'
 import ProfileNavbar from './profile-navbar'
-
 
 const UpdateProfile: FC = () => {
   const user = useSelector(selectUser)
@@ -93,11 +92,12 @@ const UpdateProfile: FC = () => {
 
   const onFormSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
     const partialUpdateData = Object.fromEntries(
       objectEntries(form).filter(([key, value], index) => value !== initialFormState[key])
     )
 
-    dispatch(updateUser(partialUpdateData))
+    dispatch(loadUpdateUser(partialUpdateData))
     dispatch(resetRequestStatusAction())
     setFormUpdates(initialUpdatesState)
     setToggleUpdate(initialUpdatesState)
@@ -141,11 +141,11 @@ const UpdateProfile: FC = () => {
   )
 
   return (
-    <Flex>
-      <ProfileNavbar />
-      <Section className={clsx('objective-card', { 'error-border': error })}>
-        <form onSubmit={(e) => onFormSubmit(e)}>
-          <Flex pl={'9'} pr={'9'} justify={'center'} direction={'column'} gap={'1'}>
+    <RootBox>
+      <form onSubmit={(e) => onFormSubmit(e)}>
+        <Flex ml={'-9'}>
+          <ProfileNavbar />
+          <ObjectiveCard extraClass={{ 'error-border': error }}>
             <TextField.Root>
               <TextField.Input
                 ref={inputRefs.email}
@@ -229,19 +229,14 @@ const UpdateProfile: FC = () => {
                 </IconButton>
               )}
 
-              <Button
-                type={'submit'}
-                variant={'outline'}
-                size={'1'}
-                disabled={loading || !wasChanged}
-              >
+              <Button variant={'outline'} size={'1'} disabled={loading || !wasChanged}>
                 {loading ? <SymbolIcon /> : 'Update'}
               </Button>
             </Flex>
-          </Flex>
-        </form>
-      </Section>
-    </Flex>
+          </ObjectiveCard>
+        </Flex>
+      </form>
+    </RootBox>
   )
 }
 
