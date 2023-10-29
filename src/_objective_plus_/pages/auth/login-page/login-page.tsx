@@ -6,7 +6,7 @@ import { selectAuthError, selectAuthIsPending } from '../../../store/auth/reduce
 
 import { EyeClosedIcon, EyeOpenIcon, SymbolIcon } from '@radix-ui/react-icons'
 import { useNavigate } from 'react-router-dom'
-import { ObjectiveCard, RootBox } from '../../../components/layoyt'
+import { ObjectiveCard, RootBox } from '../../../components/layout'
 
 const LoginPage = () => {
   const [form, setForm] = useState({ email: '', password: '' })

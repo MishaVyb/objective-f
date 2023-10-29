@@ -24,7 +24,7 @@ const ProfileNavbar: FC = () => {
       <a href='.' onClick={onLogout}>
         <ExitIcon />
         <Text color={'gray'} size={'3'} ml={'2'}>
-          Sign out
+          Sign Out
         </Text>
       </a>
     </Flex>

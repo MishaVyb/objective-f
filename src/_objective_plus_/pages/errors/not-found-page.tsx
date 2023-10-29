@@ -1,11 +1,15 @@
 import { FC } from 'react'
+import { ObjectiveCard, RootBox } from '../../components/layout'
+import { Heading, Text } from '@radix-ui/themes'
 
 const NotFoundPage: FC = () => {
   return (
-    <div>
-      <p className='mt-10 text text_type_main-large text_color_inactive'>404 Not Found</p>
-      <p className='mt-2 text text_type_main-default text_color_inactive'>Такой страницы не существует :(</p>
-    </div>
+    <RootBox>
+      <ObjectiveCard>
+        <Heading>404 Not Found</Heading>
+        <Text>Такой страницы не существует :(</Text>
+      </ObjectiveCard>
+    </RootBox>
   )
 }
 

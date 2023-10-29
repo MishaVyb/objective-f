@@ -11,7 +11,8 @@ import RouteDispatch from './route-dispatch'
 import UpdateProfile from '../pages/auth/profile-page/update-profile'
 import ResetPasswordPage from '../pages/auth/reset-password-page/reset-password-page'
 import RegisterPage from '../pages/auth/register-page/register-page'
-import {ObjectiveHeader} from './header'
+import { ObjectiveHeader } from './header'
+import AboutPage from '../pages/about'
 
 const ObjectivePlusApp: FC = () => {
   const location = useLocation()
@@ -30,7 +31,15 @@ const ObjectivePlusApp: FC = () => {
         <ObjectiveHeader />
         <Routes>
           <Route path='*' element={<NotFoundPage />} />
-          <Route path='/' element={<HomePage />} />
+          <Route path='/about' element={<AboutPage />} />
+          <Route
+            path='/'
+            element={
+              <RouteDispatch loginRequired>
+                <HomePage />
+              </RouteDispatch>
+            }
+          />
           <Route
             path='/login'
             element={

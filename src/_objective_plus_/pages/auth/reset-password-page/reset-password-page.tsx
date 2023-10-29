@@ -1,6 +1,6 @@
 import { Heading, Link, Text } from '@radix-ui/themes'
 
-import { ObjectiveCard, RootBox } from '../../../components/layoyt'
+import { ObjectiveCard, RootBox } from '../../../components/layout'
 import { SUPPORT_LINK } from '../../../utils/constants'
 
 const ResetPasswordPage = () => {

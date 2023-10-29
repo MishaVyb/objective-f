@@ -32,7 +32,7 @@ a {
   // re-define globals at `public/index.html`
   overflow: scroll;
 
-  header {
+  .objective-header {
     min-height: 40px;
     background-color: var(--gray-a2);
     border-bottom: 1px solid var(--blue-a3);

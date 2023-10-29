@@ -1,22 +1,93 @@
-import { Badge, Flex, Heading } from '@radix-ui/themes'
+import {
+  Badge,
+  Button,
+  Flex,
+  Heading,
+  Link as RadixLink,
+  Separator,
+  Text,
+  Tooltip,
+} from '@radix-ui/themes'
+import { FC, ReactNode } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useSelector } from '../hooks/redux'
+import { selectIsAuthenticated, selectUser } from '../store/auth/reducer'
+import { CubeIcon, PersonIcon, ReaderIcon } from '@radix-ui/react-icons'
 
 export const ObjectiveLogo = () => {
   return (
-    <>
-      <Heading mt={'1'} weight={'light'}>
-        Objective Plus{' '}
-      </Heading>{' '}
-      <Badge m='1'>beta</Badge>
-    </>
+    <Flex>
+      <Heading weight={'light'}>Objective</Heading>
+      <Badge color={'yellow'} m='2' size={'1'}>
+        beta
+      </Badge>
+    </Flex>
+  )
+}
+
+const NavLink: FC<{ to: string; children?: ReactNode }> = ({ to, children }) => {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  return (
+    <RadixLink
+      underline={location.pathname === to ? 'always' : 'auto'}
+      onClick={() => navigate(to)}
+    >
+      {children}
+    </RadixLink>
   )
 }
 
 export const ObjectiveHeader = () => {
+  const isAuth = useSelector(selectIsAuthenticated)
+  const user = useSelector(selectUser)
+
   return (
-    <header>
-      <Flex align={'center'} justify={'center'}>
+    <Flex className='objective-header' pl={'5'} pr={'5'} align={'center'} justify={'between'}>
+      {isAuth ? (
+        <NavLink to={'/'}>
+          <Text>
+            <CubeIcon />
+            {' projects'}
+          </Text>
+        </NavLink>
+      ) : (
+        <NavLink to={'/about'}>
+          <Text>
+            <ReaderIcon />
+            {' about'}
+          </Text>
+        </NavLink>
+      )}
+
+      <Link to='/about'>
         <ObjectiveLogo />
+      </Link>
+
+      <Flex>
+        {isAuth ? (
+          <NavLink to={'/profile'}>
+            <Tooltip content={user.username || user.email}>
+              <PersonIcon />
+            </Tooltip>
+          </NavLink>
+        ) : (
+          <>
+            <NavLink to={'/login'}>
+              <Text size={'1'} weight={'bold'}>
+                Sign In
+              </Text>
+            </NavLink>
+            <Separator orientation={'vertical'} m={'2'} />
+            <NavLink to={'/register'}>
+              <Text size={'1'} color={'gray'}>
+                Sign Up
+              </Text>
+            </NavLink>
+          </>
+        )}
       </Flex>
-    </header>
+    </Flex>
   )
 }

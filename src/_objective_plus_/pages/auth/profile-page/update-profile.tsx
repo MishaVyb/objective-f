@@ -8,7 +8,7 @@ import {
 import { Button, Flex, IconButton, Select, Text, TextField } from '@radix-ui/themes'
 import { ChangeEvent, FC, FormEvent, RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { objectEntries, objectKeys } from '../../../../_objective_/types/utils'
-import { ObjectiveCard, RootBox } from '../../../components/layoyt'
+import { ObjectiveCard, RootBox } from '../../../components/layout'
 import { useDispatch, useSelector } from '../../../hooks/redux'
 import {
   IUserCreatePayload,
