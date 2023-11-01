@@ -1,9 +1,19 @@
 @import 'open-color/open-color';
 @import '../../css/variables.module';
 
-@import '@radix-ui/colors/black-alpha.css';
-@import '@radix-ui/colors/violet.css';
-@import '@radix-ui/colors/mauve.css';
+// @import '@radix-ui/colors/black-alpha.css';
+// @import '@radix-ui/colors/violet.css';
+// @import '@radix-ui/colors/mauve.css';
+
+
+@import '@radix-ui/colors/gray.css';
+@import '@radix-ui/colors/blue.css';
+@import '@radix-ui/colors/green.css';
+@import '@radix-ui/colors/red.css';
+@import '@radix-ui/colors/gray-dark.css';
+@import '@radix-ui/colors/blue-dark.css';
+@import '@radix-ui/colors/green-dark.css';
+@import '@radix-ui/colors/red-dark.css';
 
 // HACK Override style of saved password field in google chrome
 input:-webkit-autofill {
@@ -28,24 +38,24 @@ a {
 }
 
 .objective-plus-app {
+  background-size: contain;
 
   // re-define globals at `public/index.html`
   overflow: scroll;
 
   .objective-header {
     min-height: 40px;
-    background-color: var(--gray-a2);
-    border-bottom: 1px solid var(--blue-a3);
+    background-color: var(--gray-2);
+    border-bottom: 1px solid var(--blue-3);
   }
 
   .objective-card {
-    background-color: var(--gray-a2);
+    background-color: var(--gray-2);
     border-radius: var(--radius-6);
-    border: 1px solid var(--blue-a7);
+    border: 1px solid var(--blue-7);
   }
 
   .error-border {
     border: 1px solid var(--red-9);
   }
-
 }

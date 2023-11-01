@@ -1,12 +1,26 @@
 import { IMakeLoginPayload, IUserCreatePayload, IUserUpdatePayload } from '../store/auth/actions'
 import { IAuthFull, ITokens, IUser } from '../store/auth/reducer'
+import {
+  TGetProjectsThunkArg,
+  TGetProjectsResponse,
+  TCreateProjectPayload,
+  TCreateProjectResponse,
+  TUpdateProjectPayload,
+  TUpdateProjectResponse,
+  TDeleteProjectResponse,
+} from '../store/projects/actions'
+import { IProject } from '../store/projects/reducer'
 
 const ROOT = 'http://127.0.0.1:8000' as const
 enum ENDPOINTS {
+  // user & auth
   REGISTER = '/api/auth/register',
   LOGIN = '/api/auth/jwt/login',
   LOGOUT = '/api/auth/jwt/logout',
   ME = '/api/users/me',
+
+  // projects
+  PROJECTS = '/api/projects',
 
   /** DEBUG */
   ERROR = '/api/error',
@@ -82,4 +96,56 @@ export const fetchLogout = async (auth: ITokens) => {
     headers: getAuthHeader(auth),
   })
   return checkResponse(res)
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const fetchProjects = async (query: TGetProjectsThunkArg, auth: IAuthFull) => {
+  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+
+  const urlParams = new URLSearchParams()
+  if (query.is_deleted) urlParams.append('is_deleted', 'True')
+
+  const res = await fetch(ROOT + ENDPOINTS.PROJECTS + urlParams, {
+    method: 'GET',
+    headers: getAuthHeader(auth),
+  })
+  return await checkResponse<TGetProjectsResponse>(res)
+}
+
+export const fetchCreateProject = async (body: TCreateProjectPayload, auth: IAuthFull) => {
+  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+
+  const res = await fetch(ROOT + ENDPOINTS.PROJECTS, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeader(auth) },
+    body: JSON.stringify(body),
+  })
+  return await checkResponse<TCreateProjectResponse>(res)
+}
+
+export const fetchUpdateProject = async (
+  id: IProject['id'],
+  body: TCreateProjectPayload,
+  auth: IAuthFull
+) => {
+  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+
+  const res = await fetch(ROOT + ENDPOINTS.PROJECTS + `/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeader(auth) },
+    body: JSON.stringify(body),
+  })
+  return await checkResponse<TUpdateProjectResponse>(res)
+}
+
+/** Mark for delete (a.k.a Archive) */
+export const fetchDeleteProject = async (id: IProject['id'], auth: IAuthFull) => {
+  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+
+  const res = await fetch(ROOT + ENDPOINTS.PROJECTS + `/${id}`, {
+    method: 'DELETE',
+    headers: getAuthHeader(auth),
+  })
+  return await checkResponse<TDeleteProjectResponse>(res)
 }

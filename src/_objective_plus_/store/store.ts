@@ -1,15 +1,18 @@
 import { configureStore } from '@reduxjs/toolkit'
 
-import { AUTH_LOCAL_STORAGE_KEY, loadFromLocalStorage } from '../utils/persistence'
+import { LOCAL_STORAGE, loadFromLocalStorage } from '../utils/persistence'
 import authReducer, { IAuthState } from './auth/reducer'
+import projectsReducer, { IProjectsState } from './projects/reducer'
 
 const preloadedState = {
-  auth: loadFromLocalStorage<IAuthState>(AUTH_LOCAL_STORAGE_KEY),
+  auth: loadFromLocalStorage<IAuthState>(LOCAL_STORAGE.AUTH),
+  projects: loadFromLocalStorage<IProjectsState>(LOCAL_STORAGE.PROJECTS)
 }
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    projects: projectsReducer,
   },
   preloadedState: preloadedState,
 })

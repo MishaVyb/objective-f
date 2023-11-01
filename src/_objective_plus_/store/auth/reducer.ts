@@ -1,10 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit'
 
-import {
-  AUTH_LOCAL_STORAGE_KEY,
-  removeFromLocalStorage,
-  saveToLocalStorage,
-} from '../../utils/persistence'
+import { LOCAL_STORAGE, removeFromLocalStorage, saveToLocalStorage } from '../../utils/persistence'
 import { RootState } from '../store'
 import {
   TFulfilledAction,
@@ -70,15 +66,15 @@ export const initialState: IAuthState = {
 }
 
 const reducer = createReducer(initialState, (builder) => {
-  // ANY PENDING:
+  // COMMON:
+  // Common for ALL reducers request lifecycle actions:
+
   builder.addMatcher<TPendingAction>(
     (action): action is TPendingAction => action.type.endsWith('/pending'),
     (state) => {
       state.pendingRequest = true
     }
   )
-
-  // ANY REJECT
   builder.addMatcher<TRejectedAction>(
     (action): action is TRejectedAction => action.type.endsWith('/rejected'),
     (state, action) => {
@@ -88,8 +84,6 @@ const reducer = createReducer(initialState, (builder) => {
       else state.error = action.error.message
     }
   )
-
-  // ANY SUCCESS + resetRequestStatusAction
   builder.addMatcher<TFulfilledAction | TResetRequestStatusAction>(
     (action): action is TFulfilledAction | TResetRequestStatusAction =>
       action.type.endsWith('/fulfilled') || resetRequestStatusAction.match(action),
@@ -99,24 +93,26 @@ const reducer = createReducer(initialState, (builder) => {
     }
   )
 
-  // ANY SUCCESS
+  // AUTH:
+  // any success
   builder.addMatcher<TFulfilledAction>(
-    (action): action is TFulfilledAction => action.type.endsWith('/fulfilled'),
+    (action): action is TFulfilledAction =>
+      action.type.endsWith('/fulfilled') && action.type.startsWith('auth/'),
     (state, action) => {
       if (action.payload) {
-        return saveToLocalStorage(AUTH_LOCAL_STORAGE_KEY, { ...state, ...action.payload })
+        return saveToLocalStorage(LOCAL_STORAGE.AUTH, { ...state, ...action.payload })
       }
     }
   )
 
-  // ON LOGOUT
+  // auth - on logout
   // do nothing with local storage (whatever success or reject)
 
-  // ON RESET AUTH (dispatched by loadLogout thunk)
+  // auth - on reset auth (dispatched by loadlogout thunk)
   builder.addMatcher(
     (action): action is TResetAuth => resetAuth.match(action),
     () => {
-      removeFromLocalStorage(AUTH_LOCAL_STORAGE_KEY)
+      removeFromLocalStorage(LOCAL_STORAGE.AUTH)
       return initialState
     }
   )

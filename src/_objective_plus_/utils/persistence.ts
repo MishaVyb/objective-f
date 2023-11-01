@@ -1,5 +1,9 @@
-export const AUTH_LOCAL_STORAGE_KEY = 'objective-plus-auth'
+export enum LOCAL_STORAGE {
+  AUTH = 'objective-beta:auth',
+  PROJECTS = 'objective-beta:projects',
+}
 
+/** Save to local storage and **also** return the same value (easy to use at reducer) */
 export function saveToLocalStorage<T>(key: string, value: T): T {
   try {
     localStorage.setItem(key, JSON.stringify(value))
@@ -9,7 +13,10 @@ export function saveToLocalStorage<T>(key: string, value: T): T {
   return value
 }
 
-export function loadFromLocalStorage<T>(key: string, defaultValue: T | undefined = undefined): T | undefined {
+export function loadFromLocalStorage<T>(
+  key: string,
+  defaultValue: T | undefined = undefined
+): T | undefined {
   try {
     const value = localStorage.getItem(key)
     if (value === null) return defaultValue

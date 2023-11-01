@@ -13,10 +13,13 @@ import ResetPasswordPage from '../pages/auth/reset-password-page/reset-password-
 import RegisterPage from '../pages/auth/register-page/register-page'
 import { ObjectiveHeader } from './header'
 import AboutPage from '../pages/about'
+import BackgroundImage from '../images/objective-bg-image-v1.png'
 
 const ObjectivePlusApp: FC = () => {
   const location = useLocation()
 
+  // HACK
+  // Composing <ExcalidrawApp /> inside <Routes> or <Theme > not working :(
   if (location.pathname === '/scenes')
     return (
       <RouteDispatch loginRequired>
@@ -25,9 +28,17 @@ const ObjectivePlusApp: FC = () => {
     )
 
   return (
-    <Theme appearance='light' accentColor='blue' radius={'medium'}>
+    <Theme
+      appearance='light'
+      accentColor='blue'
+      radius={'medium'}
+    >
       {/* Base Layout container for the whole APP */}
-      <Flex style={{ height: '100vh' }} className='objective-plus-app' direction={'column'}>
+      <Flex
+        style={{ height: '100vh', backgroundImage: `url(${BackgroundImage})` }}
+        className='objective-plus-app'
+        direction={'column'}
+      >
         <ObjectiveHeader />
         <Routes>
           <Route path='*' element={<NotFoundPage />} />
