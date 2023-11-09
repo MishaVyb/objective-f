@@ -1,6 +1,4 @@
 import { AsyncThunk, createAction, createAsyncThunk } from '@reduxjs/toolkit'
-import { IProject } from './reducer'
-import { ThunkApiConfig, safeAsyncThunk } from '../helpers'
 import {
   fetchCreateProject,
   fetchDeleteProject,
@@ -8,6 +6,8 @@ import {
   fetchUpdateProject,
 } from '../../utils/objective-api'
 import { selectAuth } from '../auth/reducer'
+import { ThunkApiConfig, safeAsyncThunk } from '../helpers'
+import { IProject } from './reducer'
 
 // Responses
 export type TGetProjectResponse = IProject
@@ -26,7 +26,7 @@ export type TUpdateProjectPayload = Pick<IProject, 'name'>
 
 // Thunk args (payloads + any extra arguments)
 export type TGetProjectsThunkArg = TQueryBase
-export type TCreateProjectThunkArg = TCreateProjectPayload & Pick<IProject, 'id'>
+export type TCreateProjectThunkArg = TCreateProjectPayload
 export type TUpdateProjectThunkArg = TUpdateProjectPayload & Pick<IProject, 'id'>
 export type TDeleteProjectThunkArg = Pick<IProject, 'id'>
 
@@ -52,6 +52,9 @@ export type TFulfilledAction = ReturnType<TAuthAsyncThunk['fulfilled']>
 
 export const resetRequestStatusAction = createAction('projects/resetRequestStatusAction')
 export type TResetRequestStatusAction = ReturnType<typeof resetRequestStatusAction>
+
+export const toggleProject = createAction<IProject['id']>('projects/toggleProject')
+export type TToggleProject = ReturnType<typeof toggleProject>
 
 export const loadProjects = createAsyncThunk<
   TGetProjectsResponse,

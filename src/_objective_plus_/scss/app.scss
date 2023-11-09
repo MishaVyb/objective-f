@@ -1,11 +1,6 @@
 @import 'open-color/open-color';
 @import '../../css/variables.module';
 
-// @import '@radix-ui/colors/black-alpha.css';
-// @import '@radix-ui/colors/violet.css';
-// @import '@radix-ui/colors/mauve.css';
-
-
 @import '@radix-ui/colors/gray.css';
 @import '@radix-ui/colors/blue.css';
 @import '@radix-ui/colors/green.css';
@@ -37,6 +32,14 @@ a {
   border: 1px dashed red;
 }
 
+.editable-text {
+  cursor: text;
+
+  &:hover {
+    background-color: var(--blue-a3);
+  }
+}
+
 .objective-plus-app {
   background-size: contain;
 
@@ -46,16 +49,42 @@ a {
   .objective-header {
     min-height: 40px;
     background-color: var(--gray-2);
-    border-bottom: 1px solid var(--blue-3);
+    box-shadow: 0px 0px 10px var(--gray-3);
+
+    z-index: 10;
   }
 
   .objective-card {
-    background-color: var(--gray-2);
+    background-color: var(--gray-1);
     border-radius: var(--radius-6);
     border: 1px solid var(--blue-7);
   }
 
+  .objective-box {
+    // no radius
+    background-color: var(--gray-1);
+    box-shadow: 0px 0px 10px var(--gray-3);
+  }
+
   .error-border {
     border: 1px solid var(--red-9);
+  }
+
+  .toggled-item {
+    cursor: pointer;
+
+    // toggled
+    &.active {
+      background-color: var(--blue-3);
+    }
+
+    &:hover {
+      background-color: var(--blue-3);
+
+      // toggled
+      &.active {
+        background-color: var(--gray-3);
+      }
+    }
   }
 }
