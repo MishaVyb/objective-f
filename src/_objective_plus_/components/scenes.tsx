@@ -28,8 +28,13 @@ import {
   selectScenes,
   selectToggledProject,
 } from '../store/projects/reducer'
+import { useNavigate } from 'react-router-dom'
 
-const SceneCard: FC<{ children: ReactNode; className?: string }> = ({ children, className }) => {
+const SceneCard: FC<{ children: ReactNode; className?: string; onClick?: () => void }> = ({
+  children,
+  className,
+  onClick,
+}) => {
   return (
     <Box
       className={clsx('scene-card', className)}
@@ -39,6 +44,7 @@ const SceneCard: FC<{ children: ReactNode; className?: string }> = ({ children, 
         width: 170,
         height: 70,
       }}
+      onClick={onClick}
     >
       {children}
     </Box>
@@ -50,8 +56,19 @@ const SceneNewItem: FC = () => {
   const dispatch = useDispatch()
   const [name, setName] = useState('Untitled Scene')
   const [open, setOpen] = useState(false)
+  const [onPointerDownOutside, setOnPointerDownOutside] = useState(false)
 
   if (!project) return <></>
+
+  const onClick = () => {
+    if (!onPointerDownOutside) {
+      setOpen(true)
+    } else {
+      // HACK
+      // Fix strange bug of re-opening dialog window in 0.1 seconds after closing
+      setOnPointerDownOutside(false)
+    }
+  }
 
   const onCreate = () => {
     setOpen(false)
@@ -60,7 +77,7 @@ const SceneNewItem: FC = () => {
       .then(() => dispatch(loadProjects({})))
   }
   return (
-    <SceneCard className='ghost'>
+    <SceneCard className='ghost' onClick={() => onClick()}>
       <Flex
         align={'center'}
         justify={'center'}
@@ -68,18 +85,20 @@ const SceneNewItem: FC = () => {
           height: '100%',
         }}
       >
-        <Dialog.Root open={open} onOpenChange={setOpen}>
-          <Dialog.Trigger>
-            <Text
-              m='2'
-              color={'blue'}
-              style={{ paddingRight: 20 }} // HACK: center
-            >
-              <PlusIcon /> New Scene
-            </Text>
-          </Dialog.Trigger>
+        <Text
+          m='2'
+          color={'blue'}
+          style={{ paddingRight: 20 }} // HACK: center
+        >
+          <PlusIcon /> New Scene
+        </Text>
 
-          <Dialog.Content style={{ maxWidth: 450 }}>
+        <Dialog.Root open={open} onOpenChange={setOpen}>
+          <Dialog.Content
+            style={{ maxWidth: 450 }}
+            onCloseAutoFocus={(e) => e.preventDefault()}
+            onPointerDownOutside={() => setOnPointerDownOutside(true)}
+          >
             <Dialog.Title>Scene</Dialog.Title>
             <Dialog.Description size='2' mb='4'>
               Create New Scene
@@ -117,6 +136,7 @@ const SceneNewItem: FC = () => {
 }
 
 const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
+  const navigate = useNavigate()
   const dispatch = useDispatch()
   const projects = useSelector(selectProjects)
   const ref = useRef(null)
@@ -155,8 +175,12 @@ const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
       .then(() => dispatch(loadProjects({})))
   }
 
+  const onClick = () => {
+    navigate(`/scenes/${scene.id}`)
+  }
+
   return (
-    <SceneCard>
+    <SceneCard onClick={() => onClick()}>
       <Flex justify={'between'}>
         <EditableText
           ref={ref}

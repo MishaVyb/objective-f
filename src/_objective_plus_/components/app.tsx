@@ -20,7 +20,7 @@ const ObjectivePlusApp: FC = () => {
 
   // HACK
   // Composing <ExcalidrawApp /> inside <Routes> or <Theme > not working :(
-  if (location.pathname === '/scenes')
+  if (location.pathname.startsWith('/scenes'))
     return (
       <RouteDispatch loginRequired>
         <ExcalidrawApp />
