@@ -1,15 +1,22 @@
 import { IMakeLoginPayload, IUserCreatePayload, IUserUpdatePayload } from '../store/auth/actions'
 import { IAuthFull, ITokens, IUser } from '../store/auth/reducer'
 import {
-  TGetProjectsThunkArg,
-  TGetProjectsResponse,
   TCreateProjectPayload,
   TCreateProjectResponse,
-  TUpdateProjectPayload,
-  TUpdateProjectResponse,
+  TCreateScenePayload,
+  TCreateSceneResponse,
   TDeleteProjectResponse,
+  TDeleteSceneResponse,
+  TGetProjectsResponse,
+  TGetProjectsThunkArg,
+  TGetSceneResponse,
+  TGetScenesResponse,
+  TGetScenesThunkArg,
+  TUpdateProjectResponse,
+  TUpdateScenePayload,
+  TUpdateSceneResponse,
 } from '../store/projects/actions'
-import { IProject } from '../store/projects/reducer'
+import { IProject, ISceneFull } from '../store/projects/reducer'
 
 const ROOT = 'http://127.0.0.1:8000' as const
 enum ENDPOINTS {
@@ -21,6 +28,7 @@ enum ENDPOINTS {
 
   // projects
   PROJECTS = '/api/projects',
+  SCENES = '/api/scenes',
 
   /** DEBUG */
   ERROR = '/api/error',
@@ -148,4 +156,66 @@ export const fetchDeleteProject = async (id: IProject['id'], auth: IAuthFull) =>
     headers: getAuthHeader(auth),
   })
   return await checkResponse<TDeleteProjectResponse>(res)
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const fetchScene = async (id: ISceneFull['id'], auth: IAuthFull) => {
+  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+
+  const res = await fetch(ROOT + ENDPOINTS.SCENES + `/${id}`, {
+    method: 'GET',
+    headers: getAuthHeader(auth),
+  })
+  return await checkResponse<TGetSceneResponse>(res)
+}
+
+export const fetchScenes = async (query: TGetScenesThunkArg, auth: IAuthFull) => {
+  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+
+  const urlParams = new URLSearchParams()
+  if (query.is_deleted) urlParams.append('is_deleted', 'True')
+
+  const res = await fetch(ROOT + ENDPOINTS.SCENES + urlParams, {
+    method: 'GET',
+    headers: getAuthHeader(auth),
+  })
+  return await checkResponse<TGetScenesResponse>(res)
+}
+
+export const fetchCreateScene = async (body: TCreateScenePayload, auth: IAuthFull) => {
+  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+
+  const res = await fetch(ROOT + ENDPOINTS.SCENES, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeader(auth) },
+    body: JSON.stringify(body),
+  })
+  return await checkResponse<TCreateSceneResponse>(res)
+}
+
+export const fetchUpdateScene = async (
+  id: ISceneFull['id'],
+  body: TUpdateScenePayload,
+  auth: IAuthFull
+) => {
+  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+
+  const res = await fetch(ROOT + ENDPOINTS.SCENES + `/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeader(auth) },
+    body: JSON.stringify(body),
+  })
+  return await checkResponse<TUpdateSceneResponse>(res)
+}
+
+/** Mark for delete (a.k.a Archive) */
+export const fetchDeleteScene = async (id: ISceneFull['id'], auth: IAuthFull) => {
+  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+
+  const res = await fetch(ROOT + ENDPOINTS.SCENES + `/${id}`, {
+    method: 'DELETE',
+    headers: getAuthHeader(auth),
+  })
+  return await checkResponse<TDeleteSceneResponse>(res)
 }

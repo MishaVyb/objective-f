@@ -56,7 +56,6 @@ const LoginPage = () => {
               type='email'
               name='email'
               autoComplete={'username'}
-              radius={'large'}
               required
               onChange={onFormChange}
               disabled={loading}
@@ -68,7 +67,6 @@ const LoginPage = () => {
               type={showPassword ? 'text' : 'password'}
               name='password'
               autoComplete={'current-password'}
-              radius={'large'}
               required
               onChange={onFormChange}
               disabled={loading}

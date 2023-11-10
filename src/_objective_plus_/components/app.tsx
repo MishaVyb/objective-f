@@ -3,17 +3,17 @@ import { Route, Routes, useLocation } from 'react-router-dom'
 
 import { Flex, Theme } from '@radix-ui/themes'
 import ExcalidrawApp from '../../excalidraw-app'
+import BackgroundImage from '../images/objective-bg-image-v1.png'
+import AboutPage from '../pages/about'
 import LoginPage from '../pages/auth/login-page/login-page'
+import UpdateProfile from '../pages/auth/profile-page/update-profile'
+import RegisterPage from '../pages/auth/register-page/register-page'
+import ResetPasswordPage from '../pages/auth/reset-password-page/reset-password-page'
 import NotFoundPage from '../pages/errors/not-found-page'
 import HomePage from '../pages/home'
 import './../scss/app.scss'
-import RouteDispatch from './route-dispatch'
-import UpdateProfile from '../pages/auth/profile-page/update-profile'
-import ResetPasswordPage from '../pages/auth/reset-password-page/reset-password-page'
-import RegisterPage from '../pages/auth/register-page/register-page'
 import { ObjectiveHeader } from './header'
-import AboutPage from '../pages/about'
-import BackgroundImage from '../images/objective-bg-image-v1.png'
+import RouteDispatch from './route-dispatch'
 
 const ObjectivePlusApp: FC = () => {
   const location = useLocation()
@@ -28,11 +28,7 @@ const ObjectivePlusApp: FC = () => {
     )
 
   return (
-    <Theme
-      appearance='light'
-      accentColor='blue'
-      radius={'medium'}
-    >
+    <Theme appearance='light' accentColor='blue' radius={'small'}>
       {/* Base Layout container for the whole APP */}
       <Flex
         style={{ height: '100vh', backgroundImage: `url(${BackgroundImage})` }}

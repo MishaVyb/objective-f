@@ -1,4 +1,4 @@
-import { createReducer } from '@reduxjs/toolkit'
+import { createReducer, createSelector } from '@reduxjs/toolkit'
 import { LOCAL_STORAGE, saveToLocalStorage } from '../../utils/persistence'
 import { RootState } from '../store'
 import { loadProjects, toggleProject } from './actions'
@@ -13,6 +13,7 @@ export interface IBase {
 }
 
 export interface ISceneSimplified extends IBase {
+  project_id: string
   name: string
 }
 
@@ -31,14 +32,14 @@ export interface IProject extends IBase {
 export interface IProjectsState {
   /** user's projects */
   projects: readonly IProject[]
-  toggledProject: IProject['id'] | undefined
+  toggledProjectId: IProject['id'] | undefined
   error: string | undefined
   pendingRequest: boolean
 }
 
 export const initialState: IProjectsState = {
   projects: [],
-  toggledProject: undefined,
+  toggledProjectId: undefined,
   error: undefined,
   pendingRequest: false,
 }
@@ -63,7 +64,7 @@ const reducer = createReducer(initialState, (builder) => {
   builder.addCase(toggleProject, (state, action) =>
     saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
       ...state,
-      toggledProject: action.payload,
+      toggledProjectId: action.payload,
     })
   )
 })
@@ -71,7 +72,21 @@ const reducer = createReducer(initialState, (builder) => {
 export const selectProjectsIsPending = (state: RootState) => state.auth.pendingRequest
 export const selectProjectsError = (state: RootState) => state.auth.error
 
-export const selectProjects = (state: RootState) => state.projects.projects
-export const selectToggledProject = (state: RootState) => state.projects.toggledProject
+// export const selectProjects = (state: RootState) =>
+//   state.projects.projects.filter((p) => !p.is_deleted)
+export const selectProjects = createSelector(
+  (state: RootState) => state.projects,
+  (projects) => projects.projects.filter((p) => !p.is_deleted)
+)
+
+export const selectToggledProjectId = (state: RootState) => state.projects.toggledProjectId
+export const selectToggledProject = (state: RootState) =>
+  state.projects.projects.find((p) => p.id === state.projects.toggledProjectId)
+
+/** Select not deleted scenes of current toggled project */
+export const selectScenes = createSelector(
+  [selectToggledProject],
+  (project) => project?.scenes.filter((s) => !s.is_deleted) || []
+)
 
 export default reducer

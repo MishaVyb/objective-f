@@ -1,52 +1,64 @@
 import { Text, TextField } from '@radix-ui/themes'
-import { FC, FocusEvent, useRef, useState } from 'react'
+import { FocusEvent, forwardRef, useCallback, useEffect, useState } from 'react'
 
 type TEditableTextProps = {
   initialValue: string
+  defaultValue: string
   onSubmit: (value: string) => void
+  toggled?: boolean
 }
 
-const EditableText: FC<TEditableTextProps> = ({ initialValue, onSubmit }) => {
-  if (!initialValue) initialValue = 'Untitled Project'
+const EditableText = forwardRef<HTMLInputElement, TEditableTextProps>(
+  ({ initialValue, defaultValue, onSubmit, toggled }, ref) => {
+    const [isEdit, setIsEdit] = useState(toggled)
+    const [value, setValue] = useState(initialValue)
 
-  const [isEdit, setIsEdit] = useState(false)
-  const [value, setValue] = useState(initialValue)
-  const nameInputRef = useRef<HTMLInputElement>(null)
+    // if (!ref) return <></>
+    const nameInputRef = ref
 
-  const onTextClick = () => {
-    setTimeout(() => nameInputRef.current?.focus(), 0)
-    setIsEdit(true)
-  }
+    const onTextClick = useCallback(() => {
+      setTimeout(() => nameInputRef?.current?.focus(), 0)
+      setIsEdit(true)
+    }, [nameInputRef])
 
-  const onInputFocus = (event: FocusEvent<HTMLInputElement, Element>) => {
-    event.target.select()
-  }
+    useEffect(() => {
+      if (toggled) onTextClick()
+    }, [toggled, onTextClick])
 
-  const onDoneEditing = () => {
-    setIsEdit(false)
-    if (value !== initialValue) onSubmit(value)
-  }
+    const onInputFocus = (event: FocusEvent<HTMLInputElement, Element>) => {
+      event.target.select()
+    }
 
-  if (isEdit)
+    const onDoneEditing = () => {
+      setIsEdit(false)
+
+      const cleanValue = value || defaultValue
+      if (cleanValue !== value) setValue(cleanValue)
+      if (cleanValue !== initialValue) onSubmit(cleanValue)
+    }
+
+    if (isEdit)
+      return (
+        <TextField.Root>
+          <TextField.Input
+            ref={nameInputRef}
+            value={value}
+            size={'1'}
+            onChange={(e) => setValue(e.target.value)}
+            onFocus={onInputFocus}
+            onBlur={onDoneEditing}
+            onKeyUp={(e) => e.key === 'Enter' && onDoneEditing()}
+          />
+        </TextField.Root>
+      )
+
     return (
-      <TextField.Root>
-        <TextField.Input
-          ref={nameInputRef}
-          value={value}
-          size={'1'}
-          onChange={(e) => setValue(e.target.value)}
-          onFocus={onInputFocus}
-          onBlur={onDoneEditing}
-          onKeyUp={(e) => e.key === 'Enter' && onDoneEditing()}
-        />
-      </TextField.Root>
+      <Text className='editable-text' m={'1'} size={'1'} as={'p'} onClick={onTextClick}>
+        {value}
+      </Text>
     )
+  }
+)
 
-  return (
-    <Text className='editable-text' m={'1'} size={'1'} as={'p'} onClick={onTextClick}>
-      {value}
-    </Text>
-  )
-}
-
+EditableText.displayName = 'EditableText'
 export default EditableText

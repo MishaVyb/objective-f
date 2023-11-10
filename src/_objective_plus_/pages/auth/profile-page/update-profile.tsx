@@ -154,7 +154,6 @@ const UpdateProfile: FC = () => {
                 type='email'
                 name='email'
                 autoComplete={'username'}
-                radius={'large'}
                 onChange={onFormChange}
                 disabled={!toggleUpdate.email}
               />
@@ -167,7 +166,6 @@ const UpdateProfile: FC = () => {
                 placeholder='Update username'
                 type='text'
                 name='username'
-                radius={'large'}
                 onChange={onFormChange}
                 disabled={!toggleUpdate.username}
               />
@@ -181,7 +179,6 @@ const UpdateProfile: FC = () => {
                 type={showPassword ? 'text' : 'password'}
                 name='password'
                 autoComplete={'current-password'}
-                radius={'large'}
                 onChange={onFormChange}
                 disabled={!toggleUpdate.password}
               />
@@ -203,7 +200,7 @@ const UpdateProfile: FC = () => {
               name='role'
               onValueChange={(v) => onFieldChange('role', v)}
             >
-              <Select.Trigger radius={'large'} placeholder={'Update Role'} />
+              <Select.Trigger placeholder={'Update Role'} />
               <Select.Content>
                 <Select.Group>
                   <Select.Label>Role</Select.Label>

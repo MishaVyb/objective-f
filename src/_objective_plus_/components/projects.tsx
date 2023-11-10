@@ -15,6 +15,7 @@ import { FC, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from '../hooks/redux'
 import {
   loadCreateProject,
+  loadDeleteProject,
   loadProjects,
   loadUpdateProject,
   toggleProject,
@@ -23,22 +24,28 @@ import {
   IProject,
   selectProjects,
   selectProjectsIsPending,
-  selectToggledProject,
+  selectToggledProjectId,
 } from '../store/projects/reducer'
 
 const ProjectNewItem: FC = () => {
   const dispatch = useDispatch()
-  const [name, setName] = useState('')
+  const [name, setName] = useState('Untitled Project')
+  const [open, setOpen] = useState(false)
 
   const onCreate = () => {
-    console.log('onCreate')
+    setOpen(false)
     dispatch(loadCreateProject({ name }))
       .unwrap()
-      .then((v) => dispatch(loadProjects({})))
+      .then(
+        (v) =>
+          dispatch(loadProjects({}))
+            .unwrap()
+            .then(() => dispatch(toggleProject(v.id))) // select newly created project
+      )
   }
 
   return (
-    <Dialog.Root>
+    <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger>
         <Button
           style={{ paddingRight: 30 }} // HACK: center
@@ -50,7 +57,7 @@ const ProjectNewItem: FC = () => {
         </Button>
       </Dialog.Trigger>
 
-      <Dialog.Content style={{ maxWidth: 450 }}>
+      <Dialog.Content style={{ maxWidth: 450 }} onCloseAutoFocus={(e) => e.preventDefault()}>
         <Dialog.Title>Project</Dialog.Title>
         <Dialog.Description size='2' mb='4'>
           Create New Project
@@ -64,8 +71,7 @@ const ProjectNewItem: FC = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder='Enter project name'
-            // TODO:
-            // onKeyUp={(e) => e.key === 'Enter' && onCreate()}
+            onKeyUp={(e) => e.key === 'Enter' && onCreate()}
           />
         </label>
 
@@ -76,7 +82,9 @@ const ProjectNewItem: FC = () => {
             </Button>
           </Dialog.Close>
           <Dialog.Close>
-            <Button onClick={onCreate}>Create</Button>
+            <Button variant='soft' onClick={onCreate}>
+              Create
+            </Button>
           </Dialog.Close>
         </Flex>
       </Dialog.Content>
@@ -86,15 +94,68 @@ const ProjectNewItem: FC = () => {
 
 const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, toggled }) => {
   const dispatch = useDispatch()
+  const [open, setOpen] = useState(false)
+  const [name, setName] = useState(project.name)
 
   const onClick = () => {
     dispatch(toggleProject(project.id))
   }
 
-  const onRename = (v: string) => {
-    console.log(v)
-    dispatch(loadUpdateProject({ ...project, name: v }))
+  const onRenameActivate = () => {
+    setOpen(true)
   }
+
+  const onRename = () => {
+    setOpen(false)
+    dispatch(loadUpdateProject({ ...project, name: name || 'Untitled Project' }))
+      .unwrap()
+      .then(() => dispatch(loadProjects({})))
+  }
+
+  const onDelete = () => {
+    dispatch(loadDeleteProject({ id: project.id }))
+      .unwrap()
+      .then(() => dispatch(loadProjects({})))
+  }
+
+  const renameDialogComponent = (
+    <Dialog.Root //
+      open={open}
+      onOpenChange={setOpen}
+    >
+      <Dialog.Content style={{ maxWidth: 450 }}>
+        <Dialog.Title>Project</Dialog.Title>
+        <Dialog.Description size='2' mb='4'>
+          Rename Project
+        </Dialog.Description>
+
+        <label>
+          <Text as='div' size='1' mb='1' color={'gray'}>
+            Name
+          </Text>
+          <TextField.Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder='Enter scene name'
+            onKeyUp={(e) => e.key === 'Enter' && onRename()}
+          />
+        </label>
+
+        <Flex gap='3' mt='4' justify='end'>
+          <Dialog.Close>
+            <Button variant='soft' color='gray'>
+              Cancel
+            </Button>
+          </Dialog.Close>
+          <Dialog.Close>
+            <Button variant={'soft'} onClick={() => onRename}>
+              Update
+            </Button>
+          </Dialog.Close>
+        </Flex>
+      </Dialog.Content>
+    </Dialog.Root>
+  )
 
   const menu = (
     <DropdownMenu.Root>
@@ -103,28 +164,15 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
           <DotsVerticalIcon />
         </IconButton>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Content>
-        <DropdownMenu.Item shortcut='⌘ E'>Edit</DropdownMenu.Item>
-        <DropdownMenu.Item shortcut='⌘ D'>Duplicate</DropdownMenu.Item>
+      <DropdownMenu.Content
+        style={{ minWidth: 150 }}
+        size={'1'}
+        variant={'soft'} //
+        onCloseAutoFocus={(e) => e.preventDefault()}
+      >
+        <DropdownMenu.Item onClick={() => onRenameActivate()}>Rename</DropdownMenu.Item>
         <DropdownMenu.Separator />
-        <DropdownMenu.Item shortcut='⌘ N'>Archive</DropdownMenu.Item>
-
-        <DropdownMenu.Sub>
-          <DropdownMenu.SubTrigger>More</DropdownMenu.SubTrigger>
-          <DropdownMenu.SubContent>
-            <DropdownMenu.Item>Move to project…</DropdownMenu.Item>
-            <DropdownMenu.Item>Move to folder…</DropdownMenu.Item>
-
-            <DropdownMenu.Separator />
-            <DropdownMenu.Item>Advanced options…</DropdownMenu.Item>
-          </DropdownMenu.SubContent>
-        </DropdownMenu.Sub>
-
-        <DropdownMenu.Separator />
-        <DropdownMenu.Item>Share</DropdownMenu.Item>
-        <DropdownMenu.Item>Add to favorites</DropdownMenu.Item>
-        <DropdownMenu.Separator />
-        <DropdownMenu.Item shortcut='⌘ ⌫' color='red'>
+        <DropdownMenu.Item color='red' onClick={onDelete}>
           Delete
         </DropdownMenu.Item>
       </DropdownMenu.Content>
@@ -144,6 +192,7 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
         </Text>
       </div>
       {toggled && menu}
+      {renameDialogComponent}
     </Flex>
   )
 }
@@ -152,7 +201,7 @@ const ProjectsList = () => {
   const loading = useSelector(selectProjectsIsPending)
   const projects = useSelector(selectProjects)
   const dispatch = useDispatch()
-  const toggledProject = useSelector(selectToggledProject)
+  const toggledProject = useSelector(selectToggledProjectId)
 
   useEffect(() => {
     dispatch(loadProjects({}))
@@ -163,7 +212,7 @@ const ProjectsList = () => {
       m='2'
       style={{
         height: '100vh',
-        width: '25vw',
+        width: '25vw', // // as scenes use `75vw`
         minWidth: 140,
       }}
       className='objective-box'

@@ -14,7 +14,7 @@
 input:-webkit-autofill {
   -webkit-box-shadow: 200px 200px 100px white inset;
   box-shadow: 200px 200px 100px white inset;
-  border-radius: var(--radius-3);
+  border-radius: var(--radius-1);
 }
 
 a {
@@ -56,8 +56,33 @@ a {
 
   .objective-card {
     background-color: var(--gray-1);
-    border-radius: var(--radius-6);
+    border-radius: var(--radius-1);
     border: 1px solid var(--blue-7);
+  }
+
+  .scene-card {
+    background-color: var(--gray-1);
+    box-shadow: 0px 0px 10px var(--gray-3);
+    border: 1px solid var(--gray-1);
+
+    // cursor: pointer; // ???
+
+    &.ghost {
+      opacity: 70%;
+      background-color: initial;
+    }
+
+    &:hover {
+      border: 1px solid var(--blue-7);
+
+      &.ghost {
+        opacity: 100%;
+      }
+
+      &:active {
+        background-color: var(--gray-2);
+      }
+    }
   }
 
   .objective-box {
@@ -71,7 +96,7 @@ a {
   }
 
   .toggled-item {
-    cursor: pointer;
+    // cursor: pointer; // ???
 
     // toggled
     &.active {

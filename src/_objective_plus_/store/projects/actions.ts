@@ -1,13 +1,18 @@
 import { AsyncThunk, createAction, createAsyncThunk } from '@reduxjs/toolkit'
 import {
   fetchCreateProject,
+  fetchCreateScene,
   fetchDeleteProject,
+  fetchDeleteScene,
   fetchProjects,
+  fetchScene,
+  fetchScenes,
   fetchUpdateProject,
+  fetchUpdateScene,
 } from '../../utils/objective-api'
 import { selectAuth } from '../auth/reducer'
 import { ThunkApiConfig, safeAsyncThunk } from '../helpers'
-import { IProject } from './reducer'
+import { IProject, ISceneFull } from './reducer'
 
 // Responses
 export type TGetProjectResponse = IProject
@@ -15,6 +20,12 @@ export type TGetProjectsResponse = IProject[]
 export type TCreateProjectResponse = IProject
 export type TUpdateProjectResponse = IProject
 export type TDeleteProjectResponse = IProject
+
+export type TGetSceneResponse = ISceneFull
+export type TGetScenesResponse = ISceneFull[]
+export type TCreateSceneResponse = ISceneFull
+export type TUpdateSceneResponse = ISceneFull
+export type TDeleteSceneResponse = ISceneFull
 
 // Payloads (query params, body, formData ...)
 export type TQueryBase = {
@@ -24,11 +35,32 @@ export type TQueryBase = {
 export type TCreateProjectPayload = Pick<IProject, 'name'>
 export type TUpdateProjectPayload = Pick<IProject, 'name'>
 
+export type TCreateScenePayload = Pick<ISceneFull, 'name' | 'project_id'>
+export type TUpdateScenePayload = Partial<
+  Pick<
+    ISceneFull,
+    | 'name'
+    | 'project_id'
+    // Excalidraw Data:
+    | 'source'
+    | 'version'
+    | 'type'
+    | 'appState'
+    | 'elements'
+  >
+>
+
 // Thunk args (payloads + any extra arguments)
 export type TGetProjectsThunkArg = TQueryBase
 export type TCreateProjectThunkArg = TCreateProjectPayload
 export type TUpdateProjectThunkArg = TUpdateProjectPayload & Pick<IProject, 'id'>
 export type TDeleteProjectThunkArg = Pick<IProject, 'id'>
+
+export type TGetSceneThunkArg = Pick<ISceneFull, 'id'>
+export type TGetScenesThunkArg = TQueryBase
+export type TCreateSceneThunkArg = TCreateScenePayload
+export type TUpdateSceneThunkArg = TUpdateScenePayload & Pick<ISceneFull, 'id'>
+export type TDeleteSceneThunkArg = Pick<ISceneFull, 'id'>
 
 export type TAuthAsyncThunk = AsyncThunk<
   //
@@ -37,10 +69,23 @@ export type TAuthAsyncThunk = AsyncThunk<
   | TGetProjectsResponse
   | TCreateProjectResponse
   | TUpdateProjectResponse
-  | TDeleteProjectResponse,
+  | TDeleteProjectResponse
+  //
+  | TGetScenesResponse
+  | TGetScenesResponse
+  | TCreateSceneResponse
+  | TUpdateSceneResponse
+  | TDeleteSceneResponse,
   //
   // ThunkArg: request Body / request URL params / all other necessary for making request
-  TGetProjectsThunkArg | TCreateProjectThunkArg | TUpdateProjectThunkArg,
+  | TGetProjectsThunkArg
+  | TCreateProjectThunkArg
+  | TUpdateProjectThunkArg
+  //
+  | TGetSceneThunkArg
+  | TGetScenesThunkArg
+  | TCreateSceneThunkArg
+  | TUpdateSceneThunkArg,
   //
   // Config types:
   ThunkApiConfig
@@ -88,4 +133,42 @@ export const loadDeleteProject = createAsyncThunk<
   ThunkApiConfig
 >('auth/loadDeleteProject', ({ id }, thunkApi) =>
   safeAsyncThunk(thunkApi, () => fetchDeleteProject(id, selectAuth(thunkApi.getState())))
+)
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const loadScenes = createAsyncThunk<TGetScenesResponse, TGetScenesThunkArg, ThunkApiConfig>(
+  'auth/loadScenes',
+  (query, thunkApi) =>
+    safeAsyncThunk(thunkApi, () => fetchScenes(query, selectAuth(thunkApi.getState())))
+)
+
+export const loadScene = createAsyncThunk<TGetSceneResponse, TGetSceneThunkArg, ThunkApiConfig>(
+  'auth/loadScenes',
+  (arg, thunkApi) =>
+    safeAsyncThunk(thunkApi, () => fetchScene(arg.id, selectAuth(thunkApi.getState())))
+)
+
+export const loadCreateScene = createAsyncThunk<
+  TCreateSceneResponse,
+  TCreateSceneThunkArg,
+  ThunkApiConfig
+>('auth/loadCreateScene', (arg, thunkApi) =>
+  safeAsyncThunk(thunkApi, () => fetchCreateScene(arg, selectAuth(thunkApi.getState())))
+)
+
+export const loadUpdateScene = createAsyncThunk<
+  TUpdateSceneResponse,
+  TUpdateSceneThunkArg,
+  ThunkApiConfig
+>('auth/loadUpdateScene', ({ id, ...payload }, thunkApi) =>
+  safeAsyncThunk(thunkApi, () => fetchUpdateScene(id, payload, selectAuth(thunkApi.getState())))
+)
+
+export const loadDeleteScene = createAsyncThunk<
+  TDeleteSceneResponse,
+  TDeleteSceneThunkArg,
+  ThunkApiConfig
+>('auth/loadDeleteScene', ({ id }, thunkApi) =>
+  safeAsyncThunk(thunkApi, () => fetchDeleteScene(id, selectAuth(thunkApi.getState())))
 )
