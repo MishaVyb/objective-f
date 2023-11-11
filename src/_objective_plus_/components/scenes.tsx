@@ -56,18 +56,11 @@ const SceneNewItem: FC = () => {
   const dispatch = useDispatch()
   const [name, setName] = useState('Untitled Scene')
   const [open, setOpen] = useState(false)
-  const [onPointerDownOutside, setOnPointerDownOutside] = useState(false)
 
   if (!project) return <></>
 
   const onClick = () => {
-    if (!onPointerDownOutside) {
-      setOpen(true)
-    } else {
-      // HACK
-      // Fix strange bug of re-opening dialog window in 0.1 seconds after closing
-      setOnPointerDownOutside(false)
-    }
+    setOpen(true)
   }
 
   const onCreate = () => {
@@ -93,43 +86,41 @@ const SceneNewItem: FC = () => {
           <PlusIcon /> New Scene
         </Text>
 
-        <Dialog.Root open={open} onOpenChange={setOpen}>
-          <Dialog.Content
-            style={{ maxWidth: 450 }}
-            onCloseAutoFocus={(e) => e.preventDefault()}
-            onPointerDownOutside={() => setOnPointerDownOutside(true)}
-          >
-            <Dialog.Title>Scene</Dialog.Title>
-            <Dialog.Description size='2' mb='4'>
-              Create New Scene
-            </Dialog.Description>
+        <div onClick={(e) => e.stopPropagation()}>
+          <Dialog.Root open={open} onOpenChange={setOpen}>
+            <Dialog.Content style={{ maxWidth: 450 }} onCloseAutoFocus={(e) => e.preventDefault()}>
+              <Dialog.Title>Scene</Dialog.Title>
+              <Dialog.Description size='2' mb='4'>
+                Create New Scene
+              </Dialog.Description>
 
-            <label>
-              <Text as='div' size='1' mb='1' color={'gray'}>
-                Name
-              </Text>
-              <TextField.Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder='Enter scene name'
-                onKeyUp={(e) => e.key === 'Enter' && onCreate()}
-              />
-            </label>
+              <label>
+                <Text as='div' size='1' mb='1' color={'gray'}>
+                  Name
+                </Text>
+                <TextField.Input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder='Enter scene name'
+                  onKeyUp={(e) => e.key === 'Enter' && onCreate()}
+                />
+              </label>
 
-            <Flex gap='3' mt='4' justify='end'>
-              <Dialog.Close>
-                <Button variant='soft' color='gray'>
-                  Cancel
-                </Button>
-              </Dialog.Close>
-              <Dialog.Close>
-                <Button variant={'soft'} onClick={onCreate}>
-                  Create
-                </Button>
-              </Dialog.Close>
-            </Flex>
-          </Dialog.Content>
-        </Dialog.Root>
+              <Flex gap='3' mt='4' justify='end'>
+                <Dialog.Close>
+                  <Button variant='soft' color='gray'>
+                    Cancel
+                  </Button>
+                </Dialog.Close>
+                <Dialog.Close>
+                  <Button variant={'soft'} onClick={onCreate}>
+                    Create
+                  </Button>
+                </Dialog.Close>
+              </Flex>
+            </Dialog.Content>
+          </Dialog.Root>
+        </div>
       </Flex>
     </SceneCard>
   )
@@ -139,6 +130,7 @@ const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const projects = useSelector(selectProjects)
+  const otherProjects = projects.filter((p) => p.id !== scene.project_id)
   const ref = useRef(null)
   const [isRenameToggled, setIsRenameToggled] = useState(false)
 
@@ -190,42 +182,44 @@ const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
           toggled={isRenameToggled}
         />
 
-        <DropdownMenu.Root>
-          <DropdownMenu.Trigger>
-            <IconButton variant={'ghost'} type={'button'} mt={'1'} mr={'1'}>
-              <DotsVerticalIcon />
-            </IconButton>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content
-            style={{ minWidth: 150 }}
-            size={'1'}
-            variant={'soft'} //
-            onCloseAutoFocus={(e) => e.preventDefault()}
-          >
-            <DropdownMenu.Item onClick={() => onRenameActivate()}>Rename</DropdownMenu.Item>
-            <DropdownMenu.Item onClick={() => onDuplicate()}>Duplicate</DropdownMenu.Item>
-            <DropdownMenu.Sub>
-              <DropdownMenu.SubTrigger>Move To</DropdownMenu.SubTrigger>
-              <DropdownMenu.SubContent>
-                {projects
-                  .filter((p) => p.id !== scene.project_id)
-                  .map((p) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger>
+              <IconButton variant={'ghost'} type={'button'} mt={'1'} mr={'1'}>
+                <DotsVerticalIcon />
+              </IconButton>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content
+              style={{ minWidth: 150 }}
+              size={'1'}
+              variant={'soft'} //
+              onCloseAutoFocus={(e) => e.preventDefault()}
+            >
+              <DropdownMenu.Item onClick={() => onRenameActivate()}>Rename</DropdownMenu.Item>
+              <DropdownMenu.Item onClick={() => onDuplicate()}>Duplicate</DropdownMenu.Item>
+              <DropdownMenu.Sub>
+                <DropdownMenu.SubTrigger disabled={!otherProjects.length}>
+                  Move To
+                </DropdownMenu.SubTrigger>
+                <DropdownMenu.SubContent>
+                  {otherProjects.map((p) => (
                     <DropdownMenu.Item key={p.id} onClick={() => onMoveTo(p)}>
                       {p.name}
                     </DropdownMenu.Item>
                   ))}
-              </DropdownMenu.SubContent>
-            </DropdownMenu.Sub>
+                </DropdownMenu.SubContent>
+              </DropdownMenu.Sub>
 
-            <DropdownMenu.Separator />
-            <DropdownMenu.Item>Share</DropdownMenu.Item>
-            <DropdownMenu.Item>Export</DropdownMenu.Item>
-            <DropdownMenu.Separator />
-            <DropdownMenu.Item onClick={onDelete} color='red'>
-              Delete
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu.Root>
+              <DropdownMenu.Separator />
+              <DropdownMenu.Item>Share</DropdownMenu.Item>
+              <DropdownMenu.Item>Export</DropdownMenu.Item>
+              <DropdownMenu.Separator />
+              <DropdownMenu.Item onClick={onDelete} color='red'>
+                Delete
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+        </div>
       </Flex>
     </SceneCard>
   )

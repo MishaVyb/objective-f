@@ -1,5 +1,5 @@
 import { Text, TextField } from '@radix-ui/themes'
-import { FocusEvent, forwardRef, useCallback, useEffect, useState } from 'react'
+import { FocusEvent, MouseEvent, forwardRef, useCallback, useEffect, useState } from 'react'
 
 type TEditableTextProps = {
   initialValue: string
@@ -9,17 +9,18 @@ type TEditableTextProps = {
 }
 
 const EditableText = forwardRef<HTMLInputElement, TEditableTextProps>(
-  ({ initialValue, defaultValue, onSubmit, toggled }, ref) => {
+  ({ initialValue, defaultValue, onSubmit, toggled }, nameInputRef) => {
     const [isEdit, setIsEdit] = useState(toggled)
     const [value, setValue] = useState(initialValue)
 
-    // if (!ref) return <></>
-    const nameInputRef = ref
-
-    const onTextClick = useCallback(() => {
-      setTimeout(() => nameInputRef?.current?.focus(), 0)
-      setIsEdit(true)
-    }, [nameInputRef])
+    const onTextClick = useCallback(
+      (e?: MouseEvent) => {
+        if (e) e.stopPropagation()
+        setTimeout(() => nameInputRef?.current?.focus(), 0)
+        setIsEdit(true)
+      },
+      [nameInputRef]
+    )
 
     useEffect(() => {
       if (toggled) onTextClick()
@@ -48,12 +49,13 @@ const EditableText = forwardRef<HTMLInputElement, TEditableTextProps>(
             onFocus={onInputFocus}
             onBlur={onDoneEditing}
             onKeyUp={(e) => e.key === 'Enter' && onDoneEditing()}
+            onClick={(e) => e.stopPropagation()}
           />
         </TextField.Root>
       )
 
     return (
-      <Text className='editable-text' m={'1'} size={'1'} as={'p'} onClick={onTextClick}>
+      <Text className='editable-text' m={'1'} size={'1'} as={'p'} onClick={(e) => onTextClick(e)}>
         {value}
       </Text>
     )
