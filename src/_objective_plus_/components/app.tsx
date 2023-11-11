@@ -14,28 +14,31 @@ import HomePage from '../pages/home'
 import './../scss/app.scss'
 import { ObjectiveHeader } from './header'
 import RouteDispatch from './route-dispatch'
+import clsx from 'clsx'
 
 const ObjectivePlusApp: FC = () => {
   const location = useLocation()
-
-  // HACK
-  // Composing <ExcalidrawApp /> inside <Routes> or <Theme > not working :(
-  if (location.pathname.startsWith('/scenes'))
-    return (
-      <RouteDispatch loginRequired>
-        <ExcalidrawApp />
-      </RouteDispatch>
-    )
+  const excalidrawPath = location.pathname.match('/scenes/.*')
 
   return (
-    <Theme appearance='light' accentColor='blue' radius={'small'}>
-      {/* Base Layout container for the whole APP */}
-      <Flex
+    <Theme
+      style={{ height: '100%' }} // height: '100%' is required for any element above Excalidraw
+      className={clsx(
+        'excalidraw-app',
+        { 'is-collaborating': false }
+        // 'zoom-out' //
+      )}
+      appearance='light'
+      accentColor='blue'
+      radius={'small'}
+      scaling={'110%'}
+    >
+      <Flex // Base Layout container for the whole APP //
         style={{ height: '100vh', backgroundImage: `url(${BackgroundImage})` }}
         className='objective-plus-app'
         direction={'column'}
       >
-        <ObjectiveHeader />
+        {!excalidrawPath && <ObjectiveHeader />}
         <Routes>
           <Route path='*' element={<NotFoundPage />} />
           <Route path='/about' element={<AboutPage />} />
@@ -44,6 +47,14 @@ const ObjectivePlusApp: FC = () => {
             element={
               <RouteDispatch loginRequired>
                 <HomePage />
+              </RouteDispatch>
+            }
+          />
+          <Route
+            path='/scenes/:id'
+            element={
+              <RouteDispatch loginRequired>
+                <ExcalidrawApp />
               </RouteDispatch>
             }
           />
