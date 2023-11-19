@@ -7,11 +7,11 @@ import { LinearElementEditor } from "../element/linearElementEditor";
 import { isFrameElement } from "../element/typeChecks";
 import {
   ExcalidrawElement,
-  NonDeletedExcalidrawElement,
-  NonDeleted,
   ExcalidrawFrameElement,
+  NonDeleted,
+  NonDeletedExcalidrawElement,
 } from "../element/types";
-import { AppClassProperties, AppState } from "../types";
+import { AppState } from "../types";
 import { getSelectedElements } from "./selection";
 
 type ElementIdKey =
@@ -194,7 +194,7 @@ class Scene {
 
     return () => {
       if (!this.callbacks.has(cb)) {
-        throw new Error();
+        return;
       }
       this.callbacks.delete(cb);
     };

@@ -6,6 +6,10 @@ import projectsReducer, { IProjectsState } from './projects/reducer'
 
 const preloadedState = {
   auth: loadFromLocalStorage<IAuthState>(LOCAL_STORAGE.AUTH),
+
+  // FIXME
+  // in case some fields are not local storage, we should merge load result with InitialState,
+  // so do not fall on underfined values where array is expected, etc.
   projects: loadFromLocalStorage<IProjectsState>(LOCAL_STORAGE.PROJECTS)
 }
 

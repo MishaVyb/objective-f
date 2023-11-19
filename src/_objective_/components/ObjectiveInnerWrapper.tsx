@@ -1,10 +1,15 @@
 import isEqual from 'lodash/isEqual'
-import { FC, ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { FC, ReactNode, createContext, useContext, useEffect, useState } from 'react'
 
+import { useSelector } from '../../_objective_plus_/hooks/redux'
+import { selectLoadingSceneIsPending } from '../../_objective_plus_/store/projects/reducer'
 import { useApp, useExcalidrawElements } from '../../components/App'
 import { BinaryFiles } from '../../types'
 import { getCameraMetas } from '../selectors/selectors'
 import { CameraMeta } from '../types/types'
+import { Flex, Text } from '@radix-ui/themes'
+import { SymbolIcon } from '@radix-ui/react-icons'
+import { RootBox } from '../../_objective_plus_/components/layout'
 
 /**
  * Extra contexts
@@ -14,13 +19,16 @@ export const useObjectiveCameras = () => useContext(ObjectiveCamerasContext)
 
 const ExcalidrawFilesContext = createContext<BinaryFiles>({})
 export const useExcalidrawFiles = () => useContext(ExcalidrawFilesContext)
+
 /**
  * Helper component.
- * Handle custom context providers.
+ * - Handle custom context providers.
+ * - Handle loading span.
  */
-const ObjectiveWrapper: FC<{ children: ReactNode }> = ({ children }) => {
+const ObjectiveInnerWrapper: FC<{ children: ReactNode }> = ({ children }) => {
   const elements = useExcalidrawElements()
   const app = useApp()
+  const loading = useSelector(selectLoadingSceneIsPending)
 
   /**
    * NOTE:
@@ -44,6 +52,16 @@ const ObjectiveWrapper: FC<{ children: ReactNode }> = ({ children }) => {
     setFiles(app.files)
   }, [app.files])
 
+  if (loading)
+    return (
+      <RootBox>
+        <Flex justify={'center'} align={'center'} gap={'2'}>
+          <SymbolIcon />
+          <Text>loading</Text>
+        </Flex>
+      </RootBox>
+    )
+
   return (
     <ObjectiveCamerasContext.Provider value={cameras}>
       <ExcalidrawFilesContext.Provider value={files}>{children}</ExcalidrawFilesContext.Provider>
@@ -51,4 +69,4 @@ const ObjectiveWrapper: FC<{ children: ReactNode }> = ({ children }) => {
   )
 }
 
-export default ObjectiveWrapper
+export default ObjectiveInnerWrapper

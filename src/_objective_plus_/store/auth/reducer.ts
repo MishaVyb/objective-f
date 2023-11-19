@@ -66,17 +66,17 @@ export const initialState: IAuthState = {
 }
 
 const reducer = createReducer(initialState, (builder) => {
-  // COMMON:
-  // Common for ALL reducers request lifecycle actions:
-
+  // COMMON REQUEST LIFECYCLE
   builder.addMatcher<TPendingAction>(
-    (action): action is TPendingAction => action.type.endsWith('/pending'),
+    (action): action is TPendingAction =>
+      action.type.startsWith('auth') && action.type.endsWith('/pending'),
     (state) => {
       state.pendingRequest = true
     }
   )
   builder.addMatcher<TRejectedAction>(
-    (action): action is TRejectedAction => action.type.endsWith('/rejected'),
+    (action): action is TRejectedAction =>
+      action.type.startsWith('auth') && action.type.endsWith('/rejected'),
     (state, action) => {
       state.pendingRequest = false
 
@@ -86,7 +86,8 @@ const reducer = createReducer(initialState, (builder) => {
   )
   builder.addMatcher<TFulfilledAction | TResetRequestStatusAction>(
     (action): action is TFulfilledAction | TResetRequestStatusAction =>
-      action.type.endsWith('/fulfilled') || resetRequestStatusAction.match(action),
+      (action.type.startsWith('auth') && action.type.endsWith('/fulfilled')) ||
+      resetRequestStatusAction.match(action),
     (state) => {
       state.pendingRequest = false
       state.error = undefined
@@ -97,7 +98,9 @@ const reducer = createReducer(initialState, (builder) => {
   // any success
   builder.addMatcher<TFulfilledAction>(
     (action): action is TFulfilledAction =>
-      action.type.endsWith('/fulfilled') && action.type.startsWith('auth/'),
+      action.type.startsWith('auth') &&
+      action.type.endsWith('/fulfilled') &&
+      action.type.startsWith('auth/'),
     (state, action) => {
       if (action.payload) {
         return saveToLocalStorage(LOCAL_STORAGE.AUTH, { ...state, ...action.payload })

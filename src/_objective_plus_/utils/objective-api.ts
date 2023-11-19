@@ -34,7 +34,7 @@ enum ENDPOINTS {
   ERROR = '/api/error',
 }
 
-const _DEBUG_TIMEOUT_MS = 500
+const _DEBUG_TIMEOUT_MS = 250
 
 type IUserResponse = IUser
 type ILoginResponse = ITokens

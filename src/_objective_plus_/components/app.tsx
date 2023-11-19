@@ -51,7 +51,7 @@ const ObjectivePlusApp: FC = () => {
             }
           />
           <Route
-            path='/scenes/:id'
+            path='/scenes/:sceneId'
             element={
               <RouteDispatch loginRequired>
                 <ExcalidrawApp />

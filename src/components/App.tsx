@@ -1,5 +1,5 @@
 import { actions as objectiveActions } from "../_objective_/actions";
-import ObjectiveWrapper from "../_objective_/components/ObjectiveWrapper";
+import ObjectiveInnerWrapper from "../_objective_/components/ObjectiveInnerWrapper";
 import {
   actionAddToLibrary,
   actionBindText,
@@ -488,7 +488,9 @@ class App extends React.Component<AppProps, AppState> {
         ("current" in excalidrawRef && excalidrawRef.current?.readyPromise) ||
         resolvablePromise<ExcalidrawImperativeAPI>();
       /*
-      NAV Imperative API
+      NAV Imperative API (excalidrawAPI)
+      https://docs.excalidraw.com/docs/@excalidraw/excalidraw/api/props/excalidraw-api
+
       - Could be used outsied App. For example: src/excalidraw-app/index.tsx ExcalidrawWrapper
       - Good reference for usefull internal methods. Could be access by AppContext.
 
@@ -849,7 +851,7 @@ class App extends React.Component<AppProps, AppState> {
                       <ExcalidrawActionManagerContext.Provider
                         value={this.actionManager}
                       >
-                        <ObjectiveWrapper>
+                        <ObjectiveInnerWrapper>
                           <LayerUI
                             canvas={this.canvas}
                             appState={this.state}
@@ -911,7 +913,7 @@ class App extends React.Component<AppProps, AppState> {
                           )}
                           <main>{this.renderCanvas()}</main>
                           {this.renderFrameNames()}
-                        </ObjectiveWrapper>
+                        </ObjectiveInnerWrapper>
                       </ExcalidrawActionManagerContext.Provider>
                     </ExcalidrawElementsContext.Provider>
                   </ExcalidrawAppStateContext.Provider>

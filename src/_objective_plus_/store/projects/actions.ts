@@ -105,7 +105,7 @@ export const loadProjects = createAsyncThunk<
   TGetProjectsResponse,
   TGetProjectsThunkArg,
   ThunkApiConfig
->('auth/loadProjects', (query, thunkApi) =>
+>('projects/loadProjects', (query, thunkApi) =>
   safeAsyncThunk(thunkApi, () => fetchProjects(query, selectAuth(thunkApi.getState())))
 )
 
@@ -113,7 +113,7 @@ export const loadCreateProject = createAsyncThunk<
   TCreateProjectResponse,
   TCreateProjectThunkArg,
   ThunkApiConfig
->('auth/loadCreateProject', (arg, thunkApi) =>
+>('projects/loadCreateProject', (arg, thunkApi) =>
   safeAsyncThunk(thunkApi, () => fetchCreateProject(arg, selectAuth(thunkApi.getState())))
 )
 
@@ -121,7 +121,7 @@ export const loadUpdateProject = createAsyncThunk<
   TUpdateProjectResponse,
   TUpdateProjectThunkArg,
   ThunkApiConfig
->('auth/loadUpdateProject', ({ id, name }, thunkApi) =>
+>('projects/loadUpdateProject', ({ id, name }, thunkApi) =>
   safeAsyncThunk(thunkApi, () =>
     fetchUpdateProject(id, { name: name }, selectAuth(thunkApi.getState()))
   )
@@ -131,20 +131,20 @@ export const loadDeleteProject = createAsyncThunk<
   TDeleteProjectResponse,
   TDeleteProjectThunkArg,
   ThunkApiConfig
->('auth/loadDeleteProject', ({ id }, thunkApi) =>
+>('projects/loadDeleteProject', ({ id }, thunkApi) =>
   safeAsyncThunk(thunkApi, () => fetchDeleteProject(id, selectAuth(thunkApi.getState())))
 )
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const loadScenes = createAsyncThunk<TGetScenesResponse, TGetScenesThunkArg, ThunkApiConfig>(
-  'auth/loadScenes',
+  'projects/loadScenes',
   (query, thunkApi) =>
     safeAsyncThunk(thunkApi, () => fetchScenes(query, selectAuth(thunkApi.getState())))
 )
 
 export const loadScene = createAsyncThunk<TGetSceneResponse, TGetSceneThunkArg, ThunkApiConfig>(
-  'auth/loadScenes',
+  'projects/loadScenes',
   (arg, thunkApi) =>
     safeAsyncThunk(thunkApi, () => fetchScene(arg.id, selectAuth(thunkApi.getState())))
 )
@@ -153,7 +153,7 @@ export const loadCreateScene = createAsyncThunk<
   TCreateSceneResponse,
   TCreateSceneThunkArg,
   ThunkApiConfig
->('auth/loadCreateScene', (arg, thunkApi) =>
+>('projects/loadCreateScene', (arg, thunkApi) =>
   safeAsyncThunk(thunkApi, () => fetchCreateScene(arg, selectAuth(thunkApi.getState())))
 )
 
@@ -161,7 +161,7 @@ export const loadUpdateScene = createAsyncThunk<
   TUpdateSceneResponse,
   TUpdateSceneThunkArg,
   ThunkApiConfig
->('auth/loadUpdateScene', ({ id, ...payload }, thunkApi) =>
+>('projects/loadUpdateScene', ({ id, ...payload }, thunkApi) =>
   safeAsyncThunk(thunkApi, () => fetchUpdateScene(id, payload, selectAuth(thunkApi.getState())))
 )
 
@@ -169,6 +169,6 @@ export const loadDeleteScene = createAsyncThunk<
   TDeleteSceneResponse,
   TDeleteSceneThunkArg,
   ThunkApiConfig
->('auth/loadDeleteScene', ({ id }, thunkApi) =>
+>('projects/loadDeleteScene', ({ id }, thunkApi) =>
   safeAsyncThunk(thunkApi, () => fetchDeleteScene(id, selectAuth(thunkApi.getState())))
 )

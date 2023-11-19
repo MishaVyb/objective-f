@@ -10,7 +10,14 @@ import { FC, ReactNode } from 'react'
  */
 export const RootBox: FC<{ children?: ReactNode }> = ({ children }) => {
   return (
-    <Flex style={{ height: '100vh' }} justify={'center'} align={'center'}>
+    <Flex
+      style={{
+        width: '100vw',
+        height: '100vh',
+      }}
+      justify={'center'}
+      align={'center'}
+    >
       {children}
     </Flex>
   )

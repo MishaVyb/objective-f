@@ -9,7 +9,7 @@ import {
 } from '../../element/types'
 import Scene from '../../scene/Scene'
 import { AppState } from '../../types'
-import { useExcalidrawFiles } from '../components/ObjectiveWrapper'
+import { useExcalidrawFiles } from '../components/ObjectiveInnerWrapper'
 import {
   CameraMeta,
   ObjectiveElement,

@@ -1,3 +1,4 @@
+import ObjectiveOuterWrapper from "../_objective_/components/ObjectiveOuterWrapper";
 import ShotListSidebarContent from "../_objective_/components/ShotListSidebarContent";
 import { LIB_CAMERAS } from "../_objective_/lib/cameras.library";
 import { LIB_CHARACTERS } from "../_objective_/lib/characters.library";
@@ -620,112 +621,114 @@ const ExcalidrawWrapper = () => {
   https://docs.excalidraw.com/docs/@excalidraw/excalidraw/api/props/
   */
   return (
-    <Excalidraw
-      ref={excalidrawRefCallback}
-      onChange={onChange}
-      initialData={initialStatePromiseRef.current.promise}
-      isCollaborating={isCollaborating}
-      onPointerUpdate={collabAPI?.onPointerUpdate}
-      UIOptions={{
-        canvasActions: {
-          // VBRN custom UI options
-          changeViewBackgroundColor: false,
-          toggleTheme: false,
-          //
-          export: {
-            onExportToBackend,
-            renderCustomUI: (elements, appState, files) => {
-              return (
-                <ExportToExcalidrawPlus
-                  elements={elements}
-                  appState={appState}
-                  files={files}
-                  onError={(error) => {
-                    excalidrawAPI?.updateScene({
-                      appState: {
-                        errorMessage: error.message,
-                      },
-                    });
-                  }}
-                />
-              );
+    <ObjectiveOuterWrapper excalidrawApi={excalidrawAPI}>
+      <Excalidraw
+        ref={excalidrawRefCallback}
+        onChange={onChange}
+        initialData={initialStatePromiseRef.current.promise}
+        isCollaborating={isCollaborating}
+        onPointerUpdate={collabAPI?.onPointerUpdate}
+        UIOptions={{
+          canvasActions: {
+            // VBRN custom UI options
+            changeViewBackgroundColor: false,
+            toggleTheme: false,
+            //
+            export: {
+              onExportToBackend,
+              renderCustomUI: (elements, appState, files) => {
+                return (
+                  <ExportToExcalidrawPlus
+                    elements={elements}
+                    appState={appState}
+                    files={files}
+                    onError={(error) => {
+                      excalidrawAPI?.updateScene({
+                        appState: {
+                          errorMessage: error.message,
+                        },
+                      });
+                    }}
+                  />
+                );
+              },
             },
           },
-        },
-      }}
-      langCode={langCode}
-      renderCustomStats={renderCustomStats}
-      detectScroll={false}
-      handleKeyboardGlobally={true}
-      onLibraryChange={onLibraryChange}
-      autoFocus={true}
-      theme={theme}
-      renderTopRightUI={(isMobile) => {
-        // NAV Trigger collab
-        // if (isMobile || !collabAPI || isCollabDisabled) {
-        //   return null;
-        // }
-        // return (
-        //   <LiveCollaborationTrigger
-        //     isCollaborating={isCollaborating}
-        //     onSelect={() => setCollabDialogShown(true)}
-        //   />
-        // );
-        return (
-          <Sidebar.Trigger
-            tab="ShotList"
-            name="ShotList"
-            icon={<>📸</>}
-            title={t("toolBar.shotList", null, "Shot List")}
-            onToggle={(open) => {
-              if (open) {
-                trackEvent(
-                  "sidebar",
-                  `ShotList (open)`,
-                  `button (${isMobile ? "mobile" : "desktop"})`,
-                );
-              }
-            }}
-          >
-            {t("toolBar.shotList", null, "Shot List")}
-          </Sidebar.Trigger>
-        );
-      }}
-    >
-      <AppMainMenu
-        setCollabDialogShown={setCollabDialogShown}
-        isCollaborating={isCollaborating}
-        isCollabEnabled={!isCollabDisabled}
-      />
-      <AppWelcomeScreen
-        setCollabDialogShown={setCollabDialogShown}
-        isCollabEnabled={!isCollabDisabled}
-      />
-      <AppFooter />
-      {isCollaborating && isOffline && (
-        <div className="collab-offline-warning">
-          {t("alerts.collabOfflineWarning")}
-        </div>
-      )}
-      {excalidrawAPI && !isCollabDisabled && (
-        <Collab excalidrawAPI={excalidrawAPI} />
-      )}
-
-      <Sidebar
-        name="ShotList"
-        key="ShotList"
-        className={clsx("default-sidebar")}
-        docked={isShotListSidebarDocked}
-        onDock={(docked) => setShotListSidebarDocked(docked)}
+        }}
+        langCode={langCode}
+        renderCustomStats={renderCustomStats}
+        detectScroll={false}
+        handleKeyboardGlobally={true}
+        onLibraryChange={onLibraryChange}
+        autoFocus={true}
+        theme={theme}
+        renderTopRightUI={(isMobile) => {
+          // NAV Trigger collab
+          // if (isMobile || !collabAPI || isCollabDisabled) {
+          //   return null;
+          // }
+          // return (
+          //   <LiveCollaborationTrigger
+          //     isCollaborating={isCollaborating}
+          //     onSelect={() => setCollabDialogShown(true)}
+          //   />
+          // );
+          return (
+            <Sidebar.Trigger
+              tab="ShotList"
+              name="ShotList"
+              icon={<>📸</>}
+              title={t("toolBar.shotList", null, "Shot List")}
+              onToggle={(open) => {
+                if (open) {
+                  trackEvent(
+                    "sidebar",
+                    `ShotList (open)`,
+                    `button (${isMobile ? "mobile" : "desktop"})`,
+                  );
+                }
+              }}
+            >
+              {t("toolBar.shotList", null, "Shot List")}
+            </Sidebar.Trigger>
+          );
+        }}
       >
-        <Sidebar.Header>
-          <div className="sidebar-title">
-            {t("toolBar.shotList", null, "Shot List")}
+        <AppMainMenu
+          setCollabDialogShown={setCollabDialogShown}
+          isCollaborating={isCollaborating}
+          isCollabEnabled={!isCollabDisabled}
+        />
+        <AppWelcomeScreen
+          setCollabDialogShown={setCollabDialogShown}
+          isCollabEnabled={!isCollabDisabled}
+        />
+        <AppFooter />
+        {isCollaborating && isOffline && (
+          <div className="collab-offline-warning">
+            {t("alerts.collabOfflineWarning")}
           </div>
-        </Sidebar.Header>
-        <ShotListSidebarContent />
-      </Sidebar>
-    </Excalidraw>
+        )}
+        {excalidrawAPI && !isCollabDisabled && (
+          <Collab excalidrawAPI={excalidrawAPI} />
+        )}
+
+        <Sidebar
+          name="ShotList"
+          key="ShotList"
+          className={clsx("default-sidebar")}
+          docked={isShotListSidebarDocked}
+          onDock={(docked) => setShotListSidebarDocked(docked)}
+        >
+          <Sidebar.Header>
+            <div className="sidebar-title">
+              {t("toolBar.shotList", null, "Shot List")}
+            </div>
+          </Sidebar.Header>
+          <ShotListSidebarContent />
+        </Sidebar>
+      </Excalidraw>
+    </ObjectiveOuterWrapper>
   );
 };
 
