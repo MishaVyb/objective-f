@@ -14,7 +14,8 @@
     "prettier"
   ],
   "globals": {
-    "JSX": "readonly"
+    "JSX": "readonly",
+    "NodeJS": "readonly"
   },
   "overrides": [],
   "parserOptions": {

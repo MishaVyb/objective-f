@@ -65,7 +65,15 @@ const SceneNewItem: FC = () => {
 
   const onCreate = () => {
     setOpen(false)
-    dispatch(loadCreateScene({ name, project_id: project?.id }))
+    dispatch(
+      loadCreateScene({
+        name,
+        project_id: project?.id,
+        // @ts-ignore // Excalidraw initialize appState from last openned scene (from local storage)
+        appState: {},
+        elements: [],
+      })
+    )
       .unwrap()
       .then(() => dispatch(loadProjects({})))
   }

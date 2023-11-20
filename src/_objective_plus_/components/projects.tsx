@@ -23,7 +23,7 @@ import {
 import {
   IProject,
   selectProjects,
-  selectProjectsIsPending,
+  selectIsPending,
   selectToggledProjectId,
 } from '../store/projects/reducer'
 
@@ -198,7 +198,7 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
 }
 
 const ProjectsList = () => {
-  const loading = useSelector(selectProjectsIsPending)
+  const loading = useSelector(selectIsPending)
   const projects = useSelector(selectProjects)
   const dispatch = useDispatch()
   const toggledProject = useSelector(selectToggledProjectId)

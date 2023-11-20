@@ -50,6 +50,7 @@ import MainMenu from "./main-menu/MainMenu";
 import clsx from "clsx";
 import { Provider, useAtom, useAtomValue } from "jotai";
 import React from "react";
+import TopLeftUI from "../_objective_/components/TopLeftUI";
 
 interface LayerUIProps {
   actionManager: ActionManager;
@@ -164,7 +165,9 @@ const LayerUI = ({
     <div style={{ position: "relative" }}>
       {/* wrapping to Fragment stops React from occasionally complaining
                 about identical Keys */}
-      <tunnels.MainMenuTunnel.Out />
+      <TopLeftUI>
+        <tunnels.MainMenuTunnel.Out />
+      </TopLeftUI>
       {renderWelcomeScreen && <tunnels.WelcomeScreenMenuHintTunnel.Out />}
     </div>
   );

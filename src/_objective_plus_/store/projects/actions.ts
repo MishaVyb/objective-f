@@ -35,7 +35,7 @@ export type TQueryBase = {
 export type TCreateProjectPayload = Pick<IProject, 'name'>
 export type TUpdateProjectPayload = Pick<IProject, 'name'>
 
-export type TCreateScenePayload = Pick<ISceneFull, 'name' | 'project_id'>
+export type TCreateScenePayload = Pick<ISceneFull, 'name' | 'project_id' | 'appState' | 'elements'>
 export type TUpdateScenePayload = Partial<
   Pick<
     ISceneFull,

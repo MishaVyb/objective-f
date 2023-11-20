@@ -7,9 +7,9 @@ import { selectLoadingSceneIsPending } from '../../_objective_plus_/store/projec
 import { deepCopyElement } from '../../element/newElement'
 import { Collaborator, ExcalidrawImperativeAPI } from '../../types'
 
-const AUTO_SAVE_INTERVAL_MS = 2 * 1000 // 10 sec
+const AUTO_SAVE_INTERVAL_MS = 1000 * 10 // 10 sec
 
-/** Implement scene loading and saving */
+/** Implements scene loading and saving */
 const ObjectiveOuterWrapper: FC<{
   excalidrawApi: ExcalidrawImperativeAPI | null
   children: ReactNode
@@ -21,12 +21,9 @@ const ObjectiveOuterWrapper: FC<{
   const loadingScene = useCallback(() => {
     if (!excalidrawApi) return
 
-    console.log('loadingScene')
     dispatch(loadScene({ id: sceneId! }))
       .unwrap()
       .then((scene) => {
-        console.log('success', scene)
-
         // Data serialization. Ensure types.
         const serializedElements = scene.elements.map((e) => deepCopyElement(e))
         const serializedAppState = { ...scene.appState }
@@ -44,8 +41,6 @@ const ObjectiveOuterWrapper: FC<{
 
   const updatingScene = useCallback(() => {
     if (!excalidrawApi) return
-
-    console.log('updatingScene')
     dispatch(
       loadUpdateScene({
         id: sceneId!,
@@ -55,30 +50,22 @@ const ObjectiveOuterWrapper: FC<{
     )
   }, [excalidrawApi, dispatch, sceneId])
 
-  // load scene on mount
-  // save scene on un-mount
+  // load scene on mount, save scene on un-mount
   useEffect(() => {
-    console.log('mount')
     loadingScene()
-
     return () => {
-      console.log('unmount')
       updatingScene()
     }
   }, [loadingScene, updatingScene])
 
   // AUTO SAVE
-  useEffect(() => {
-    if (loading) return
-
-    // TODO
-    // Use not save interval but set timeout !!!
-    const interval = setInterval(() => {
-      console.log('auto save')
-      updatingScene()
-    }, AUTO_SAVE_INTERVAL_MS)
-    return () => clearInterval(interval)
-  }, [updatingScene, loading])
+  // useEffect(() => {
+  //   if (loading) return
+  //   const interval = setInterval(() => {
+  //     updatingScene()
+  //   }, AUTO_SAVE_INTERVAL_MS)
+  //   return () => clearInterval(interval)
+  // }, [updatingScene, loading])
 
   return <>{children}</>
 }

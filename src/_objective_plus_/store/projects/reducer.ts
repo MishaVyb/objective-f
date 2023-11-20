@@ -131,9 +131,9 @@ const reducer = createReducer(initialState, (builder) => {
   // Just load it from backend and pas to Excalidraw directly.
 })
 
-export const selectProjectsIsPending = (state: RootState) => state.projects.pendingRequest
+export const selectIsPending = (state: RootState) => state.projects.pendingRequest
 export const selectLoadingSceneIsPending = (state: RootState) => state.projects.pendingLoadingScene
-export const selectProjectsError = (state: RootState) => state.projects.error
+export const selectError = (state: RootState) => state.projects.error
 
 export const selectProjects = createSelector(
   (state: RootState) => state.projects,
