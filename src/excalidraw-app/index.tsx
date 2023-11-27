@@ -699,10 +699,12 @@ const ExcalidrawWrapper = () => {
           isCollaborating={isCollaborating}
           isCollabEnabled={!isCollabDisabled}
         />
+        {/*
+        VBRN disable welcome screen
         <AppWelcomeScreen
           setCollabDialogShown={setCollabDialogShown}
           isCollabEnabled={!isCollabDisabled}
-        />
+        /> */}
         <AppFooter />
         {isCollaborating && isOffline && (
           <div className="collab-offline-warning">
