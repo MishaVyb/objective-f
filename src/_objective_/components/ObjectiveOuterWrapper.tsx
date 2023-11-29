@@ -26,7 +26,7 @@ const ObjectiveOuterWrapper: FC<{
       .then((scene) => {
         // Data serialization. Ensure types.
         const serializedElements = scene.elements.map((e) => deepCopyElement(e))
-        const serializedAppState = { ...scene.appState }
+        const serializedAppState = { ...scene.appState, name: scene.name }
         serializedAppState.collaborators = new Map<string, Collaborator>(
           Object.entries(serializedAppState.collaborators || {})
         )
