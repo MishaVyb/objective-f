@@ -150,7 +150,11 @@ export const selectScenes = createSelector(
   (project) => project?.scenes.filter((s) => !s.is_deleted) || []
 )
 
-export const selectScene = (id: ISceneFull['id']) => (state: RootState) =>
+/** @deprecated
+ * use appState = useExcalidrawAppState instead as we do not store in redux state,
+ * only at Excalidraw State
+ */
+export const selectSceneFull = (id: ISceneFull['id']) => (state: RootState) =>
   state.projects.scenes.find((s) => s.id === id)
 
 export default reducer
