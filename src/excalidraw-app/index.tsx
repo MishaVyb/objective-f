@@ -27,7 +27,7 @@ import {
 import { useCallbackRefState } from "../hooks/useCallbackRefState";
 import { t } from "../i18n";
 import { useAtomWithInitialValue } from "../jotai";
-import { Excalidraw, Sidebar, defaultLang } from "../packages/excalidraw/index";
+import { Excalidraw, LiveCollaborationTrigger, Sidebar, defaultLang } from "../packages/excalidraw/index";
 import polyfill from "../polyfill";
 import {
   AppState,
@@ -663,16 +663,6 @@ const ExcalidrawWrapper = () => {
         autoFocus={true}
         theme={theme}
         renderTopRightUI={(isMobile) => {
-          // NAV Trigger collab
-          // if (isMobile || !collabAPI || isCollabDisabled) {
-          //   return null;
-          // }
-          // return (
-          //   <LiveCollaborationTrigger
-          //     isCollaborating={isCollaborating}
-          //     onSelect={() => setCollabDialogShown(true)}
-          //   />
-          // );
           return (
             <Sidebar.Trigger
               tab="ShotList"
