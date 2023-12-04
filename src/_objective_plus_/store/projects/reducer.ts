@@ -9,10 +9,11 @@ import {
   TRejectedAction,
   TResetRequestStatusAction,
   loadProjects,
-  loadScene,
+  loadSceneInitial,
   resetRequestStatusAction,
   toggleProject,
 } from './actions'
+import { selectAuth } from '../auth/reducer'
 
 export interface IBase {
   id: string
@@ -44,7 +45,10 @@ export interface IProjectsState {
   /** user's projects */
   projects: IProject[]
   toggledProjectId: IProject['id'] | undefined // use URL Path param instead
+
+  /** @deprecated */
   scenes: ISceneFull[]
+  currentScene: ISceneSimplified | undefined
 
   error: string | undefined
   pendingRequest: boolean
@@ -56,6 +60,7 @@ export const initialState: IProjectsState = {
   projects: [],
   toggledProjectId: undefined,
   scenes: [],
+  currentScene: undefined,
   error: undefined,
   pendingRequest: false,
   pendingLoadingScene: false,
@@ -80,16 +85,19 @@ const reducer = createReducer(initialState, (builder) => {
   )
 
   // Scenes REQUEST LIFECYCLE
-  builder.addCase(loadScene.pending, (state, action) => {
+  builder.addCase(loadSceneInitial.pending, (state, action) => {
     state.pendingLoadingScene = true
+    state.currentScene = undefined
     return state
   })
-  builder.addCase(loadScene.rejected, (state, action) => {
+  builder.addCase(loadSceneInitial.rejected, (state, action) => {
     state.pendingLoadingScene = false
+    state.currentScene = undefined
     return state
   })
-  builder.addCase(loadScene.fulfilled, (state, action) => {
+  builder.addCase(loadSceneInitial.fulfilled, (state, action) => {
     state.pendingLoadingScene = false
+    state.currentScene = action.payload
     return state
   })
 
@@ -150,11 +158,23 @@ export const selectScenes = createSelector(
   (project) => project?.scenes.filter((s) => !s.is_deleted) || []
 )
 
-/** @deprecated
- * use appState = useExcalidrawAppState instead as we do not store in redux state,
- * only at Excalidraw State
+/**
+ * Get current openned Scene meta info.
+ *
+ * For full scene elements or appState access, use Excalidraw API. Like:
+ *  `appState = useExcalidrawAppState`
+ *
+ * (as we do not store in redux state, only at Excalidraw State)
  */
-export const selectSceneFull = (id: ISceneFull['id']) => (state: RootState) =>
-  state.projects.scenes.find((s) => s.id === id)
+export const selectCurrentScene = (state: RootState) => state.projects.currentScene
+
+export const selectIsMyScene = createSelector(
+  [selectCurrentScene, selectAuth],
+  (scene, auth) => scene?.user_id === auth.user.id
+)
+export const selectIsOtherScene = createSelector(
+  [selectCurrentScene, selectAuth],
+  (scene, auth) => scene?.user_id !== auth.user.id
+)
 
 export default reducer

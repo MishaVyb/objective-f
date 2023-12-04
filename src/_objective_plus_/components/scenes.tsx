@@ -18,7 +18,7 @@ import {
   loadCreateScene,
   loadDeleteScene,
   loadProjects,
-  loadScene,
+  loadSceneInitial,
   loadUpdateScene,
 } from '../store/projects/actions'
 import {
@@ -160,7 +160,7 @@ const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
   }
 
   const onDuplicate = () => {
-    dispatch(loadScene({ id: scene.id }))
+    dispatch(loadSceneInitial({ id: scene.id }))
       .unwrap()
       .then((scene) =>
         dispatch(loadCreateScene({ ...scene, name: scene.name + ' [duplicate]' })) // TODO: counter

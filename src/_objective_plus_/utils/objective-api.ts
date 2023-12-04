@@ -1,3 +1,4 @@
+import { API_MOCK_FREEZE_MS, ENDPOINTS, LOCAL_DEV, ROOT } from '../constants'
 import { IMakeLoginPayload, IUserCreatePayload, IUserUpdatePayload } from '../store/auth/actions'
 import { IAuthFull, ITokens, IUser } from '../store/auth/reducer'
 import {
@@ -18,24 +19,6 @@ import {
 } from '../store/projects/actions'
 import { IProject, ISceneFull } from '../store/projects/reducer'
 
-const ROOT = 'http://127.0.0.1:8000' as const
-enum ENDPOINTS {
-  // user & auth
-  REGISTER = '/api/auth/register',
-  LOGIN = '/api/auth/jwt/login',
-  LOGOUT = '/api/auth/jwt/logout',
-  ME = '/api/users/me',
-
-  // projects
-  PROJECTS = '/api/projects',
-  SCENES = '/api/scenes',
-
-  /** DEBUG */
-  ERROR = '/api/error',
-}
-
-const _DEBUG_TIMEOUT_MS = 250
-
 type IUserResponse = IUser
 type ILoginResponse = ITokens
 
@@ -47,7 +30,7 @@ export const checkResponse = async <T>(response: Response): Promise<T> => {
 export const getAuthHeader = (auth: ITokens) => ({ Authorization: `Bearer ${auth.access_token}` })
 
 export const fetchUser = async (auth: IAuthFull) => {
-  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, API_MOCK_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.ME, {
     method: 'GET',
@@ -57,7 +40,7 @@ export const fetchUser = async (auth: IAuthFull) => {
 }
 
 export const fetchUpdateUser = async (body: IUserUpdatePayload, auth: ITokens) => {
-  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, API_MOCK_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.ME, {
     method: 'PATCH',
@@ -68,7 +51,7 @@ export const fetchUpdateUser = async (body: IUserUpdatePayload, auth: ITokens) =
 }
 
 export const fetchRegister = async (body: IUserCreatePayload) => {
-  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, API_MOCK_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.REGISTER, {
     method: 'POST',
@@ -79,7 +62,7 @@ export const fetchRegister = async (body: IUserCreatePayload) => {
 }
 
 export const fetchLogin = async (form: IMakeLoginPayload) => {
-  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, API_MOCK_FREEZE_MS))
 
   const body = new FormData()
   body.append('username', form.email) // NOTE `email` is used as `username` on login
@@ -97,7 +80,7 @@ export const fetchLogin = async (form: IMakeLoginPayload) => {
 export const fetchLogout = async (auth: ITokens) => {
   if (!auth.access_token) return
 
-  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, API_MOCK_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.LOGOUT, {
     method: 'POST',
@@ -109,7 +92,7 @@ export const fetchLogout = async (auth: ITokens) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const fetchProjects = async (query: TGetProjectsThunkArg, auth: IAuthFull) => {
-  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, API_MOCK_FREEZE_MS))
 
   const urlParams = new URLSearchParams()
   if (query.is_deleted) urlParams.append('is_deleted', 'True')
@@ -122,7 +105,7 @@ export const fetchProjects = async (query: TGetProjectsThunkArg, auth: IAuthFull
 }
 
 export const fetchCreateProject = async (body: TCreateProjectPayload, auth: IAuthFull) => {
-  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, API_MOCK_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.PROJECTS, {
     method: 'POST',
@@ -137,7 +120,7 @@ export const fetchUpdateProject = async (
   body: TCreateProjectPayload,
   auth: IAuthFull
 ) => {
-  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, API_MOCK_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.PROJECTS + `/${id}`, {
     method: 'PATCH',
@@ -149,7 +132,7 @@ export const fetchUpdateProject = async (
 
 /** Mark for delete (a.k.a Archive) */
 export const fetchDeleteProject = async (id: IProject['id'], auth: IAuthFull) => {
-  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, API_MOCK_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.PROJECTS + `/${id}`, {
     method: 'DELETE',
@@ -161,7 +144,7 @@ export const fetchDeleteProject = async (id: IProject['id'], auth: IAuthFull) =>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const fetchScene = async (id: ISceneFull['id'], auth: IAuthFull) => {
-  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, API_MOCK_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.SCENES + `/${id}`, {
     method: 'GET',
@@ -171,7 +154,7 @@ export const fetchScene = async (id: ISceneFull['id'], auth: IAuthFull) => {
 }
 
 export const fetchScenes = async (query: TGetScenesThunkArg, auth: IAuthFull) => {
-  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, API_MOCK_FREEZE_MS))
 
   const urlParams = new URLSearchParams()
   if (query.is_deleted) urlParams.append('is_deleted', 'True')
@@ -184,7 +167,7 @@ export const fetchScenes = async (query: TGetScenesThunkArg, auth: IAuthFull) =>
 }
 
 export const fetchCreateScene = async (body: TCreateScenePayload, auth: IAuthFull) => {
-  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, API_MOCK_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.SCENES, {
     method: 'POST',
@@ -199,7 +182,7 @@ export const fetchUpdateScene = async (
   body: TUpdateScenePayload,
   auth: IAuthFull
 ) => {
-  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, API_MOCK_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.SCENES + `/${id}`, {
     method: 'PATCH',
@@ -211,7 +194,7 @@ export const fetchUpdateScene = async (
 
 /** Mark for delete (a.k.a Archive) */
 export const fetchDeleteScene = async (id: ISceneFull['id'], auth: IAuthFull) => {
-  await new Promise((r) => setTimeout(r, _DEBUG_TIMEOUT_MS)) // DEBUG
+  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, API_MOCK_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.SCENES + `/${id}`, {
     method: 'DELETE',

@@ -1,7 +1,13 @@
 import ObjectiveOuterWrapper from "../_objective_/components/ObjectiveOuterWrapper";
 import ShotListSidebarContent from "../_objective_/components/ShotListSidebarContent";
+import TopRightUI from "../_objective_/components/TopRightUI";
 import { LIB_CAMERAS } from "../_objective_/lib/cameras.library";
 import { LIB_CHARACTERS } from "../_objective_/lib/characters.library";
+import { useSelector } from "../_objective_plus_/hooks/redux";
+import {
+  selectIsMyScene,
+  selectIsOtherScene,
+} from "../_objective_plus_/store/projects/reducer";
 import { trackEvent } from "../analytics";
 import { getDefaultAppState } from "../appState";
 import { ErrorDialog } from "../components/ErrorDialog";
@@ -27,7 +33,12 @@ import {
 import { useCallbackRefState } from "../hooks/useCallbackRefState";
 import { t } from "../i18n";
 import { useAtomWithInitialValue } from "../jotai";
-import { Excalidraw, LiveCollaborationTrigger, Sidebar, defaultLang } from "../packages/excalidraw/index";
+import {
+  Excalidraw,
+  LiveCollaborationTrigger,
+  Sidebar,
+  defaultLang,
+} from "../packages/excalidraw/index";
 import polyfill from "../polyfill";
 import {
   AppState,
@@ -238,6 +249,9 @@ const ExcalidrawWrapper = () => {
   const [langCode, setLangCode] = useAtom(appLangCodeAtom);
   const isCollabDisabled = true; // VBRN disable collabaration
   const [isShotListSidebarDocked, setShotListSidebarDocked] = useState(true);
+  const isOtherScene = useSelector(selectIsOtherScene);
+  const isMy = useSelector(selectIsMyScene);
+  console.log({ isOtherScene, isMy });
 
   // initial state
   // ---------------------------------------------------------------------------
@@ -633,26 +647,6 @@ const ExcalidrawWrapper = () => {
             // VBRN custom UI options
             changeViewBackgroundColor: false,
             toggleTheme: false,
-            //
-            export: {
-              onExportToBackend,
-              renderCustomUI: (elements, appState, files) => {
-                return (
-                  <ExportToExcalidrawPlus
-                    elements={elements}
-                    appState={appState}
-                    files={files}
-                    onError={(error) => {
-                      excalidrawAPI?.updateScene({
-                        appState: {
-                          errorMessage: error.message,
-                        },
-                      });
-                    }}
-                  />
-                );
-              },
-            },
           },
         }}
         langCode={langCode}
@@ -663,26 +657,9 @@ const ExcalidrawWrapper = () => {
         autoFocus={true}
         theme={theme}
         renderTopRightUI={(isMobile) => {
-          return (
-            <Sidebar.Trigger
-              tab="ShotList"
-              name="ShotList"
-              icon={<>📸</>}
-              title={t("toolBar.shotList", null, "Shot List")}
-              onToggle={(open) => {
-                if (open) {
-                  trackEvent(
-                    "sidebar",
-                    `ShotList (open)`,
-                    `button (${isMobile ? "mobile" : "desktop"})`,
-                  );
-                }
-              }}
-            >
-              {t("toolBar.shotList", null, "Shot List")}
-            </Sidebar.Trigger>
-          );
+          return <TopRightUI />;
         }}
+        // viewModeEnabled={undefined} // TODO
       >
         <AppMainMenu
           setCollabDialogShown={setCollabDialogShown}

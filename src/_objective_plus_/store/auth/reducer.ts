@@ -33,7 +33,9 @@ export enum UserRoles {
 }
 
 export interface IUser {
-  /** auth id */
+  /**  uuid */
+  id: string
+  /** unique login field for authentication*/
   email: string
 
   /** not required, not unique (any string, not a slug) */
@@ -58,7 +60,7 @@ export interface IAuthState extends ITokens {
 }
 
 export const initialState: IAuthState = {
-  user: { email: '', username: '', role: undefined },
+  user: { id: '', email: '', username: '', role: undefined },
   access_token: '',
   token_type: 'Bearer',
   error: undefined,

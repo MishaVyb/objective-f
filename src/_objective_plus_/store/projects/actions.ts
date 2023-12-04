@@ -143,8 +143,14 @@ export const loadScenes = createAsyncThunk<TGetScenesResponse, TGetScenesThunkAr
     safeAsyncThunk(thunkApi, () => fetchScenes(query, selectAuth(thunkApi.getState())))
 )
 
-export const loadScene = createAsyncThunk<TGetSceneResponse, TGetSceneThunkArg, ThunkApiConfig>(
-  'projects/loadScenes',
+export const loadSceneInitial = createAsyncThunk<TGetSceneResponse, TGetSceneThunkArg, ThunkApiConfig>(
+  'projects/loadSceneInitial',
+  (arg, thunkApi) =>
+    safeAsyncThunk(thunkApi, () => fetchScene(arg.id, selectAuth(thunkApi.getState())))
+)
+
+export const loadSceneContinuos = createAsyncThunk<TGetSceneResponse, TGetSceneThunkArg, ThunkApiConfig>(
+  'projects/loadSceneContinuous',
   (arg, thunkApi) =>
     safeAsyncThunk(thunkApi, () => fetchScene(arg.id, selectAuth(thunkApi.getState())))
 )

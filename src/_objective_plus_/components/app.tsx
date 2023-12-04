@@ -34,7 +34,10 @@ const ObjectivePlusApp: FC = () => {
       scaling={'110%'}
     >
       <Flex // Base Layout container for the whole APP //
-        style={{ height: '100vh', backgroundImage: `url(${BackgroundImage})` }}
+        style={{
+          height: '100vh',
+          backgroundImage: excalidrawPath ? undefined : `url(${BackgroundImage})`,
+        }}
         className='objective-plus-app'
         direction={'column'}
       >
