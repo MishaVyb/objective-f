@@ -15,6 +15,12 @@ import Footer from "../../components/footer/FooterCenter";
 import MainMenu from "../../components/main-menu/MainMenu";
 import WelcomeScreen from "../../components/welcome-screen/WelcomeScreen";
 import LiveCollaborationTrigger from "../../components/live-collaboration/LiveCollaborationTrigger";
+import { useSelector } from "../../_objective_plus_/hooks/redux";
+import { selectIsMyScene } from "../../_objective_plus_/store/projects/reducer";
+
+export type TObjectiveProps = {
+  isMyScene: boolean;
+};
 
 const ExcalidrawBase = (props: ExcalidrawProps) => {
   const {
@@ -45,6 +51,14 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
   } = props;
 
   const canvasActions = props.UIOptions?.canvasActions;
+
+  /**
+   * VBRN
+   * Can not call for any hooks needed in App component as it's `class` component
+   * So call for hooks here and provide its values to App component.
+   */
+  const isMyScene = useSelector(selectIsMyScene);
+  const objectiveProps: TObjectiveProps = { isMyScene };
 
   // FIXME normalize/set defaults in parent component so that the memo resolver
   // compares the same values
@@ -91,6 +105,7 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
     <Provider unstable_createStore={() => jotaiStore} scope={jotaiScope}>
       <InitializeApp langCode={langCode} theme={theme}>
         <App
+          objectiveProps={objectiveProps}
           onChange={onChange}
           initialData={initialData}
           excalidrawRef={excalidrawRef}

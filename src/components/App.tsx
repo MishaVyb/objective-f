@@ -251,6 +251,7 @@ import {
   shouldRotateWithDiscreteAngle,
 } from "../keys";
 import { distance2d, getGridPoint, isPathALoop } from "../math";
+import { TObjectiveProps } from "../packages/excalidraw";
 import { invalidateShapeForElement } from "../renderer/renderElement";
 import { isVisibleElement, renderScene } from "../renderer/renderScene";
 import {
@@ -455,6 +456,8 @@ class App extends React.Component<AppProps, AppState> {
   lastPointerUp: React.PointerEvent<HTMLElement> | PointerEvent | null = null;
   lastViewportPosition = { x: 0, y: 0 };
 
+  public objectiveProps: TObjectiveProps;
+
   constructor(props: AppProps) {
     super(props);
     const defaultAppState = getDefaultAppState();
@@ -480,6 +483,8 @@ class App extends React.Component<AppProps, AppState> {
       showHyperlinkPopup: false,
       defaultSidebarDockedPreference: false,
     };
+
+    this.objectiveProps = props.objectiveProps;
 
     this.id = nanoid();
     this.library = new Library(this);
@@ -7229,13 +7234,18 @@ class App extends React.Component<AppProps, AppState> {
     // -------------------------------------------------------------------------
 
     if (type === "canvas") {
+      const extraItems = this.objectiveProps.isMyScene
+        ? [actionToggleViewMode]
+        : [];
+
       if (this.state.viewModeEnabled) {
         return [
           ...options,
           actionToggleGridMode,
           actionToggleZenMode,
-          actionToggleViewMode,
-          actionToggleStats,
+          // actionToggleViewMode,  // VBRN disable
+          // actionToggleStats, // VBRN disable
+          ...extraItems,
         ];
       }
 
@@ -7251,8 +7261,9 @@ class App extends React.Component<AppProps, AppState> {
         CONTEXT_MENU_SEPARATOR,
         actionToggleGridMode,
         actionToggleZenMode,
-        actionToggleViewMode,
-        actionToggleStats,
+        // actionToggleViewMode,  // VBRN disable
+        // actionToggleStats, // VBRN disable
+        ...extraItems,
       ];
     }
 
@@ -7282,8 +7293,8 @@ class App extends React.Component<AppProps, AppState> {
       actionBindText,
       actionWrapTextInContainer,
       actionUngroup,
-      CONTEXT_MENU_SEPARATOR,
-      actionAddToLibrary,
+      // CONTEXT_MENU_SEPARATOR, // VBRN disable
+      // actionAddToLibrary, // VBRN disable
       CONTEXT_MENU_SEPARATOR,
       actionSendBackward,
       actionBringForward,

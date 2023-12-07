@@ -1,6 +1,7 @@
 import { FC, ReactNode, useCallback, useEffect } from 'react'
 
 import { useParams } from 'react-router-dom'
+import { SCENE_PERSISTENCE } from '../../_objective_plus_/constants'
 import { useDispatch, useSelector } from '../../_objective_plus_/hooks/redux'
 import {
   loadSceneContinuos,
@@ -15,7 +16,6 @@ import {
 } from '../../_objective_plus_/store/projects/reducer'
 import { deepCopyElement } from '../../element/newElement'
 import { Collaborator, ExcalidrawImperativeAPI } from '../../types'
-import { SCENE_PERSISTENCE } from '../../_objective_plus_/constants'
 
 /** Implements scene loading and saving */
 const ObjectiveOuterWrapper: FC<{

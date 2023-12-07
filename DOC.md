@@ -24,6 +24,9 @@ index.tsx
     - реализует работу с LocalData (сохраняет все в local storage)
     - взаимодействует с `excalidrawAPI, excalidrawRefCallback`
 
+⬇️
+## ObjectiveOutterWrapper
+    - загружает и сохраняет данные на беккенд
 
 ---------------------- package --------------------
 ⬇️
@@ -35,6 +38,8 @@ index.tsx
     - оборачивает App в провайдер Jotai Store
     - инициализирует App язык и тему
 
+    - инициализируется `objectiveProps` и прокидывает их а `App` напрямую
+
 
 ---------------------- component --------------------
 ⬇️
@@ -45,6 +50,9 @@ index.tsx
     - наполняет excalidrawAPI, тем самым все состояния компонента App может быть доступно выше ⬆️
     excalidrawAPI: https://docs.excalidraw.com/docs/@excalidraw/excalidraw/api/props/ref
 
+⬇️
+## ObjectiveInnerWrapper
+    - работает уже напрямую с канвасом и с состоянием app, конфигурирует app programatecly
 
 ------------------------
 

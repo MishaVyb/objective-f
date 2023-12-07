@@ -29,6 +29,7 @@ import {
   Theme,
 } from "./element/types";
 import { Language } from "./i18n";
+import { TObjectiveProps } from "./packages/excalidraw";
 import { isOverScrollBars } from "./scene";
 import { SHAPES } from "./shapes";
 import { ForwardRef, Merge, ValueOf } from "./utility-types";
@@ -423,6 +424,7 @@ export type AppProps = Merge<
     handleKeyboardGlobally: boolean;
     isCollaborating: boolean;
     children?: React.ReactNode;
+    objectiveProps: TObjectiveProps;
   }
 >;
 

@@ -1,15 +1,19 @@
 import isEqual from 'lodash/isEqual'
 import { FC, ReactNode, createContext, useContext, useEffect, useState } from 'react'
 
+import { SymbolIcon } from '@radix-ui/react-icons'
+import { Flex, Text } from '@radix-ui/themes'
+import { RootBox } from '../../_objective_plus_/components/layout'
 import { useSelector } from '../../_objective_plus_/hooks/redux'
-import { selectLoadingSceneIsPending } from '../../_objective_plus_/store/projects/reducer'
-import { useApp, useExcalidrawElements } from '../../components/App'
+import {
+  selectIsMyScene,
+  selectLoadingSceneIsPending,
+} from '../../_objective_plus_/store/projects/reducer'
+import { actionToggleViewMode } from '../../actions/actionToggleViewMode'
+import App, { useApp, useExcalidrawElements } from '../../components/App'
 import { BinaryFiles } from '../../types'
 import { getCameraMetas } from '../selectors/selectors'
 import { CameraMeta } from '../types/types'
-import { Flex, Text } from '@radix-ui/themes'
-import { SymbolIcon } from '@radix-ui/react-icons'
-import { RootBox } from '../../_objective_plus_/components/layout'
 
 /**
  * Extra contexts
@@ -27,8 +31,10 @@ export const useExcalidrawFiles = () => useContext(ExcalidrawFilesContext)
  */
 const ObjectiveInnerWrapper: FC<{ children: ReactNode }> = ({ children }) => {
   const elements = useExcalidrawElements()
-  const app = useApp()
+  const app = useApp() as App
   const loading = useSelector(selectLoadingSceneIsPending)
+
+  const isMyScene = useSelector(selectIsMyScene)
 
   /**
    * NOTE:
@@ -51,6 +57,21 @@ const ObjectiveInnerWrapper: FC<{ children: ReactNode }> = ({ children }) => {
   useEffect(() => {
     setFiles(app.files)
   }, [app.files])
+
+  /** Configure appState programatecly */
+  useEffect(() => {
+    if (loading) return
+
+    // HACK: set `viewMode` by actionManager, otherwise it won't work
+    //
+    // Reference, how action called programatecly:
+    // https://github.com/MishaVyb/objective-f/blob/3a8d57018e1d16e42513210841ce039660cabc55/src/components/ContextMenu.tsx#L100
+    if (!isMyScene) {
+      app.setState({ contextMenu: null }, () => {
+        app.actionManager.executeAction(actionToggleViewMode, 'contextMenu')
+      })
+    }
+  }, [isMyScene, loading, app])
 
   if (loading)
     return (

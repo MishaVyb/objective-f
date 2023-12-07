@@ -7,6 +7,7 @@ import { useSelector } from "../_objective_plus_/hooks/redux";
 import {
   selectIsMyScene,
   selectIsOtherScene,
+  selectLoadingSceneIsPending,
 } from "../_objective_plus_/store/projects/reducer";
 import { trackEvent } from "../analytics";
 import { getDefaultAppState } from "../appState";
@@ -249,9 +250,6 @@ const ExcalidrawWrapper = () => {
   const [langCode, setLangCode] = useAtom(appLangCodeAtom);
   const isCollabDisabled = true; // VBRN disable collabaration
   const [isShotListSidebarDocked, setShotListSidebarDocked] = useState(true);
-  const isOtherScene = useSelector(selectIsOtherScene);
-  const isMy = useSelector(selectIsMyScene);
-  console.log({ isOtherScene, isMy });
 
   // initial state
   // ---------------------------------------------------------------------------
@@ -659,7 +657,6 @@ const ExcalidrawWrapper = () => {
         renderTopRightUI={(isMobile) => {
           return <TopRightUI />;
         }}
-        // viewModeEnabled={undefined} // TODO
       >
         <AppMainMenu
           setCollabDialogShown={setCollabDialogShown}
