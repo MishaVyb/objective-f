@@ -90,6 +90,7 @@ export class ActionManager {
             event,
             this.getAppState(),
             this.getElementsIncludingDeleted(),
+            this.app,
           ),
       );
 

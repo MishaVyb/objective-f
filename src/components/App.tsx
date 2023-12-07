@@ -484,6 +484,11 @@ class App extends React.Component<AppProps, AppState> {
       defaultSidebarDockedPreference: false,
     };
 
+    // NOTE
+    // Do not store `objectiveProps` in State, as it's just props from component above and we
+    // do not want to handle them in whole React state management.
+    //
+    // Instead, store it as regular attribute and provide access to it by `app.objectiveProps`
     this.objectiveProps = props.objectiveProps;
 
     this.id = nanoid();
@@ -818,10 +823,6 @@ class App extends React.Component<AppProps, AppState> {
   public render() {
     /*
     NAV App Render
-
-    App attributes:
-    - this.library
-
     */
     const selectedElement = getSelectedElements(
       this.scene.getNonDeletedElements(),

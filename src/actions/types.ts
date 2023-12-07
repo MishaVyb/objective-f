@@ -1,3 +1,4 @@
+import React from "react";
 import { ExcalidrawElement } from "../element/types";
 import {
   AppClassProperties,
@@ -6,7 +7,6 @@ import {
   ExcalidrawProps,
 } from "../types";
 import { MarkOptional } from "../utility-types";
-import React from "react";
 
 export type ActionSource = "ui" | "keyboard" | "contextMenu" | "api";
 
@@ -147,6 +147,7 @@ export interface Action {
     event: React.KeyboardEvent | KeyboardEvent,
     appState: AppState,
     elements: readonly ExcalidrawElement[],
+    app: AppClassProperties,
   ) => boolean;
   contextItemLabel?:
     | string
