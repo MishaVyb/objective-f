@@ -1,6 +1,6 @@
 import { createReducer, createSelector } from '@reduxjs/toolkit'
 import { ExcalidrawElement } from '../../../element/types'
-import { AppState } from '../../../types'
+import { AppState, BinaryFileData } from '../../../types'
 import { LOCAL_STORAGE, saveToLocalStorage } from '../../utils/persistence'
 import { RootState } from '../store'
 import {
@@ -35,6 +35,9 @@ export interface ISceneFull extends ISceneSimplified {
   source: string
   elements: readonly ExcalidrawElement[] // JSON
   appState: AppState // JSON
+
+  /** Excalidraw file IDs currently stored at backend */
+  files: Pick<BinaryFileData, 'id' | 'mimeType'>[]
 }
 
 export interface IProject extends IBase {

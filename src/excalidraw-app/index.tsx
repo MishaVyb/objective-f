@@ -1,17 +1,14 @@
+import clsx from "clsx";
+import LanguageDetector from "i18next-browser-languagedetector";
+import { Provider, atom, useAtom, useAtomValue } from "jotai";
+import { useEffect, useRef, useState } from "react";
 import ObjectiveOuterWrapper from "../_objective_/components/ObjectiveOuterWrapper";
 import ShotListSidebarContent from "../_objective_/components/ShotListSidebarContent";
 import TopRightUI from "../_objective_/components/TopRightUI";
 import { LIB_CAMERAS } from "../_objective_/lib/cameras.library";
 import { LIB_CHARACTERS } from "../_objective_/lib/characters.library";
-import { useSelector } from "../_objective_plus_/hooks/redux";
-import {
-  selectIsMyScene,
-  selectIsOtherScene,
-  selectLoadingSceneIsPending,
-} from "../_objective_plus_/store/projects/reducer";
 import { trackEvent } from "../analytics";
 import { getDefaultAppState } from "../appState";
-import { ErrorDialog } from "../components/ErrorDialog";
 import { TopErrorBoundary } from "../components/TopErrorBoundary";
 import {
   APP_NAME,
@@ -36,9 +33,8 @@ import { t } from "../i18n";
 import { useAtomWithInitialValue } from "../jotai";
 import {
   Excalidraw,
-  LiveCollaborationTrigger,
   Sidebar,
-  defaultLang,
+  defaultLang
 } from "../packages/excalidraw/index";
 import polyfill from "../polyfill";
 import {
@@ -76,8 +72,6 @@ import Collab, {
 import { reconcileElements } from "./collab/reconciliation";
 import { AppFooter } from "./components/AppFooter";
 import { AppMainMenu } from "./components/AppMainMenu";
-import { AppWelcomeScreen } from "./components/AppWelcomeScreen";
-import { ExportToExcalidrawPlus } from "./components/ExportToExcalidrawPlus";
 import {
   exportToBackend,
   getCollaborationLinkData,
@@ -94,10 +88,6 @@ import {
 } from "./data/localStorage";
 import { isBrowserStorageStateNewer } from "./data/tabSync";
 import "./index.scss";
-import clsx from "clsx";
-import LanguageDetector from "i18next-browser-languagedetector";
-import { Provider, atom, useAtom, useAtomValue } from "jotai";
-import { useEffect, useRef, useState } from "react";
 
 polyfill();
 

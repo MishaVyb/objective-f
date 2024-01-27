@@ -1,13 +1,16 @@
+import { BinaryFileData } from '../../types'
 import { API_MOCK_FREEZE_MS, ENDPOINTS, LOCAL_DEV, ROOT } from '../constants'
 import { IMakeLoginPayload, IUserCreatePayload, IUserUpdatePayload } from '../store/auth/actions'
 import { IAuthFull, ITokens, IUser } from '../store/auth/reducer'
 import {
+  TCreateFileResponse,
   TCreateProjectPayload,
   TCreateProjectResponse,
   TCreateScenePayload,
   TCreateSceneResponse,
   TDeleteProjectResponse,
   TDeleteSceneResponse,
+  TGetFileResponse,
   TGetProjectsResponse,
   TGetProjectsThunkArg,
   TGetSceneResponse,
@@ -23,7 +26,11 @@ type IUserResponse = IUser
 type ILoginResponse = ITokens
 
 export const checkResponse = async <T>(response: Response): Promise<T> => {
-  if (response.ok) return await response.json()
+  if (response.ok) {
+    if (response.status === 204) return null as T // no content
+    return await response.json()
+  }
+
   return Promise.reject(response)
 }
 
@@ -201,4 +208,35 @@ export const fetchDeleteScene = async (id: ISceneFull['id'], auth: IAuthFull) =>
     headers: getAuthHeader(auth),
   })
   return await checkResponse<TDeleteSceneResponse>(res)
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const fetchFile = async (
+  sceneId: ISceneFull['id'],
+  fileId: BinaryFileData['id'],
+  auth: IAuthFull
+) => {
+  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, API_MOCK_FREEZE_MS))
+
+  const res = await fetch(ROOT + ENDPOINTS.SCENES + `/${sceneId}/files/${fileId}`, {
+    method: 'GET',
+    headers: getAuthHeader(auth),
+  })
+  return await checkResponse<TGetFileResponse>(res)
+}
+
+export const fetchCreateFile = async (
+  sceneId: ISceneFull['id'],
+  file: BinaryFileData,
+  auth: IAuthFull
+) => {
+  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, API_MOCK_FREEZE_MS))
+
+  const res = await fetch(ROOT + ENDPOINTS.SCENES + `/${sceneId}/files`, {
+    method: 'POST',
+    body: JSON.stringify(file),
+    headers: { 'Content-Type': 'application/json', ...getAuthHeader(auth) },
+  })
+  return await checkResponse<TCreateFileResponse>(res)
 }

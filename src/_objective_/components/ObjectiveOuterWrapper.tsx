@@ -4,6 +4,8 @@ import { useParams } from 'react-router-dom'
 import { SCENE_PERSISTENCE } from '../../_objective_plus_/constants'
 import { useDispatch, useSelector } from '../../_objective_plus_/hooks/redux'
 import {
+  createFile,
+  loadFile,
   loadSceneContinuos,
   loadSceneInitial,
   loadUpdateScene,
@@ -16,6 +18,8 @@ import {
 } from '../../_objective_plus_/store/projects/reducer'
 import { deepCopyElement } from '../../element/newElement'
 import { Collaborator, ExcalidrawImperativeAPI } from '../../types'
+import { isImageElement } from '../../element/typeChecks'
+import { objectValues } from '../types/utils'
 
 /** Implements scene loading and saving */
 const ObjectiveOuterWrapper: FC<{
@@ -28,6 +32,7 @@ const ObjectiveOuterWrapper: FC<{
   const scene = useSelector(selectCurrentScene)
   const loading = useSelector(selectLoadingSceneIsPending)
 
+  /** loading... */
   const loadingScene = useCallback(
     (
       action: ReturnType<typeof loadSceneContinuos> | ReturnType<typeof loadSceneInitial>,
@@ -50,13 +55,36 @@ const ObjectiveOuterWrapper: FC<{
             appState: opts?.updateAppState ? serializedAppState : undefined,
             collaborators: serializedAppState.collaborators,
           })
+
+          const localFiles = excalidrawApi.getFiles()
+          const localFileIds = new Set(objectValues(localFiles).map((f) => f.id))
+          const imageElementsWithFileNotInLocalFileIds = serializedElements
+            .filter(isImageElement)
+            .filter((e) => e.fileId && !localFileIds.has(e.fileId))
+
+          imageElementsWithFileNotInLocalFileIds.forEach((e) => {
+            // TODO
+            // chick is action to fetch already dispatched or not? (do not dispatche the same request)
+            dispatch(loadFile({ sceneId: scene.id, fileId: e.fileId! }))
+              .unwrap()
+              .then((value) => {
+                excalidrawApi.addFiles([
+                  {
+                    ...value,
+                    created: new Date().getTime(), // ??? it seems that it works
+                  },
+                ])
+              })
+          })
         })
     },
     [excalidrawApi, dispatch]
   )
 
+  /** saving... */
   const updatingScene = useCallback(() => {
     if (!excalidrawApi) return
+
     dispatch(
       loadUpdateScene({
         id: sceneId!,
@@ -64,6 +92,19 @@ const ObjectiveOuterWrapper: FC<{
         appState: excalidrawApi.getAppState(),
       })
     )
+      .unwrap()
+      .then((value) => {
+        // TODO
+        // check is action to fetch already dispatched or not? (do not dispatche the same request)
+
+        const localFiles = excalidrawApi.getFiles()
+        const localFileIds = objectValues(localFiles).map((f) => f.id)
+        const fileIdsStorredOnBackend = new Set(value.files.map((f) => f.id))
+        const fileIdsToSave = localFileIds.filter((id) => !fileIdsStorredOnBackend.has(id))
+        fileIdsToSave.forEach((id) =>
+          dispatch(createFile({ sceneId: sceneId!, file: localFiles[id] }))
+        )
+      })
   }, [excalidrawApi, dispatch, sceneId])
 
   // load scene on mount, save scene on un-mount

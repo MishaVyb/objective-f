@@ -1,9 +1,11 @@
 import { AsyncThunk, createAction, createAsyncThunk } from '@reduxjs/toolkit'
 import {
+  fetchCreateFile,
   fetchCreateProject,
   fetchCreateScene,
   fetchDeleteProject,
   fetchDeleteScene,
+  fetchFile,
   fetchProjects,
   fetchScene,
   fetchScenes,
@@ -13,6 +15,7 @@ import {
 import { selectAuth } from '../auth/reducer'
 import { ThunkApiConfig, safeAsyncThunk } from '../helpers'
 import { IProject, ISceneFull } from './reducer'
+import { BinaryFileData } from '../../../types'
 
 // Responses
 export type TGetProjectResponse = IProject
@@ -26,6 +29,9 @@ export type TGetScenesResponse = ISceneFull[]
 export type TCreateSceneResponse = ISceneFull
 export type TUpdateSceneResponse = ISceneFull
 export type TDeleteSceneResponse = ISceneFull
+
+export type TGetFileResponse = Pick<BinaryFileData, 'id' | 'mimeType' | 'dataURL'>
+export type TCreateFileResponse = Pick<BinaryFileData, 'id' | 'mimeType'>
 
 // Payloads (query params, body, formData ...)
 export type TQueryBase = {
@@ -62,6 +68,15 @@ export type TCreateSceneThunkArg = TCreateScenePayload
 export type TUpdateSceneThunkArg = TUpdateScenePayload & Pick<ISceneFull, 'id'>
 export type TDeleteSceneThunkArg = Pick<ISceneFull, 'id'>
 
+export type TGetFileThunkArg = {
+  sceneId: ISceneFull['id']
+  fileId: BinaryFileData['id']
+}
+export type TCreateFileThunkArg = {
+  sceneId: ISceneFull['id']
+  file: BinaryFileData
+}
+
 export type TAuthAsyncThunk = AsyncThunk<
   //
   // Returned: request Response
@@ -85,7 +100,10 @@ export type TAuthAsyncThunk = AsyncThunk<
   | TGetSceneThunkArg
   | TGetScenesThunkArg
   | TCreateSceneThunkArg
-  | TUpdateSceneThunkArg,
+  | TUpdateSceneThunkArg
+  //
+  | TGetFileThunkArg
+  | TCreateFileThunkArg,
   //
   // Config types:
   ThunkApiConfig
@@ -143,16 +161,20 @@ export const loadScenes = createAsyncThunk<TGetScenesResponse, TGetScenesThunkAr
     safeAsyncThunk(thunkApi, () => fetchScenes(query, selectAuth(thunkApi.getState())))
 )
 
-export const loadSceneInitial = createAsyncThunk<TGetSceneResponse, TGetSceneThunkArg, ThunkApiConfig>(
-  'projects/loadSceneInitial',
-  (arg, thunkApi) =>
-    safeAsyncThunk(thunkApi, () => fetchScene(arg.id, selectAuth(thunkApi.getState())))
+export const loadSceneInitial = createAsyncThunk<
+  TGetSceneResponse,
+  TGetSceneThunkArg,
+  ThunkApiConfig
+>('projects/loadSceneInitial', (arg, thunkApi) =>
+  safeAsyncThunk(thunkApi, () => fetchScene(arg.id, selectAuth(thunkApi.getState())))
 )
 
-export const loadSceneContinuos = createAsyncThunk<TGetSceneResponse, TGetSceneThunkArg, ThunkApiConfig>(
-  'projects/loadSceneContinuous',
-  (arg, thunkApi) =>
-    safeAsyncThunk(thunkApi, () => fetchScene(arg.id, selectAuth(thunkApi.getState())))
+export const loadSceneContinuos = createAsyncThunk<
+  TGetSceneResponse,
+  TGetSceneThunkArg,
+  ThunkApiConfig
+>('projects/loadSceneContinuous', (arg, thunkApi) =>
+  safeAsyncThunk(thunkApi, () => fetchScene(arg.id, selectAuth(thunkApi.getState())))
 )
 
 export const loadCreateScene = createAsyncThunk<
@@ -177,4 +199,22 @@ export const loadDeleteScene = createAsyncThunk<
   ThunkApiConfig
 >('projects/loadDeleteScene', ({ id }, thunkApi) =>
   safeAsyncThunk(thunkApi, () => fetchDeleteScene(id, selectAuth(thunkApi.getState())))
+)
+
+export const loadFile = createAsyncThunk<TGetFileResponse, TGetFileThunkArg, ThunkApiConfig>(
+  'projects/loadFile',
+  (arg, thunkApi) =>
+    safeAsyncThunk(thunkApi, () =>
+      fetchFile(arg.sceneId, arg.fileId, selectAuth(thunkApi.getState()))
+    )
+)
+
+export const createFile = createAsyncThunk<
+  TCreateFileResponse,
+  TCreateFileThunkArg,
+  ThunkApiConfig
+>('projects/createFile', (arg, thunkApi) =>
+  safeAsyncThunk(thunkApi, () =>
+    fetchCreateFile(arg.sceneId, arg.file, selectAuth(thunkApi.getState()))
+  )
 )
