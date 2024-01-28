@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { Route, Routes, useLocation } from 'react-router-dom'
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { Flex, Theme } from '@radix-ui/themes'
 import ExcalidrawApp from '../../excalidraw-app'
@@ -15,6 +15,13 @@ import './../scss/app.scss'
 import { ObjectiveHeader } from './header'
 import RouteDispatch from './route-dispatch'
 import clsx from 'clsx'
+
+const ScheckSentry: FC = () => {
+  console.info('ScheckSentry: info log')
+  console.warn('ScheckSentry: warn log')
+  console.error('ScheckSentry: error log')
+  return <NotFoundPage />
+}
 
 const ObjectivePlusApp: FC = () => {
   const location = useLocation()
@@ -45,6 +52,7 @@ const ObjectivePlusApp: FC = () => {
         <Routes>
           <Route path='*' element={<NotFoundPage />} />
           <Route path='/about' element={<AboutPage />} />
+          <Route path='/check-sentry' element={<ScheckSentry />} />
           <Route
             path='/'
             element={
