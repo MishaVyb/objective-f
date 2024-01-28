@@ -165,8 +165,14 @@ const TopRightUI = () => {
           {isOtherScene ? <OtherSceneShareOptions /> : <MySceneShareOptions />}
         </Popover.Content>
       </Popover.Root>
-      <Sidebar.Trigger tab='ShotList' name='ShotList' icon={<CameraIcon />} title={'Shot List'}>
-        {/* {'Shot List'} */}
+      <Sidebar.Trigger
+        className='default-sidebar-trigger'
+        tab='ShotList'
+        name='ShotList'
+        icon={<CameraIcon />}
+        title={'Shot List'}
+      >
+        <div className='sidebar-trigger__label'>{'Shot List'}</div>
       </Sidebar.Trigger>
     </Flex>
   )
