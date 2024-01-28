@@ -152,9 +152,9 @@ const TopRightUI = () => {
   const onClose = () => {}
 
   return (
-    <Flex gap={'1'}>
+    <Flex gap={'2'}>
       <Popover.Root
-        open={isOtherScene}
+        defaultOpen={isOtherScene}
         onOpenChange={(open) => (open ? onOpen() : onClose())} //
       >
         <Popover.Trigger>
