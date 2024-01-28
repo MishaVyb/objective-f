@@ -123,7 +123,7 @@ const CopySceneDialog: FC<{ open: boolean; setOpen: (open: boolean) => void }> =
 }
 
 const OtherSceneShareOptions = () => {
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
 
   return (
     <>
@@ -154,6 +154,7 @@ const TopRightUI = () => {
   return (
     <Flex gap={'1'}>
       <Popover.Root
+        open={isOtherScene}
         onOpenChange={(open) => (open ? onOpen() : onClose())} //
       >
         <Popover.Trigger>
