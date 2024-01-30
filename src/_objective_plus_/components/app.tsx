@@ -1,7 +1,8 @@
-import { FC } from 'react'
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { FC, useEffect } from 'react'
+import { Route, Routes, useLocation } from 'react-router-dom'
 
 import { Flex, Theme } from '@radix-ui/themes'
+import clsx from 'clsx'
 import ExcalidrawApp from '../../excalidraw-app'
 import BackgroundImage from '../images/objective-bg-image-v1.png'
 import AboutPage from '../pages/about'
@@ -11,15 +12,20 @@ import RegisterPage from '../pages/auth/register-page/register-page'
 import ResetPasswordPage from '../pages/auth/reset-password-page/reset-password-page'
 import NotFoundPage from '../pages/errors/not-found-page'
 import HomePage from '../pages/home'
+import { fetchErrorCheck } from '../utils/objective-api'
 import './../scss/app.scss'
 import { ObjectiveHeader } from './header'
 import RouteDispatch from './route-dispatch'
-import clsx from 'clsx'
 
 const ScheckSentry: FC = () => {
   console.info('ScheckSentry: info log')
   console.warn('ScheckSentry: warn log')
   console.error('ScheckSentry: error log')
+
+  useEffect(() => {
+    new Promise(fetchErrorCheck)
+  }, [])
+
   return <NotFoundPage />
 }
 

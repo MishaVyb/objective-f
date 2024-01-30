@@ -240,3 +240,14 @@ export const fetchCreateFile = async (
   })
   return await checkResponse<TCreateFileResponse>(res)
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const fetchErrorCheck = async () => {
+  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, API_MOCK_FREEZE_MS))
+
+  const res = await fetch(ROOT + ENDPOINTS.ERROR, {
+    method: 'GET',
+  })
+  return await checkResponse<TCreateFileResponse>(res)
+}
