@@ -1,4 +1,5 @@
 import { ElementsClipboard } from '../../clipboard'
+import { COLOR_PALETTE } from '../../colors'
 import { ExcalidrawElement } from '../../element/types'
 import { randomId, randomInteger } from '../../random'
 import { LibraryItem } from '../../types'
@@ -17,6 +18,11 @@ export const createObjFromClipboard = (
   const els = clipboardObj.elements.map((el) => ({
     ...el,
     ...overrides,
+    // do not change BG color if it's transparent:
+    backgroundColor:
+      el.backgroundColor === COLOR_PALETTE.transparent
+        ? COLOR_PALETTE.transparent
+        : overrides.backgroundColor || el.backgroundColor,
     //
     customData: getBaseInitialMeta(ObjectiveKinds.PROP, { name: name }),
     //
