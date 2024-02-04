@@ -7,6 +7,10 @@ import { CheckboxItem } from "./CheckboxItem";
 import { PlusIcon } from "./icons";
 import { SvgCache, useLibraryItemSvg } from "../hooks/useLibraryItemSvg";
 
+import { getMetaReference } from "../_objective_/selectors/selectors";
+import { ObjectiveElement } from "../_objective_/types/types";
+import { Tooltip } from "@radix-ui/themes";
+
 export const LibraryUnit = memo(
   ({
     id,
@@ -27,6 +31,10 @@ export const LibraryUnit = memo(
     onDrag: (id: string, event: React.DragEvent) => void;
     svgCache: SvgCache;
   }) => {
+    const element = elements![0] as ObjectiveElement;
+    const meta = getMetaReference(element);
+    const toolTip = meta.name || "";
+
     const ref = useRef<HTMLDivElement | null>(null);
     const svg = useLibraryItemSvg(id, elements, svgCache);
 
@@ -53,51 +61,55 @@ export const LibraryUnit = memo(
     );
 
     return (
-      <div
-        className={clsx("library-unit", {
-          "library-unit__active": elements,
-          "library-unit--hover": elements && isHovered,
-          "library-unit--selected": selected,
-          "library-unit--skeleton": !svg,
-        })}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
+      <Tooltip content={toolTip} style={toolTip ? {} : { display: "none" }}>
         <div
-          className={clsx("library-unit__dragger", {
-            "library-unit__pulse": !!isPending,
+          className={clsx("library-unit", {
+            "library-unit__active": elements,
+            "library-unit--hover": elements && isHovered,
+            "library-unit--selected": selected,
+            "library-unit--skeleton": !svg,
           })}
-          ref={ref}
-          draggable={!!elements}
-          onClick={
-            !!elements || !!isPending
-              ? (event) => {
-                  if (id && event.shiftKey) {
-                    onToggle(id, event);
-                  } else {
-                    onClick(id);
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <div
+            className={clsx("library-unit__dragger", {
+              "library-unit__pulse": !!isPending,
+            })}
+            ref={ref}
+            draggable={!!elements}
+            onClick={
+              !!elements || !!isPending
+                ? (event) => {
+                    if (id && event.shiftKey) {
+                      onToggle(id, event);
+                    } else {
+                      onClick(id);
+                    }
                   }
-                }
-              : undefined
-          }
-          onDragStart={(event) => {
-            if (!id) {
-              event.preventDefault();
-              return;
+                : undefined
             }
-            setIsHovered(false);
-            onDrag(id, event);
-          }}
-        />
-        {adder}
+            onDragStart={(event) => {
+              if (!id) {
+                event.preventDefault();
+                return;
+              }
+              setIsHovered(false);
+              onDrag(id, event);
+            }}
+          />
+          {adder}
+          {/*
+        VBRN DISABLE: library item checkbox item
         {id && elements && (isHovered || isMobile || selected) && (
           <CheckboxItem
             checked={selected}
             onChange={(checked, event) => onToggle(id, event)}
             className="library-unit__checkbox"
           />
-        )}
-      </div>
+        )} */}
+        </div>
+      </Tooltip>
     );
   },
 );

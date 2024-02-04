@@ -81,6 +81,18 @@ export default function LibraryMenuItems({
     () => libraryItems.filter((item) => item.kind === ObjectiveKinds.CHARACTER),
     [libraryItems],
   );
+  const propsLibItems = useMemo(
+    () => libraryItems.filter((item) => item.kind === ObjectiveKinds.PROP),
+    [libraryItems],
+  );
+  const setLibItems = useMemo(
+    () => libraryItems.filter((item) => item.kind === ObjectiveKinds.SET),
+    [libraryItems],
+  );
+  const outdoorLibItems = useMemo(
+    () => libraryItems.filter((item) => item.kind === ObjectiveKinds.OUTDOR),
+    [libraryItems],
+  );
 
   // UNUSED
   const publishedItems = useMemo(
@@ -90,10 +102,7 @@ export default function LibraryMenuItems({
 
   const showBtn = !libraryItems.length && !pendingElements.length;
 
-  const isLibraryEmpty =
-    !pendingElements.length &&
-    !camerasLibItems.length &&
-    !publishedItems.length;
+  const isLibraryEmpty = false; // VBRN
 
   const [lastSelectedItem, setLastSelectedItem] = useState<
     LibraryItem["id"] | null
@@ -103,7 +112,7 @@ export default function LibraryMenuItems({
     (id: LibraryItem["id"], event: React.MouseEvent) => {
       const shouldSelect = !selectedItems.includes(id);
 
-      const orderedItems = [...camerasLibItems, ...publishedItems];
+      const orderedItems = [...publishedItems];
 
       if (shouldSelect) {
         if (event.shiftKey && lastSelectedItem) {
@@ -141,13 +150,7 @@ export default function LibraryMenuItems({
         onSelectItems(selectedItems.filter((_id) => _id !== id));
       }
     },
-    [
-      lastSelectedItem,
-      onSelectItems,
-      publishedItems,
-      selectedItems,
-      camerasLibItems,
-    ],
+    [lastSelectedItem, onSelectItems, publishedItems, selectedItems],
   );
 
   const getInsertedElements = useCallback(
@@ -217,9 +220,7 @@ export default function LibraryMenuItems({
     <div
       className="library-menu-items-container"
       style={
-        pendingElements.length ||
-        camerasLibItems.length ||
-        publishedItems.length
+        pendingElements.length || publishedItems.length
           ? { justifyContent: "flex-start" }
           : { borderBottom: 0 }
       }
@@ -254,11 +255,22 @@ export default function LibraryMenuItems({
           charactersLibItems,
           t("labels.libCharacters", null, "Characters"),
         )}
+        {renderObjectiveLibItems(
+          setLibItems, //
+          t("labels.libSet", null, "Set"),
+        )}
+        {renderObjectiveLibItems(
+          propsLibItems,
+          t("labels.libProps", null, "Props"),
+        )}
+        {renderObjectiveLibItems(
+          outdoorLibItems,
+          t("labels.libOutdoor", null, "Outdoor"),
+        )}
 
         {/* NAV lib items render (remote lib) UNUSED  */}
         {/* {publeshedLibItems()} */}
 
-        {/* ??? What is that button for */}
         {showBtn && (
           <LibraryMenuControlButtons
             style={{ padding: "16px 0", width: "100%" }}
@@ -277,12 +289,10 @@ export default function LibraryMenuItems({
   );
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function publeshedLibItems() {
+  function publishedLibItems() {
     return (
       <>
-        {(publishedItems.length > 0 ||
-          pendingElements.length > 0 ||
-          camerasLibItems.length > 0) && (
+        {(publishedItems.length > 0 || pendingElements.length > 0) && (
           <div className="library-menu-items-container__header library-menu-items-container__header--excal">
             {/* TITLE */}
           </div>
@@ -299,7 +309,7 @@ export default function LibraryMenuItems({
               svgCache={svgCache}
             />
           </LibraryMenuSectionGrid>
-        ) : camerasLibItems.length > 0 ? (
+        ) : (
           <div
             style={{
               margin: "1rem 0",
@@ -313,7 +323,7 @@ export default function LibraryMenuItems({
           >
             {t("library.noItems")}
           </div>
-        ) : null}
+        )}
       </>
     );
   }
@@ -352,7 +362,7 @@ export default function LibraryMenuItems({
         ) : (
           <LibraryMenuSectionGrid>
             {/*
-            VBRN diable "add pending element to library"
+            VBRN disable "add pending element to library"
 
             {pendingElements.length > 0 && (
               <LibraryMenuSection

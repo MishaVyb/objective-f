@@ -12,7 +12,7 @@ import { mutateElement } from "./element/mutateElement";
 import { getContainingFrame } from "./frame";
 import { isPromiseLike, isTestEnv } from "./utils";
 
-type ElementsClipboard = {
+export type ElementsClipboard = {
   type: typeof EXPORT_DATA_TYPES.excalidrawClipboard;
   elements: readonly NonDeletedExcalidrawElement[];
   files: BinaryFiles | undefined;

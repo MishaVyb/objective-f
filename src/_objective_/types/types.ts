@@ -8,9 +8,20 @@ import {
 import { BinaryFileData } from '../../types'
 
 export enum ObjectiveKinds {
-  CAMERA = 'obj:camera',
-  CHARACTER = 'obj:character',
-  POINTER = 'obj:pointer',
+  CAMERA = 'Camera',
+  CHARACTER = 'Character',
+  POINTER = 'Pointer',
+
+  /** walls, doors, windows ... */
+  LOCATION = 'Location',
+
+  /** furniture (big items) */
+  SET = 'Set',
+
+  /** small items */
+  PROP = 'Prop',
+
+  OUTDOR = 'Outdor',
 }
 
 // ---------------------------------------------------------------------- Base
@@ -23,9 +34,9 @@ export type MaybeExcalidrawElement<T extends ExcalidrawElement = ExcalidrawEleme
   | null
 export type MaybeMeta<T extends ObjectiveMeta = ObjectiveMeta> = T | undefined | null
 
-export interface ObjectiveMeta {
+export interface ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> {
   /** Constant. Populated by lib from initial. */
-  readonly kind: ObjectiveKinds
+  readonly kind: Kind
 
   /** Aka Title / Label. Populated by User from `actionProps` panel. */
   name?: string

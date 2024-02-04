@@ -114,7 +114,7 @@ export const LibraryMenuContent = ({
     );
   }
 
-  const showBtn = false; // VBRN diable lib control button
+  const showBtn = false; // VBRN disable lib control button
   return (
     <LibraryMenuWrapper>
       <LibraryMenuItems

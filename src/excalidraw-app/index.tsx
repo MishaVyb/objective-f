@@ -348,13 +348,6 @@ const ExcalidrawWrapper = () => {
 
     initializeScene({ collabAPI, excalidrawAPI }).then(async (data) => {
       loadImages(data, /* isInitialLoad */ true);
-      // VBRN Set initial Lib items
-      // FIXME do it not here, but in <Excalidraw initialData={...} >
-      //@ts-ignore
-      data.scene.libraryItems = [
-        ...LIB_CAMERAS.libraryItems,
-        ...LIB_CHARACTERS.libraryItems,
-      ] as LibraryItems;
       initialStatePromiseRef.current.promise.resolve(data.scene);
     });
 

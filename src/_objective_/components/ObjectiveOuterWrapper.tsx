@@ -20,6 +20,12 @@ import { deepCopyElement } from '../../element/newElement'
 import { Collaborator, ExcalidrawImperativeAPI } from '../../types'
 import { isImageElement } from '../../element/typeChecks'
 import { objectValues } from '../types/utils'
+import { LIB_CAMERAS } from '../lib/cameras.library'
+import { LIB_CHARACTERS } from '../lib/characters.library'
+import { LIB_PROPS } from '../lib/___properties.library'
+import { LIB_SET } from '../lib/set.library'
+import { LIB_OUTDOR } from '../lib/outdoor.library'
+import { OBJECTIVE_LIB as OBJECTIVE_LIB_ITEMS } from '../lib'
 
 /** Implements scene loading and saving */
 const ObjectiveOuterWrapper: FC<{
@@ -54,6 +60,9 @@ const ObjectiveOuterWrapper: FC<{
             elements: serializedElements,
             appState: opts?.updateAppState ? serializedAppState : undefined,
             collaborators: serializedAppState.collaborators,
+          })
+          excalidrawApi.updateLibrary({
+            libraryItems: OBJECTIVE_LIB_ITEMS,
           })
 
           const localFiles = excalidrawApi.getFiles()

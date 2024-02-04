@@ -23,6 +23,13 @@ import {
 } from '../types/types'
 
 /**
+ * Simplified version of `getMeta`, when we know that elements belongs to single Objective Item
+ */
+export const getMetaReference = <TMeta extends ObjectiveMeta>(
+  el: ObjectiveElement<TMeta>
+): Readonly<TMeta> => el.customData
+
+/**
  * Get *COPY* of element's meta (customData) with current Objective id.
  * @param el
  * @returns Objective's meta

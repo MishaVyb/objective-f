@@ -1,21 +1,20 @@
 import { CameraMeta, ObjectiveKinds, ObjectiveMeta } from '../types/types'
 
-export const getBaseInitialMeta = (kind: ObjectiveMeta['kind']): ObjectiveMeta => ({
+export const getBaseInitialMeta = <T extends ObjectiveKinds>(
+  kind: T,
+  overriddes: Omit<Partial<ObjectiveMeta<T>>, 'kind'> = {}
+): ObjectiveMeta<T> => ({
   kind: kind,
   id: '',
   elementIds: [],
   elements: [],
   name: undefined,
   nameRepr: undefined,
+  ...overriddes,
 })
 
 export const cameraInitialMeta: CameraMeta = {
-  kind: ObjectiveKinds.CAMERA,
-  id: '',
-  elementIds: [],
-  elements: [],
-  name: undefined,
-  nameRepr: undefined,
+  ...getBaseInitialMeta(ObjectiveKinds.CAMERA),
 
   isShot: undefined,
   shotNumber: undefined,

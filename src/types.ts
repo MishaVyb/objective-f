@@ -265,7 +265,7 @@ type LibraryItems_v1 = readonly LibraryItem_v1[];
 export type LibraryItem = {
   id: string;
   status: "published" | "unpublished";
-  kind?: ObjectiveKinds;
+  kind?: ObjectiveKinds; // VBRN
   elements: readonly NonDeleted<ExcalidrawElement>[];
   /** timestamp in epoch (ms) */
   created: number;
