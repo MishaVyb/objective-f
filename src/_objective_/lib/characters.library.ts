@@ -24,7 +24,7 @@ const createObj = (clipboardObj: ElementsClipboard, primary_color: string): Libr
   })
 }
 
-export const LIB_CHARACTERS_2: LibraryItems = [
+export const LIB_CHARACTERS: LibraryItems = [
   ...OBJ_COLORS.map((c) => createObj(one, c)),
   ...OBJ_COLORS.map((c) => createObj(two, c)),
 ]
