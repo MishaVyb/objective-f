@@ -5,8 +5,6 @@ import { useEffect, useRef, useState } from "react";
 import ObjectiveOuterWrapper from "../_objective_/components/ObjectiveOuterWrapper";
 import ShotListSidebarContent from "../_objective_/components/ShotListSidebarContent";
 import TopRightUI from "../_objective_/components/TopRightUI";
-import { LIB_CAMERAS } from "../_objective_/lib/cameras.library";
-import { LIB_CHARACTERS } from "../_objective_/lib/characters.library";
 import { trackEvent } from "../analytics";
 import { getDefaultAppState } from "../appState";
 import { TopErrorBoundary } from "../components/TopErrorBoundary";
@@ -31,11 +29,7 @@ import {
 import { useCallbackRefState } from "../hooks/useCallbackRefState";
 import { t } from "../i18n";
 import { useAtomWithInitialValue } from "../jotai";
-import {
-  Excalidraw,
-  Sidebar,
-  defaultLang
-} from "../packages/excalidraw/index";
+import { Excalidraw, Sidebar, defaultLang } from "../packages/excalidraw/index";
 import polyfill from "../polyfill";
 import {
   AppState,
