@@ -84,8 +84,11 @@ export const CLASSES = {
 
 // 1-based in case we ever do `if(element.fontFamily)`
 export const FONT_FAMILY = {
+  /** hand-drawn */
   Virgil: 1,
+  /** normal */
   Helvetica: 2,
+  /** code */
   Cascadia: 3,
 };
 

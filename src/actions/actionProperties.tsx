@@ -694,19 +694,19 @@ export const actionChangeFontFamily = register({
       icon: JSX.Element;
     }[] = [
       {
-        value: FONT_FAMILY.Virgil,
-        text: t("labels.handDrawn"),
-        icon: FreedrawIcon,
-      },
-      {
         value: FONT_FAMILY.Helvetica,
         text: t("labels.normal"),
         icon: FontFamilyNormalIcon,
       },
       {
         value: FONT_FAMILY.Cascadia,
-        text: t("labels.code"),
+        text: t("labels.monospace", {}, "Monospace"),
         icon: FontFamilyCodeIcon,
+      },
+      {
+        value: FONT_FAMILY.Virgil,
+        text: t("labels.handDrawn"),
+        icon: FreedrawIcon,
       },
     ];
 
