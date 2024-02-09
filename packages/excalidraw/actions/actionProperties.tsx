@@ -1,11 +1,12 @@
 import { AppClassProperties, AppState, Primitive } from "../types";
+
+import { trackEvent } from "../analytics";
 import {
   DEFAULT_ELEMENT_BACKGROUND_COLOR_PALETTE,
   DEFAULT_ELEMENT_BACKGROUND_PICKS,
   DEFAULT_ELEMENT_STROKE_COLOR_PALETTE,
   DEFAULT_ELEMENT_STROKE_PICKS,
 } from "../colors";
-import { trackEvent } from "../analytics";
 import { ButtonIconSelect } from "../components/ButtonIconSelect";
 import { ColorPicker } from "../components/ColorPicker/ColorPicker";
 import { IconPicker } from "../components/IconPicker";
@@ -16,39 +17,39 @@ import {
   ArrowheadArrowIcon,
   ArrowheadBarIcon,
   ArrowheadCircleIcon,
-  ArrowheadTriangleIcon,
-  ArrowheadNoneIcon,
-  StrokeStyleDashedIcon,
-  StrokeStyleDottedIcon,
-  TextAlignTopIcon,
-  TextAlignBottomIcon,
-  TextAlignMiddleIcon,
-  FillHachureIcon,
-  FillCrossHatchIcon,
-  FillSolidIcon,
-  SloppinessArchitectIcon,
-  SloppinessArtistIcon,
-  SloppinessCartoonistIcon,
-  StrokeWidthBaseIcon,
-  StrokeWidthBoldIcon,
-  StrokeWidthExtraBoldIcon,
-  FontSizeSmallIcon,
-  FontSizeMediumIcon,
-  FontSizeLargeIcon,
-  FontSizeExtraLargeIcon,
-  EdgeSharpIcon,
-  EdgeRoundIcon,
-  FreedrawIcon,
-  FontFamilyNormalIcon,
-  FontFamilyCodeIcon,
-  TextAlignLeftIcon,
-  TextAlignCenterIcon,
-  TextAlignRightIcon,
-  FillZigZagIcon,
-  ArrowheadTriangleOutlineIcon,
   ArrowheadCircleOutlineIcon,
   ArrowheadDiamondIcon,
   ArrowheadDiamondOutlineIcon,
+  ArrowheadNoneIcon,
+  ArrowheadTriangleIcon,
+  ArrowheadTriangleOutlineIcon,
+  EdgeRoundIcon,
+  EdgeSharpIcon,
+  FillCrossHatchIcon,
+  FillHachureIcon,
+  FillSolidIcon,
+  FillZigZagIcon,
+  FontFamilyCodeIcon,
+  FontFamilyNormalIcon,
+  FontSizeExtraLargeIcon,
+  FontSizeLargeIcon,
+  FontSizeMediumIcon,
+  FontSizeSmallIcon,
+  FreedrawIcon,
+  SloppinessArchitectIcon,
+  SloppinessArtistIcon,
+  SloppinessCartoonistIcon,
+  StrokeStyleDashedIcon,
+  StrokeStyleDottedIcon,
+  StrokeWidthBaseIcon,
+  StrokeWidthBoldIcon,
+  StrokeWidthExtraBoldIcon,
+  TextAlignBottomIcon,
+  TextAlignCenterIcon,
+  TextAlignLeftIcon,
+  TextAlignMiddleIcon,
+  TextAlignRightIcon,
+  TextAlignTopIcon
 } from "../components/icons";
 import {
   DEFAULT_FONT_FAMILY,
@@ -753,12 +754,6 @@ export const actionChangeFontFamily = register({
       testId: string;
     }[] = [
       {
-        value: FONT_FAMILY.Virgil,
-        text: t("labels.handDrawn"),
-        icon: FreedrawIcon,
-        testId: "font-family-virgil",
-      },
-      {
         value: FONT_FAMILY.Helvetica,
         text: t("labels.normal"),
         icon: FontFamilyNormalIcon,
@@ -766,9 +761,15 @@ export const actionChangeFontFamily = register({
       },
       {
         value: FONT_FAMILY.Cascadia,
-        text: t("labels.code"),
+        text: t("labels.monospace", {}, "Monospace"),
         icon: FontFamilyCodeIcon,
         testId: "font-family-code",
+      },
+      {
+        value: FONT_FAMILY.Virgil,
+        text: t("labels.handDrawn"),
+        icon: FreedrawIcon,
+        testId: "font-family-virgil",
       },
     ];
 

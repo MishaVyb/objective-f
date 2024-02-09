@@ -5,7 +5,11 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { MIME_TYPES } from "../constants";
 import { serializeLibraryAsJSON } from "../data/json";
+import { duplicateElements } from "../element/newElement";
+import { useLibraryCache } from "../hooks/useLibraryItemSvg";
+import { useScrollPosition } from "../hooks/useScrollPosition";
 import { t } from "../i18n";
 import {
   ExcalidrawProps,
@@ -14,20 +18,17 @@ import {
   UIAppState,
 } from "../types";
 import { arrayToMap } from "../utils";
-import Stack from "./Stack";
-import { MIME_TYPES } from "../constants";
-import Spinner from "./Spinner";
-import { duplicateElements } from "../element/newElement";
 import { LibraryMenuControlButtons } from "./LibraryMenuControlButtons";
 import { LibraryDropdownMenu } from "./LibraryMenuHeaderContent";
 import {
   LibraryMenuSection,
   LibraryMenuSectionGrid,
 } from "./LibraryMenuSection";
-import { useScrollPosition } from "../hooks/useScrollPosition";
-import { useLibraryCache } from "../hooks/useLibraryItemSvg";
+import Stack from "./Stack";
 
 import "./LibraryMenuItems.scss";
+import Spinner from "./Spinner";
+import { ObjectiveKinds } from "../_objective_/types/types";
 
 // using an odd number of items per batch so the rendering creates an irregular
 // pattern which looks more organic
@@ -70,11 +71,30 @@ export default function LibraryMenuItems({
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { svgCache } = useLibraryCache();
-  const unpublishedItems = useMemo(
-    () => libraryItems.filter((item) => item.status !== "published"),
+
+  // VBRN objects as lib items
+  const camerasLibItems = useMemo(
+    () => libraryItems.filter((item) => item.kind === ObjectiveKinds.CAMERA),
+    [libraryItems],
+  );
+  const charactersLibItems = useMemo(
+    () => libraryItems.filter((item) => item.kind === ObjectiveKinds.CHARACTER),
+    [libraryItems],
+  );
+  const propsLibItems = useMemo(
+    () => libraryItems.filter((item) => item.kind === ObjectiveKinds.PROP),
+    [libraryItems],
+  );
+  const setLibItems = useMemo(
+    () => libraryItems.filter((item) => item.kind === ObjectiveKinds.SET),
+    [libraryItems],
+  );
+  const outdoorLibItems = useMemo(
+    () => libraryItems.filter((item) => item.kind === ObjectiveKinds.OUTDOR),
     [libraryItems],
   );
 
+  // UNUSED
   const publishedItems = useMemo(
     () => libraryItems.filter((item) => item.status === "published"),
     [libraryItems],
@@ -82,10 +102,7 @@ export default function LibraryMenuItems({
 
   const showBtn = !libraryItems.length && !pendingElements.length;
 
-  const isLibraryEmpty =
-    !pendingElements.length &&
-    !unpublishedItems.length &&
-    !publishedItems.length;
+  const isLibraryEmpty = false; // VBRN
 
   const [lastSelectedItem, setLastSelectedItem] = useState<
     LibraryItem["id"] | null
@@ -95,7 +112,7 @@ export default function LibraryMenuItems({
     (id: LibraryItem["id"], event: React.MouseEvent) => {
       const shouldSelect = !selectedItems.includes(id);
 
-      const orderedItems = [...unpublishedItems, ...publishedItems];
+      const orderedItems = [...publishedItems];
 
       if (shouldSelect) {
         if (event.shiftKey && lastSelectedItem) {
@@ -133,13 +150,7 @@ export default function LibraryMenuItems({
         onSelectItems(selectedItems.filter((_id) => _id !== id));
       }
     },
-    [
-      lastSelectedItem,
-      onSelectItems,
-      publishedItems,
-      selectedItems,
-      unpublishedItems,
-    ],
+    [lastSelectedItem, onSelectItems, publishedItems, selectedItems],
   );
 
   const getInsertedElements = useCallback(
@@ -185,6 +196,7 @@ export default function LibraryMenuItems({
     [selectedItems],
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onAddToLibraryClick = useCallback(() => {
     onAddToLibrary(pendingElements);
   }, [pendingElements, onAddToLibrary]);
@@ -192,6 +204,7 @@ export default function LibraryMenuItems({
   const onItemClick = useCallback(
     (id: LibraryItem["id"] | null) => {
       if (id) {
+        // NAV trigered on add lib item by click
         onInsertLibraryItems(getInsertedElements(id));
       }
     },
@@ -207,20 +220,22 @@ export default function LibraryMenuItems({
     <div
       className="library-menu-items-container"
       style={
-        pendingElements.length ||
-        unpublishedItems.length ||
-        publishedItems.length
+        pendingElements.length || publishedItems.length
           ? { justifyContent: "flex-start" }
           : { borderBottom: 0 }
       }
     >
+      {/*
+
+      VBRN diable dropdown menu
       {!isLibraryEmpty && (
         <LibraryDropdownMenu
           selectedItems={selectedItems}
           onSelectItems={onSelectItems}
           className="library-menu-dropdown-container--in-heading"
         />
-      )}
+      )} */}
+
       <Stack.Col
         className="library-menu-items-container__items"
         align="start"
@@ -231,97 +246,30 @@ export default function LibraryMenuItems({
         }}
         ref={libraryContainerRef}
       >
-        <>
-          {!isLibraryEmpty && (
-            <div className="library-menu-items-container__header">
-              {t("labels.personalLib")}
-            </div>
-          )}
-          {isLoading && (
-            <div
-              style={{
-                position: "absolute",
-                top: "var(--container-padding-y)",
-                right: "var(--container-padding-x)",
-                transform: "translateY(50%)",
-              }}
-            >
-              <Spinner />
-            </div>
-          )}
-          {!pendingElements.length && !unpublishedItems.length ? (
-            <div className="library-menu-items__no-items">
-              <div className="library-menu-items__no-items__label">
-                {t("library.noItems")}
-              </div>
-              <div className="library-menu-items__no-items__hint">
-                {publishedItems.length > 0
-                  ? t("library.hint_emptyPrivateLibrary")
-                  : t("library.hint_emptyLibrary")}
-              </div>
-            </div>
-          ) : (
-            <LibraryMenuSectionGrid>
-              {pendingElements.length > 0 && (
-                <LibraryMenuSection
-                  itemsRenderedPerBatch={itemsRenderedPerBatch}
-                  items={[{ id: null, elements: pendingElements }]}
-                  onItemSelectToggle={onItemSelectToggle}
-                  onItemDrag={onItemDrag}
-                  onClick={onAddToLibraryClick}
-                  isItemSelected={isItemSelected}
-                  svgCache={svgCache}
-                />
-              )}
-              <LibraryMenuSection
-                itemsRenderedPerBatch={itemsRenderedPerBatch}
-                items={unpublishedItems}
-                onItemSelectToggle={onItemSelectToggle}
-                onItemDrag={onItemDrag}
-                onClick={onItemClick}
-                isItemSelected={isItemSelected}
-                svgCache={svgCache}
-              />
-            </LibraryMenuSectionGrid>
-          )}
-        </>
+        {/* NAV lib items render */}
+        {renderObjectiveLibItems(
+          camerasLibItems,
+          t("labels.libCameras", null, "Cameras"),
+        )}
+        {renderObjectiveLibItems(
+          charactersLibItems,
+          t("labels.libCharacters", null, "Characters"),
+        )}
+        {renderObjectiveLibItems(
+          setLibItems, //
+          t("labels.libSet", null, "Set"),
+        )}
+        {renderObjectiveLibItems(
+          propsLibItems,
+          t("labels.libProps", null, "Props"),
+        )}
+        {renderObjectiveLibItems(
+          outdoorLibItems,
+          t("labels.libOutdoor", null, "Outdoor"),
+        )}
 
-        <>
-          {(publishedItems.length > 0 ||
-            pendingElements.length > 0 ||
-            unpublishedItems.length > 0) && (
-            <div className="library-menu-items-container__header library-menu-items-container__header--excal">
-              {t("labels.excalidrawLib")}
-            </div>
-          )}
-          {publishedItems.length > 0 ? (
-            <LibraryMenuSectionGrid>
-              <LibraryMenuSection
-                itemsRenderedPerBatch={itemsRenderedPerBatch}
-                items={publishedItems}
-                onItemSelectToggle={onItemSelectToggle}
-                onItemDrag={onItemDrag}
-                onClick={onItemClick}
-                isItemSelected={isItemSelected}
-                svgCache={svgCache}
-              />
-            </LibraryMenuSectionGrid>
-          ) : unpublishedItems.length > 0 ? (
-            <div
-              style={{
-                margin: "1rem 0",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "100%",
-                fontSize: ".9rem",
-              }}
-            >
-              {t("library.noItems")}
-            </div>
-          ) : null}
-        </>
+        {/* NAV lib items render (remote lib) UNUSED  */}
+        {/* {publeshedLibItems()} */}
 
         {showBtn && (
           <LibraryMenuControlButtons
@@ -339,4 +287,106 @@ export default function LibraryMenuItems({
       </Stack.Col>
     </div>
   );
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  function publishedLibItems() {
+    return (
+      <>
+        {(publishedItems.length > 0 || pendingElements.length > 0) && (
+          <div className="library-menu-items-container__header library-menu-items-container__header--excal">
+            {/* TITLE */}
+          </div>
+        )}
+        {publishedItems.length > 0 ? (
+          <LibraryMenuSectionGrid>
+            <LibraryMenuSection
+              itemsRenderedPerBatch={itemsRenderedPerBatch}
+              items={publishedItems}
+              onItemSelectToggle={onItemSelectToggle}
+              onItemDrag={onItemDrag}
+              onClick={onItemClick}
+              isItemSelected={isItemSelected}
+              svgCache={svgCache}
+            />
+          </LibraryMenuSectionGrid>
+        ) : (
+          <div
+            style={{
+              margin: "1rem 0",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "100%",
+              fontSize: ".9rem",
+            }}
+          >
+            {t("library.noItems")}
+          </div>
+        )}
+      </>
+    );
+  }
+
+  function renderObjectiveLibItems(items: LibraryItem[], title: string) {
+    return (
+      <>
+        {!isLibraryEmpty && (
+          <div className="library-menu-items-container__header">
+            {title} {/* VBRN lib title */}
+          </div>
+        )}
+        {isLoading && (
+          <div
+            style={{
+              position: "absolute",
+              top: "var(--container-padding-y)",
+              right: "var(--container-padding-x)",
+              transform: "translateY(50%)",
+            }}
+          >
+            <Spinner />
+          </div>
+        )}
+        {!pendingElements.length && !items.length ? (
+          <div className="library-menu-items__no-items">
+            <div className="library-menu-items__no-items__label">
+              {t("library.noItems")}
+            </div>
+            <div className="library-menu-items__no-items__hint">
+              {publishedItems.length > 0
+                ? t("library.hint_emptyPrivateLibrary")
+                : t("library.hint_emptyLibrary")}
+            </div>
+          </div>
+        ) : (
+          <LibraryMenuSectionGrid>
+            {/*
+            VBRN disable "add pending element to library"
+
+            {pendingElements.length > 0 && (
+              <LibraryMenuSection
+                itemsRenderedPerBatch={itemsRenderedPerBatch}
+                items={[{ id: null, elements: pendingElements }]}
+                onItemSelectToggle={onItemSelectToggle}
+                onItemDrag={onItemDrag}
+                onClick={onAddToLibraryClick}
+                isItemSelected={isItemSelected}
+                svgCache={svgCache}
+              />
+            )} */}
+            <LibraryMenuSection
+              itemsRenderedPerBatch={itemsRenderedPerBatch}
+              items={items}
+              onItemSelectToggle={onItemSelectToggle}
+              onItemDrag={onItemDrag}
+              onClick={onItemClick}
+              isItemSelected={isItemSelected}
+              svgCache={svgCache}
+            />
+          </LibraryMenuSectionGrid>
+        )}
+      </>
+    );
+  }
 }

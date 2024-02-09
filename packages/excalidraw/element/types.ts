@@ -1,4 +1,4 @@
-import { Point } from "../types";
+import { ObjectiveMeta } from "../../../src/_objective_/types/types";
 import {
   FONT_FAMILY,
   ROUNDNESS,
@@ -8,6 +8,7 @@ import {
 } from "../constants";
 import { MakeBrand, MarkNonNullable, ValueOf } from "../utility-types";
 import { MagicCacheData } from "../data/magic";
+import { Point } from "../types";
 
 export type ChartType = "bar" | "line";
 export type FillStyle = "hachure" | "cross-hatch" | "solid" | "zigzag";
@@ -66,7 +67,7 @@ type _ExcalidrawElementBase = Readonly<{
   updated: number;
   link: string | null;
   locked: boolean;
-  customData?: Record<string, any>;
+  customData?: ObjectiveMeta;
 }>;
 
 export type ExcalidrawSelectionElement = _ExcalidrawElementBase & {

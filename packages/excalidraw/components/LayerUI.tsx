@@ -1,68 +1,70 @@
-import clsx from "clsx";
-import React from "react";
+import { Provider, useAtom, useAtomValue } from "jotai";
+import { actionToggleStats } from "../actions/actionToggleStats";
 import { ActionManager } from "../actions/manager";
+import { trackEvent } from "../analytics";
+import { isHandToolActive } from "../appState";
+import { useDevice } from "../components/App";
 import {
   CLASSES,
   DEFAULT_SIDEBAR,
   LIBRARY_SIDEBAR_WIDTH,
   TOOL_TYPE,
 } from "../constants";
+import { TunnelsContext, useInitializeTunnels } from "../context/tunnels";
+import { UIAppStateContext } from "../context/ui-appState";
 import { showSelectedShapeActions } from "../element";
 import { NonDeletedExcalidrawElement } from "../element/types";
 import { Language, t } from "../i18n";
+import { jotaiScope } from "../jotai";
 import { calculateScrollCenter } from "../scene";
 import {
+  AppClassProperties,
   AppProps,
   AppState,
-  ExcalidrawProps,
   BinaryFiles,
+  ExcalidrawProps,
   UIAppState,
-  AppClassProperties,
 } from "../types";
 import { capitalizeString, isShallowEqual } from "../utils";
 import { SelectedShapeActions, ShapesSwitcher } from "./Actions";
+import { ActiveConfirmDialog } from "./ActiveConfirmDialog";
+import { DefaultSidebar } from "./DefaultSidebar";
 import { ErrorDialog } from "./ErrorDialog";
-import { ImageExportDialog } from "./ImageExportDialog";
+import { EyeDropper, activeEyeDropperAtom } from "./EyeDropper";
 import { FixedSideContainer } from "./FixedSideContainer";
+import { HandButton } from "./HandButton";
+import { HelpDialog } from "./HelpDialog";
 import { HintViewer } from "./HintViewer";
+import { ImageExportDialog } from "./ImageExportDialog";
 import { Island } from "./Island";
+import { JSONExportDialog } from "./JSONExportDialog";
+import "./LayerUI.scss";
 import { LoadingMessage } from "./LoadingMessage";
 import { LockButton } from "./LockButton";
 import { MobileMenu } from "./MobileMenu";
-import { PasteChartDialog } from "./PasteChartDialog";
-import { Section } from "./Section";
-import { HelpDialog } from "./HelpDialog";
-import Stack from "./Stack";
-import { UserList } from "./UserList";
-import { JSONExportDialog } from "./JSONExportDialog";
-import { PenModeButton } from "./PenModeButton";
-import { trackEvent } from "../analytics";
-import { useDevice } from "./App";
-import { Stats } from "./Stats";
-import { actionToggleStats } from "../actions/actionToggleStats";
-import Footer from "./footer/Footer";
-import { isSidebarDockedAtom } from "./Sidebar/Sidebar";
-import { jotaiScope } from "../jotai";
-import { Provider, useAtom, useAtomValue } from "jotai";
-import MainMenu from "./main-menu/MainMenu";
-import { ActiveConfirmDialog } from "./ActiveConfirmDialog";
 import { OverwriteConfirmDialog } from "./OverwriteConfirm/OverwriteConfirm";
-import { HandButton } from "./HandButton";
-import { isHandToolActive } from "../appState";
-import { TunnelsContext, useInitializeTunnels } from "../context/tunnels";
+import { PasteChartDialog } from "./PasteChartDialog";
+import { PenModeButton } from "./PenModeButton";
+import { isSidebarDockedAtom } from "./Sidebar/Sidebar";
+import { Stats } from "./Stats";
+import Footer from "./footer/Footer";
 import { LibraryIcon } from "./icons";
-import { UIAppStateContext } from "../context/ui-appState";
-import { DefaultSidebar } from "./DefaultSidebar";
-import { EyeDropper, activeEyeDropperAtom } from "./EyeDropper";
+import MainMenu from "./main-menu/MainMenu";
 
-import "./LayerUI.scss";
-import "./Toolbar.scss";
+import clsx from "clsx";
+import React from "react";
+import TopLeftUI from "../../../src/_objective_/components/TopLeftUI";
 import { mutateElement } from "../element/mutateElement";
-import { ShapeCache } from "../scene/ShapeCache";
 import Scene from "../scene/Scene";
+import { ShapeCache } from "../scene/ShapeCache";
 import { LaserPointerButton } from "./LaserPointerButton";
+import "./LayerUI.scss";
 import { MagicSettings } from "./MagicSettings";
+import { Section } from "./Section";
+import Stack from "./Stack";
 import { TTDDialog } from "./TTDDialog/TTDDialog";
+import "./Toolbar.scss";
+import { UserList } from "./UserList";
 
 interface LayerUIProps {
   actionManager: ActionManager;
@@ -203,7 +205,9 @@ const LayerUI = ({
     <div style={{ position: "relative" }}>
       {/* wrapping to Fragment stops React from occasionally complaining
                 about identical Keys */}
-      <tunnels.MainMenuTunnel.Out />
+      <TopLeftUI>
+        <tunnels.MainMenuTunnel.Out />
+      </TopLeftUI>
       {renderWelcomeScreen && <tunnels.WelcomeScreenMenuHintTunnel.Out />}
     </div>
   );
@@ -387,7 +391,8 @@ const LayerUI = ({
       <DefaultSidebar.Trigger
         __fallback
         icon={LibraryIcon}
-        title={capitalizeString(t("toolBar.library"))}
+        // VBRN library titled as Objects
+        title={capitalizeString(t("toolBar.objects", null, "Objects"))}
         onToggle={(open) => {
           if (open) {
             trackEvent(
@@ -399,7 +404,7 @@ const LayerUI = ({
         }}
         tab={DEFAULT_SIDEBAR.defaultTab}
       >
-        {t("toolBar.library")}
+        {t("toolBar.objects", null, "Objects")}
       </DefaultSidebar.Trigger>
       <DefaultOverwriteConfirmDialog />
       {appState.openDialog?.name === "ttd" && <TTDDialog __fallback />}

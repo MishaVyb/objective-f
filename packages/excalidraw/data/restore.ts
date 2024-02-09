@@ -1,3 +1,29 @@
+import { getDefaultAppState } from "../appState";
+import {
+  DEFAULT_ELEMENT_PROPS,
+  DEFAULT_FONT_FAMILY,
+  DEFAULT_SIDEBAR,
+  DEFAULT_TEXT_ALIGN,
+  DEFAULT_VERTICAL_ALIGN,
+  FONT_FAMILY,
+  PRECEDING_ELEMENT_KEY,
+  ROUNDNESS,
+} from "../constants";
+import {
+  getNonDeletedElements,
+  getNormalizedDimensions,
+  isInvisiblySmallElement,
+  refreshTextDimensions,
+} from "../element";
+import { LinearElementEditor } from "../element/linearElementEditor";
+import { bumpVersion } from "../element/mutateElement";
+import {
+  detectLineHeight,
+  getContainerElement,
+  getDefaultLineHeight,
+  measureBaseline,
+} from "../element/textElement";
+import { isTextElement, isUsingAdaptiveRadius } from "../element/typeChecks";
 import {
   ExcalidrawElement,
   ExcalidrawElementType,
@@ -7,43 +33,21 @@ import {
   PointBinding,
   StrokeRoundness,
 } from "../element/types";
+import { randomId } from "../random";
 import {
   AppState,
   BinaryFiles,
   LibraryItem,
   NormalizedZoomValue,
 } from "../types";
-import { ImportedDataState, LegacyAppState } from "./types";
-import {
-  getNonDeletedElements,
-  getNormalizedDimensions,
-  isInvisiblySmallElement,
-  refreshTextDimensions,
-} from "../element";
-import { isTextElement, isUsingAdaptiveRadius } from "../element/typeChecks";
-import { randomId } from "../random";
-import {
-  DEFAULT_FONT_FAMILY,
-  DEFAULT_TEXT_ALIGN,
-  DEFAULT_VERTICAL_ALIGN,
-  PRECEDING_ELEMENT_KEY,
-  FONT_FAMILY,
-  ROUNDNESS,
-  DEFAULT_SIDEBAR,
-  DEFAULT_ELEMENT_PROPS,
-} from "../constants";
-import { getDefaultAppState } from "../appState";
-import { LinearElementEditor } from "../element/linearElementEditor";
-import { bumpVersion } from "../element/mutateElement";
-import { getFontString, getUpdatedTimestamp, updateActiveTool } from "../utils";
-import { arrayToMap } from "../utils";
 import { MarkOptional, Mutable } from "../utility-types";
 import {
-  detectLineHeight,
-  getContainerElement,
-  getDefaultLineHeight,
-  measureBaseline,
-} from "../element/textElement";
+  arrayToMap,
+  getFontString,
+  getUpdatedTimestamp,
+  updateActiveTool,
+} from "../utils";
+import { ImportedDataState, LegacyAppState } from "./types";
 import { normalizeLink } from "./url";
 
 type RestoredAppState = Omit<
@@ -95,6 +99,7 @@ const repairBinding = (binding: PointBinding | null) => {
   return { ...binding, focus: binding.focus || 0 };
 };
 
+// NAV restore element: here we create canvas element coming from ...
 const restoreElementWithProperties = <
   T extends Required<Omit<ExcalidrawElement, "customData">> & {
     customData?: ExcalidrawElement["customData"];
@@ -163,6 +168,7 @@ const restoreElementWithProperties = <
   };
 
   if ("customData" in element || "customData" in extra) {
+    // NOTE shalow/deep copy is not necessary here?
     base.customData =
       "customData" in extra ? extra.customData : element.customData;
   }

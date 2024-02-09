@@ -1,44 +1,46 @@
 import React from "react";
+import { Point as RoughPoint } from "roughjs/bin/geometry";
+import { ObjectiveKinds } from "../../src/_objective_/types/types";
+import { Action } from "./actions/types";
+import { Spreadsheet } from "./charts";
+import { ClipboardData } from "./clipboard";
+import type App from "./components/App";
+import { ContextMenuItems } from "./components/ContextMenu";
+import type { IMAGE_MIME_TYPES, MIME_TYPES } from "./constants";
+import type { FileSystemHandle } from "./data/filesystem";
+import Library from "./data/library";
+import { ImportedDataState } from "./data/types";
+import { SuggestedBinding } from "./element/binding";
+import { LinearElementEditor } from "./element/linearElementEditor";
+import { MaybeTransformHandleType } from "./element/transformHandles";
 import {
-  PointerType,
-  ExcalidrawLinearElement,
-  NonDeletedExcalidrawElement,
-  NonDeleted,
-  TextAlign,
-  ExcalidrawElement,
-  GroupId,
-  ExcalidrawBindableElement,
   Arrowhead,
   ChartType,
-  FontFamilyValues,
-  FileId,
-  ExcalidrawImageElement,
-  Theme,
-  StrokeRoundness,
-  ExcalidrawEmbeddableElement,
-  ExcalidrawMagicFrameElement,
-  ExcalidrawFrameLikeElement,
+  ExcalidrawBindableElement,
+  ExcalidrawElement,
   ExcalidrawElementType,
+  ExcalidrawEmbeddableElement,
+  ExcalidrawFrameLikeElement,
   ExcalidrawIframeLikeElement,
+  ExcalidrawImageElement,
+  ExcalidrawLinearElement,
+  ExcalidrawMagicFrameElement,
+  FileId,
+  FontFamilyValues,
+  GroupId,
+  NonDeleted,
+  NonDeletedExcalidrawElement,
+  PointerType,
+  StrokeRoundness,
+  TextAlign,
+  Theme,
 } from "./element/types";
-import { Action } from "./actions/types";
-import { Point as RoughPoint } from "roughjs/bin/geometry";
-import { LinearElementEditor } from "./element/linearElementEditor";
-import { SuggestedBinding } from "./element/binding";
-import { ImportedDataState } from "./data/types";
-import type App from "./components/App";
-import type { throttleRAF } from "./utils";
-import { Spreadsheet } from "./charts";
 import { Language } from "./i18n";
-import { ClipboardData } from "./clipboard";
 import { isOverScrollBars } from "./scene/scrollbars";
-import { MaybeTransformHandleType } from "./element/transformHandles";
-import Library from "./data/library";
-import type { FileSystemHandle } from "./data/filesystem";
-import type { IMAGE_MIME_TYPES, MIME_TYPES } from "./constants";
-import { ContextMenuItems } from "./components/ContextMenu";
 import { SnapLine } from "./snapping";
 import { Merge, ValueOf } from "./utility-types";
+import type { throttleRAF } from "./utils";
+import { TObjectiveProps } from ".";
 
 export type Point = Readonly<RoughPoint>;
 
@@ -368,6 +370,7 @@ type LibraryItems_v1 = readonly LibraryItem_v1[];
 export type LibraryItem = {
   id: string;
   status: "published" | "unpublished";
+  kind?: ObjectiveKinds; // VBRN
   elements: readonly NonDeleted<ExcalidrawElement>[];
   /** timestamp in epoch (ms) */
   created: number;
@@ -542,6 +545,9 @@ export type AppProps = Merge<
     isCollaborating: boolean;
     children?: React.ReactNode;
     aiEnabled: boolean;
+
+    // VBRN
+    objectiveProps: TObjectiveProps;
   }
 >;
 
@@ -577,6 +583,10 @@ export type AppClassProperties = {
   setOpenDialog: App["setOpenDialog"];
   insertEmbeddableElement: App["insertEmbeddableElement"];
   onMagicframeToolSelect: App["onMagicframeToolSelect"];
+
+  // VBRN:
+  state: App["state"];
+  objectiveProps: App["objectiveProps"];
 };
 
 export type PointerDownState = Readonly<{

@@ -26,3 +26,8 @@ coverage
 dev-dist
 html
 examples/**/bundle.*
+*.tmp*
+cspell.config.yaml
+
+
+*___*

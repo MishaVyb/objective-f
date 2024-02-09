@@ -20,7 +20,7 @@ export const isIOS =
 export const isBrave = () =>
   (navigator as any).brave?.isBrave?.name === "isBrave";
 
-export const APP_NAME = "Excalidraw";
+export const APP_NAME = "Objective";
 
 export const DRAGGING_THRESHOLD = 10; // px
 export const LINE_CONFIRM_THRESHOLD = 8; // px
@@ -107,8 +107,11 @@ export const CLASSES = {
 
 // 1-based in case we ever do `if(element.fontFamily)`
 export const FONT_FAMILY = {
+  /** hand-drawn */
   Virgil: 1,
+  /** normal */
   Helvetica: 2,
+  /** code */
   Cascadia: 3,
   Assistant: 4,
 };
@@ -146,7 +149,7 @@ export const DEFAULT_TRANSFORM_HANDLE_SPACING = 2;
 
 export const CANVAS_ONLY_ACTIONS = ["selectAll"];
 
-export const GRID_SIZE = 20; // TODO make it configurable?
+export const GRID_SIZE = 50; // like 0.5m (50cm) // TODO make it configurable?
 
 export const IMAGE_MIME_TYPES = {
   svg: "image/svg+xml",

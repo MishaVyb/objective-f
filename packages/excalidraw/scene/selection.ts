@@ -1,18 +1,20 @@
+import { MaybeMeta, isMeta } from "../../../src/_objective_/types/types";
+
+import { getElementAbsoluteCoords, getElementBounds } from "../element";
+import { isElementInViewport } from "../element/sizeHelpers";
+import { isBoundToContainer, isFrameLikeElement } from "../element/typeChecks";
 import {
   ElementsMapOrArray,
   ExcalidrawElement,
   NonDeletedExcalidrawElement,
 } from "../element/types";
-import { getElementAbsoluteCoords, getElementBounds } from "../element";
-import { AppState, InteractiveCanvasAppState } from "../types";
-import { isBoundToContainer, isFrameLikeElement } from "../element/typeChecks";
 import {
   elementOverlapsWithFrame,
   getContainingFrame,
   getFrameChildren,
 } from "../frame";
+import { AppState, InteractiveCanvasAppState } from "../types";
 import { isShallowEqual } from "../utils";
-import { isElementInViewport } from "../element/sizeHelpers";
 
 /**
  * Frames and their containing elements are not to be selected at the same time.
@@ -156,13 +158,21 @@ export const getCommonAttributeOfSelectedElements = <T>(
   appState: Pick<AppState, "selectedElementIds">,
   getAttribute: (element: ExcalidrawElement) => T,
 ): T | null => {
-  const attributes = Array.from(
-    new Set(
-      getSelectedElements(elements, appState).map((element) =>
-        getAttribute(element),
-      ),
-    ),
+  const selected = getSelectedElements(elements, appState);
+
+  // If selected Objective and Excalidraw elements - return
+  const selectedMetas = Array.from(
+    new Set(selected.map((v) => isMeta(v.customData))),
   );
+  if (selectedMetas.length === 2) return null;
+
+  const attributes = Array.from(
+    new Set(selected.map((element) => getAttribute(element))),
+  );
+
+  if (attributes.some((v) => isMeta(v as MaybeMeta)))
+    throw Error("For meta, you have to access attributes directly. Not all. ");
+
   return attributes.length === 1 ? attributes[0] : null;
 };
 

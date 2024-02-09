@@ -1,14 +1,14 @@
+import { getGridPoint } from "../math";
+import Scene from "../scene/Scene";
+import { AppState, PointerDownState } from "../types";
 import { updateBoundElements } from "./binding";
 import { Bounds, getCommonBounds } from "./bounds";
 import { mutateElement } from "./mutateElement";
 import { getPerfectElementSize } from "./sizeHelpers";
-import { NonDeletedExcalidrawElement } from "./types";
-import { AppState, PointerDownState } from "../types";
 import { getBoundTextElement } from "./textElement";
-import { getGridPoint } from "../math";
-import Scene from "../scene/Scene";
 import { isArrowElement, isFrameLikeElement } from "./typeChecks";
-
+import { NonDeletedExcalidrawElement } from "./types";
+import { dragEventHandler } from "../../../src/_objective_/actions/events";
 export const dragSelectedElements = (
   pointerDownState: PointerDownState,
   selectedElements: NonDeletedExcalidrawElement[],
@@ -50,6 +50,8 @@ export const dragSelectedElements = (
     snapOffset,
     gridSize,
   );
+
+  dragEventHandler(selectedElements, elementsToUpdate, scene);
 
   elementsToUpdate.forEach((element) => {
     updateElementCoords(pointerDownState, element, adjustedOffset);

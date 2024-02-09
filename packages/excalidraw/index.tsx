@@ -1,24 +1,31 @@
 import React, { useEffect } from "react";
-import { InitializeApp } from "./components/InitializeApp";
 import App from "./components/App";
+import { InitializeApp } from "./components/InitializeApp";
 import { isShallowEqual } from "./utils";
 
+import "../../public/fonts/fonts.css";
 import "./css/app.scss";
 import "./css/styles.scss";
-import "../../public/fonts/fonts.css";
 import polyfill from "./polyfill";
 
-import { AppProps, ExcalidrawProps } from "./types";
-import { defaultLang } from "./i18n";
-import { DEFAULT_UI_OPTIONS } from "./constants";
 import { Provider } from "jotai";
-import { jotaiScope, jotaiStore } from "./jotai";
 import Footer from "./components/footer/FooterCenter";
+import LiveCollaborationTrigger from "./components/live-collaboration/LiveCollaborationTrigger";
 import MainMenu from "./components/main-menu/MainMenu";
 import WelcomeScreen from "./components/welcome-screen/WelcomeScreen";
-import LiveCollaborationTrigger from "./components/live-collaboration/LiveCollaborationTrigger";
+import { DEFAULT_UI_OPTIONS } from "./constants";
+import { defaultLang } from "./i18n";
+import { jotaiScope, jotaiStore } from "./jotai";
+import { AppProps, ExcalidrawProps } from "./types";
+
+import { useSelector } from "../../src/_objective_plus_/hooks/redux";
+import { selectIsMyScene } from "../../src/_objective_plus_/store/projects/reducer";
 
 polyfill();
+
+export type TObjectiveProps = {
+  isMyScene: boolean;
+};
 
 const ExcalidrawBase = (props: ExcalidrawProps) => {
   const {
@@ -53,6 +60,14 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
   } = props;
 
   const canvasActions = props.UIOptions?.canvasActions;
+
+  /**
+   * VBRN
+   * Can not call for any hooks needed in App component as it's `class` component
+   * So call for hooks here and provide its values to App component.
+   */
+  const isMyScene = useSelector(selectIsMyScene);
+  const objectiveProps: TObjectiveProps = { isMyScene };
 
   // FIXME normalize/set defaults in parent component so that the memo resolver
   // compares the same values
@@ -109,6 +124,7 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
     <Provider unstable_createStore={() => jotaiStore} scope={jotaiScope}>
       <InitializeApp langCode={langCode} theme={theme}>
         <App
+          objectiveProps={objectiveProps}
           onChange={onChange}
           initialData={initialData}
           excalidrawAPI={excalidrawAPI}
@@ -206,11 +222,18 @@ export const Excalidraw = React.memo(ExcalidrawBase, areEqual);
 Excalidraw.displayName = "Excalidraw";
 
 export {
-  getSceneVersion,
-  isInvisiblySmallElement,
-  getNonDeletedElements,
-} from "./element";
-export { defaultLang, useI18n, languages } from "./i18n";
+  exportToBlob,
+  exportToCanvas,
+  exportToClipboard,
+  exportToSvg,
+  getFreeDrawSvgPath,
+  loadFromBlob,
+  loadLibraryFromBlob,
+  loadSceneOrLibraryFromBlob,
+  mergeLibraryItems,
+  serializeAsJSON,
+  serializeLibraryAsJSON,
+} from "../utils/export";
 export {
   restore,
   restoreAppState,
@@ -218,26 +241,19 @@ export {
   restoreLibraryItems,
 } from "./data/restore";
 export {
-  exportToCanvas,
-  exportToBlob,
-  exportToSvg,
-  serializeAsJSON,
-  serializeLibraryAsJSON,
-  loadLibraryFromBlob,
-  loadFromBlob,
-  loadSceneOrLibraryFromBlob,
-  getFreeDrawSvgPath,
-  exportToClipboard,
-  mergeLibraryItems,
-} from "../utils/export";
+  getNonDeletedElements,
+  getSceneVersion,
+  isInvisiblySmallElement,
+} from "./element";
 export { isLinearElement } from "./element/typeChecks";
+export { defaultLang, languages, useI18n } from "./i18n";
 
-export { FONT_FAMILY, THEME, MIME_TYPES, ROUNDNESS } from "./constants";
+export { FONT_FAMILY, MIME_TYPES, ROUNDNESS, THEME } from "./constants";
 
 export {
+  bumpVersion,
   mutateElement,
   newElementWith,
-  bumpVersion,
 } from "./element/mutateElement";
 
 export { parseLibraryTokensFromUrl, useHandleLibrary } from "./data/library";
@@ -247,25 +263,22 @@ export {
   viewportCoordsToSceneCoords,
 } from "./utils";
 
-export { Sidebar } from "./components/Sidebar/Sidebar";
-export { Button } from "./components/Button";
-export { Footer };
-export { MainMenu };
 export { useDevice } from "./components/App";
-export { WelcomeScreen };
-export { LiveCollaborationTrigger };
+export { Button } from "./components/Button";
+export { Sidebar } from "./components/Sidebar/Sidebar";
+export { Footer, LiveCollaborationTrigger, MainMenu, WelcomeScreen };
 
 export { DefaultSidebar } from "./components/DefaultSidebar";
 export { TTDDialog } from "./components/TTDDialog/TTDDialog";
 export { TTDDialogTrigger } from "./components/TTDDialog/TTDDialogTrigger";
 
-export { normalizeLink } from "./data/url";
 export { zoomToFitBounds } from "./actions/actionCanvas";
 export { convertToExcalidrawElements } from "./data/transform";
+export { normalizeLink } from "./data/url";
 export { getCommonBounds, getVisibleSceneBounds } from "./element/bounds";
 
 export {
+  elementPartiallyOverlapsWithOrContainsBBox,
   elementsOverlappingBBox,
   isElementInsideBBox,
-  elementPartiallyOverlapsWithOrContainsBBox,
 } from "../utils/export";

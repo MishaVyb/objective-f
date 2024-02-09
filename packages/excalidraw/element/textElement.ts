@@ -1,4 +1,28 @@
-import { getFontString, arrayToMap, isTestEnv, normalizeEOL } from "../utils";
+import { getElementAbsoluteCoords, isTextElement } from ".";
+import {
+  ARROW_LABEL_FONT_SIZE_TO_MIN_WIDTH_RATIO,
+  ARROW_LABEL_WIDTH_FRACTION,
+  BOUND_TEXT_PADDING,
+  DEFAULT_FONT_FAMILY,
+  DEFAULT_FONT_SIZE,
+  FONT_FAMILY,
+  TEXT_ALIGN,
+  VERTICAL_ALIGN,
+  isSafari,
+} from "../constants";
+import { getSelectedElements } from "../scene";
+import { AppState } from "../types";
+import { ExtractSetType } from "../utility-types";
+import { arrayToMap, getFontString, isTestEnv, normalizeEOL } from "../utils";
+import { isHittingElementNotConsideringBoundingBox } from "./collision";
+import { LinearElementEditor } from "./linearElementEditor";
+import { mutateElement } from "./mutateElement";
+import { MaybeTransformHandleType } from "./transformHandles";
+import {
+  isArrowElement,
+  isBoundToContainer,
+  isTextBindableContainer,
+} from "./typeChecks";
 import {
   ElementsMap,
   ExcalidrawElement,
@@ -10,29 +34,7 @@ import {
   FontString,
   NonDeletedExcalidrawElement,
 } from "./types";
-import { mutateElement } from "./mutateElement";
-import {
-  ARROW_LABEL_FONT_SIZE_TO_MIN_WIDTH_RATIO,
-  ARROW_LABEL_WIDTH_FRACTION,
-  BOUND_TEXT_PADDING,
-  DEFAULT_FONT_FAMILY,
-  DEFAULT_FONT_SIZE,
-  FONT_FAMILY,
-  isSafari,
-  TEXT_ALIGN,
-  VERTICAL_ALIGN,
-} from "../constants";
-import { MaybeTransformHandleType } from "./transformHandles";
-import { isTextElement } from ".";
-import { isBoundToContainer, isArrowElement } from "./typeChecks";
-import { LinearElementEditor } from "./linearElementEditor";
-import { AppState } from "../types";
-import { isTextBindableContainer } from "./typeChecks";
-import { getElementAbsoluteCoords } from ".";
-import { getSelectedElements } from "../scene";
-import { isHittingElementNotConsideringBoundingBox } from "./collision";
 
-import { ExtractSetType } from "../utility-types";
 import {
   resetOriginalContainerCache,
   updateOriginalContainerCache,
@@ -165,6 +167,10 @@ export const handleBindTextResize = (
   elementsMap: ElementsMap,
   transformHandleType: MaybeTransformHandleType,
   shouldMaintainAspectRatio = false,
+  opts?: {
+    // VBRN CONFLICT: resolve call with opts
+    newOriginalText?: string;
+  },
 ) => {
   const boundTextElementId = getBoundTextElementId(container);
   if (!boundTextElementId) {
@@ -177,6 +183,11 @@ export const handleBindTextResize = (
       return;
     }
 
+    // VBRN CONFLICT: check?
+    // textElement = Scene.getScene(container)!.getElement(
+    //   boundTextElementId,
+    // ) as ExcalidrawTextElement;
+    const originalText = opts?.newOriginalText || textElement.originalText;
     let text = textElement.text;
     let nextHeight = textElement.height;
     let nextWidth = textElement.width;
@@ -189,11 +200,7 @@ export const handleBindTextResize = (
       (transformHandleType !== "n" && transformHandleType !== "s")
     ) {
       if (text) {
-        text = wrapText(
-          textElement.originalText,
-          getFontString(textElement),
-          maxWidth,
-        );
+        text = wrapText(originalText, getFontString(textElement), maxWidth);
       }
       const metrics = measureText(
         text,
@@ -227,6 +234,7 @@ export const handleBindTextResize = (
     }
 
     mutateElement(textElement, {
+      originalText, // VBRN it is maybe changed, if pass newOriginalText was provided
       text,
       width: nextWidth,
       height: nextHeight,

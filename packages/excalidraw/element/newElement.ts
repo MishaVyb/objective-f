@@ -1,42 +1,8 @@
-import {
-  ExcalidrawElement,
-  ExcalidrawImageElement,
-  ExcalidrawTextElement,
-  ExcalidrawLinearElement,
-  ExcalidrawGenericElement,
-  NonDeleted,
-  TextAlign,
-  GroupId,
-  VerticalAlign,
-  Arrowhead,
-  ExcalidrawFreeDrawElement,
-  FontFamilyValues,
-  ExcalidrawTextContainer,
-  ExcalidrawFrameElement,
-  ExcalidrawEmbeddableElement,
-  ExcalidrawMagicFrameElement,
-  ExcalidrawIframeElement,
-} from "./types";
-import {
-  arrayToMap,
-  getFontString,
-  getUpdatedTimestamp,
-  isTestEnv,
-} from "../utils";
-import { randomInteger, randomId } from "../random";
-import { bumpVersion, newElementWith } from "./mutateElement";
-import { getNewGroupIdsForDuplication } from "../groups";
-import { AppState } from "../types";
 import { getElementAbsoluteCoords } from ".";
-import { adjustXYWithRotation } from "../math";
-import { getResizedElementAbsoluteCoords } from "./bounds";
 import {
-  measureText,
-  normalizeText,
-  wrapText,
-  getBoundTextMaxWidth,
-  getDefaultLineHeight,
-} from "./textElement";
+  duplicateAsInitialEventHandler,
+  duplicateEventHandler,
+} from "../../../src/_objective_/actions/events";
 import {
   DEFAULT_ELEMENT_PROPS,
   DEFAULT_FONT_FAMILY,
@@ -45,7 +11,45 @@ import {
   DEFAULT_VERTICAL_ALIGN,
   VERTICAL_ALIGN,
 } from "../constants";
+import { getNewGroupIdsForDuplication } from "../groups";
+import { adjustXYWithRotation } from "../math";
+import { randomId, randomInteger } from "../random";
+import { AppState } from "../types";
 import { MarkOptional, Merge, Mutable } from "../utility-types";
+import {
+  arrayToMap,
+  getFontString,
+  getUpdatedTimestamp,
+  isTestEnv,
+} from "../utils";
+import { getResizedElementAbsoluteCoords } from "./bounds";
+import { bumpVersion, newElementWith } from "./mutateElement";
+import {
+  getBoundTextMaxWidth,
+  getDefaultLineHeight,
+  measureText,
+  normalizeText,
+  wrapText,
+} from "./textElement";
+import {
+  Arrowhead,
+  ExcalidrawElement,
+  ExcalidrawEmbeddableElement,
+  ExcalidrawFrameElement,
+  ExcalidrawFreeDrawElement,
+  ExcalidrawGenericElement,
+  ExcalidrawIframeElement,
+  ExcalidrawImageElement,
+  ExcalidrawLinearElement,
+  ExcalidrawMagicFrameElement,
+  ExcalidrawTextContainer,
+  ExcalidrawTextElement,
+  FontFamilyValues,
+  GroupId,
+  NonDeleted,
+  TextAlign,
+  VerticalAlign,
+} from "./types";
 
 export type ElementConstructorOpts = MarkOptional<
   Omit<ExcalidrawGenericElement, "id" | "type" | "isDeleted" | "updated">,
@@ -121,6 +125,7 @@ const _newElementBase = <T extends ExcalidrawElement>(
     updated: getUpdatedTimestamp(),
     link,
     locked,
+    customData: rest.customData, // VBRN
   };
   return element;
 };
@@ -227,6 +232,9 @@ export const newTextElement = (
     getFontString({ fontFamily, fontSize }),
     lineHeight,
   );
+  metrics.width = opts.width || metrics.width;
+  metrics.height = opts.height || metrics.height;
+
   const textAlign = opts.textAlign || DEFAULT_TEXT_ALIGN;
   const verticalAlign = opts.verticalAlign || DEFAULT_VERTICAL_ALIGN;
   const offsets = getTextElementPositionOffsets(
@@ -562,6 +570,13 @@ export const duplicateElement = <TElement extends ExcalidrawElement>(
   if (overrides) {
     copy = Object.assign(copy, overrides);
   }
+
+  // duplicateEventHandler([copy], { asInitial: true });
+  duplicateAsInitialEventHandler(copy);
+  // @ts-ignore
+  // copy.customData.shotNumber = undefined
+  // // @ts-ignore
+  // copy.customData.shotNumberRepr = undefined
   return copy;
 };
 
@@ -678,5 +693,7 @@ export const duplicateElements = (
     clonedElements.push(clonedElement);
   }
 
+  const extraNewEls = duplicateEventHandler(clonedElements);
+  clonedElements.push(...extraNewEls);
   return clonedElements;
 };

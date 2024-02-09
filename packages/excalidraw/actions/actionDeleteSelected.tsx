@@ -1,18 +1,19 @@
-import { getSelectedElements, isSomeElementSelected } from "../scene";
-import { KEYS } from "../keys";
+import { deleteEventHandler } from "../../../src/_objective_/actions/events";
 import { ToolButton } from "../components/ToolButton";
-import { t } from "../i18n";
-import { register } from "./register";
-import { getNonDeletedElements } from "../element";
-import { ExcalidrawElement } from "../element/types";
-import { AppState } from "../types";
-import { newElementWith } from "../element/mutateElement";
-import { getElementsInGroup } from "../groups";
-import { LinearElementEditor } from "../element/linearElementEditor";
-import { fixBindingsAfterDeletion } from "../element/binding";
-import { isBoundToContainer, isFrameLikeElement } from "../element/typeChecks";
-import { updateActiveTool } from "../utils";
 import { TrashIcon } from "../components/icons";
+import { getNonDeletedElements } from "../element";
+import { fixBindingsAfterDeletion } from "../element/binding";
+import { LinearElementEditor } from "../element/linearElementEditor";
+import { newElementWith } from "../element/mutateElement";
+import { isBoundToContainer, isFrameLikeElement } from "../element/typeChecks";
+import { ExcalidrawElement } from "../element/types";
+import { getElementsInGroup } from "../groups";
+import { t } from "../i18n";
+import { KEYS } from "../keys";
+import { getSelectedElements, isSomeElementSelected } from "../scene";
+import { AppState } from "../types";
+import { updateActiveTool } from "../utils";
+import { register } from "./register";
 
 const deleteSelectedElements = (
   elements: readonly ExcalidrawElement[],
@@ -24,25 +25,34 @@ const deleteSelectedElements = (
       appState,
     ).map((el) => el.id),
   );
-
+  // VBRN Collect all deliting elements and provide them to Objective delete handler
+  const delitingElements = new Set<ExcalidrawElement>();
+  //
   return {
-    elements: elements.map((el) => {
-      if (appState.selectedElementIds[el.id]) {
-        return newElementWith(el, { isDeleted: true });
-      }
+    elements: deleteEventHandler(
+      elements.map((el) => {
+        if (appState.selectedElementIds[el.id]) {
+          delitingElements.add(el);
+          return newElementWith(el, { isDeleted: true });
+        }
 
-      if (el.frameId && framesToBeDeleted.has(el.frameId)) {
-        return newElementWith(el, { isDeleted: true });
-      }
+        if (el.frameId && framesToBeDeleted.has(el.frameId)) {
+          delitingElements.add(el);
+          return newElementWith(el, { isDeleted: true });
+        }
 
-      if (
-        isBoundToContainer(el) &&
-        appState.selectedElementIds[el.containerId]
-      ) {
-        return newElementWith(el, { isDeleted: true });
-      }
-      return el;
-    }),
+        if (
+          isBoundToContainer(el) &&
+          appState.selectedElementIds[el.containerId]
+        ) {
+          delitingElements.add(el);
+          return newElementWith(el, { isDeleted: true });
+        }
+        return el;
+      }),
+      delitingElements,
+      appState,
+    ),
     appState: {
       ...appState,
       selectedElementIds: {},

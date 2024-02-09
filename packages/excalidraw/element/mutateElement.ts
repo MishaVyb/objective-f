@@ -7,7 +7,7 @@ import { getUpdatedTimestamp } from "../utils";
 import { Mutable } from "../utility-types";
 import { ShapeCache } from "../scene/ShapeCache";
 
-type ElementUpdate<TElement extends ExcalidrawElement> = Omit<
+export type ElementUpdate<TElement extends ExcalidrawElement> = Omit<
   Partial<TElement>,
   "id" | "version" | "versionNonce"
 >;

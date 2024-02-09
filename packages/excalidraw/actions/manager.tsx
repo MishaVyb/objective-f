@@ -1,16 +1,16 @@
 import React from "react";
-import {
-  Action,
-  UpdaterFn,
-  ActionName,
-  ActionResult,
-  PanelComponentProps,
-  ActionSource,
-} from "./types";
+import { trackEvent } from "../analytics";
 import { ExcalidrawElement } from "../element/types";
 import { AppClassProperties, AppState } from "../types";
-import { trackEvent } from "../analytics";
 import { isPromiseLike } from "../utils";
+import {
+  Action,
+  ActionName,
+  ActionResult,
+  ActionSource,
+  PanelComponentProps,
+  UpdaterFn,
+} from "./types";
 
 const trackAction = (
   action: Action,

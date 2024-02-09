@@ -3,8 +3,8 @@ import { ExcalidrawElement } from "../element/types";
 import {
   AppClassProperties,
   AppState,
-  ExcalidrawProps,
   BinaryFiles,
+  ExcalidrawProps,
 } from "../types";
 import { MarkOptional } from "../utility-types";
 
@@ -124,12 +124,19 @@ export type ActionName =
   | "setFrameAsActiveTool"
   | "setEmbeddableAsActiveTool"
   | "createContainerFromText"
-  | "wrapTextInContainer";
+  | "wrapTextInContainer"
 
-export type PanelComponentProps = {
+  // VBRN actions:
+  | "actionChangeMetaName"
+  | "actionChangeMetaCameraShot"
+  | "representationMeta"
+  | "actionInitStoryboard"
+  | "actionStoryboard";
+
+export type PanelComponentProps<TFormData = any> = {
   elements: readonly ExcalidrawElement[];
   appState: AppState;
-  updateData: <T = any>(formData?: T) => void;
+  updateData: (formData?: TFormData) => void;
   appProps: ExcalidrawProps;
   data?: Record<string, any>;
   app: AppClassProperties;

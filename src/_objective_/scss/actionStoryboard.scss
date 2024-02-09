@@ -1,0 +1,22 @@
+@import '../../css/variables.module';
+
+.storyboard-images {
+  // container
+
+  --rad: 5px;
+  --big-rad: 10px;
+
+  display: flex;
+  flex-direction: column;
+
+  fieldset {
+    img {
+      // single element
+      width: 170px; // TODO inherit size from parent
+      padding: 3px;
+      margin-top: 5px;
+      border: 1px dashed var(--color-gray-30);
+      border-radius: var(--rad);
+    }
+  }
+}

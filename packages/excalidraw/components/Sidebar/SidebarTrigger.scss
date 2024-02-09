@@ -28,6 +28,7 @@
   }
 
   .default-sidebar-trigger .sidebar-trigger__label {
+    // display: none // VBRN CONFLICT: as it was
     display: block;
     white-space: nowrap;
   }
