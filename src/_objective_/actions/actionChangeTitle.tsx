@@ -46,6 +46,7 @@ export const actionChangeMetaName = register({
         placeholder={t('labels.metaName', null, 'Label')}
         value={name || ''}
         onChange={(newTextValue) => updateData({ newTextValue, app })}
+        //@ts-ignore
         onKeyDown={(event) => event.key === KEYS.ENTER && focusNearestParent(event.target)}
       />
     )

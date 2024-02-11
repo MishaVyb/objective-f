@@ -200,6 +200,7 @@ const UpdateProfile: FC = () => {
               name='role'
               onValueChange={(v) => onFieldChange('role', v)}
             >
+              {/* @ts-ignore */}
               <Select.Trigger placeholder={'Update Role'} />
               <Select.Content>
                 <Select.Group>

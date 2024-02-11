@@ -130,6 +130,7 @@ const RegisterPage: FC = () => {
             name='role'
             onValueChange={(v) => onFieldChange('role', v)}
           >
+            {/* @ts-ignore */}
             <Select.Trigger radius={'large'} placeholder={'Select Role'} />
             <Select.Content>
               <Select.Group>
