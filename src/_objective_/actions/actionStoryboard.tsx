@@ -6,7 +6,10 @@ import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
 import { useDevice } from '../../../packages/excalidraw/components/App'
 import { ToolButton } from '../../../packages/excalidraw/components/ToolButton'
 import { unbindLinearElements } from '../../../packages/excalidraw/element/binding'
-import { ExcalidrawElement, ExcalidrawImageElement } from '../../../packages/excalidraw/element/types'
+import {
+  ExcalidrawElement,
+  ExcalidrawImageElement,
+} from '../../../packages/excalidraw/element/types'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
 import { AppState } from '../../../packages/excalidraw/types'
 import { newPointerBeetween } from '../objects/primitives'
@@ -89,7 +92,7 @@ export const actionInitStoryboard = register({
   PanelComponent: ({ elements, appState, updateData, appProps }: PanelComponentProps) => {
     const image = getSelectedImage(elements, appState)
     const cameras = getShotCameraMetas(elements)
-    const { isMobile, isLandscape } = useDevice()
+    const device = useDevice()
 
     const onClick = (camera: CameraMeta) => {
       updateData(camera)
@@ -103,8 +106,8 @@ export const actionInitStoryboard = register({
           </Popover.Trigger>
           <Popover.Content
             className='popover-content'
-            side={isMobile && !isLandscape ? 'bottom' : 'right'}
-            align={isMobile && !isLandscape ? 'center' : 'start'}
+            side={device.viewport.isMobile && !device.viewport.isLandscape ? 'bottom' : 'right'}
+            align={device.viewport.isMobile && !device.viewport.isLandscape ? 'center' : 'start'}
             alignOffset={-16}
             sideOffset={20}
           >

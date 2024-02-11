@@ -16,18 +16,21 @@ export const representationMeta = register({
       elements,
       appState,
       (element) => isObjective(element) && element.customData.kind,
+      true,
       null
     )
     const shotNumber = getFormValue(
       elements,
       appState,
       (element) => isCameraElement(element) && element.customData.shotNumber,
+      true,
       null
     )
     const shotVersion = getFormValue(
       elements,
       appState,
       (element) => isCameraElement(element) && element.customData.shotVersion,
+      true,
       null
     )
 

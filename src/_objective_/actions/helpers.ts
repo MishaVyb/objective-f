@@ -210,7 +210,13 @@ export const updateMetaRepr = <TMeta extends ObjectiveMeta>(
   const containerId = meta[fieldName] as ExcalidrawElement['id']
   const container = getElement(containerId)
   const elementsMap = getElementsMapStrict(container)
-  handleBindTextResize(container!, elementsMap, false, { newOriginalText: newValue })
+  handleBindTextResize(
+    container!,
+    elementsMap,
+    false,
+    false,
+    { newOriginalText: newValue } //
+  )
 }
 
 export const deleteMetaRepr = <TMeta extends ObjectiveMeta>(

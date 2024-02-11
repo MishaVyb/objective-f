@@ -1,3 +1,4 @@
+import { MagicCacheData } from '../../../packages/excalidraw/data/magic'
 import {
   ExcalidrawElement,
   ExcalidrawFrameElement,
@@ -52,6 +53,11 @@ export interface ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> {
   elementIds: readonly ObjectiveElement['id'][]
   /** Excalidraw primetime elements. Populated by `getMetas` */
   elements: readonly ObjectiveElement[]
+
+  //
+  //
+  /** HACK: as TS support for internal Excalidraw properties for IFrames. Objective do not use that. */
+  generationData?: MagicCacheData 
 }
 
 /**

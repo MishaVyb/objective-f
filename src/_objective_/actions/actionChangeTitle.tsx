@@ -33,7 +33,13 @@ export const actionChangeMetaName = register({
 
   PanelComponent: ({ elements, appState, updateData, appProps }: PanelComponentProps) => {
     const app = useApp()
-    const name = getFormValue(elements, appState, (element) => element.customData?.name, null)
+    const name = getFormValue(
+      elements,
+      appState,
+      (element) => element.customData?.name,
+      true,
+      null //
+    )
 
     return (
       <TextField

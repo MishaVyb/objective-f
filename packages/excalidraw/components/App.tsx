@@ -409,6 +409,11 @@ import {
   setEraserCursor,
 } from "../cursor";
 import { textWysiwyg } from "../element/textWysiwyg";
+import {
+  ObjectiveKinds,
+  isObjective,
+} from "../../../src/_objective_/types/types";
+import { getBaseInitialMeta } from "../../../src/_objective_/objects/initial";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -1791,13 +1796,25 @@ class App extends React.Component<AppProps, AppState> {
       // generationData set previously)
       mutateElement(
         frameElement,
-        { customData: { generationData: undefined } },
+        {
+          customData: {
+            ...(frameElement.customData ||
+              getBaseInitialMeta(ObjectiveKinds.PROP)), // only for TS supports
+            generationData: undefined,
+          },
+        },
         false,
       );
     } else {
       mutateElement(
         frameElement,
-        { customData: { generationData: data } },
+        {
+          customData: {
+            ...(frameElement.customData ||
+              getBaseInitialMeta(ObjectiveKinds.PROP)), // only for TS supports
+            generationData: data,
+          },
+        },
         false,
       );
     }

@@ -7,7 +7,12 @@ import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { t } from '../../../packages/excalidraw/i18n'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
 import { newShotNumberRepr } from '../objects/primitives'
-import { getCameraMetas, getElement, getSelectedCameraMetas } from '../selectors/selectors'
+import {
+  getCameraMetas,
+  getElement,
+  getElementsMapStrict,
+  getSelectedCameraMetas,
+} from '../selectors/selectors'
 import { CameraMeta, isAllElementsCameras, isCameraElement } from '../types/types'
 import { handleMetaRepresentation, mutateElementsMeta } from './helpers'
 import { register } from './register'
@@ -43,7 +48,11 @@ export const actionChangeMetaCameraShot = register({
           const container = getElement(c.nameRepr)
           if (!container) return
           mutateElement(container, { y: isShot ? container.y + 25 : container.y - 25 })
-          handleBindTextResize(container!, false)
+          handleBindTextResize(
+            container!,
+            getElementsMapStrict(container),
+            false //
+          )
         })
 
         break
@@ -85,10 +94,11 @@ export const actionChangeMetaCameraShot = register({
     appProps,
   }: PanelComponentProps<ActionType>) => {
     if (!isAllElementsCameras(getSelectedElements(elements, appState))) return <></>
-    const isShot = getFormValue(
+    const isShot = getFormValue<boolean>(
       elements,
       appState,
-      (element) => (isCameraElement(element) ? element.customData.isShot : false),
+      (element) => (isCameraElement(element) ? element.customData.isShot : false) || false,
+      true,
       false
     )
 

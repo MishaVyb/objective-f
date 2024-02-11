@@ -95,7 +95,7 @@ export type ExcalidrawIframeElement = _ExcalidrawElementBase &
   Readonly<{
     type: "iframe";
     // TODO move later to AI-specific frame
-    customData?: { generationData?: MagicCacheData };
+    // customData?: { generationData?: MagicCacheData }; // VBRN disable this annotation as it breaks down the whole Objective TS logic
   }>;
 
 export type ExcalidrawIframeLikeElement =

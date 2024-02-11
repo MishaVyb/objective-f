@@ -277,6 +277,7 @@ export const appLangCodeAtom = atom(
 );
 
 const ExcalidrawWrapper = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [errorMessage, setErrorMessage] = useState("");
   const [langCode, setLangCode] = useAtom(appLangCodeAtom);
   const isCollabDisabled = true; // VBRN disable collabaration
@@ -602,6 +603,7 @@ const ExcalidrawWrapper = () => {
     null,
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const onExportToBackend = async (
     exportedElements: readonly NonDeletedExcalidrawElement[],
     appState: Partial<AppState>,

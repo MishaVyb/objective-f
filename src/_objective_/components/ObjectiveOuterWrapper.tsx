@@ -123,7 +123,7 @@ const ObjectiveOuterWrapper: FC<{
   // auto save/load
   useEffect(() => {
     if (loading) return
-    let interval: NodeJS.Timer
+    let interval: ReturnType<typeof setInterval>
 
     if (isMyScene) {
       // AUTO SAVE
