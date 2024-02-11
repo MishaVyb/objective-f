@@ -39,6 +39,8 @@ export const createObjFromClipboard = (
     kind: kind,
     id: randomId(),
     created: 1687101033001,
+
+    //@ts-ignore
     elements: els,
   }
 }

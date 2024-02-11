@@ -28,7 +28,7 @@ import ProfileNavbar from './profile-navbar'
 const UpdateProfile: FC = () => {
   const user = useSelector(selectUser)
 
-  const [form, setForm] = useState({ password: '', ...initialState.user })
+  const [form, setForm] = useState<IUserCreatePayload>({ password: '', ...initialState.user })
 
   // User me be not loaded yet, so we define initialFormState every time `user` changed
   // and also we setForm values for actual `user` state.

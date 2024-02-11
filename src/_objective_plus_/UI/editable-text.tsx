@@ -16,6 +16,7 @@ const EditableText = forwardRef<HTMLInputElement, TEditableTextProps>(
     const onTextClick = useCallback(
       (e?: MouseEvent) => {
         if (e) e.stopPropagation()
+        //@ts-ignore
         setTimeout(() => nameInputRef?.current?.focus(), 0)
         setIsEdit(true)
       },

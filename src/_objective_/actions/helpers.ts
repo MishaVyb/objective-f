@@ -1,6 +1,9 @@
 import { changeProperty } from '../../../packages/excalidraw/actions/actionProperties'
 import { mutateElement, newElementWith } from '../../../packages/excalidraw/element/mutateElement'
-import { getBoundTextElement, handleBindTextResize } from '../../../packages/excalidraw/element/textElement'
+import {
+  getBoundTextElement,
+  handleBindTextResize,
+} from '../../../packages/excalidraw/element/textElement'
 import {
   ExcalidrawElement,
   ExcalidrawRectangleElement,
@@ -8,7 +11,7 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import Scene from '../../../packages/excalidraw/scene/Scene'
 import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
-import { getElement } from '../selectors/selectors'
+import { getElement, getElementsMapStrict } from '../selectors/selectors'
 import {
   ObjectiveElement,
   ObjectiveMeta,
@@ -206,7 +209,8 @@ export const updateMetaRepr = <TMeta extends ObjectiveMeta>(
 ) => {
   const containerId = meta[fieldName] as ExcalidrawElement['id']
   const container = getElement(containerId)
-  handleBindTextResize(container!, false, { newOriginalText: newValue })
+  const elementsMap = getElementsMapStrict(container)
+  handleBindTextResize(container!, elementsMap, false, { newOriginalText: newValue })
 }
 
 export const deleteMetaRepr = <TMeta extends ObjectiveMeta>(
@@ -223,7 +227,7 @@ export const deleteMetaRepr = <TMeta extends ObjectiveMeta>(
   if (!container) return
   mutateElement(container!, { isDeleted: true })
 
-  const text = getBoundTextElement(container!)
+  const text = getBoundTextElement(container!, getElementsMapStrict(container))
   if (!text) return
   mutateElement(text!, { isDeleted: true })
 }

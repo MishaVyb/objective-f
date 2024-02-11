@@ -6,8 +6,9 @@ import {
   ExcalidrawBindableElement,
   ExcalidrawElement,
   InitializedExcalidrawImageElement,
+  SceneElementsMap,
 } from '../../../packages/excalidraw/element/types'
-import Scene from '../../../packages/excalidraw/scene/Scene'
+import Scene, { ElementKey } from '../../../packages/excalidraw/scene/Scene'
 import { AppState } from '../../../packages/excalidraw/types'
 import { useExcalidrawFiles } from '../components/ObjectiveInnerWrapper'
 import {
@@ -21,6 +22,7 @@ import {
   isPointerElement,
   isShotCameraElement,
 } from '../types/types'
+import { toBrandedType } from '../../../packages/excalidraw/utils'
 
 /**
  * Simplified version of `getMeta`, when we know that elements belongs to single Objective Item
@@ -192,6 +194,24 @@ export const getElementById = <TElement extends ExcalidrawElement>(
  */
 export const getElement = <TElement extends ExcalidrawElement>(id: string | undefined) =>
   id ? (Scene.getScene(id)?.getElement(id) as TElement) || undefined : undefined
+
+/**
+ * Shortcat to get Elements Map associated with provided Elements from global Scene.
+ */
+export const getElementsMap = (elementKey: ElementKey | undefined | null) =>
+  Scene.getScene(elementKey)?.getElementsMapIncludingDeleted()
+
+/**
+ * Shortcat to get Elements Map associated with provided Elements from global Scene.
+ */
+export const getElementsMapStrict = (elementKey: ElementKey | undefined | null) => {
+  const map = Scene.getScene(elementKey)?.getElementsMapIncludingDeleted()
+  if (!map) {
+    console.warn('[VBRN] No elements map, but it should be. Fallback to new empty Map. ')
+    return toBrandedType<SceneElementsMap>(new Map())
+  }
+  return map
+}
 
 /**
  * NOTE: If element type is known from context, it could be specified via generic.

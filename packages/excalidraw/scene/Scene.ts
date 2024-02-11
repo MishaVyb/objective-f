@@ -16,8 +16,10 @@ import { Assert, SameType } from "../utility-types";
 import { randomInteger } from "../random";
 import { toBrandedType } from "../utils";
 
-type ElementIdKey = InstanceType<typeof LinearElementEditor>["elementId"];
-type ElementKey = ExcalidrawElement | ElementIdKey;
+type ElementIdKey =
+  | InstanceType<typeof LinearElementEditor>["elementId"]
+  | ExcalidrawElement["id"];
+export type ElementKey = ExcalidrawElement | ElementIdKey;
 
 type SceneStateCallback = () => void;
 type SceneStateCallbackRemover = () => void;
@@ -106,11 +108,12 @@ class Scene {
     }
   }
 
-  static getScene(elementKey: ElementKey): Scene | null {
+  static getScene(elementKey: ElementKey | undefined | null): Scene | null {
+    if (!elementKey) return null;
     if (isIdKey(elementKey)) {
-      return this.sceneMapById.get(elementKey) || null;
+      return this.sceneMapById.get(elementKey as string) || null;
     }
-    return this.sceneMapByElement.get(elementKey) || null;
+    return this.sceneMapByElement.get(elementKey as ExcalidrawElement) || null;
   }
 
   // ---------------------------------------------------------------------------

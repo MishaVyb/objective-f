@@ -14,8 +14,11 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "paths": {
+      "react": [ "./node_modules/@types/react" ]
+    }
   },
-  "include": ["packages", "excalidraw-app"],
+  "include": ["packages", "excalidraw-app", "src"],
   "exclude": ["packages/excalidraw/types", "examples"]
 }

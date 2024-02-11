@@ -18,7 +18,7 @@ import {
 } from '../../_objective_plus_/store/projects/reducer'
 import { deepCopyElement } from '../../../packages/excalidraw/element/newElement'
 import { isImageElement } from '../../../packages/excalidraw/element/typeChecks'
-import { Collaborator, ExcalidrawImperativeAPI } from '../../../packages/excalidraw/types'
+import { Collaborator, ExcalidrawImperativeAPI, SocketId } from '../../../packages/excalidraw/types'
 import { OBJECTIVE_LIB as OBJECTIVE_LIB_ITEMS } from '../lib'
 import { objectValues } from '../types/utils'
 
@@ -47,7 +47,8 @@ const ObjectiveOuterWrapper: FC<{
           // Data serialization. Ensure types.
           const serializedElements = scene.elements.map((e) => deepCopyElement(e))
           const serializedAppState = { ...scene.appState, name: scene.name }
-          serializedAppState.collaborators = new Map<string, Collaborator>(
+          serializedAppState.collaborators = new Map<SocketId, Collaborator>(
+            //@ts-ignore
             Object.entries(serializedAppState.collaborators || {})
           )
 

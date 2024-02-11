@@ -29,7 +29,6 @@ const obj: ElementsClipboard = {
       updated: 1707073011628,
       link: null,
       locked: false,
-      customData: { kind: 'Prop', id: '', elementIds: [], elements: [], name: 'Square Table' },
     },
     {
       id: 'NeTshwegFaz-KycZWrA7W',

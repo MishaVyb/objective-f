@@ -47,7 +47,7 @@ export const actionGoToCollaborator = register({
     return withName ? (
       <div
         className="dropdown-menu-item dropdown-menu-item-base UserList__collaborator"
-        onClick={() => updateData<Collaborator>(collaborator)}
+                onClick={() => updateData<Collaborator>(collaborator)}
       >
         <Avatar
           color={background}

@@ -13,6 +13,7 @@ const preloadedState = {
   projects: loadFromLocalStorage<IProjectsState>(LOCAL_STORAGE.PROJECTS)
 }
 
+//@ts-ignore
 export const store = configureStore({
   reducer: {
     auth: authReducer,

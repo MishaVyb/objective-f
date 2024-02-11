@@ -183,10 +183,6 @@ export const handleBindTextResize = (
       return;
     }
 
-    // VBRN CONFLICT: check?
-    // textElement = Scene.getScene(container)!.getElement(
-    //   boundTextElementId,
-    // ) as ExcalidrawTextElement;
     const originalText = opts?.newOriginalText || textElement.originalText;
     let text = textElement.text;
     let nextHeight = textElement.height;
