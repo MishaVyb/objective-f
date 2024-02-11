@@ -89,11 +89,19 @@ const ObjectiveOuterWrapper: FC<{
   /** saving... */
   const updatingScene = useCallback(() => {
     if (!excalidrawApi) return
+    const els = excalidrawApi.getSceneElementsIncludingDeleted()
+
+    // HACK
+    // edge case, when we exiting from scene, Excalidraw api release elements store and return
+    // empty list (but scene actually may has elements)
+    //
+    // and also preventing updates scene with no elements, if any app error occurs
+    if (!els.length) return
 
     dispatch(
       loadUpdateScene({
         id: sceneId!,
-        elements: excalidrawApi.getSceneElementsIncludingDeleted(),
+        elements: els,
         appState: excalidrawApi.getAppState(),
       })
     )
