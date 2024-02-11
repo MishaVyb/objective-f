@@ -1,30 +1,12 @@
-import clsx from "clsx";
 import { useState } from "react";
-import Button from "../../../src/_objective_/UI/Button";
-import {
-  isAllElementsObjective,
-  isAnyElementsObjective,
-} from "../../../src/_objective_/types/types";
-import { actionToggleZenMode } from "../actions";
 import { ActionManager } from "../actions/manager";
-import { trackEvent } from "../analytics";
-import { useTunnels } from "../context/tunnels";
-import {
-  shouldAllowVerticalAlign,
-  suppportsHorizontalAlign,
-} from "../element/textElement";
-import {
-  hasBoundTextElement,
-  isInitializedImageElement,
-  isTextElement,
-} from "../element/typeChecks";
 import {
   ExcalidrawElementType,
   NonDeletedElementsMap,
   NonDeletedSceneElementsMap,
 } from "../element/types";
 import { t } from "../i18n";
-import { KEYS } from "../keys";
+import { useDevice } from "./App";
 import {
   canChangeRoundness,
   canHaveArrowheads,
@@ -33,25 +15,35 @@ import {
   hasStrokeStyle,
   hasStrokeWidth,
 } from "../scene";
-import { hasStrokeColor } from "../scene/comparisons";
 import { SHAPES } from "../shapes";
 import { AppClassProperties, AppProps, UIAppState, Zoom } from "../types";
 import { capitalizeString, isTransparent } from "../utils";
-import "./Actions.scss";
-import { useDevice } from "./App";
 import Stack from "./Stack";
 import { ToolButton } from "./ToolButton";
+import { hasStrokeColor } from "../scene/comparisons";
+import { trackEvent } from "../analytics";
+import { hasBoundTextElement, isTextElement } from "../element/typeChecks";
+import clsx from "clsx";
+import { actionToggleZenMode } from "../actions";
 import { Tooltip } from "./Tooltip";
+import {
+  shouldAllowVerticalAlign,
+  suppportsHorizontalAlign,
+} from "../element/textElement";
+
+import "./Actions.scss";
 import DropdownMenu from "./dropdownMenu/DropdownMenu";
 import {
   EmbedIcon,
-  MagicIcon,
-  OpenAIIcon,
   extraToolsIcon,
   frameToolIcon,
-  laserPointerToolIcon,
   mermaidLogoIcon,
+  laserPointerToolIcon,
+  OpenAIIcon,
+  MagicIcon,
 } from "./icons";
+import { KEYS } from "../keys";
+import { useTunnels } from "../context/tunnels";
 
 export const SelectedShapeActions = ({
   appState,
@@ -62,7 +54,6 @@ export const SelectedShapeActions = ({
   elementsMap: NonDeletedElementsMap | NonDeletedSceneElementsMap;
   renderAction: ActionManager["renderAction"];
 }) => {
-  const [showOBJStyle, setShowOBJStyle] = useState(false);
   const targetElements = getTargetElements(elementsMap, appState);
 
   let isSingleElementBoundContainer = false;
@@ -101,202 +92,131 @@ export const SelectedShapeActions = ({
     }
   }
 
-  // NAV actions: SelectedShapeActions
-  const isAllObjective = isAllElementsObjective(targetElements);
-  const isAnyObjective = isAnyElementsObjective(targetElements);
-  const isAllExcali = !isAnyObjective;
-  const isObjAndExcali = !isAllObjective && isAnyObjective;
-  const isSingleImage =
-    targetElements.length === 1 && isInitializedImageElement(targetElements[0]);
-
-  const actionsToRender = {
-    stroke: isAllExcali,
-    fill: isAllExcali || showOBJStyle,
-    fillStyle: isAllExcali || showOBJStyle,
-    strokeWidth: isAllExcali,
-    strokeStyle: isAllExcali,
-    sloppiness: isAllExcali,
-    roundness: isAllExcali,
-    arrowheads: isAllExcali,
-    textStyle: isAllExcali,
-    opacity: isAllExcali || showOBJStyle || isObjAndExcali,
-    layers: isAllExcali || showOBJStyle || isObjAndExcali,
-    align: isAllExcali || showOBJStyle || isObjAndExcali,
-    actions: isAllExcali || showOBJStyle || isObjAndExcali,
-  };
-
   return (
     <div className="panelColumn">
-      {isSingleImage && renderAction("actionInitStoryboard")}
-      {isAllObjective && objectiveActions()}
-      {isAllObjective && objectiveStyleButton()}
-      {excalidrawActions()}
+      <div>
+        {((hasStrokeColor(appState.activeTool.type) &&
+          appState.activeTool.type !== "image" &&
+          commonSelectedType !== "image" &&
+          commonSelectedType !== "frame" &&
+          commonSelectedType !== "magicframe") ||
+          targetElements.some((element) => hasStrokeColor(element.type))) &&
+          renderAction("changeStrokeColor")}
+      </div>
+      {showChangeBackgroundIcons && (
+        <div>{renderAction("changeBackgroundColor")}</div>
+      )}
+      {showFillIcons && renderAction("changeFillStyle")}
+
+      {(hasStrokeWidth(appState.activeTool.type) ||
+        targetElements.some((element) => hasStrokeWidth(element.type))) &&
+        renderAction("changeStrokeWidth")}
+
+      {(appState.activeTool.type === "freedraw" ||
+        targetElements.some((element) => element.type === "freedraw")) &&
+        renderAction("changeStrokeShape")}
+
+      {(hasStrokeStyle(appState.activeTool.type) ||
+        targetElements.some((element) => hasStrokeStyle(element.type))) && (
+        <>
+          {renderAction("changeStrokeStyle")}
+          {renderAction("changeSloppiness")}
+        </>
+      )}
+
+      {(canChangeRoundness(appState.activeTool.type) ||
+        targetElements.some((element) => canChangeRoundness(element.type))) && (
+        <>{renderAction("changeRoundness")}</>
+      )}
+
+      {(appState.activeTool.type === "text" ||
+        targetElements.some(isTextElement)) && (
+        <>
+          {renderAction("changeFontSize")}
+
+          {renderAction("changeFontFamily")}
+
+          {(appState.activeTool.type === "text" ||
+            suppportsHorizontalAlign(targetElements, elementsMap)) &&
+            renderAction("changeTextAlign")}
+        </>
+      )}
+
+      {shouldAllowVerticalAlign(targetElements, elementsMap) &&
+        renderAction("changeVerticalAlign")}
+      {(canHaveArrowheads(appState.activeTool.type) ||
+        targetElements.some((element) => canHaveArrowheads(element.type))) && (
+        <>{renderAction("changeArrowhead")}</>
+      )}
+
+      {renderAction("changeOpacity")}
+
+      <fieldset>
+        <legend>{t("labels.layers")}</legend>
+        <div className="buttonList">
+          {renderAction("sendToBack")}
+          {renderAction("sendBackward")}
+          {renderAction("bringToFront")}
+          {renderAction("bringForward")}
+        </div>
+      </fieldset>
+
+      {targetElements.length > 1 && !isSingleElementBoundContainer && (
+        <fieldset>
+          <legend>{t("labels.align")}</legend>
+          <div className="buttonList">
+            {
+              // swap this order for RTL so the button positions always match their action
+              // (i.e. the leftmost button aligns left)
+            }
+            {isRTL ? (
+              <>
+                {renderAction("alignRight")}
+                {renderAction("alignHorizontallyCentered")}
+                {renderAction("alignLeft")}
+              </>
+            ) : (
+              <>
+                {renderAction("alignLeft")}
+                {renderAction("alignHorizontallyCentered")}
+                {renderAction("alignRight")}
+              </>
+            )}
+            {targetElements.length > 2 &&
+              renderAction("distributeHorizontally")}
+            {/* breaks the row ˇˇ */}
+            <div style={{ flexBasis: "100%", height: 0 }} />
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: ".5rem",
+                marginTop: "-0.5rem",
+              }}
+            >
+              {renderAction("alignTop")}
+              {renderAction("alignVerticallyCentered")}
+              {renderAction("alignBottom")}
+              {targetElements.length > 2 &&
+                renderAction("distributeVertically")}
+            </div>
+          </div>
+        </fieldset>
+      )}
+      {!isEditing && targetElements.length > 0 && (
+        <fieldset>
+          <legend>{t("labels.actions")}</legend>
+          <div className="buttonList">
+            {!device.editor.isMobile && renderAction("duplicateSelection")}
+            {!device.editor.isMobile && renderAction("deleteSelectedElements")}
+            {renderAction("group")}
+            {renderAction("ungroup")}
+            {showLinkIcon && renderAction("hyperlink")}
+          </div>
+        </fieldset>
+      )}
     </div>
   );
-
-  function objectiveActions() {
-    return (
-      <>
-        {renderAction("representationMeta")}
-        {renderAction("actionChangeMetaName")}
-        {renderAction("actionChangeMetaCameraShot")}
-        {renderAction("actionStoryboard")}
-      </>
-    );
-  }
-
-  function objectiveStyleButton() {
-    return (
-      <Button onClick={() => setShowOBJStyle(!showOBJStyle)}>
-        {showOBJStyle ? "hide style" : "show style"}
-      </Button>
-    );
-  }
-
-  function excalidrawActions() {
-    return (
-      <>
-        <div>
-          {((hasStrokeColor(appState.activeTool.type) &&
-            appState.activeTool.type !== "image" &&
-            commonSelectedType !== "image" &&
-            commonSelectedType !== "frame") ||
-            targetElements.some((element) => hasStrokeColor(element.type))) &&
-            actionsToRender.stroke &&
-            renderAction("changeStrokeColor")}
-        </div>
-        {actionsToRender.fill && showChangeBackgroundIcons && (
-          <div>{renderAction("changeBackgroundColor")}</div>
-        )}
-
-        {excalidrawExtraActions()}
-
-        {shouldAllowVerticalAlign(
-          targetElements,
-          new Map(), // VBRN CONFLICT: which map??? TMP pass empty map
-        ) && renderAction("changeVerticalAlign")}
-        {(canHaveArrowheads(appState.activeTool.type) ||
-          targetElements.some((element) => canHaveArrowheads(element.type))) &&
-          actionsToRender.arrowheads && <>{renderAction("changeArrowhead")}</>}
-
-        {actionsToRender.opacity && renderAction("changeOpacity")}
-
-        {actionsToRender.layers && (
-          <fieldset>
-            <legend>{t("labels.layers")}</legend>
-            <div className="buttonList">
-              {renderAction("sendToBack")}
-              {renderAction("sendBackward")}
-              {renderAction("bringToFront")}
-              {renderAction("bringForward")}
-            </div>
-          </fieldset>
-        )}
-
-        {targetElements.length > 1 &&
-          !isSingleElementBoundContainer &&
-          actionsToRender.align && (
-            <fieldset>
-              <legend>{t("labels.align")}</legend>
-              <div className="buttonList">
-                {
-                  // swap this order for RTL so the button positions always match their action
-                  // (i.e. the leftmost button aligns left)
-                }
-                {isRTL ? (
-                  <>
-                    {renderAction("alignRight")}
-                    {renderAction("alignHorizontallyCentered")}
-                    {renderAction("alignLeft")}
-                  </>
-                ) : (
-                  <>
-                    {renderAction("alignLeft")}
-                    {renderAction("alignHorizontallyCentered")}
-                    {renderAction("alignRight")}
-                  </>
-                )}
-                {targetElements.length > 2 &&
-                  renderAction("distributeHorizontally")}
-                {/* breaks the row ˇˇ */}
-                <div style={{ flexBasis: "100%", height: 0 }} />
-                <div
-                  style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: ".5rem",
-                    marginTop: "-0.5rem",
-                  }}
-                >
-                  {renderAction("alignTop")}
-                  {renderAction("alignVerticallyCentered")}
-                  {renderAction("alignBottom")}
-                  {targetElements.length > 2 &&
-                    renderAction("distributeVertically")}
-                </div>
-              </div>
-            </fieldset>
-          )}
-        {actionsToRender.actions && !isEditing && targetElements.length > 0 && (
-          <fieldset>
-            <legend>{t("labels.actions")}</legend>
-            <div className="buttonList">
-              {!device.isMobile && renderAction("duplicateSelection")}
-              {!device.isMobile && renderAction("deleteSelectedElements")}
-              {renderAction("group")}
-              {renderAction("ungroup")}
-              {showLinkIcon && renderAction("hyperlink")}
-            </div>
-          </fieldset>
-        )}
-      </>
-    );
-  }
-
-  function excalidrawExtraActions() {
-    return (
-      <>
-        {actionsToRender.fillStyle &&
-          showFillIcons &&
-          renderAction("changeFillStyle")}
-        {(hasStrokeWidth(appState.activeTool.type) ||
-          targetElements.some((element) => hasStrokeWidth(element.type))) &&
-          actionsToRender.strokeWidth &&
-          renderAction("changeStrokeWidth")}
-        {(appState.activeTool.type === "freedraw" ||
-          targetElements.some((element) => element.type === "freedraw")) &&
-          actionsToRender.strokeStyle &&
-          renderAction("changeStrokeShape")}
-        {(hasStrokeStyle(appState.activeTool.type) ||
-          targetElements.some((element) => hasStrokeStyle(element.type))) &&
-          actionsToRender.strokeStyle && (
-            <>
-              {renderAction("changeStrokeStyle")}
-              {renderAction("changeSloppiness")}
-            </>
-          )}
-        {(canChangeRoundness(appState.activeTool.type) ||
-          targetElements.some((element) => canChangeRoundness(element.type))) &&
-          actionsToRender.roundness && <>{renderAction("changeRoundness")}</>}
-        {(hasBoundTextElement(appState.activeTool.type) ||
-          targetElements.some((element) =>
-            hasBoundTextElement(element.type),
-          )) &&
-          actionsToRender.textStyle && (
-            <>
-              {renderAction("changeFontSize")}
-
-              {renderAction("changeFontFamily")}
-
-              {suppportsHorizontalAlign(
-                targetElements,
-                new Map(), // VBRN CONFLICT: which map??? TMP pass empty map
-              ) && renderAction("changeTextAlign")}
-            </>
-          )}
-      </>
-    );
-  }
 };
 
 export const ShapesSwitcher = ({
