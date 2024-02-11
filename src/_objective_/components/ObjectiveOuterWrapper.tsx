@@ -16,9 +16,9 @@ import {
   selectIsMyScene,
   selectLoadingSceneIsPending,
 } from '../../_objective_plus_/store/projects/reducer'
-import { deepCopyElement } from '../../element/newElement'
-import { isImageElement } from '../../element/typeChecks'
-import { Collaborator, ExcalidrawImperativeAPI } from '../../types'
+import { deepCopyElement } from '../../../packages/excalidraw/element/newElement'
+import { isImageElement } from '../../../packages/excalidraw/element/typeChecks'
+import { Collaborator, ExcalidrawImperativeAPI } from '../../../packages/excalidraw/types'
 import { OBJECTIVE_LIB as OBJECTIVE_LIB_ITEMS } from '../lib'
 import { objectValues } from '../types/utils'
 

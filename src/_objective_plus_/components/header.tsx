@@ -1,18 +1,9 @@
-import {
-  Badge,
-  Button,
-  Flex,
-  Heading,
-  Link as RadixLink,
-  Separator,
-  Text,
-  Tooltip,
-} from '@radix-ui/themes'
+import { CubeIcon, PersonIcon, ReaderIcon } from '@radix-ui/react-icons'
+import { Badge, Flex, Heading, Link as RadixLink, Separator, Text, Tooltip } from '@radix-ui/themes'
 import { FC, ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useSelector } from '../hooks/redux'
 import { selectIsAuthenticated, selectUser } from '../store/auth/reducer'
-import { CubeIcon, PersonIcon, ReaderIcon } from '@radix-ui/react-icons'
 
 export const ObjectiveLogo = () => {
   return (

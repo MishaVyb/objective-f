@@ -1,10 +1,10 @@
-import { newElement, newLinearElement, newTextElement } from '../../element'
-import { bindLinearElement, updateBoundElements } from '../../element/binding'
+import { newElement, newLinearElement, newTextElement } from '../../../packages/excalidraw/element'
+import { bindLinearElement, updateBoundElements } from '../../../packages/excalidraw/element/binding'
 import {
   ExcalidrawBindableElement,
   ExcalidrawRectangleElement,
   ExcalidrawTextElementWithContainer,
-} from '../../element/types'
+} from '../../../packages/excalidraw/element/types'
 import { getObjectiveBasis } from '../selectors/selectors'
 import { ObjectiveKinds, ObjectiveMeta, isCameraMeta } from '../types/types'
 

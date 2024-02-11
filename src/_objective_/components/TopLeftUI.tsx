@@ -4,7 +4,7 @@ import { FC, ReactNode, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from '../../_objective_plus_/hooks/redux'
 import { selectIsPending } from '../../_objective_plus_/store/projects/reducer'
-import { useExcalidrawAppState } from '../../components/App'
+import { useExcalidrawAppState } from '../../../packages/excalidraw/components/App'
 
 const SHOW_SAVING_DEALOG_DELAY_MS = 1500
 

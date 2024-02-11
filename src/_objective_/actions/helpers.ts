@@ -1,13 +1,13 @@
-import { changeProperty } from '../../actions/actionProperties'
-import { mutateElement, newElementWith } from '../../element/mutateElement'
-import { getBoundTextElement, handleBindTextResize } from '../../element/textElement'
+import { changeProperty } from '../../../packages/excalidraw/actions/actionProperties'
+import { mutateElement, newElementWith } from '../../../packages/excalidraw/element/mutateElement'
+import { getBoundTextElement, handleBindTextResize } from '../../../packages/excalidraw/element/textElement'
 import {
   ExcalidrawElement,
   ExcalidrawRectangleElement,
   ExcalidrawTextElementWithContainer,
-} from '../../element/types'
-import Scene from '../../scene/Scene'
-import { AppClassProperties, AppState } from '../../types'
+} from '../../../packages/excalidraw/element/types'
+import Scene from '../../../packages/excalidraw/scene/Scene'
+import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
 import { getElement } from '../selectors/selectors'
 import {
   ObjectiveElement,

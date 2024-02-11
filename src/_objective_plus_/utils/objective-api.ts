@@ -1,4 +1,4 @@
-import { BinaryFileData } from '../../types'
+import { BinaryFileData } from '../../../packages/excalidraw/types'
 import { API_MOCK_FREEZE_MS, ENDPOINTS, LOCAL_DEV, ROOT } from '../constants'
 import { IMakeLoginPayload, IUserCreatePayload, IUserUpdatePayload } from '../store/auth/actions'
 import { IAuthFull, ITokens, IUser } from '../store/auth/reducer'

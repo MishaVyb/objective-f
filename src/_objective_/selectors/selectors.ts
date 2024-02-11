@@ -1,14 +1,14 @@
 import { useMemo } from 'react'
 
-import { useExcalidrawElements } from '../../components/App'
-import { isNonDeletedElement } from '../../element'
+import { useExcalidrawElements } from '../../../packages/excalidraw/components/App'
+import { isNonDeletedElement } from '../../../packages/excalidraw/element'
 import {
   ExcalidrawBindableElement,
   ExcalidrawElement,
   InitializedExcalidrawImageElement,
-} from '../../element/types'
-import Scene from '../../scene/Scene'
-import { AppState } from '../../types'
+} from '../../../packages/excalidraw/element/types'
+import Scene from '../../../packages/excalidraw/scene/Scene'
+import { AppState } from '../../../packages/excalidraw/types'
 import { useExcalidrawFiles } from '../components/ObjectiveInnerWrapper'
 import {
   CameraMeta,

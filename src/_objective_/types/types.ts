@@ -4,8 +4,8 @@ import {
   ExcalidrawImageElement,
   GroupId,
   InitializedExcalidrawImageElement,
-} from '../../element/types'
-import { BinaryFileData } from '../../types'
+} from '../../../packages/excalidraw/element/types'
+import { BinaryFileData } from '../../../packages/excalidraw/types'
 
 export enum ObjectiveKinds {
   CAMERA = 'Camera',

@@ -28,7 +28,7 @@ import Stack from "./Stack";
 
 import "./LibraryMenuItems.scss";
 import Spinner from "./Spinner";
-import { ObjectiveKinds } from "../_objective_/types/types";
+import { ObjectiveKinds } from "../../../src/_objective_/types/types";
 
 // using an odd number of items per batch so the rendering creates an irregular
 // pattern which looks more organic

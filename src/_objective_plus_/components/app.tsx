@@ -3,7 +3,7 @@ import { Route, Routes, useLocation } from 'react-router-dom'
 
 import { Flex, Theme } from '@radix-ui/themes'
 import clsx from 'clsx'
-import ExcalidrawApp from '../../excalidraw-app'
+import ExcalidrawApp from '../../../excalidraw-app/App'
 import BackgroundImage from '../images/objective-bg-image-v1.png'
 import AboutPage from '../pages/about'
 import LoginPage from '../pages/auth/login-page/login-page'

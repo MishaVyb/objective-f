@@ -22,7 +22,7 @@ import {
   selectIsOtherScene,
   selectProjects,
 } from '../../_objective_plus_/store/projects/reducer'
-import { Sidebar } from '../../packages/excalidraw/index'
+import { Sidebar } from '../../../packages/excalidraw' 
 
 const MySceneShareOptions = () => {
   const url = window.location.href

@@ -1,6 +1,5 @@
 import { createReducer, createSelector } from '@reduxjs/toolkit'
-import { ExcalidrawElement } from '../../../element/types'
-import { AppState, BinaryFileData } from '../../../types'
+import { ExcalidrawElement } from '../../../../packages/excalidraw/element/types'
 import { LOCAL_STORAGE, saveToLocalStorage } from '../../utils/persistence'
 import { RootState } from '../store'
 import {
@@ -14,6 +13,7 @@ import {
   toggleProject,
 } from './actions'
 import { selectAuth } from '../auth/reducer'
+import { AppState, BinaryFileData } from '../../../../packages/excalidraw/types'
 
 export interface IBase {
   id: string

@@ -19,7 +19,7 @@ import { getContainingFrame } from "./frame";
 import { isMemberOf, isPromiseLike } from "./utils";
 import { t } from "./i18n";
 
-type ElementsClipboard = {
+export type ElementsClipboard = {
   type: typeof EXPORT_DATA_TYPES.excalidrawClipboard;
   elements: readonly NonDeletedExcalidrawElement[];
   files: BinaryFiles | undefined;

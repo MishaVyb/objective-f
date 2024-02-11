@@ -1,15 +1,13 @@
 import clsx from "clsx";
 import { memo, useEffect, useRef, useState } from "react";
-import { useDevice } from "./App";
-import { LibraryItem } from "../types";
-import "./LibraryUnit.scss";
-import { CheckboxItem } from "./CheckboxItem";
-import { PlusIcon } from "./icons";
 import { SvgCache, useLibraryItemSvg } from "../hooks/useLibraryItemSvg";
-
-import { getMetaReference } from "../_objective_/selectors/selectors";
-import { ObjectiveElement } from "../_objective_/types/types";
+import { LibraryItem } from "../types";
+import { useDevice } from "./App";
+import "./LibraryUnit.scss";
+import { PlusIcon } from "./icons";
 import { Tooltip } from "@radix-ui/themes";
+import { getMetaReference } from "../../../src/_objective_/selectors/selectors";
+import { ObjectiveElement } from "../../../src/_objective_/types/types";
 
 export const LibraryUnit = memo(
   ({

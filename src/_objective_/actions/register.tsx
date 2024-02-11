@@ -1,4 +1,4 @@
-import { Action } from '../../actions/types'
+import { Action } from '../../../packages/excalidraw/actions/types'
 
 export let actions: readonly Action[] = []
 

@@ -1,6 +1,6 @@
-import { COLOR_PALETTE } from '../../colors'
-import { randomId, randomInteger } from '../../random'
-import { LibraryItem, LibraryItems } from '../../types'
+import { COLOR_PALETTE } from '../../../packages/excalidraw/colors'
+import { randomId, randomInteger } from '../../../packages/excalidraw/random'
+import { LibraryItem, LibraryItems } from '../../../packages/excalidraw/types'
 import { cameraInitialMeta } from '../objects/initial'
 import { ObjectiveKinds } from '../types/types'
 

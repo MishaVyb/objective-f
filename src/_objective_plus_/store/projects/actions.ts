@@ -15,7 +15,7 @@ import {
 import { selectAuth } from '../auth/reducer'
 import { ThunkApiConfig, safeAsyncThunk } from '../helpers'
 import { IProject, ISceneFull } from './reducer'
-import { BinaryFileData } from '../../../types'
+import { BinaryFileData } from '../../../../packages/excalidraw/types'
 
 // Responses
 export type TGetProjectResponse = IProject

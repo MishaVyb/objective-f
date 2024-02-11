@@ -1,6 +1,6 @@
 import { FC } from 'react'
 
-import { useExcalidrawSetAppState } from '../../components/App'
+import { useExcalidrawSetAppState } from '../../../packages/excalidraw/components/App'
 import { useCameraImages } from '../selectors/selectors'
 import { CameraMeta } from '../types/types'
 import './../scss/cameraItem.scss'

@@ -1,4 +1,4 @@
-import { ElementsClipboard } from '../../../clipboard'
+import { ElementsClipboard } from '../../../../packages/excalidraw/clipboard'
 
 const obj: ElementsClipboard = {
   type: 'excalidraw/clipboard',

@@ -9,9 +9,9 @@ import {
   selectIsMyScene,
   selectLoadingSceneIsPending,
 } from '../../_objective_plus_/store/projects/reducer'
-import { actionToggleViewMode } from '../../actions/actionToggleViewMode'
-import App, { useApp, useExcalidrawElements } from '../../components/App'
-import { BinaryFiles } from '../../types'
+import { actionToggleViewMode } from '../../../packages/excalidraw/actions/actionToggleViewMode'
+import App, { useApp, useExcalidrawElements } from '../../../packages/excalidraw/components/App'
+import { BinaryFiles } from '../../../packages/excalidraw/types'
 import { getCameraMetas } from '../selectors/selectors'
 import { CameraMeta } from '../types/types'
 

@@ -1,8 +1,8 @@
-import { ElementsClipboard } from '../../clipboard'
-import { COLOR_PALETTE } from '../../colors'
-import { ExcalidrawElement } from '../../element/types'
-import { randomId, randomInteger } from '../../random'
-import { LibraryItem } from '../../types'
+import { ElementsClipboard } from '../../../packages/excalidraw/clipboard'
+import { COLOR_PALETTE } from '../../../packages/excalidraw/colors'
+import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
+import { randomId, randomInteger } from '../../../packages/excalidraw/random'
+import { LibraryItem } from '../../../packages/excalidraw/types'
 import { getBaseInitialMeta } from '../objects/initial'
 import { ObjectiveKinds } from '../types/types'
 
