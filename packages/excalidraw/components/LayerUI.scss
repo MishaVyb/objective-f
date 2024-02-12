@@ -6,7 +6,7 @@
     transition: width 0.1s ease-in-out;
   }
   .layer-ui__wrapper {
-    zoom: 80%;
+    // zoom: 80%;
 
     // when the rightside sidebar is docked, we need to resize the UI by its
     // width, making the nested UI content shift to the left. To do this,
