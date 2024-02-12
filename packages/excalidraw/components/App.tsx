@@ -48,7 +48,7 @@ import { createRedoAction, createUndoAction } from "../actions/actionHistory";
 import { actionToggleViewMode } from "../actions/actionToggleViewMode";
 import { ActionManager } from "../actions/manager";
 import { actions } from "../actions/register";
-import { actions as objectiveActions } from "../../../src/_objective_/actions/register";
+import { objectiveActions } from "../../../src/_objective_/actions";
 import { Action, ActionResult } from "../actions/types";
 import { trackEvent } from "../analytics";
 import {
@@ -715,15 +715,6 @@ class App extends React.Component<AppProps, AppState> {
     });
     this.history = new History();
     this.actionManager.registerAll(actions);
-
-    // VBRN CONFLICT
-    // this.actionManager = new ActionManager(
-    //   this.syncActionResult,
-    //   () => this.state,
-    //   () => this.scene.getElementsIncludingDeleted(),
-    //   this,
-    // );
-    // this.actionManager.registerAll(excalidrawActions);
     this.actionManager.registerAll(objectiveActions);
 
     this.actionManager.registerAction(createUndoAction(this.history));
@@ -1507,41 +1498,53 @@ class App extends React.Component<AppProps, AppState> {
                         value={this.actionManager}
                       >
                         <ObjectiveInnerWrapper>
-                          <LayerUI
-                            canvas={this.canvas}
-                            appState={this.state}
-                            files={this.files}
-                            setAppState={this.setAppState}
-                            actionManager={this.actionManager}
-                            elements={this.scene.getNonDeletedElements()}
-                            onLockToggle={this.toggleLock}
-                            onPenModeToggle={this.togglePenMode}
-                            onHandToolToggle={this.onHandToolToggle}
-                            langCode={getLanguage().code}
-                            renderTopRightUI={renderTopRightUI}
-                            renderCustomStats={renderCustomStats}
-                            showExitZenModeBtn={
-                              typeof this.props?.zenModeEnabled ===
-                                "undefined" && this.state.zenModeEnabled
-                            }
-                            UIOptions={this.props.UIOptions}
-                            onExportImage={this.onExportImage}
-                            renderWelcomeScreen={
-                              !this.state.isLoading &&
-                              this.state.showWelcomeScreen &&
-                              this.state.activeTool.type === "selection" &&
-                              !this.state.zenModeEnabled &&
-                              !this.scene.getElementsIncludingDeleted().length
-                            }
-                            app={this}
-                            isCollaborating={this.props.isCollaborating}
-                            openAIKey={this.OPENAI_KEY}
-                            isOpenAIKeyPersisted={this.OPENAI_KEY_IS_PERSISTED}
-                            onOpenAIAPIKeyChange={this.onOpenAIKeyChange}
-                            onMagicSettingsConfirm={this.onMagicSettingsConfirm}
-                          >
-                            {this.props.children}
-                          </LayerUI>
+                          {/* <div
+                            style={{
+                              height: '100vh',
+                              // width: '100vw',
+                              // zoom: "80%", //
+                            }}
+                          > */}
+                            <LayerUI
+                              canvas={this.canvas}
+                              appState={this.state}
+                              files={this.files}
+                              setAppState={this.setAppState}
+                              actionManager={this.actionManager}
+                              elements={this.scene.getNonDeletedElements()}
+                              onLockToggle={this.toggleLock}
+                              onPenModeToggle={this.togglePenMode}
+                              onHandToolToggle={this.onHandToolToggle}
+                              langCode={getLanguage().code}
+                              renderTopRightUI={renderTopRightUI}
+                              renderCustomStats={renderCustomStats}
+                              showExitZenModeBtn={
+                                typeof this.props?.zenModeEnabled ===
+                                  "undefined" && this.state.zenModeEnabled
+                              }
+                              UIOptions={this.props.UIOptions}
+                              onExportImage={this.onExportImage}
+                              renderWelcomeScreen={
+                                !this.state.isLoading &&
+                                this.state.showWelcomeScreen &&
+                                this.state.activeTool.type === "selection" &&
+                                !this.state.zenModeEnabled &&
+                                !this.scene.getElementsIncludingDeleted().length
+                              }
+                              app={this}
+                              isCollaborating={this.props.isCollaborating}
+                              openAIKey={this.OPENAI_KEY}
+                              isOpenAIKeyPersisted={
+                                this.OPENAI_KEY_IS_PERSISTED
+                              }
+                              onOpenAIAPIKeyChange={this.onOpenAIKeyChange}
+                              onMagicSettingsConfirm={
+                                this.onMagicSettingsConfirm
+                              }
+                            >
+                              {this.props.children}
+                            </LayerUI>
+                          {/* </div> */}
 
                           <div className="excalidraw-textEditorContainer" />
                           <div className="excalidraw-contextMenuContainer" />

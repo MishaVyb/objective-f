@@ -1,3 +1,4 @@
+import { CameraIcon } from '@radix-ui/react-icons'
 import { getFormValue } from '../../../packages/excalidraw/actions/actionProperties'
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
 import { ToolButton } from '../../../packages/excalidraw/components/ToolButton'
@@ -108,7 +109,7 @@ export const actionChangeMetaCameraShot = register({
           <legend>{t('labels.shotList', null, 'Shot list')}</legend>
           <ToolButton
             type='button'
-            icon='📸'
+            icon=<CameraIcon/>
             onClick={() => updateData('init')}
             title={t('labels.cameraAddToShotlist', null, 'Add to shotlist')}
             aria-label={'undefined'}

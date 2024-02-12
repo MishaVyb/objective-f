@@ -22,7 +22,11 @@ import Stack from "./Stack";
 import { ToolButton } from "./ToolButton";
 import { hasStrokeColor } from "../scene/comparisons";
 import { trackEvent } from "../analytics";
-import { hasBoundTextElement, isTextElement } from "../element/typeChecks";
+import {
+  hasBoundTextElement,
+  isInitializedImageElement,
+  isTextElement,
+} from "../element/typeChecks";
 import clsx from "clsx";
 import { actionToggleZenMode } from "../actions";
 import { Tooltip } from "./Tooltip";
@@ -44,6 +48,11 @@ import {
 } from "./icons";
 import { KEYS } from "../keys";
 import { useTunnels } from "../context/tunnels";
+import {
+  isAllElementsObjective,
+  isAnyElementsObjective,
+} from "../../../src/_objective_/types/types";
+import { CaretDownIcon, CaretRightIcon } from "@radix-ui/react-icons";
 
 export const SelectedShapeActions = ({
   appState,
@@ -92,126 +101,213 @@ export const SelectedShapeActions = ({
     }
   }
 
+  const objectiveItemShowExcalidrawActions = () => {
+    return (
+      <ToolButton
+        type="button"
+        icon={showOBJStyle ? <CaretDownIcon /> : <CaretRightIcon />}
+        onClick={() => setShowOBJStyle(!showOBJStyle)}
+        title={showOBJStyle ? "More options" : "Less options"}
+        aria-label={"undefined"}
+      />
+    );
+  };
+
+  const [showOBJStyle, setShowOBJStyle] = useState(false);
+  const isAllObjective = isAllElementsObjective(targetElements);
+  const isAnyObjective = isAnyElementsObjective(targetElements);
+  const isAllExcali = !isAnyObjective;
+  const isObjAndExcali = !isAllObjective && isAnyObjective;
+  const isSingleImage =
+    targetElements.length === 1 && isInitializedImageElement(targetElements[0]);
+
+  const actionsToRender = {
+    // Objective
+    // common:
+    metaKind: isAllObjective,
+    metaName: isAllObjective,
+    showExcalidrawStyle: isAllObjective,
+
+    // when camera selected:
+    metaCameraShot: isAllObjective,
+    metaActionStoryboard: isAllObjective,
+
+    // when image selected:
+    metaInitStoryboard: isSingleImage,
+
+    // Excalidraw
+    strokeColor: isAllExcali,
+    bgColor: isAllExcali || showOBJStyle,
+    bgStyle: isAllExcali || showOBJStyle,
+    strokeWidth: isAllExcali,
+    strokeStyle: isAllExcali,
+    strokeShape: isAllExcali,
+    sloppiness: isAllExcali,
+    roundness: isAllExcali,
+    arrowheads: isAllExcali,
+    textStyle: isAllExcali,
+    opacity: isAllExcali || showOBJStyle || isObjAndExcali,
+    layers: isAllExcali || showOBJStyle || isObjAndExcali,
+    align: isAllExcali || showOBJStyle || isObjAndExcali,
+
+    /** duplicate group un-group hyper Link */
+    actionsAll: isAllExcali || showOBJStyle || isObjAndExcali,
+    duplicate: isAllExcali || showOBJStyle || isObjAndExcali,
+    delete: isAllExcali || showOBJStyle || isObjAndExcali,
+    group: isAllExcali || showOBJStyle || isObjAndExcali,
+    hyperLink: isAllExcali || showOBJStyle || isObjAndExcali,
+  };
+
   return (
     <div className="panelColumn">
+      {actionsToRender.metaKind && renderAction("representationMeta")}
+      {actionsToRender.metaName && renderAction("actionChangeMetaName")}
+      {actionsToRender.metaCameraShot &&
+        renderAction("actionChangeMetaCameraShot")}
+      {actionsToRender.metaActionStoryboard && renderAction("actionStoryboard")}
+      {actionsToRender.metaInitStoryboard &&
+        renderAction("actionInitStoryboard")}
+      {actionsToRender.showExcalidrawStyle &&
+        objectiveItemShowExcalidrawActions()}
+
       <div>
-        {((hasStrokeColor(appState.activeTool.type) &&
-          appState.activeTool.type !== "image" &&
-          commonSelectedType !== "image" &&
-          commonSelectedType !== "frame" &&
-          commonSelectedType !== "magicframe") ||
-          targetElements.some((element) => hasStrokeColor(element.type))) &&
+        {actionsToRender.strokeColor &&
+          ((hasStrokeColor(appState.activeTool.type) &&
+            appState.activeTool.type !== "image" &&
+            commonSelectedType !== "image" &&
+            commonSelectedType !== "frame" &&
+            commonSelectedType !== "magicframe") ||
+            targetElements.some((element) => hasStrokeColor(element.type))) &&
           renderAction("changeStrokeColor")}
       </div>
-      {showChangeBackgroundIcons && (
+      {actionsToRender.bgColor && showChangeBackgroundIcons && (
         <div>{renderAction("changeBackgroundColor")}</div>
       )}
-      {showFillIcons && renderAction("changeFillStyle")}
+      {actionsToRender.bgStyle &&
+        showFillIcons &&
+        renderAction("changeFillStyle")}
 
-      {(hasStrokeWidth(appState.activeTool.type) ||
-        targetElements.some((element) => hasStrokeWidth(element.type))) &&
+      {actionsToRender.strokeWidth &&
+        (hasStrokeWidth(appState.activeTool.type) ||
+          targetElements.some((element) => hasStrokeWidth(element.type))) &&
         renderAction("changeStrokeWidth")}
 
-      {(appState.activeTool.type === "freedraw" ||
-        targetElements.some((element) => element.type === "freedraw")) &&
+      {actionsToRender.strokeShape &&
+        (appState.activeTool.type === "freedraw" ||
+          targetElements.some((element) => element.type === "freedraw")) &&
         renderAction("changeStrokeShape")}
 
-      {(hasStrokeStyle(appState.activeTool.type) ||
-        targetElements.some((element) => hasStrokeStyle(element.type))) && (
-        <>
-          {renderAction("changeStrokeStyle")}
-          {renderAction("changeSloppiness")}
-        </>
-      )}
+      {actionsToRender.strokeStyle &&
+        ((actionsToRender.sloppiness &&
+          hasStrokeStyle(appState.activeTool.type)) ||
+          targetElements.some((element) => hasStrokeStyle(element.type))) && (
+          <>
+            {renderAction("changeStrokeStyle")}
+            {renderAction("changeSloppiness")}
+          </>
+        )}
 
-      {(canChangeRoundness(appState.activeTool.type) ||
-        targetElements.some((element) => canChangeRoundness(element.type))) && (
-        <>{renderAction("changeRoundness")}</>
-      )}
+      {actionsToRender.roundness &&
+        (canChangeRoundness(appState.activeTool.type) ||
+          targetElements.some((element) =>
+            canChangeRoundness(element.type),
+          )) && <>{renderAction("changeRoundness")}</>}
 
-      {(appState.activeTool.type === "text" ||
-        targetElements.some(isTextElement)) && (
-        <>
-          {renderAction("changeFontSize")}
+      {actionsToRender.textStyle &&
+        (appState.activeTool.type === "text" ||
+          targetElements.some(isTextElement)) && (
+          <>
+            {renderAction("changeFontSize")}
 
-          {renderAction("changeFontFamily")}
+            {renderAction("changeFontFamily")}
 
-          {(appState.activeTool.type === "text" ||
-            suppportsHorizontalAlign(targetElements, elementsMap)) &&
-            renderAction("changeTextAlign")}
-        </>
-      )}
+            {(appState.activeTool.type === "text" ||
+              suppportsHorizontalAlign(targetElements, elementsMap)) &&
+              renderAction("changeTextAlign")}
+          </>
+        )}
 
-      {shouldAllowVerticalAlign(targetElements, elementsMap) &&
+      {actionsToRender.align &&
+        shouldAllowVerticalAlign(targetElements, elementsMap) &&
         renderAction("changeVerticalAlign")}
-      {(canHaveArrowheads(appState.activeTool.type) ||
-        targetElements.some((element) => canHaveArrowheads(element.type))) && (
-        <>{renderAction("changeArrowhead")}</>
-      )}
+      {actionsToRender.arrowheads &&
+        (canHaveArrowheads(appState.activeTool.type) ||
+          targetElements.some((element) =>
+            canHaveArrowheads(element.type),
+          )) && <>{renderAction("changeArrowhead")}</>}
 
-      {renderAction("changeOpacity")}
-
-      <fieldset>
-        <legend>{t("labels.layers")}</legend>
-        <div className="buttonList">
-          {renderAction("sendToBack")}
-          {renderAction("sendBackward")}
-          {renderAction("bringToFront")}
-          {renderAction("bringForward")}
-        </div>
-      </fieldset>
-
-      {targetElements.length > 1 && !isSingleElementBoundContainer && (
+      {actionsToRender.opacity && renderAction("changeOpacity")}
+      {actionsToRender.layers && (
         <fieldset>
-          <legend>{t("labels.align")}</legend>
+          <legend>{t("labels.layers")}</legend>
           <div className="buttonList">
-            {
-              // swap this order for RTL so the button positions always match their action
-              // (i.e. the leftmost button aligns left)
-            }
-            {isRTL ? (
-              <>
-                {renderAction("alignRight")}
-                {renderAction("alignHorizontallyCentered")}
-                {renderAction("alignLeft")}
-              </>
-            ) : (
-              <>
-                {renderAction("alignLeft")}
-                {renderAction("alignHorizontallyCentered")}
-                {renderAction("alignRight")}
-              </>
-            )}
-            {targetElements.length > 2 &&
-              renderAction("distributeHorizontally")}
-            {/* breaks the row ˇˇ */}
-            <div style={{ flexBasis: "100%", height: 0 }} />
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: ".5rem",
-                marginTop: "-0.5rem",
-              }}
-            >
-              {renderAction("alignTop")}
-              {renderAction("alignVerticallyCentered")}
-              {renderAction("alignBottom")}
-              {targetElements.length > 2 &&
-                renderAction("distributeVertically")}
-            </div>
+            {renderAction("sendToBack")}
+            {renderAction("sendBackward")}
+            {renderAction("bringToFront")}
+            {renderAction("bringForward")}
           </div>
         </fieldset>
       )}
-      {!isEditing && targetElements.length > 0 && (
+
+      {actionsToRender.align &&
+        targetElements.length > 1 &&
+        !isSingleElementBoundContainer && (
+          <fieldset>
+            <legend>{t("labels.align")}</legend>
+            <div className="buttonList">
+              {
+                // swap this order for RTL so the button positions always match their action
+                // (i.e. the leftmost button aligns left)
+              }
+              {isRTL ? (
+                <>
+                  {renderAction("alignRight")}
+                  {renderAction("alignHorizontallyCentered")}
+                  {renderAction("alignLeft")}
+                </>
+              ) : (
+                <>
+                  {renderAction("alignLeft")}
+                  {renderAction("alignHorizontallyCentered")}
+                  {renderAction("alignRight")}
+                </>
+              )}
+              {targetElements.length > 2 &&
+                renderAction("distributeHorizontally")}
+              {/* breaks the row ˇˇ */}
+              <div style={{ flexBasis: "100%", height: 0 }} />
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: ".5rem",
+                  marginTop: "-0.5rem",
+                }}
+              >
+                {renderAction("alignTop")}
+                {renderAction("alignVerticallyCentered")}
+                {renderAction("alignBottom")}
+                {targetElements.length > 2 &&
+                  renderAction("distributeVertically")}
+              </div>
+            </div>
+          </fieldset>
+        )}
+      {actionsToRender.actionsAll && !isEditing && targetElements.length > 0 && (
         <fieldset>
           <legend>{t("labels.actions")}</legend>
           <div className="buttonList">
-            {!device.editor.isMobile && renderAction("duplicateSelection")}
-            {!device.editor.isMobile && renderAction("deleteSelectedElements")}
-            {renderAction("group")}
-            {renderAction("ungroup")}
-            {showLinkIcon && renderAction("hyperlink")}
+            {actionsToRender.duplicate &&
+              !device.editor.isMobile &&
+              renderAction("duplicateSelection")}
+            {actionsToRender.delete &&
+              !device.editor.isMobile &&
+              renderAction("deleteSelectedElements")}
+            {actionsToRender.group && renderAction("group")}
+            {actionsToRender.group && renderAction("ungroup")}
+            {actionsToRender.hyperLink &&
+              showLinkIcon &&
+              renderAction("hyperlink")}
           </div>
         </fieldset>
       )}
