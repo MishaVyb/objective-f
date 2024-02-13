@@ -27,8 +27,6 @@ import { changeElementProperty, createMetaRepr, deleteMetaRepr } from './helpers
  * @param elements new (cloned/copied) elements
  */
 export const duplicateEventHandler = (elements: Mutable<ExcalidrawElement>[]) => {
-  console.log('duplicateEventHandler')
-
   const extraNewEls: ExcalidrawElement[] = []
   const metas = getObjectiveMetas(elements) as Mutable<ObjectiveMeta>[] // !!!
 

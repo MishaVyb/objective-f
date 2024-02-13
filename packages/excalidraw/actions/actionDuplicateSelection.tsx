@@ -1,6 +1,5 @@
 import { ToolButton } from "../components/ToolButton";
 import { DuplicateIcon } from "../components/icons";
-import { GRID_SIZE } from "../constants";
 import { duplicateElement, getNonDeletedElements } from "../element";
 import { fixBindingsAfterDuplication } from "../element/binding";
 import { LinearElementEditor } from "../element/linearElementEditor";
@@ -92,8 +91,8 @@ const duplicateElements = (
       groupIdMap,
       element,
       {
-        x: element.x + GRID_SIZE / 2,
-        y: element.y + GRID_SIZE / 2,
+        x: element.x + appState.gridSizeConfig / 2,
+        y: element.y + appState.gridSizeConfig / 2,
       },
     );
     oldIdToDuplicatedId.set(element.id, newElement.id);

@@ -65,6 +65,7 @@ import Stack from "./Stack";
 import { TTDDialog } from "./TTDDialog/TTDDialog";
 import "./Toolbar.scss";
 import { UserList } from "./UserList";
+import { ObjectiveSettingsDialog } from "./../../../src/_objective_/components/ObjectiveSettingsDialog"
 
 interface LayerUIProps {
   actionManager: ActionManager;
@@ -466,6 +467,13 @@ const LayerUI = ({
       )}
       {appState.openDialog?.name === "help" && (
         <HelpDialog
+          onClose={() => {
+            setAppState({ openDialog: null });
+          }}
+        />
+      )}
+      {appState.openDialog?.name === "objectiveSettings" && (
+        <ObjectiveSettingsDialog
           onClose={() => {
             setAppState({ openDialog: null });
           }}

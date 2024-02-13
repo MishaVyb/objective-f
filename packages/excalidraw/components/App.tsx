@@ -75,7 +75,6 @@ import {
   EVENT,
   EXPORT_IMAGE_TYPES,
   FRAME_STYLE,
-  GRID_SIZE,
   IMAGE_MIME_TYPES,
   IMAGE_RENDER_TIMEOUT,
   LINE_CONFIRM_THRESHOLD,
@@ -409,11 +408,9 @@ import {
   setEraserCursor,
 } from "../cursor";
 import { textWysiwyg } from "../element/textWysiwyg";
-import {
-  ObjectiveKinds,
-  isObjective,
-} from "../../../src/_objective_/types/types";
+import { ObjectiveKinds } from "../../../src/_objective_/types/types";
 import { getBaseInitialMeta } from "../../../src/_objective_/objects/initial";
+import { actionToggleGridSnapMode } from "../../../src/_objective_/actions/actionSettings";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -640,7 +637,6 @@ class App extends React.Component<AppProps, AppState> {
       viewModeEnabled,
       zenModeEnabled,
       objectsSnapModeEnabled,
-      gridSize: gridModeEnabled ? GRID_SIZE : null,
       name,
       width: window.innerWidth,
       height: window.innerHeight,
@@ -1505,45 +1501,41 @@ class App extends React.Component<AppProps, AppState> {
                               // zoom: "80%", //
                             }}
                           > */}
-                            <LayerUI
-                              canvas={this.canvas}
-                              appState={this.state}
-                              files={this.files}
-                              setAppState={this.setAppState}
-                              actionManager={this.actionManager}
-                              elements={this.scene.getNonDeletedElements()}
-                              onLockToggle={this.toggleLock}
-                              onPenModeToggle={this.togglePenMode}
-                              onHandToolToggle={this.onHandToolToggle}
-                              langCode={getLanguage().code}
-                              renderTopRightUI={renderTopRightUI}
-                              renderCustomStats={renderCustomStats}
-                              showExitZenModeBtn={
-                                typeof this.props?.zenModeEnabled ===
-                                  "undefined" && this.state.zenModeEnabled
-                              }
-                              UIOptions={this.props.UIOptions}
-                              onExportImage={this.onExportImage}
-                              renderWelcomeScreen={
-                                !this.state.isLoading &&
-                                this.state.showWelcomeScreen &&
-                                this.state.activeTool.type === "selection" &&
-                                !this.state.zenModeEnabled &&
-                                !this.scene.getElementsIncludingDeleted().length
-                              }
-                              app={this}
-                              isCollaborating={this.props.isCollaborating}
-                              openAIKey={this.OPENAI_KEY}
-                              isOpenAIKeyPersisted={
-                                this.OPENAI_KEY_IS_PERSISTED
-                              }
-                              onOpenAIAPIKeyChange={this.onOpenAIKeyChange}
-                              onMagicSettingsConfirm={
-                                this.onMagicSettingsConfirm
-                              }
-                            >
-                              {this.props.children}
-                            </LayerUI>
+                          <LayerUI
+                            canvas={this.canvas}
+                            appState={this.state}
+                            files={this.files}
+                            setAppState={this.setAppState}
+                            actionManager={this.actionManager}
+                            elements={this.scene.getNonDeletedElements()}
+                            onLockToggle={this.toggleLock}
+                            onPenModeToggle={this.togglePenMode}
+                            onHandToolToggle={this.onHandToolToggle}
+                            langCode={getLanguage().code}
+                            renderTopRightUI={renderTopRightUI}
+                            renderCustomStats={renderCustomStats}
+                            showExitZenModeBtn={
+                              typeof this.props?.zenModeEnabled ===
+                                "undefined" && this.state.zenModeEnabled
+                            }
+                            UIOptions={this.props.UIOptions}
+                            onExportImage={this.onExportImage}
+                            renderWelcomeScreen={
+                              !this.state.isLoading &&
+                              this.state.showWelcomeScreen &&
+                              this.state.activeTool.type === "selection" &&
+                              !this.state.zenModeEnabled &&
+                              !this.scene.getElementsIncludingDeleted().length
+                            }
+                            app={this}
+                            isCollaborating={this.props.isCollaborating}
+                            openAIKey={this.OPENAI_KEY}
+                            isOpenAIKeyPersisted={this.OPENAI_KEY_IS_PERSISTED}
+                            onOpenAIAPIKeyChange={this.onOpenAIKeyChange}
+                            onMagicSettingsConfirm={this.onMagicSettingsConfirm}
+                          >
+                            {this.props.children}
+                          </LayerUI>
                           {/* </div> */}
 
                           <div className="excalidraw-textEditorContainer" />
@@ -2183,7 +2175,9 @@ class App extends React.Component<AppProps, AppState> {
         }
 
         if (typeof this.props.gridModeEnabled !== "undefined") {
-          gridSize = this.props.gridModeEnabled ? GRID_SIZE : null;
+          gridSize = this.props.gridModeEnabled
+            ? this.state.gridSizeConfig
+            : null;
         }
 
         if (typeof this.props.name !== "undefined") {
@@ -2742,7 +2736,7 @@ class App extends React.Component<AppProps, AppState> {
 
     if (prevProps.gridModeEnabled !== this.props.gridModeEnabled) {
       this.setState({
-        gridSize: this.props.gridModeEnabled ? GRID_SIZE : null,
+        gridSize: this.props.gridModeEnabled ? this.state.gridSizeConfig : null,
       });
     }
 
@@ -9283,6 +9277,7 @@ class App extends React.Component<AppProps, AppState> {
         return [
           ...options,
           actionToggleGridMode,
+          actionToggleGridSnapMode,
           actionToggleZenMode,
           // actionToggleViewMode,  // VBRN disable
           // actionToggleStats, // VBRN disable
@@ -9301,6 +9296,7 @@ class App extends React.Component<AppProps, AppState> {
         actionUnlockAllElements,
         CONTEXT_MENU_SEPARATOR,
         actionToggleGridMode,
+        actionToggleGridSnapMode,
         actionToggleObjectsSnapMode,
         actionToggleZenMode,
         // actionToggleViewMode,  // VBRN disable

@@ -49,6 +49,7 @@ export const dragSelectedElements = (
     offset,
     snapOffset,
     gridSize,
+    appState.gridSnappingEnabled
   );
 
   dragEventHandler(selectedElements, elementsToUpdate, scene);
@@ -78,6 +79,7 @@ const calculateOffset = (
   dragOffset: { x: number; y: number },
   snapOffset: { x: number; y: number },
   gridSize: AppState["gridSize"],
+  gridSnappingEnabled: AppState["gridSnappingEnabled"],
 ): { x: number; y: number } => {
   const [x, y] = commonBounds;
   let nextX = x + dragOffset.x + snapOffset.x;
@@ -88,6 +90,7 @@ const calculateOffset = (
       x + dragOffset.x,
       y + dragOffset.y,
       gridSize,
+      gridSnappingEnabled,
     );
 
     if (snapOffset.x === 0) {

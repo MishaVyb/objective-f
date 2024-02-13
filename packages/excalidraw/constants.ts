@@ -149,7 +149,10 @@ export const DEFAULT_TRANSFORM_HANDLE_SPACING = 2;
 
 export const CANVAS_ONLY_ACTIONS = ["selectAll"];
 
-export const GRID_SIZE = 25; // like 0.1m (10cm) // TODO make it configurable?
+/** default app state value (unit: cm)  */
+export const GRID_SIZE = 25;
+/** default app state value (unit: count)  */
+export const GRID_BOLD_LINE_FREQ = 4;
 
 export const IMAGE_MIME_TYPES = {
   svg: "image/svg+xml",

@@ -169,14 +169,13 @@ const fillCircle = (
 const strokeGrid = (
   context: CanvasRenderingContext2D,
   gridSize: number,
+  gridBoldLineFreq: number,
   scrollX: number,
   scrollY: number,
   zoom: Zoom,
   width: number,
   height: number,
 ) => {
-  const BOLD_LINE_FREQUENCY = 4;
-
   enum GridLineColor {
     Bold = "#cccccc",
     Regular = "#e5e5e5",
@@ -197,7 +196,7 @@ const strokeGrid = (
 
   for (let x = offsetX; x < offsetX + width + gridSize * 2; x += gridSize) {
     const isBold =
-      Math.round(x - scrollX) % (BOLD_LINE_FREQUENCY * gridSize) === 0;
+      Math.round(x - scrollX) % (gridBoldLineFreq * gridSize) === 0;
     context.beginPath();
     context.setLineDash(isBold ? [] : lineDash);
     context.strokeStyle = isBold ? GridLineColor.Bold : GridLineColor.Regular;
@@ -207,7 +206,7 @@ const strokeGrid = (
   }
   for (let y = offsetY; y < offsetY + height + gridSize * 2; y += gridSize) {
     const isBold =
-      Math.round(y - scrollY) % (BOLD_LINE_FREQUENCY * gridSize) === 0;
+      Math.round(y - scrollY) % (gridBoldLineFreq * gridSize) === 0;
     context.beginPath();
     context.setLineDash(isBold ? [] : lineDash);
     context.strokeStyle = isBold ? GridLineColor.Bold : GridLineColor.Regular;
@@ -938,6 +937,7 @@ const _renderStaticScene = ({
     strokeGrid(
       context,
       appState.gridSize,
+      appState.gridBoldLineFrequency,
       appState.scrollX,
       appState.scrollY,
       appState.zoom,

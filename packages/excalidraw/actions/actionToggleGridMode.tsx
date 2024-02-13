@@ -1,6 +1,5 @@
 import { CODES, KEYS } from "../keys";
 import { register } from "./register";
-import { GRID_SIZE } from "../constants";
 import { AppState } from "../types";
 
 export const actionToggleGridMode = register({
@@ -14,7 +13,7 @@ export const actionToggleGridMode = register({
     return {
       appState: {
         ...appState,
-        gridSize: this.checked!(appState) ? null : GRID_SIZE,
+        gridSize: this.checked!(appState) ? null : appState.gridSizeConfig,
         objectsSnapModeEnabled: false,
       },
       commitToHistory: false,

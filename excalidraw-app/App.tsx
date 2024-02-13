@@ -101,6 +101,7 @@ import { shareDialogStateAtom } from "./share/ShareDialog";
 import { isInitializedImageElement } from "../packages/excalidraw/element/typeChecks";
 import { RestoredDataState } from "../packages/excalidraw/data/restore";
 import { ResolutionType } from "../packages/excalidraw/utility-types";
+import { ObjectiveFooter } from "../src/_objective_/components/ObjectiveFooter";
 // import { ResolutionType } from "../utility-types";
 
 polyfill();
@@ -754,7 +755,7 @@ const ExcalidrawWrapper = () => {
             </OverwriteConfirmDialog.Action>
           )}
         </OverwriteConfirmDialog>
-        <AppFooter />
+        <ObjectiveFooter />
         <TTDDialog
           onTextSubmit={async (input) => {
             try {

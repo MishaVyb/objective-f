@@ -88,7 +88,11 @@ export const ContextMenu = React.memo(
                   ) as unknown as TranslationKeys,
                 );
               } else {
-                label = t(item.contextItemLabel as unknown as TranslationKeys);
+                label = t(
+                  item.contextItemLabel as unknown as TranslationKeys,
+                  {},
+                  item.contextItemLabel, // fallbacks to label itself
+                );
               }
             }
 

@@ -1,0 +1,40 @@
+@import 'open-color/open-color';
+@import '../../../packages/excalidraw/css/variables.module';
+
+@import '@radix-ui/colors/gray.css';
+@import '@radix-ui/colors/blue.css';
+@import '@radix-ui/colors/green.css';
+@import '@radix-ui/colors/red.css';
+@import '@radix-ui/colors/gray-dark.css';
+@import '@radix-ui/colors/blue-dark.css';
+@import '@radix-ui/colors/green-dark.css';
+@import '@radix-ui/colors/red-dark.css';
+
+.objective-toggled-icon-button {
+  &.active {
+    background-color: var(--color-surface-primary-container);
+  }
+}
+
+.objective-settings-dialog {
+  .Island {
+    min-height: 200px;
+  }
+
+  .Modal__content {
+    margin-top: 30px;
+    min-width: 300px;
+    max-width: fit-content;
+  }
+
+  .Dialog__title {
+    margin: 0;
+    text-align: left;
+    font-size: 1.225rem;
+    font-weight: normal;
+    color: var(--color-primary);
+    border-bottom: 1px solid var(--dialog-border-color);
+    padding: 0 0 0.5rem;
+    margin-bottom: 0;
+  }
+}

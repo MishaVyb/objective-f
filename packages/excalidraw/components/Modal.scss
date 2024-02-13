@@ -56,7 +56,7 @@
 
     border: 1px solid var(--dialog-border-color);
     box-shadow: var(--modal-shadow);
-    border-radius: 6px;
+    border-radius: var(--border-radius-lg);
     box-sizing: border-box;
 
     &:focus {

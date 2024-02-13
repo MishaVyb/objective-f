@@ -131,7 +131,9 @@ export type ActionName =
   | "actionChangeMetaCameraShot"
   | "representationMeta"
   | "actionInitStoryboard"
-  | "actionStoryboard";
+  | "actionStoryboard"
+  | "toggleObjectiveSettings"
+  | "toggleGridSnapMode";
 
 export type PanelComponentProps<TFormData = any> = {
   elements: readonly ExcalidrawElement[];

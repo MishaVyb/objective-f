@@ -21,6 +21,7 @@ import { isImageElement } from '../../../packages/excalidraw/element/typeChecks'
 import { Collaborator, ExcalidrawImperativeAPI, SocketId } from '../../../packages/excalidraw/types'
 import { OBJECTIVE_LIB as OBJECTIVE_LIB_ITEMS } from '../lib'
 import { objectValues } from '../types/utils'
+import './../scss/app.scss'
 
 /** Implements scene loading and saving */
 const ObjectiveOuterWrapper: FC<{

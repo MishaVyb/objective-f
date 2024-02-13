@@ -159,6 +159,7 @@ export type StaticCanvasAppState = Readonly<
     exportScale: AppState["exportScale"];
     selectedElementsAreBeingDragged: AppState["selectedElementsAreBeingDragged"];
     gridSize: AppState["gridSize"];
+    gridBoldLineFrequency: AppState["gridBoldLineFrequency"];
     frameRendering: AppState["frameRendering"];
   }
 >;
@@ -258,7 +259,7 @@ export interface AppState {
   openSidebar: { name: SidebarName; tab?: SidebarTabName } | null;
   openDialog:
     | null
-    | { name: "imageExport" | "help" | "jsonExport" }
+    | { name: "imageExport" | "help" | "jsonExport" | "objectiveSettings" }
     | {
         name: "settings";
         source:
@@ -285,7 +286,10 @@ export interface AppState {
   toast: { message: string; closable?: boolean; duration?: number } | null;
   zenModeEnabled: boolean;
   theme: Theme;
-  gridSize: number | null;
+  gridSize: number | null; // used as flag on/off
+  gridSizeConfig: number; // persistence grid size configuration
+  gridBoldLineFrequency: number; // BOLD_LINE_FREQUENCY
+  gridSnappingEnabled?: boolean;
   viewModeEnabled: boolean;
 
   /** top-most selected groups (i.e. does not include nested groups) */

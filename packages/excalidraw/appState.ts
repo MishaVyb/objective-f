@@ -5,6 +5,8 @@ import {
   DEFAULT_FONT_SIZE,
   DEFAULT_TEXT_ALIGN,
   EXPORT_SCALES,
+  GRID_BOLD_LINE_FREQ,
+  GRID_SIZE,
   THEME,
 } from "./constants";
 import { t } from "./i18n";
@@ -57,7 +59,10 @@ export const getDefaultAppState = (): Omit<
     exportEmbedScene: false,
     exportWithDarkMode: false,
     fileHandle: null,
-    gridSize: null,
+    gridSize: GRID_SIZE, // turn on Grid by default
+    gridSizeConfig: GRID_SIZE,
+    gridBoldLineFrequency: GRID_BOLD_LINE_FREQ,
+    gridSnappingEnabled: false,
     isBindingEnabled: true,
     defaultSidebarDockedPreference: false,
     isLoading: false,
@@ -163,6 +168,9 @@ const APP_STATE_STORAGE_CONF = (<
   exportWithDarkMode: { browser: true, export: false, server: false },
   fileHandle: { browser: false, export: false, server: false },
   gridSize: { browser: true, export: true, server: true },
+  gridSizeConfig: { browser: true, export: true, server: true },
+  gridBoldLineFrequency: { browser: true, export: true, server: true },
+  gridSnappingEnabled: { browser: true, export: true, server: true },
   height: { browser: false, export: false, server: false },
   isBindingEnabled: { browser: false, export: false, server: false },
   defaultSidebarDockedPreference: {
