@@ -7,6 +7,8 @@ import { ExcalidrawProps, UIAppState } from "../types";
 import { CloseIcon } from "./icons";
 import { Island } from "./Island";
 import "./Stats.scss";
+import { isLinearElement } from "../element/typeChecks";
+import { getAbsLineStartEnd } from "../../../src/_objective_/actions/events";
 
 export const Stats = (props: {
   appState: UIAppState;
@@ -18,6 +20,107 @@ export const Stats = (props: {
   const boundingBox = getCommonBounds(props.elements);
   const selectedElements = getTargetElements(props.elements, props.appState);
   const selectedBoundingBox = getCommonBounds(selectedElements);
+
+  const objectiveStats = () => {
+    const selectedElement = selectedElements[0];
+    const singleElementInfo =
+      selectedElements.length === 1 ? (
+        <>
+          <tr>
+            <td>{"pinter x y (see debug console)"}</td>
+          </tr>
+          <tr>
+            <td>{"x y"}</td>
+            <td>{Math.round(selectedElements[0].x)}</td>
+            <td>{Math.round(selectedElements[0].y)}</td>
+          </tr>
+          <tr>
+            <td>{"w h"}</td>
+            <td>{Math.round(selectedElements[0].width)}</td>
+            <td>{Math.round(selectedElements[0].height)}</td>
+          </tr>
+        </>
+      ) : null;
+    const linerElementInfo =
+      selectedElements.length === 1 && isLinearElement(selectedElement) ? (
+        <>
+          <tr>
+            <td>{"absolute line parts"}</td>
+          </tr>
+          {selectedElement.points.map((currentPoint, i, points) => {
+            if (i === 0) return <tr key={i}></tr>;
+            const prevPoint = points[i - 1];
+            const [absStart, absEnd] = getAbsLineStartEnd(
+              selectedElement,
+              prevPoint,
+              currentPoint,
+            );
+            const ang =
+              (Math.atan2(absEnd[1] - absStart[1], absEnd[0] - absStart[0]) *
+                180) /
+              Math.PI;
+            return (
+              <tr key={i}>
+                <td>
+                  {i}
+                  {") start "}
+                  {Math.round(absStart[0])}
+                  {"-"}
+                  {Math.round(absStart[1])}
+                  {" | end "}
+                  {Math.round(absEnd[0])}
+                  {"-"}
+                  {Math.round(absEnd[1])}
+                  {" | angle "}
+                  {Math.round(ang)}
+                </td>
+              </tr>
+            );
+          })}
+          <tr>
+            <td>{"relative line parts"}</td>
+          </tr>
+          {selectedElement.points.map((currentPoint, i, points) => {
+            if (i === 0) return <tr key={i}></tr>;
+            const prevPoint = points[i - 1];
+            const ang =
+              (Math.atan2(
+                currentPoint[1] - prevPoint[1],
+                currentPoint[0] - prevPoint[0],
+              ) *
+                180) /
+              Math.PI;
+            return (
+              <tr key={i}>
+                <td>
+                  {i}
+                  {") start "}
+                  {Math.round(prevPoint[0])}
+                  {"-"}
+                  {Math.round(prevPoint[1])}
+                  {" | end "}
+                  {Math.round(currentPoint[0])}
+                  {"-"}
+                  {Math.round(currentPoint[1])}
+                  {" | angle "}
+                  {Math.round(ang)}
+                </td>
+              </tr>
+            );
+          })}
+        </>
+      ) : null;
+
+    return (
+      <>
+        <tr>
+          <th colSpan={2}>{"Objective"}</th>
+        </tr>
+        {singleElementInfo}
+        {linerElementInfo}
+      </>
+    );
+  };
 
   return (
     <div className="Stats">
@@ -99,6 +202,7 @@ export const Stats = (props: {
                 </td>
               </tr>
             )}
+            {objectiveStats()}
             {props.renderCustomStats?.(props.elements, props.appState)}
           </tbody>
         </table>
