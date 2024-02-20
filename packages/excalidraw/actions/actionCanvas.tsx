@@ -81,6 +81,7 @@ export const actionClearCanvas = register({
         exportBackground: appState.exportBackground,
         exportEmbedScene: appState.exportEmbedScene,
         gridSize: appState.gridSize,
+        gridSizeConfig: appState.gridSizeConfig,
         showStats: appState.showStats,
         pasteDialog: appState.pasteDialog,
         activeTool:
