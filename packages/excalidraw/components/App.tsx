@@ -411,6 +411,7 @@ import { textWysiwyg } from "../element/textWysiwyg";
 import { ObjectiveKinds } from "../../../src/_objective_/types/types";
 import { getBaseInitialMeta } from "../../../src/_objective_/objects/initial";
 import { actionToggleGridSnapMode } from "../../../src/_objective_/actions/actionSettings";
+import { onPointerUpFromPointerDownEventHandler } from "../../../src/_objective_/actions/events";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -7178,6 +7179,7 @@ class App extends React.Component<AppProps, AppState> {
             dragOffset,
             this.state,
             event,
+            this.scene,
           );
 
           this.setState({ snapLines });
@@ -7494,6 +7496,8 @@ class App extends React.Component<AppProps, AppState> {
         isResizing,
         isRotating,
       } = this.state;
+
+      onPointerUpFromPointerDownEventHandler(this, pointerDownState);
 
       this.setState((prevState) => ({
         isResizing: false,
@@ -9158,10 +9162,17 @@ class App extends React.Component<AppProps, AppState> {
       activeEmbeddable: null,
     });
     const pointerCoords = pointerDownState.lastCoords;
+    const maybeGrid =
+      // disable snapping to grid when rotating, as it has bag
+      // https://github.com/excalidraw/excalidraw/issues/4057
+      this.state.gridSnappingEnabled && transformHandleType !== "rotation"
+        ? this.state.gridSize
+        : null;
+
     let [resizeX, resizeY] = getGridPoint(
       pointerCoords.x - pointerDownState.resize.offset.x,
       pointerCoords.y - pointerDownState.resize.offset.y,
-      event[KEYS.CTRL_OR_CMD] ? null : this.state.gridSize,
+      event[KEYS.CTRL_OR_CMD] ? null : maybeGrid,
     );
 
     const frameElementsOffsetsMap = new Map<
@@ -9192,7 +9203,7 @@ class App extends React.Component<AppProps, AppState> {
       const [gridX, gridY] = getGridPoint(
         pointerCoords.x,
         pointerCoords.y,
-        event[KEYS.CTRL_OR_CMD] ? null : this.state.gridSize,
+        event[KEYS.CTRL_OR_CMD] ? null : maybeGrid,
       );
 
       const dragOffset = {
@@ -9463,6 +9474,9 @@ class App extends React.Component<AppProps, AppState> {
       y: sceneY,
       tool: this.state.activeTool.type === "laser" ? "laser" : "pointer",
     };
+
+    // eslint-disable-next-line no-console
+    if (this.state.showStats) console.debug(pointer);
 
     this.props.onPointerUpdate?.({
       pointer,
