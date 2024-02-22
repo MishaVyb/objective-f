@@ -578,8 +578,20 @@ export const getReferenceSnapPoints = (
   selectedElements: ExcalidrawElement[],
   appState: AppState,
 ) => {
-    const referenceElements = getReferenceElements(
-    elements,
+  const elementsWithDecomposition: ExcalidrawElement[] = [];
+  elements.forEach((e) => {
+    if (isWallElement(e)) {
+      // VBRN experemental feature:
+      // Makes snapping inside SET more powerfull as we use each part of WALL as separate line.
+      // But it could make dragging with snapping very heavy operation, if there
+      // are many walls (as we do not cache these snapping points, but should and could do it) // TODO
+      elementsWithDecomposition.push(...decomposeWall(e));
+    } else {
+      elementsWithDecomposition.push(e);
+    }
+  });
+  const referenceElements = getReferenceElements(
+    elementsWithDecomposition,
     selectedElements,
     appState,
   );
