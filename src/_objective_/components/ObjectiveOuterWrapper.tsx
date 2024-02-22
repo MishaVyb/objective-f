@@ -22,6 +22,9 @@ import { Collaborator, ExcalidrawImperativeAPI, SocketId } from '../../../packag
 import { OBJECTIVE_LIB as OBJECTIVE_LIB_ITEMS } from '../lib'
 import { objectValues } from '../types/utils'
 import './../scss/app.scss'
+import { Theme } from '../../../packages/excalidraw/element/types'
+
+const ENSURE_THEME: Theme | null = 'light' //'dark' // TODO configure it from process.env
 
 /** Implements scene loading and saving */
 const ObjectiveOuterWrapper: FC<{
@@ -47,7 +50,11 @@ const ObjectiveOuterWrapper: FC<{
         .then((scene) => {
           // Data serialization. Ensure types.
           const serializedElements = scene.elements.map((e) => deepCopyElement(e))
-          const serializedAppState = { ...scene.appState, name: scene.name }
+          const serializedAppState = {
+            ...scene.appState,
+            name: scene.name,
+            theme: ENSURE_THEME ? ENSURE_THEME : scene.appState.theme,
+          }
           serializedAppState.collaborators = new Map<SocketId, Collaborator>(
             //@ts-ignore
             Object.entries(serializedAppState.collaborators || {})

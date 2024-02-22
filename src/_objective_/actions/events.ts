@@ -1,9 +1,13 @@
-// import { newElementWith } from '../../element/mutateElement'
+import App from '../../../packages/excalidraw/components/App'
 import { newElementWith } from '../../../packages/excalidraw/element/mutateElement'
 import { isImageElement } from '../../../packages/excalidraw/element/typeChecks'
-import { ExcalidrawElement, NonDeletedExcalidrawElement } from '../../../packages/excalidraw/element/types'
+import {
+  ExcalidrawElement,
+  NonDeletedExcalidrawElement,
+} from '../../../packages/excalidraw/element/types'
+
 import Scene from '../../../packages/excalidraw/scene/Scene'
-import { AppState } from '../../../packages/excalidraw/types'
+import { AppState, PointerDownState } from '../../../packages/excalidraw/types'
 import { Mutable } from '../../../packages/excalidraw/utility-types'
 import { cameraInitialMeta, getBaseInitialMeta } from '../objects/initial'
 import { newNameRepr, newShotNumberRepr } from '../objects/primitives'
@@ -20,6 +24,7 @@ import {
   isObjective,
   isShotCameraMeta,
 } from '../types/types'
+import { actionSnapLocation } from './actionOnDrag'
 import { changeElementProperty, createMetaRepr, deleteMetaRepr } from './helpers'
 
 /**
@@ -155,22 +160,44 @@ export const deleteObjectiveMetas = (
  * Populate `elementsToUpdate` with new elements to move it alongside with selected.
  */
 export const dragEventHandler = (
+  pointerDownState: PointerDownState,
   selectedElements: NonDeletedExcalidrawElement[],
   elementsToUpdate: Set<NonDeletedExcalidrawElement>,
   scene: Scene
-) => {
+): Set<NonDeletedExcalidrawElement> => {
   //
-  // - handle camera drag
-  const metas = getObjectiveMetas(selectedElements)
+  // NOTE: be aware of using/mutating `selectedElements` directly, as Excalidraw may call for event
+  // handler twice per 'one moment' and mutateElement will be called several times... but if we refer
+  // to original elements, we have deal with original-not-mutated elements and prevent this unexpected
+  // behavior
+  const originalSelectedElements = selectedElements.map(
+    (e) => pointerDownState.originalElements.get(e.id) || e
+  )
+  const metas = getObjectiveMetas(originalSelectedElements)
+  const singleObjectiveItem = metas.length === 1
+
   metas.forEach((meta) => {
+    //
+    // - handle name repr drag
     if (meta.nameRepr) {
       const container = scene.getNonDeletedElement(meta.nameRepr)
       if (container) elementsToUpdate.add(container)
     }
+    //
+    // - handle camera drag
     if (isShotCameraMeta(meta) && meta.shotNumberRepr) {
       const container = scene.getNonDeletedElement(meta.shotNumberRepr)
       if (container) elementsToUpdate.add(container)
     }
   })
-  // handle other elements drag
+
+  return elementsToUpdate
+}
+
+export const onPointerUpFromPointerDownEventHandler = (
+  app: App,
+  pointerDownState: PointerDownState
+) => {
+  if (app.state.draggingElement?.type === 'selection')
+    app.actionManager.executeAction(actionSnapLocation)
 }

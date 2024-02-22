@@ -9,6 +9,8 @@ import { getBoundTextElement } from "./textElement";
 import { isArrowElement, isFrameLikeElement } from "./typeChecks";
 import { NonDeletedExcalidrawElement } from "./types";
 import { dragEventHandler } from "../../../src/_objective_/actions/events";
+import { isAllElementsLocation } from "../../../src/_objective_/types/types";
+
 export const dragSelectedElements = (
   pointerDownState: PointerDownState,
   selectedElements: NonDeletedExcalidrawElement[],
@@ -24,9 +26,7 @@ export const dragSelectedElements = (
   // we do not want a frame and its elements to be selected at the same time
   // but when it happens (due to some bug), we want to avoid updating element
   // in the frame twice, hence the use of set
-  const elementsToUpdate = new Set<NonDeletedExcalidrawElement>(
-    selectedElements,
-  );
+  let elementsToUpdate = new Set<NonDeletedExcalidrawElement>(selectedElements);
   const frames = selectedElements
     .filter((e) => isFrameLikeElement(e))
     .map((f) => f.id);
@@ -49,10 +49,15 @@ export const dragSelectedElements = (
     offset,
     snapOffset,
     gridSize,
-    appState.gridSnappingEnabled
+    appState.gridSnappingEnabled,
   );
 
-  dragEventHandler(selectedElements, elementsToUpdate, scene);
+  elementsToUpdate = dragEventHandler(
+    pointerDownState,
+    selectedElements,
+    elementsToUpdate,
+    scene,
+  );
 
   elementsToUpdate.forEach((element) => {
     updateElementCoords(pointerDownState, element, adjustedOffset);

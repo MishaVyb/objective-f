@@ -1,3 +1,9 @@
+import { decomposeWall } from "../../src/_objective_/actions/helpers";
+import { snapDraggedElementsLocation } from "../../src/_objective_/elements/snapElements";
+import {
+  isAllElementsLocation,
+  isWallElement,
+} from "../../src/_objective_/types/types";
 import { TOOL_TYPE } from "./constants";
 import {
   Bounds,
@@ -11,9 +17,11 @@ import {
   ExcalidrawElement,
   NonDeletedExcalidrawElement,
 } from "./element/types";
+
 import { getMaximumGroups } from "./groups";
 import { KEYS } from "./keys";
 import { rangeIntersection, rangesOverlap, rotatePoint } from "./math";
+import Scene from "./scene/Scene";
 import { getVisibleAndNonSelectedElements } from "./scene/selection";
 import { AppState, KeyboardModifiersObject, Point } from "./types";
 import { arrayToMap } from "./utils";
@@ -570,7 +578,7 @@ export const getReferenceSnapPoints = (
   selectedElements: ExcalidrawElement[],
   appState: AppState,
 ) => {
-  const referenceElements = getReferenceElements(
+    const referenceElements = getReferenceElements(
     elements,
     selectedElements,
     appState,
@@ -645,7 +653,17 @@ export const snapDraggedElements = (
   dragOffset: Vector2D,
   appState: AppState,
   event: KeyboardModifiersObject,
+  scene: Scene | null = null,
 ) => {
+  if (scene && isAllElementsLocation(selectedElements))
+    return snapDraggedElementsLocation(
+      selectedElements,
+      dragOffset,
+      appState,
+      event,
+      scene,
+    );
+
   if (
     !isSnappingEnabled({ appState, event, selectedElements }) ||
     selectedElements.length === 0

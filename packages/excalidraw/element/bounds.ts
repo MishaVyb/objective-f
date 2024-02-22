@@ -26,6 +26,7 @@ import { LinearElementEditor } from "./linearElementEditor";
 import { Mutable } from "../utility-types";
 import { ShapeCache } from "../scene/ShapeCache";
 import Scene from "../scene/Scene";
+import { getObjectiveCommonBounds } from "../../../src/_objective_/selectors/selectors";
 
 export type RectangleBox = {
   x: number;
@@ -747,6 +748,8 @@ export const getCommonBounds = (elements: ElementsMapOrArray): Bounds => {
   if ("size" in elements ? !elements.size : !elements.length) {
     return [0, 0, 0, 0];
   }
+
+  elements = getObjectiveCommonBounds(elements);
 
   let minX = Infinity;
   let maxX = -Infinity;

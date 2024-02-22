@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { useExcalidrawElements } from '../../../packages/excalidraw/components/App'
 import { isNonDeletedElement } from '../../../packages/excalidraw/element'
 import {
+  ElementsMapOrArray,
   ExcalidrawBindableElement,
   ExcalidrawElement,
   InitializedExcalidrawImageElement,
@@ -17,6 +18,7 @@ import {
   ObjectiveImageElement,
   ObjectiveMeta,
   ShotCameraMeta,
+  ensureArray,
   isCameraElement,
   isObjective,
   isPointerElement,
@@ -73,7 +75,7 @@ export const getObjectiveId = (element: ObjectiveElement) => element.groupIds[0]
  * @returns unique meta instances (non deleted  & readonly)
  */
 export const getObjectiveMetas = <TMeta extends ObjectiveMeta>(
-  elements: readonly ExcalidrawElement[],
+  elements: ElementsMapOrArray,
   opts?: {
     objectivePredicate?: typeof isObjective
     extraPredicate?: (meta: TMeta) => boolean
@@ -85,7 +87,7 @@ export const getObjectiveMetas = <TMeta extends ObjectiveMeta>(
   const idsByGroup = new Map<string, string[]>() // groupId : [element.id, element.id, ...]
   const elementsByGroups = new Map<string, ExcalidrawElement[]>() // groupId : [{...}, {...}, ...]
 
-  return elements
+  return ensureArray(elements)
     .filter((e): e is ObjectiveElement<TMeta> => {
       if (!opts?.includingDelited && e.isDeleted) return false // Omit deleted element
       if (!objectivePredicate(e)) return false // Omit another Objective Element kind
@@ -93,7 +95,7 @@ export const getObjectiveMetas = <TMeta extends ObjectiveMeta>(
 
       // meta duplicates: append element id and omit meta duplicate
       if (idsByGroup.has(objectiveId)) {
-        idsByGroup.get(objectiveId)?.push(e.id)
+        idsByGroup.get(objectiveId)?.push(e.id) // TMP backwards capability! Now using elements not ids
         elementsByGroups.get(objectiveId)?.push(e)
         return false
       }
@@ -166,8 +168,8 @@ export const selectObjectiveElements = (elements: readonly ExcalidrawElement[]) 
 export const selectCameraElements = (elements: readonly ExcalidrawElement[]) =>
   elements.filter(isCameraElement)
 
-// TODO docstring
-export const getObjectiveBasis = (meta: ObjectiveMeta) => meta.elements[0]
+export const getObjectiveBasis = <T extends ExcalidrawElement>(meta: ObjectiveMeta): T =>
+  meta.elements[meta.basisIndex || 0] as T
 /**
  * Camera Basis is a half-transparent circle. Camera are located inside it.
  * We bind any pointer to this circle by default.
@@ -248,6 +250,12 @@ export const getPointerBetween = (
   if (pointers.length === 0) return null
   if (pointers.length > 1) console.warn('Found more than 1 pointers.')
   return pointers[0]
+}
+
+export const getObjectiveCommonBounds = (elements: ElementsMapOrArray) => {
+  // maybe used latter to modify Excalidraw default behavior
+  // depending on basis
+  return elements
 }
 
 // -------------------------- selectors hooks -----------------------//

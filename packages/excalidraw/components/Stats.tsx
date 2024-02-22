@@ -8,7 +8,8 @@ import { CloseIcon } from "./icons";
 import { Island } from "./Island";
 import "./Stats.scss";
 import { isLinearElement } from "../element/typeChecks";
-import { getAbsLineStartEnd } from "../../../src/_objective_/actions/events";
+import { LinearElementEditor } from "../element/linearElementEditor";
+import { getAng, getLineFunc } from "../../../src/_objective_/elements/math";
 
 export const Stats = (props: {
   appState: UIAppState;
@@ -50,15 +51,18 @@ export const Stats = (props: {
           {selectedElement.points.map((currentPoint, i, points) => {
             if (i === 0) return <tr key={i}></tr>;
             const prevPoint = points[i - 1];
-            const [absStart, absEnd] = getAbsLineStartEnd(
+            const absStart = LinearElementEditor.getPointGlobalCoordinates(
               selectedElement,
               prevPoint,
+            );
+            const absEnd = LinearElementEditor.getPointGlobalCoordinates(
+              selectedElement,
               currentPoint,
             );
-            const ang =
-              (Math.atan2(absEnd[1] - absStart[1], absEnd[0] - absStart[0]) *
-                180) /
-              Math.PI;
+            const ang = getAng(absStart, absEnd);
+            const func = getLineFunc(absStart, absEnd);
+            const funcStr = ` | func y = ${func.slope} * x + ${func.intercept}`;
+
             return (
               <tr key={i}>
                 <td>
@@ -73,6 +77,7 @@ export const Stats = (props: {
                   {Math.round(absEnd[1])}
                   {" | angle "}
                   {Math.round(ang)}
+                  {funcStr}
                 </td>
               </tr>
             );
@@ -83,13 +88,7 @@ export const Stats = (props: {
           {selectedElement.points.map((currentPoint, i, points) => {
             if (i === 0) return <tr key={i}></tr>;
             const prevPoint = points[i - 1];
-            const ang =
-              (Math.atan2(
-                currentPoint[1] - prevPoint[1],
-                currentPoint[0] - prevPoint[0],
-              ) *
-                180) /
-              Math.PI;
+            const ang = getAng(prevPoint, currentPoint);
             return (
               <tr key={i}>
                 <td>

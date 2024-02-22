@@ -1,4 +1,5 @@
 import { changeProperty } from '../../../packages/excalidraw/actions/actionProperties'
+import { duplicateElement } from '../../../packages/excalidraw/element'
 import { mutateElement, newElementWith } from '../../../packages/excalidraw/element/mutateElement'
 import {
   getBoundTextElement,
@@ -6,11 +7,13 @@ import {
 } from '../../../packages/excalidraw/element/textElement'
 import {
   ExcalidrawElement,
+  ExcalidrawLinearElement,
   ExcalidrawRectangleElement,
   ExcalidrawTextElementWithContainer,
 } from '../../../packages/excalidraw/element/types'
 import Scene from '../../../packages/excalidraw/scene/Scene'
 import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
+import { getAbsLineStartEnd } from '../elements/math'
 import { getElement, getElementsMapStrict } from '../selectors/selectors'
 import {
   ObjectiveElement,
@@ -236,4 +239,30 @@ export const deleteMetaRepr = <TMeta extends ObjectiveMeta>(
   const text = getBoundTextElement(container!, getElementsMapStrict(container))
   if (!text) return
   mutateElement(text!, { isDeleted: true })
+}
+
+export const decomposeWall = (e: ExcalidrawLinearElement) => {
+  if (e.points.length <= 2) return [e]
+
+  const result = []
+  let prevPoint
+  for (const currentPoint of e.points) {
+    if (prevPoint) {
+      const [absPrevPoint, absCurrentPoint] = getAbsLineStartEnd(e, prevPoint, currentPoint)
+      result.push(
+        duplicateElement(null, new Map(), e, {
+          x: absPrevPoint[0],
+          y: absPrevPoint[1],
+          width: Math.abs(currentPoint[0] - prevPoint[0]),
+          height: Math.abs(currentPoint[1] - prevPoint[1]),
+          points: [
+            [0, 0],
+            [currentPoint[0] - prevPoint[0], currentPoint[1] - prevPoint[1]],
+          ],
+        })
+      )
+    }
+    prevPoint = currentPoint
+  }
+  return result
 }
