@@ -133,7 +133,8 @@ export type ActionName =
   | "actionInitStoryboard"
   | "actionStoryboard"
   | "toggleObjectiveSettings"
-  | "toggleGridSnapMode";
+  | "toggleGridSnapMode"
+  | "actionSnapLocation";
 
 export type PanelComponentProps<TFormData = any> = {
   elements: readonly ExcalidrawElement[];

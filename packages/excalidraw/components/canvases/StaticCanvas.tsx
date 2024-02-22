@@ -101,6 +101,7 @@ const getRelevantAppStateProps = (
   exportScale: appState.exportScale,
   selectedElementsAreBeingDragged: appState.selectedElementsAreBeingDragged,
   gridSize: appState.gridSize,
+  gridBoldLineFrequency: appState.gridBoldLineFrequency,
   frameRendering: appState.frameRendering,
   selectedElementIds: appState.selectedElementIds,
   frameToHighlight: appState.frameToHighlight,

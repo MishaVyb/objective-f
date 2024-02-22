@@ -73,7 +73,6 @@ import Collab, {
   isOfflineAtom,
 } from "./collab/Collab";
 import { reconcileElements } from "./collab/reconciliation";
-import { AppFooter } from "./components/AppFooter";
 import { AppMainMenu } from "./components/AppMainMenu";
 import { exportToExcalidrawPlus } from "./components/ExportToExcalidrawPlus";
 import {
