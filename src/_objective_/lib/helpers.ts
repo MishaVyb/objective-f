@@ -4,27 +4,28 @@ import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { randomId, randomInteger } from '../../../packages/excalidraw/random'
 import { LibraryItem } from '../../../packages/excalidraw/types'
 import { getBaseInitialMeta } from '../objects/initial'
-import { ObjectiveKinds } from '../types/types'
+import { ObjectiveKinds, ObjectiveMeta } from '../types/types'
 
 export const createObjFromClipboard = (
   clipboardObj: ElementsClipboard,
   name: string,
   kind: ObjectiveKinds,
-  overrides: Partial<ExcalidrawElement>
+  elOverrides: Partial<ExcalidrawElement>,
+  metaOverrides: Omit<Partial<ObjectiveMeta>, 'kind' | 'name'> = {}
 ): LibraryItem => {
   const groupId = randomId()
 
   // OVERRIDES:
   const els = clipboardObj.elements.map((el) => ({
     ...el,
-    ...overrides,
+    ...elOverrides,
     // do not change BG color if it's transparent:
     backgroundColor:
       el.backgroundColor === COLOR_PALETTE.transparent
         ? COLOR_PALETTE.transparent
-        : overrides.backgroundColor || el.backgroundColor,
+        : elOverrides.backgroundColor || el.backgroundColor,
     //
-    customData: getBaseInitialMeta(ObjectiveKinds.PROP, { name: name }),
+    customData: getBaseInitialMeta(kind, { name: name, ...metaOverrides }),
     //
     version: 1,
     versionNonce: 0,

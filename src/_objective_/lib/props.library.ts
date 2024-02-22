@@ -1,7 +1,5 @@
 import { ElementsClipboard } from '../../../packages/excalidraw/clipboard'
-import { randomId, randomInteger } from '../../../packages/excalidraw/random'
 import { LibraryItem, LibraryItems } from '../../../packages/excalidraw/types'
-import { getBaseInitialMeta } from '../objects/initial'
 import { ObjectiveKinds } from '../types/types'
 import { createObjFromClipboard } from './helpers'
 import bottle from './props/bottle'

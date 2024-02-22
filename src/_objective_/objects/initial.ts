@@ -1,5 +1,6 @@
 import { CameraMeta, ObjectiveKinds, ObjectiveMeta } from '../types/types'
 
+/** getDefaultMeta */
 export const getBaseInitialMeta = <T extends ObjectiveKinds>(
   kind: T,
   overriddes: Omit<Partial<ObjectiveMeta<T>>, 'kind'> = {}
@@ -10,6 +11,7 @@ export const getBaseInitialMeta = <T extends ObjectiveKinds>(
   elements: [],
   name: undefined,
   nameRepr: undefined,
+  basisIndex: 0,
   ...overriddes,
 })
 

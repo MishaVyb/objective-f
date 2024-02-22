@@ -81,6 +81,10 @@ export default function LibraryMenuItems({
     () => libraryItems.filter((item) => item.kind === ObjectiveKinds.CHARACTER),
     [libraryItems],
   );
+  const locationLibItems = useMemo(
+    () => libraryItems.filter((item) => item.kind === ObjectiveKinds.LOCATION),
+    [libraryItems],
+  );
   const propsLibItems = useMemo(
     () => libraryItems.filter((item) => item.kind === ObjectiveKinds.PROP),
     [libraryItems],
@@ -254,6 +258,10 @@ export default function LibraryMenuItems({
         {renderObjectiveLibItems(
           charactersLibItems,
           t("labels.libCharacters", null, "Characters"),
+        )}
+        {renderObjectiveLibItems(
+          locationLibItems, //
+          t("labels.libLocation", null, "Location"),
         )}
         {renderObjectiveLibItems(
           setLibItems, //

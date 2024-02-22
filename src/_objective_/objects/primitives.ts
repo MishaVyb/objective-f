@@ -7,6 +7,7 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import { getObjectiveBasis } from '../selectors/selectors'
 import { ObjectiveKinds, ObjectiveMeta, isCameraMeta } from '../types/types'
+import { getBaseInitialMeta } from './initial'
 
 export const newMockPointer = () =>
   newLinearElement({
@@ -23,7 +24,7 @@ export const newMockPointer = () =>
     ],
     startArrowhead: null,
     endArrowhead: null,
-    customData: { kind: ObjectiveKinds.POINTER, id: '', elementIds: [], elements: [] },
+    customData: getBaseInitialMeta(ObjectiveKinds.POINTER),
   })
 
 /**

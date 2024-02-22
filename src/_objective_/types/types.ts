@@ -1,8 +1,10 @@
 import { MagicCacheData } from '../../../packages/excalidraw/data/magic'
 import {
+  ElementsMapOrArray,
   ExcalidrawElement,
   ExcalidrawFrameElement,
   ExcalidrawImageElement,
+  ExcalidrawLinearElement,
   GroupId,
   InitializedExcalidrawImageElement,
 } from '../../../packages/excalidraw/element/types'
@@ -13,8 +15,9 @@ export enum ObjectiveKinds {
   CHARACTER = 'Character',
   POINTER = 'Pointer',
 
-  /** walls, doors, windows ... */
+  /** window or door (not wall!) ... */
   LOCATION = 'Location',
+  // WALL = 'Wall' // TODO
 
   /** furniture (big items) */
   SET = 'Set',
@@ -54,10 +57,22 @@ export interface ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> {
   /** Excalidraw primetime elements. Populated by `getMetas` */
   elements: readonly ObjectiveElement[]
 
+  /** base element index at elements Array
+   *
+   * basis could be used as main Excalidraw primitive element inside Objective object (elements group)
+   * it could be used for
+   * - binding arrows to it
+   * - getting commont bounds
+   * - rotation center
+   * etc.
+   *
+   */
+  basisIndex: number
+
   //
   //
   /** HACK: as TS support for internal Excalidraw properties for IFrames. Objective do not use that. */
-  generationData?: MagicCacheData 
+  generationData?: MagicCacheData
 }
 
 /**
@@ -120,8 +135,11 @@ export interface CameraMeta extends ObjectiveMeta {
    */
   relatedImages: readonly string[] // images id
 }
+export interface LocationMeta extends ObjectiveMeta {}
+
 export type CameraElement = ObjectiveElement<CameraMeta>
 export type ShotCameraElement = ObjectiveElement<ShotCameraMeta>
+export type LocationElement = ObjectiveElement<LocationMeta>
 
 export interface ShotCameraMeta extends CameraMeta {
   isShot: true
@@ -134,6 +152,14 @@ export const isCameraMeta = (meta: MaybeMeta): meta is CameraMeta =>
 export const isCameraElement = (el: MaybeExcalidrawElement): el is CameraElement =>
   isCameraMeta(el?.customData)
 
+/** TMP solution when any simple lien is Wall. */
+export const isWallElement = (el: MaybeExcalidrawElement): el is ExcalidrawLinearElement =>
+  !!(el && el.type === 'line' && !el.customData)
+
+export const isLocationMeta = (meta: MaybeMeta): meta is LocationMeta =>
+  meta?.kind === ObjectiveKinds.LOCATION
+export const isLocationElement = (el: MaybeExcalidrawElement): el is LocationElement =>
+  isLocationMeta(el?.customData)
 /**
  * Is element a camera and is it `shot` camera (camera added to shot list).
  */
@@ -144,6 +170,9 @@ export const isShotCameraMeta = (meta: MaybeMeta): meta is CameraMeta =>
 
 export const isAllElementsCameras = (elements: readonly ExcalidrawElement[]) =>
   elements.every((e) => isCameraElement(e))
+
+export const isAllElementsLocation = (elements: readonly ExcalidrawElement[]) =>
+  elements.every((e) => isLocationElement(e))
 
 export const isImageRelatedToCamera = (camera: CameraMeta, image: ExcalidrawImageElement) =>
   camera.relatedImages.includes(image.id)
@@ -167,6 +196,7 @@ export const isPointerElement = (el: MaybeExcalidrawElement): el is PointerEleme
 // ---------------------------------------------------------------------- helper functions
 
 export const isDisplayed = (el: ExcalidrawElement) => (el.opacity > 5 ? true : false)
+export const ensureArray = (els: ElementsMapOrArray) => ('values' in els ? [...els.values()] : els)
 
 //--------------------- TS tests ------------------------ //
 
