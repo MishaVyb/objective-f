@@ -50,6 +50,28 @@ export const getCenter = (a: PointType, b: PointType): Vector => {
   }
 }
 
+export const isHorizontallLine = (a: Vector, b: Vector) => a.y === b.y
+export const isVerticalLine = (a: Vector, b: Vector) => a.x === b.x
+
+export const isTargetInsideSquare = (
+  a: Vector,
+  b: Vector,
+  target: Vector,
+  paddingShift: number = 0
+) => {
+  const padding = { x: 0, y: 0 }
+  if (isHorizontallLine(a, b)) padding.y = paddingShift
+  if (isVerticalLine(a, b)) padding.x = paddingShift
+
+  // x condition or x condition reversed
+  // y condition or y condition reversed
+  const XCond = a.x - padding.x < target.x && target.x < b.x + padding.x
+  const XCondRev = b.x - padding.x < target.x && target.x < a.x + padding.x
+  const YCond = a.y - padding.y < target.y && target.y < b.y + padding.y
+  const YCondRev = b.y - padding.y < target.y && target.y < a.y + padding.y
+  return (XCond || XCondRev) && (YCond || YCondRev)
+}
+
 //----------------------------- unused for now, but could be used later ---------------------------//
 
 export type Func = {

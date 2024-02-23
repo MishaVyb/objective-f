@@ -1,5 +1,4 @@
 import { LinearElementEditor } from '../../../packages/excalidraw/element/linearElementEditor'
-import { normalizeAngle } from '../../../packages/excalidraw/element/resizeElements'
 import {
   ExcalidrawElement,
   ExcalidrawLinearElement,
@@ -7,33 +6,51 @@ import {
 import Scene from '../../../packages/excalidraw/scene/Scene'
 import { AppState, KeyboardModifiersObject, Point } from '../../../packages/excalidraw/types'
 
-import { getCenter, getDistance, Vector, ensureVector, getAngRad } from './math'
+import {
+  getCenter,
+  getDistance,
+  Vector,
+  ensureVector,
+  getAngRad,
+  isTargetInsideSquare,
+} from './math'
 import { getObjectiveBasis, getObjectiveMetas } from '../selectors/selectors'
 import { LocationMeta, isWallElement } from '../types/types'
 
 const LOCATION_SNAP_DISTANCE = 50
 
-export const getRequiredMinDistToSnap = (appState: AppState) => {
-  return LOCATION_SNAP_DISTANCE // TODO LOCATION_SNAP_DISTANCE / appState.zoom.value
-}
-
 export type LocationSnap = {
   basis: ExcalidrawLinearElement
-
-  /** [start, end] */
+  /** global coordinates [start, end] */
   basisPoints: Point[]
-
-  /** with dratOffset applied! */
+  /** global coordinates with dratOffset applied */
   basisCenter: Vector
-  //
   wall: ExcalidrawLinearElement
+  /** global coordinates */
   partStart: Vector
+  /** global coordinates */
   partEnd: Vector
   /** radians */
   partAngle: number
   dist: number
   distAbs: number
-  // isShouldSnap: boolean
+}
+
+export const shouldSnap = (target: LocationSnap, appState: AppState) => {
+  // TODO LOCATION_SNAP_DISTANCE / appState.zoom.value
+  if (LOCATION_SNAP_DISTANCE < target.distAbs) return false
+
+  if (
+    !isTargetInsideSquare(
+      target.partStart,
+      target.partEnd,
+      target.basisCenter,
+      LOCATION_SNAP_DISTANCE
+    )
+  )
+    return false
+
+  return true
 }
 
 export const getLocationSnap = (
@@ -86,8 +103,8 @@ export const getLocationSnap = (
     }
   }
 
-  if (!target) return null
-  if (getRequiredMinDistToSnap(appState) < target.distAbs) return
+  if (!target) return
+  if (!shouldSnap(target, appState)) return
 
   target.partAngle = getAngRad(target.partStart, target.partEnd)
   return target
@@ -112,9 +129,7 @@ export const snapDraggedElementsLocation = (
     const meta = metas[0]
     const snap = getLocationSnap(meta, appState, scene, dragOffset)
     if (snap) {
-      const [wb, wa] = [snap.partStart, snap.partEnd]
-      const wallAngle = normalizeAngle(Math.atan2(wb.y - wa.y, wb.x - wa.x))
-      console.log(wallAngle)
+      console.log('DO SNAP')
 
       return {
         snapOffset: getLocationSnapOffset(snap),
