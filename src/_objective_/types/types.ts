@@ -101,6 +101,11 @@ export type ObjectiveElement<TMeta extends ObjectiveMeta = ObjectiveMeta> = Read
 export const isMeta = (meta: MaybeMeta): meta is ObjectiveMeta => !!meta?.kind
 export const isObjective = (el: MaybeExcalidrawElement): el is ObjectiveElement =>
   isMeta(el?.customData)
+
+/** as `isMeta` or `isObjective` but when we asking for specific Objective kind */
+export const isKind = (arg: MaybeExcalidrawElement | MaybeMeta, kind: ObjectiveKinds) =>
+  arg && 'type' in arg ? arg?.customData?.kind === kind : arg?.kind === kind
+
 export const isAllElementsObjective = (elements: readonly ExcalidrawElement[]) =>
   !!elements.length && elements.every((e) => isObjective(e))
 export const isAnyElementsObjective = (elements: readonly ExcalidrawElement[]) =>

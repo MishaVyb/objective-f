@@ -2,6 +2,7 @@ import { normalizeAngle } from '../../../packages/excalidraw/element/resizeEleme
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import Scene from '../../../packages/excalidraw/scene/Scene'
 import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
+import { between } from '../elements/math'
 
 import { rotateMultipleElementsOnAngle } from '../elements/mutateElements'
 import { getLocationSnap } from '../elements/snapElements'
@@ -39,15 +40,25 @@ const performRotationLocationOnDragFinalize = (
 ) => {
   const snap = getLocationSnap(meta, appState, scene)
   if (snap) {
+    const PI = Math.PI
     const basisAngle = normalizeAngle(snap.basis.angle)
-    const rotateForValue = snap.partAngle - basisAngle
+
+    // makes rotation not more than 90 degrees (1 PI radian)
+    // 0 - 0.5 PI -- ok, rotate to wall part line
+    // 0.5 PI - 1 PI -- should change rotion amount to revers wall part line
+    // 1 PI - 1.5 PI -- should change rotion amount to revers wall part line
+    // 1.5 PI - 2 PI -- ok, rotate to wall part line
+    let ang = normalizeAngle(snap.partAngle - basisAngle)
+    if (between(0.5 * PI, ang, PI)) ang = ang + PI
+    else if (between(PI, ang, 1.5 * PI)) ang = ang - PI
+
     rotateMultipleElementsOnAngle(
       scene.getElementsMapIncludingDeleted(),
       selected,
       scene.getElementsMapIncludingDeleted(),
       snap.basisCenter.x,
       snap.basisCenter.y,
-      rotateForValue
+      ang // rotate on that value
     )
   }
 }

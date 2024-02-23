@@ -14,12 +14,15 @@ import { AppState } from '../../../packages/excalidraw/types'
 import { useExcalidrawFiles } from '../components/ObjectiveInnerWrapper'
 import {
   CameraMeta,
+  MaybeExcalidrawElement,
   ObjectiveElement,
   ObjectiveImageElement,
+  ObjectiveKinds,
   ObjectiveMeta,
   ShotCameraMeta,
   ensureArray,
   isCameraElement,
+  isKind,
   isObjective,
   isPointerElement,
   isShotCameraElement,
@@ -77,12 +80,18 @@ export const getObjectiveId = (element: ObjectiveElement) => element.groupIds[0]
 export const getObjectiveMetas = <TMeta extends ObjectiveMeta>(
   elements: ElementsMapOrArray,
   opts?: {
-    objectivePredicate?: typeof isObjective
+    kind?: ObjectiveKinds
+    objectivePredicate?: (el: MaybeExcalidrawElement) => el is ObjectiveElement
     extraPredicate?: (meta: TMeta) => boolean
     includingDelited?: boolean
   }
 ): readonly Readonly<TMeta>[] => {
-  const objectivePredicate = opts?.objectivePredicate || isObjective
+  if (opts?.kind && opts?.objectivePredicate) throw Error('Exclusive options')
+
+  const kind = opts?.kind
+  const objectivePredicate = kind
+    ? (el: MaybeExcalidrawElement) => isKind(el, kind)
+    : opts?.objectivePredicate || isObjective
   const extraPredicate = opts?.extraPredicate || (() => true)
   const idsByGroup = new Map<string, string[]>() // groupId : [element.id, element.id, ...]
   const elementsByGroups = new Map<string, ExcalidrawElement[]>() // groupId : [{...}, {...}, ...]
@@ -108,6 +117,23 @@ export const getObjectiveMetas = <TMeta extends ObjectiveMeta>(
       getMeta(e, idsByGroup.get(getObjectiveId(e)), elementsByGroups.get(getObjectiveId(e)))
     )
     .filter((meta) => extraPredicate(meta))
+}
+/**
+ * Ensure provided elements are single Objective object and return its metas.
+ * If there are no one or many metas found, return null.
+ * */
+export const getObjectiveSingleMeta = <TMeta extends ObjectiveMeta>(
+  elements: ElementsMapOrArray,
+  opts?: {
+    kind?: TMeta['kind']
+    objectivePredicate?: (el: MaybeExcalidrawElement) => el is ObjectiveElement
+    extraPredicate?: (meta: TMeta) => boolean
+    includingDelited?: boolean
+  }
+): Readonly<TMeta> | null => {
+  const metas = getObjectiveMetas(elements, opts)
+  if (metas.length === 1) return metas[0]
+  return null
 }
 
 /**
@@ -250,12 +276,6 @@ export const getPointerBetween = (
   if (pointers.length === 0) return null
   if (pointers.length > 1) console.warn('Found more than 1 pointers.')
   return pointers[0]
-}
-
-export const getObjectiveCommonBounds = (elements: ElementsMapOrArray) => {
-  // maybe used latter to modify Excalidraw default behavior
-  // depending on basis
-  return elements
 }
 
 // -------------------------- selectors hooks -----------------------//

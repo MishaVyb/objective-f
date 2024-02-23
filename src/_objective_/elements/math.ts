@@ -14,6 +14,8 @@ export const ensureVector = (arg: PointType): Vector =>
 
 export const ensurePoint = (arg: PointType): Point => ('length' in arg ? arg : [arg.x, arg.y])
 
+export const between = (min: number, value: number, max: number) => min <= value && value <= max
+
 export const getAngRad = (a: PointType, b: PointType) => {
   a = ensureVector(a)
   b = ensureVector(b)

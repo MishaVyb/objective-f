@@ -32,7 +32,7 @@ export type LocationSnap = {
   partStart: Vector
   /** global coordinates */
   partEnd: Vector
-  /** radians */
+  /** radians (normalized) */
   partAngle: number
   dist: number
   distAbs: number

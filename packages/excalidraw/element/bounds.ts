@@ -26,7 +26,7 @@ import { LinearElementEditor } from "./linearElementEditor";
 import { Mutable } from "../utility-types";
 import { ShapeCache } from "../scene/ShapeCache";
 import Scene from "../scene/Scene";
-import { getObjectiveCommonBounds } from "../../../src/_objective_/selectors/selectors";
+import { getObjectiveCommonBounds } from "../../../src/_objective_/elements/boundElements";
 
 export type RectangleBox = {
   x: number;
