@@ -32,7 +32,7 @@ export const actionFinalizeSelectionDrag = register({
   },
 })
 
-const performRotationLocationOnDragFinalize = (
+export const performRotationLocationOnDragFinalize = (
   selected: ExcalidrawElement[],
   meta: ObjectiveMeta,
   appState: AppState,

@@ -122,7 +122,7 @@ export const snapDraggedElementsLocation = (
   selectedElements: ExcalidrawElement[],
   dragOffset: Vector,
   appState: AppState,
-  event: KeyboardModifiersObject,
+  event: KeyboardModifiersObject | null,
   scene: Scene
 ): { snapOffset: Vector; snapLines: PointSnapLine[] } => {
   const metas = getObjectiveMetas(selectedElements)

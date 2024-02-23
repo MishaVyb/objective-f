@@ -411,7 +411,10 @@ import { textWysiwyg } from "../element/textWysiwyg";
 import { ObjectiveKinds } from "../../../objective-app/objective/meta/types";
 import { getBaseInitialMeta } from "../../../objective-app/objective/objects/initial";
 import { actionToggleGridSnapMode } from "../../../objective-app/objective/actions/actionSettings";
-import { onPointerUpFromPointerDownEventHandler } from "../../../objective-app/objective/elements/events";
+import {
+  addElementsFromPasteOrLibraryHandler,
+  onPointerUpFromPointerDownEventHandler,
+} from "../../../objective-app/objective/elements/events";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -3143,9 +3146,12 @@ class App extends React.Component<AppProps, AppState> {
       },
     );
 
+    const newElementsAfterObjectiveHAndler =
+      addElementsFromPasteOrLibraryHandler(this, newElements, opts);
+
     const allElements = [
       ...this.scene.getElementsIncludingDeleted(),
-      ...newElements,
+      ...newElementsAfterObjectiveHAndler,
     ];
 
     const topLayerFrame = this.getTopLayerFrameAtSceneCoords({ x, y });

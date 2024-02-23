@@ -7,7 +7,7 @@ import {
 } from '../../../packages/excalidraw/element/types'
 
 import Scene from '../../../packages/excalidraw/scene/Scene'
-import { AppState, PointerDownState } from '../../../packages/excalidraw/types'
+import { AppState, BinaryFiles, PointerDownState } from '../../../packages/excalidraw/types'
 import { Mutable } from '../../../packages/excalidraw/utility-types'
 import { cameraInitialMeta, getBaseInitialMeta } from '../objects/initial'
 import { newNameRepr, newShotNumberRepr } from '../objects/primitives'
@@ -15,17 +15,23 @@ import {
   getCameraBasis,
   getCameraMetas,
   getObjectiveMetas,
+  getObjectiveSingleMeta,
   getPointerBetween,
 } from '../meta/selectors'
 import {
+  ObjectiveKinds,
   ObjectiveMeta,
   isCameraElement,
   isCameraMeta,
   isObjective,
   isShotCameraMeta,
 } from '../meta/types'
-import { actionFinalizeSelectionDrag } from '../actions/actionOnDrag'
+import {
+  actionFinalizeSelectionDrag,
+  performRotationLocationOnDragFinalize,
+} from '../actions/actionOnDrag'
 import { changeElementProperty, createMetaRepr, deleteMetaRepr } from './helpers'
+import { snapDraggedElementsLocation } from './snapElements'
 
 /**
  * It's assumed that meta (`customData`) already copied properly by `_deppCopyElement`
@@ -200,4 +206,38 @@ export const onPointerUpFromPointerDownEventHandler = (
 ) => {
   if (app.state.draggingElement?.type === 'selection')
     app.actionManager.executeAction(actionFinalizeSelectionDrag)
+}
+
+export const addElementsFromPasteOrLibraryHandler = (
+  app: App,
+  newElements: ExcalidrawElement[],
+  /** original App handler opts */
+  opts: {
+    elements: readonly ExcalidrawElement[]
+    files: BinaryFiles | null
+    position: { clientX: number; clientY: number } | 'cursor' | 'center'
+    retainSeed?: boolean
+    fitToContent?: boolean
+  }
+) => {
+  const location = getObjectiveSingleMeta(newElements, { kind: ObjectiveKinds.LOCATION })
+  if (location) {
+    performRotationLocationOnDragFinalize(newElements, location, app.state, app.scene)
+
+    const { snapOffset } = snapDraggedElementsLocation(
+      newElements,
+      { x: 0, y: 0 },
+      app.state,
+      null,
+      app.scene
+    )
+    newElements = newElements.map((element) => {
+      return newElementWith(element, {
+        x: element.x + snapOffset.x,
+        y: element.y + snapOffset.y,
+      })
+    })
+  }
+
+  return newElements
 }
