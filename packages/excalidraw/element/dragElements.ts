@@ -9,7 +9,6 @@ import { getBoundTextElement } from "./textElement";
 import { isArrowElement, isFrameLikeElement } from "./typeChecks";
 import { NonDeletedExcalidrawElement } from "./types";
 import { dragEventHandler } from "../../../src/_objective_/elements/events";
-import { isAllElementsLocation } from "../../../src/_objective_/types/types";
 
 export const dragSelectedElements = (
   pointerDownState: PointerDownState,

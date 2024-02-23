@@ -103,7 +103,10 @@ export const isObjective = (el: MaybeExcalidrawElement): el is ObjectiveElement 
   isMeta(el?.customData)
 
 /** as `isMeta` or `isObjective` but when we asking for specific Objective kind */
-export const isKind = (arg: MaybeExcalidrawElement | MaybeMeta, kind: ObjectiveKinds) =>
+export const isKind = <T extends ObjectiveKinds>(
+  arg: MaybeExcalidrawElement | MaybeMeta,
+  kind: T
+): arg is ObjectiveElement<ObjectiveMeta<T>> | ObjectiveMeta<T> =>
   arg && 'type' in arg ? arg?.customData?.kind === kind : arg?.kind === kind
 
 export const isAllElementsObjective = (elements: readonly ExcalidrawElement[]) =>
@@ -219,4 +222,8 @@ const __test = () => {
   myFoo(meta)
   // @ts-ignore
   isMeta(element)
+
+  if (isKind(meta, ObjectiveKinds.LOCATION)) {
+    const location = meta
+  }
 }

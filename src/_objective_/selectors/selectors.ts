@@ -74,16 +74,18 @@ export const getObjectiveId = (element: ObjectiveElement) => element.groupIds[0]
  *
  * @param elements any elements
  * @param extraPredicate takes only specific metas (custom filter)
- * @param objectivePredicate takes only specific object kinds (camera \ character \ etc)
+ * @param kind takes only specific object kinds (camera \ character \ etc)
  * @returns unique meta instances (non deleted  & readonly)
  */
 export const getObjectiveMetas = <TMeta extends ObjectiveMeta>(
   elements: ElementsMapOrArray,
   opts?: {
     kind?: ObjectiveKinds
-    objectivePredicate?: (el: MaybeExcalidrawElement) => el is ObjectiveElement
     extraPredicate?: (meta: TMeta) => boolean
     includingDelited?: boolean
+
+    /** @deprecated use `kind` */
+    objectivePredicate?: (el: MaybeExcalidrawElement) => el is ObjectiveElement
   }
 ): readonly Readonly<TMeta>[] => {
   if (opts?.kind && opts?.objectivePredicate) throw Error('Exclusive options')
@@ -100,7 +102,7 @@ export const getObjectiveMetas = <TMeta extends ObjectiveMeta>(
     .filter((e): e is ObjectiveElement<TMeta> => {
       if (!opts?.includingDelited && e.isDeleted) return false // Omit deleted element
       if (!objectivePredicate(e)) return false // Omit another Objective Element kind
-      const objectiveId = getObjectiveId(e)
+      const objectiveId = getObjectiveId(e as ObjectiveElement)
 
       // meta duplicates: append element id and omit meta duplicate
       if (idsByGroup.has(objectiveId)) {
@@ -122,15 +124,15 @@ export const getObjectiveMetas = <TMeta extends ObjectiveMeta>(
  * Ensure provided elements are single Objective object and return its metas.
  * If there are no one or many metas found, return null.
  * */
-export const getObjectiveSingleMeta = <TMeta extends ObjectiveMeta>(
+export const getObjectiveSingleMeta = <TKind extends ObjectiveKinds>(
   elements: ElementsMapOrArray,
   opts?: {
-    kind?: TMeta['kind']
+    kind?: TKind
     objectivePredicate?: (el: MaybeExcalidrawElement) => el is ObjectiveElement
-    extraPredicate?: (meta: TMeta) => boolean
+    extraPredicate?: (meta: ObjectiveMeta<TKind>) => boolean
     includingDelited?: boolean
   }
-): Readonly<TMeta> | null => {
+): Readonly<ObjectiveMeta<TKind>> | null => {
   const metas = getObjectiveMetas(elements, opts)
   if (metas.length === 1) return metas[0]
   return null

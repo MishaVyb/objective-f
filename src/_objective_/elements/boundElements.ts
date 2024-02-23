@@ -3,10 +3,10 @@ import {
   ExcalidrawLinearElement,
 } from '../../../packages/excalidraw/element/types'
 import { getObjectiveBasis, getObjectiveSingleMeta } from '../selectors/selectors'
-import { LocationMeta, ObjectiveKinds } from '../types/types'
+import { ObjectiveKinds } from '../types/types'
 
 export const getObjectiveCommonBounds = (elements: ElementsMapOrArray) => {
-  const location = getObjectiveSingleMeta<LocationMeta>(elements, { kind: ObjectiveKinds.LOCATION })
+  const location = getObjectiveSingleMeta(elements, { kind: ObjectiveKinds.LOCATION })
   if (location) {
     // makes door rotate around bases center
     // so door won't shift while rotation and leaves fixed to its basis
