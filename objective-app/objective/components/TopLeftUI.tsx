@@ -2,8 +2,8 @@ import { ArrowLeftIcon, SymbolIcon } from '@radix-ui/react-icons'
 import { Flex, IconButton, Text } from '@radix-ui/themes'
 import { FC, ReactNode, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useSelector } from '../../_objective_plus_/hooks/redux'
-import { selectIsPending } from '../../_objective_plus_/store/projects/reducer'
+import { useSelector } from '../../objective-plus/hooks/redux'
+import { selectIsPending } from '../../objective-plus/store/projects/reducer'
 import { useExcalidrawAppState } from '../../../packages/excalidraw/components/App'
 
 const SHOW_SAVING_DEALOG_DELAY_MS = 1500

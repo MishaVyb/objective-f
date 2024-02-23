@@ -2,7 +2,7 @@ import { getElementAbsoluteCoords } from ".";
 import {
   duplicateAsInitialEventHandler,
   duplicateEventHandler,
-} from "../../../src/_objective_/elements/events";
+} from "../../../objective-app/objective/elements/events";
 import {
   DEFAULT_ELEMENT_PROPS,
   DEFAULT_FONT_FAMILY,

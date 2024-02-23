@@ -19,6 +19,6 @@
       "react": [ "./node_modules/@types/react" ]
     }
   },
-  "include": ["packages", "excalidraw-app", "src"],
+  "include": ["packages", "excalidraw-app", "objective-app"],
   "exclude": ["packages/excalidraw/types", "examples"]
 }

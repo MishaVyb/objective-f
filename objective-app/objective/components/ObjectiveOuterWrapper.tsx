@@ -1,8 +1,8 @@
 import { FC, ReactNode, useCallback, useEffect } from 'react'
 
 import { useParams } from 'react-router-dom'
-import { SCENE_PERSISTENCE } from '../../_objective_plus_/constants'
-import { useDispatch, useSelector } from '../../_objective_plus_/hooks/redux'
+import { SCENE_PERSISTENCE } from '../../objective-plus/constants'
+import { useDispatch, useSelector } from '../../objective-plus/hooks/redux'
 import {
   createFile,
   loadFile,
@@ -10,12 +10,12 @@ import {
   loadSceneInitial,
   loadUpdateScene,
   toggleProject,
-} from '../../_objective_plus_/store/projects/actions'
+} from '../../objective-plus/store/projects/actions'
 import {
   selectCurrentScene,
   selectIsMyScene,
   selectLoadingSceneIsPending,
-} from '../../_objective_plus_/store/projects/reducer'
+} from '../../objective-plus/store/projects/reducer'
 import { deepCopyElement } from '../../../packages/excalidraw/element/newElement'
 import { isImageElement } from '../../../packages/excalidraw/element/typeChecks'
 import { Collaborator, ExcalidrawImperativeAPI, SocketId } from '../../../packages/excalidraw/types'

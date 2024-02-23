@@ -2,9 +2,9 @@ import clsx from "clsx";
 import LanguageDetector from "i18next-browser-languagedetector";
 import { Provider, atom, useAtom, useAtomValue } from "jotai";
 import { useCallback, useEffect, useRef, useState } from "react";
-import ObjectiveOuterWrapper from "../src/_objective_/components/ObjectiveOuterWrapper";
-import ShotListSidebarContent from "../src/_objective_/components/ShotListSidebarContent";
-import TopRightUI from "../src/_objective_/components/TopRightUI";
+import ObjectiveOuterWrapper from "../objective-app/objective/components/ObjectiveOuterWrapper";
+import ShotListSidebarContent from "../objective-app/objective/components/ShotListSidebarContent";
+import TopRightUI from "../objective-app/objective/components/TopRightUI";
 import { trackEvent } from "../packages/excalidraw/analytics";
 import { getDefaultAppState } from "../packages/excalidraw/appState";
 import {
@@ -100,7 +100,7 @@ import { shareDialogStateAtom } from "./share/ShareDialog";
 import { isInitializedImageElement } from "../packages/excalidraw/element/typeChecks";
 import { RestoredDataState } from "../packages/excalidraw/data/restore";
 import { ResolutionType } from "../packages/excalidraw/utility-types";
-import { ObjectiveFooter } from "../src/_objective_/components/ObjectiveFooter";
+import { ObjectiveFooter } from "../objective-app/objective/components/ObjectiveFooter";
 // import { ResolutionType } from "../utility-types";
 
 polyfill();

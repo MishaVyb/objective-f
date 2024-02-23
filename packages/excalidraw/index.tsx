@@ -18,8 +18,8 @@ import { defaultLang } from "./i18n";
 import { jotaiScope, jotaiStore } from "./jotai";
 import { AppProps, ExcalidrawProps } from "./types";
 
-import { useSelector } from "../../src/_objective_plus_/hooks/redux";
-import { selectIsMyScene } from "../../src/_objective_plus_/store/projects/reducer";
+import { useSelector } from "../../objective-app/objective-plus/hooks/redux";
+import { selectIsMyScene } from "../../objective-app/objective-plus/store/projects/reducer";
 
 polyfill();
 

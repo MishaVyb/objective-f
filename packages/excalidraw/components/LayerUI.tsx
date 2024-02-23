@@ -53,7 +53,7 @@ import MainMenu from "./main-menu/MainMenu";
 
 import clsx from "clsx";
 import React from "react";
-import TopLeftUI from "../../../src/_objective_/components/TopLeftUI";
+import TopLeftUI from "../../../objective-app/objective/components/TopLeftUI";
 import { mutateElement } from "../element/mutateElement";
 import Scene from "../scene/Scene";
 import { ShapeCache } from "../scene/ShapeCache";
@@ -65,7 +65,7 @@ import Stack from "./Stack";
 import { TTDDialog } from "./TTDDialog/TTDDialog";
 import "./Toolbar.scss";
 import { UserList } from "./UserList";
-import { ObjectiveSettingsDialog } from "./../../../src/_objective_/components/ObjectiveSettingsDialog"
+import { ObjectiveSettingsDialog } from "../../../objective-app/objective/components/ObjectiveSettingsDialog"
 
 interface LayerUIProps {
   actionManager: ActionManager;

@@ -15,14 +15,14 @@ import {
 import { FC, useRef, useState } from 'react'
 
 import { useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from '../../_objective_plus_/hooks/redux'
-import { loadCreateScene, loadSceneInitial } from '../../_objective_plus_/store/projects/actions'
+import { useDispatch, useSelector } from '../../objective-plus/hooks/redux'
+import { loadCreateScene, loadSceneInitial } from '../../objective-plus/store/projects/actions'
 import {
   selectCurrentScene,
   selectIsOtherScene,
   selectProjects,
-} from '../../_objective_plus_/store/projects/reducer'
-import { Sidebar } from '../../../packages/excalidraw' 
+} from '../../objective-plus/store/projects/reducer'
+import { Sidebar } from '../../../packages/excalidraw'
 
 const MySceneShareOptions = () => {
   const url = window.location.href

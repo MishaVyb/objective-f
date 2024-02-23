@@ -1,9 +1,9 @@
-import { decomposeWall } from "../../src/_objective_/elements/helpers";
-import { snapDraggedElementsLocation } from "../../src/_objective_/elements/snapElements";
+import { decomposeWall } from "../../objective-app/objective/elements/helpers";
+import { snapDraggedElementsLocation } from "../../objective-app/objective/elements/snapElements";
 import {
   isAllElementsLocation,
   isWallElement,
-} from "../../src/_objective_/meta/types";
+} from "../../objective-app/objective/meta/types";
 import { TOOL_TYPE } from "./constants";
 import {
   Bounds,

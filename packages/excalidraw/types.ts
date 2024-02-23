@@ -1,6 +1,6 @@
 import React from "react";
 import { Point as RoughPoint } from "roughjs/bin/geometry";
-import { ObjectiveKinds } from "../../src/_objective_/meta/types";
+import { ObjectiveKinds } from "../../objective-app/objective/meta/types";
 import { Action } from "./actions/types";
 import { Spreadsheet } from "./charts";
 import { ClipboardData } from "./clipboard";

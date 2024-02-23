@@ -1,4 +1,4 @@
-import { MaybeMeta, isMeta } from "../../../src/_objective_/meta/types";
+import { MaybeMeta, isMeta } from "../../../objective-app/objective/meta/types";
 
 import { getElementAbsoluteCoords, getElementBounds } from "../element";
 import { isElementInViewport } from "../element/sizeHelpers";

@@ -1,4 +1,4 @@
-import { isPointerElement } from "../../../src/_objective_/meta/types";
+import { isPointerElement } from "../../../objective-app/objective/meta/types";
 import { KEYS } from "../keys";
 import { getElementAtPosition } from "../scene";
 import Scene from "../scene/Scene";

@@ -9,7 +9,7 @@ import { Island } from "./Island";
 import "./Stats.scss";
 import { isLinearElement } from "../element/typeChecks";
 import { LinearElementEditor } from "../element/linearElementEditor";
-import { getAngDeg, getLineFunc } from "../../../src/_objective_/elements/math";
+import { getAngDeg, getLineFunc } from "../../../objective-app/objective/elements/math";
 
 export const Stats = (props: {
   appState: UIAppState;

@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { flushSync } from "react-dom";
-import ObjectiveInnerWrapper from "../../../src/_objective_/components/ObjectiveInnerWrapper";
+import ObjectiveInnerWrapper from "../../../objective-app/objective/components/ObjectiveInnerWrapper";
 import clsx from "clsx";
 import throttle from "lodash.throttle";
 import { nanoid } from "nanoid";
@@ -48,7 +48,7 @@ import { createRedoAction, createUndoAction } from "../actions/actionHistory";
 import { actionToggleViewMode } from "../actions/actionToggleViewMode";
 import { ActionManager } from "../actions/manager";
 import { actions } from "../actions/register";
-import { objectiveActions } from "../../../src/_objective_/actions";
+import { objectiveActions } from "../../../objective-app/objective/actions";
 import { Action, ActionResult } from "../actions/types";
 import { trackEvent } from "../analytics";
 import {
@@ -408,10 +408,10 @@ import {
   setEraserCursor,
 } from "../cursor";
 import { textWysiwyg } from "../element/textWysiwyg";
-import { ObjectiveKinds } from "../../../src/_objective_/meta/types";
-import { getBaseInitialMeta } from "../../../src/_objective_/objects/initial";
-import { actionToggleGridSnapMode } from "../../../src/_objective_/actions/actionSettings";
-import { onPointerUpFromPointerDownEventHandler } from "../../../src/_objective_/elements/events";
+import { ObjectiveKinds } from "../../../objective-app/objective/meta/types";
+import { getBaseInitialMeta } from "../../../objective-app/objective/objects/initial";
+import { actionToggleGridSnapMode } from "../../../objective-app/objective/actions/actionSettings";
+import { onPointerUpFromPointerDownEventHandler } from "../../../objective-app/objective/elements/events";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);

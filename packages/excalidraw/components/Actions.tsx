@@ -51,7 +51,7 @@ import { useTunnels } from "../context/tunnels";
 import {
   isAllElementsObjective,
   isAnyElementsObjective,
-} from "../../../src/_objective_/meta/types";
+} from "../../../objective-app/objective/meta/types";
 import { CaretDownIcon, CaretRightIcon } from "@radix-ui/react-icons";
 
 export const SelectedShapeActions = ({

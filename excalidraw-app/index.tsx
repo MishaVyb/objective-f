@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import ObjectivePlusWrapper from "./../src/_objective_plus_";
+import ObjectivePlusWrapper from "../objective-app/objective-plus";
 // import { registerSW } from "virtual:pwa-register"; // VBRN CONFLICT install
 
 import "../excalidraw-app/sentry";

@@ -3,12 +3,12 @@ import { FC, ReactNode, createContext, useContext, useEffect, useState } from 'r
 
 import { SymbolIcon } from '@radix-ui/react-icons'
 import { Flex, Text } from '@radix-ui/themes'
-import { RootBox } from '../../_objective_plus_/components/layout'
-import { useSelector } from '../../_objective_plus_/hooks/redux'
+import { RootBox } from '../../objective-plus/components/layout'
+import { useSelector } from '../../objective-plus/hooks/redux'
 import {
   selectIsMyScene,
   selectLoadingSceneIsPending,
-} from '../../_objective_plus_/store/projects/reducer'
+} from '../../objective-plus/store/projects/reducer'
 import { actionToggleViewMode } from '../../../packages/excalidraw/actions/actionToggleViewMode'
 import App, { useApp, useExcalidrawElements } from '../../../packages/excalidraw/components/App'
 import { BinaryFiles } from '../../../packages/excalidraw/types'
