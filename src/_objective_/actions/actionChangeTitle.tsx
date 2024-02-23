@@ -7,7 +7,7 @@ import { getSelectedElements } from '../../../packages/excalidraw/scene'
 import { focusNearestParent } from '../../../packages/excalidraw/utils'
 import { TextField } from '../UI/TextField'
 import { newNameRepr } from '../objects/primitives'
-import { getObjectiveMetas } from '../selectors/selectors'
+import { getObjectiveMetas } from '../meta/selectors'
 import { handleMetaRepresentation, mutateElementsMeta } from '../elements/helpers'
 import { register } from './register'
 

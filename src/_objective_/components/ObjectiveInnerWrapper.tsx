@@ -12,8 +12,8 @@ import {
 import { actionToggleViewMode } from '../../../packages/excalidraw/actions/actionToggleViewMode'
 import App, { useApp, useExcalidrawElements } from '../../../packages/excalidraw/components/App'
 import { BinaryFiles } from '../../../packages/excalidraw/types'
-import { getCameraMetas } from '../selectors/selectors'
-import { CameraMeta } from '../types/types'
+import { getCameraMetas } from '../meta/selectors'
+import { CameraMeta } from '../meta/types'
 
 /**
  * Extra contexts

@@ -21,13 +21,13 @@ import {
   getPointerBetween,
   getShotCameraMetas,
   useCamerasImages,
-} from '../selectors/selectors'
+} from '../meta/selectors'
 import {
   CameraMeta,
   ObjectiveImageElement,
   isDisplayed,
   isImageRelatedToCamera,
-} from '../types/types'
+} from '../meta/types'
 import './../scss/actionStoryboard.scss'
 import { deleteEventHandler } from '../elements/events'
 import { changeElementMeta, changeElementProperty } from '../elements/helpers'

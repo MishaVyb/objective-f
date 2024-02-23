@@ -13,13 +13,13 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import Scene from '../../../packages/excalidraw/scene/Scene'
 import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
-import { getElement, getElementsMapStrict } from '../selectors/selectors'
+import { getElement, getElementsMapStrict } from '../meta/selectors'
 import {
   ObjectiveElement,
   ObjectiveMeta,
   isElementRelatedToMeta,
   isElementTarget,
-} from '../types/types'
+} from '../meta/types'
 import { LinearElementEditor } from '../../../packages/excalidraw/element/linearElementEditor'
 
 /**

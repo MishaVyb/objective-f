@@ -4,7 +4,7 @@ import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { randomId, randomInteger } from '../../../packages/excalidraw/random'
 import { LibraryItem } from '../../../packages/excalidraw/types'
 import { getBaseInitialMeta } from '../objects/initial'
-import { ObjectiveKinds, ObjectiveMeta } from '../types/types'
+import { ObjectiveKinds, ObjectiveMeta } from '../meta/types'
 
 export const createObjFromClipboard = (
   clipboardObj: ElementsClipboard,

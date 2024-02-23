@@ -26,7 +26,7 @@ import {
   isObjective,
   isPointerElement,
   isShotCameraElement,
-} from '../types/types'
+} from './types'
 import { toBrandedType } from '../../../packages/excalidraw/utils'
 
 /**

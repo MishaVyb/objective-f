@@ -3,7 +3,7 @@ import { snapDraggedElementsLocation } from "../../src/_objective_/elements/snap
 import {
   isAllElementsLocation,
   isWallElement,
-} from "../../src/_objective_/types/types";
+} from "../../src/_objective_/meta/types";
 import { TOOL_TYPE } from "./constants";
 import {
   Bounds,

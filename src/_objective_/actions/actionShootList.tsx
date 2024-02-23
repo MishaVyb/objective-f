@@ -13,8 +13,8 @@ import {
   getElement,
   getElementsMapStrict,
   getSelectedCameraMetas,
-} from '../selectors/selectors'
-import { CameraMeta, isAllElementsCameras, isCameraElement } from '../types/types'
+} from '../meta/selectors'
+import { CameraMeta, isAllElementsCameras, isCameraElement } from '../meta/types'
 import { handleMetaRepresentation, mutateElementsMeta } from '../elements/helpers'
 import { register } from './register'
 

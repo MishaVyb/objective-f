@@ -6,8 +6,8 @@ import { useDevice } from "./App";
 import "./LibraryUnit.scss";
 import { PlusIcon } from "./icons";
 import { Tooltip } from "@radix-ui/themes";
-import { getMetaReference } from "../../../src/_objective_/selectors/selectors";
-import { ObjectiveElement } from "../../../src/_objective_/types/types";
+import { getMetaReference } from "../../../src/_objective_/meta/selectors";
+import { ObjectiveElement } from "../../../src/_objective_/meta/types";
 
 export const LibraryUnit = memo(
   ({

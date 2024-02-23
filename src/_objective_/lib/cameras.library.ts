@@ -2,7 +2,7 @@ import { COLOR_PALETTE } from '../../../packages/excalidraw/colors'
 import { randomId, randomInteger } from '../../../packages/excalidraw/random'
 import { LibraryItem, LibraryItems } from '../../../packages/excalidraw/types'
 import { cameraInitialMeta } from '../objects/initial'
-import { ObjectiveKinds } from '../types/types'
+import { ObjectiveKinds } from '../meta/types'
 
 const OBJ_COLOR_SHADE_INDEX = 2 // min: 0; max: 5
 const OBJ_COLORS = [

@@ -2,8 +2,8 @@ import {
   ElementsMapOrArray,
   ExcalidrawLinearElement,
 } from '../../../packages/excalidraw/element/types'
-import { getObjectiveBasis, getObjectiveSingleMeta } from '../selectors/selectors'
-import { ObjectiveKinds } from '../types/types'
+import { getObjectiveBasis, getObjectiveSingleMeta } from '../meta/selectors'
+import { ObjectiveKinds } from '../meta/types'
 
 export const getObjectiveCommonBounds = (elements: ElementsMapOrArray) => {
   const location = getObjectiveSingleMeta(elements, { kind: ObjectiveKinds.LOCATION })

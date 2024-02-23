@@ -1,4 +1,4 @@
-import { CameraMeta, ObjectiveKinds, ObjectiveMeta } from '../types/types'
+import { CameraMeta, ObjectiveKinds, ObjectiveMeta } from '../meta/types'
 
 /** getDefaultMeta */
 export const getBaseInitialMeta = <T extends ObjectiveKinds>(

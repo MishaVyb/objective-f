@@ -5,8 +5,8 @@ import {
   ExcalidrawRectangleElement,
   ExcalidrawTextElementWithContainer,
 } from '../../../packages/excalidraw/element/types'
-import { getObjectiveBasis } from '../selectors/selectors'
-import { ObjectiveKinds, ObjectiveMeta, isCameraMeta } from '../types/types'
+import { getObjectiveBasis } from '../meta/selectors'
+import { ObjectiveKinds, ObjectiveMeta, isCameraMeta } from '../meta/types'
 import { getBaseInitialMeta } from './initial'
 
 export const newMockPointer = () =>

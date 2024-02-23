@@ -408,7 +408,7 @@ import {
   setEraserCursor,
 } from "../cursor";
 import { textWysiwyg } from "../element/textWysiwyg";
-import { ObjectiveKinds } from "../../../src/_objective_/types/types";
+import { ObjectiveKinds } from "../../../src/_objective_/meta/types";
 import { getBaseInitialMeta } from "../../../src/_objective_/objects/initial";
 import { actionToggleGridSnapMode } from "../../../src/_objective_/actions/actionSettings";
 import { onPointerUpFromPointerDownEventHandler } from "../../../src/_objective_/elements/events";

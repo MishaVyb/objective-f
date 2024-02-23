@@ -6,8 +6,8 @@ import { between } from '../elements/math'
 
 import { rotateMultipleElementsOnAngle } from '../elements/mutateElements'
 import { getLocationSnap } from '../elements/snapElements'
-import { getObjectiveMetas } from '../selectors/selectors'
-import { ObjectiveMeta, isLocationMeta } from '../types/types'
+import { getObjectiveMetas } from '../meta/selectors'
+import { ObjectiveMeta, isLocationMeta } from '../meta/types'
 import { register } from './register'
 
 /** Internal action called on `pointerUp` event handler */

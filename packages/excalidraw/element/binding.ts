@@ -1,4 +1,4 @@
-import { isPointerElement } from "../../../src/_objective_/types/types";
+import { isPointerElement } from "../../../src/_objective_/meta/types";
 import { KEYS } from "../keys";
 import { getElementAtPosition } from "../scene";
 import Scene from "../scene/Scene";

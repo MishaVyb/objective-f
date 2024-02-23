@@ -1,7 +1,7 @@
 import { getFormValue } from '../../../packages/excalidraw/actions/actionProperties'
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
 import { t } from '../../../packages/excalidraw/i18n'
-import { isCameraElement, isObjective } from '../types/types'
+import { isCameraElement, isObjective } from '../meta/types'
 import style from './actionRepresentation.module.css'
 import { register } from './register'
 

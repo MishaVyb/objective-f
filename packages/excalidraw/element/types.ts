@@ -1,4 +1,4 @@
-import { ObjectiveMeta } from "../../../src/_objective_/types/types";
+import { ObjectiveMeta } from "../../../src/_objective_/meta/types";
 import {
   FONT_FAMILY,
   ROUNDNESS,

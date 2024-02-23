@@ -16,14 +16,14 @@ import {
   getCameraMetas,
   getObjectiveMetas,
   getPointerBetween,
-} from '../selectors/selectors'
+} from '../meta/selectors'
 import {
   ObjectiveMeta,
   isCameraElement,
   isCameraMeta,
   isObjective,
   isShotCameraMeta,
-} from '../types/types'
+} from '../meta/types'
 import { actionFinalizeSelectionDrag } from '../actions/actionOnDrag'
 import { changeElementProperty, createMetaRepr, deleteMetaRepr } from './helpers'
 

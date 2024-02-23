@@ -20,7 +20,7 @@ import { deepCopyElement } from '../../../packages/excalidraw/element/newElement
 import { isImageElement } from '../../../packages/excalidraw/element/typeChecks'
 import { Collaborator, ExcalidrawImperativeAPI, SocketId } from '../../../packages/excalidraw/types'
 import { OBJECTIVE_LIB as OBJECTIVE_LIB_ITEMS } from '../lib'
-import { objectValues } from '../types/utils'
+import { objectValues } from '../meta/utils'
 import './../scss/app.scss'
 import { Theme } from '../../../packages/excalidraw/element/types'
 
