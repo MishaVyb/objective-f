@@ -13,7 +13,6 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import Scene from '../../../packages/excalidraw/scene/Scene'
 import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
-import { getAbsLineStartEnd } from './math'
 import { getElement, getElementsMapStrict } from '../selectors/selectors'
 import {
   ObjectiveElement,
@@ -21,6 +20,7 @@ import {
   isElementRelatedToMeta,
   isElementTarget,
 } from '../types/types'
+import { LinearElementEditor } from '../../../packages/excalidraw/element/linearElementEditor'
 
 /**
  * New propertries generic type. Where `T` is `ObjectiveMeta` or `ExcalidrawElement`.
@@ -246,13 +246,13 @@ export const decomposeWall = (e: ExcalidrawLinearElement) => {
 
   const result = []
   let prevPoint
-  for (const currentPoint of e.points) {
+  const points = LinearElementEditor.getPointsGlobalCoordinates(e)
+  for (const currentPoint of points) {
     if (prevPoint) {
-      const [absPrevPoint, absCurrentPoint] = getAbsLineStartEnd(e, prevPoint, currentPoint)
       result.push(
         duplicateElement(null, new Map(), e, {
-          x: absPrevPoint[0],
-          y: absPrevPoint[1],
+          x: prevPoint[0],
+          y: prevPoint[1],
           width: Math.abs(currentPoint[0] - prevPoint[0]),
           height: Math.abs(currentPoint[1] - prevPoint[1]),
           points: [

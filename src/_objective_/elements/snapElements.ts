@@ -5,16 +5,103 @@ import {
   ExcalidrawLinearElement,
 } from '../../../packages/excalidraw/element/types'
 import Scene from '../../../packages/excalidraw/scene/Scene'
-import { AppState, KeyboardModifiersObject } from '../../../packages/excalidraw/types'
+import { AppState, KeyboardModifiersObject, Point } from '../../../packages/excalidraw/types'
 
-import { getCenter, getDistanceAbs, getDistance, Vector2D } from './math'
+import { getCenter, getDistance, Vector, ensureVector, getAngRad } from './math'
 import { getObjectiveBasis, getObjectiveMetas } from '../selectors/selectors'
-import { isWallElement } from '../types/types'
+import { LocationMeta, isWallElement } from '../types/types'
+
+const LOCATION_SNAP_DISTANCE = 50
+
+export const getRequiredMinDistToSnap = (appState: AppState) => {
+  return LOCATION_SNAP_DISTANCE // TODO LOCATION_SNAP_DISTANCE / appState.zoom.value
+}
+
+export type LocationSnap = {
+  basis: ExcalidrawLinearElement
+
+  /** [start, end] */
+  basisPoints: Point[]
+
+  /** with dratOffset applied! */
+  basisCenter: Vector
+  //
+  wall: ExcalidrawLinearElement
+  partStart: Vector
+  partEnd: Vector
+  /** radians */
+  partAngle: number
+  dist: number
+  distAbs: number
+  // isShouldSnap: boolean
+}
+
+export const getLocationSnap = (
+  draggedMeta: LocationMeta,
+  appState: AppState,
+  scene: Scene,
+  dragOffset: Vector = { x: 0, y: 0 }
+) => {
+  const elements = scene.getNonDeletedElements()
+  const walls = elements.filter(isWallElement)
+  if (!walls.length) return
+
+  const basis = getObjectiveBasis<ExcalidrawLinearElement>(draggedMeta)
+  if (!basis) return
+  if (basis.points.length !== 2) return
+
+  const basisPoints = LinearElementEditor.getPointsGlobalCoordinates(basis)
+  const basisCenter = getCenter(basisPoints[0], basisPoints[1])
+
+  // make basis center follow user cursor XY
+  basisCenter.x = basisCenter.x + dragOffset.x
+  basisCenter.y = basisCenter.y + dragOffset.y
+
+  let minDist = Infinity
+  let target: LocationSnap | null = null
+  for (const wall of walls) {
+    const points = LinearElementEditor.getPointsGlobalCoordinates(wall)
+
+    let prevPoint
+    for (const currentPoint of points) {
+      if (prevPoint) {
+        const dist = getDistance(prevPoint, currentPoint, basisCenter)
+        const distAbs = Math.abs(dist)
+        if (distAbs < minDist) {
+          minDist = distAbs
+          target = {
+            basis,
+            basisPoints,
+            basisCenter,
+            wall,
+            partStart: ensureVector(prevPoint),
+            partEnd: ensureVector(currentPoint),
+            dist,
+            distAbs,
+            partAngle: NaN, // populate it later
+          }
+        }
+      }
+      prevPoint = currentPoint
+    }
+  }
+
+  if (!target) return null
+  if (getRequiredMinDistToSnap(appState) < target.distAbs) return
+
+  target.partAngle = getAngRad(target.partStart, target.partEnd)
+  return target
+}
+
+const getLocationSnapOffset = (snap: LocationSnap) => ({
+  x: Math.cos(90 - snap.partAngle) * snap.dist * -1,
+  y: Math.sin(90 - snap.partAngle) * snap.dist,
+})
 
 /** Objective `snapDraggedElements` event handler */
 export const snapDraggedElementsLocation = (
   selectedElements: ExcalidrawElement[],
-  dragOffset: Vector2D,
+  dragOffset: Vector,
   appState: AppState,
   event: KeyboardModifiersObject,
   scene: Scene
@@ -23,36 +110,15 @@ export const snapDraggedElementsLocation = (
   const singleObjectiveItem = metas.length === 1
   if (singleObjectiveItem) {
     const meta = metas[0]
-    const elements = scene.getNonDeletedElements()
-    const walls = elements.filter(isWallElement)
-    const targetWall = walls.length === 1 ? walls[0] : null
-    if (targetWall) {
-      const basis = getObjectiveBasis<ExcalidrawLinearElement>(meta)
-      const basisPoints = LinearElementEditor.getPointsGlobalCoordinates(basis)
-      const center = getCenter(basisPoints[0], basisPoints[1])
+    const snap = getLocationSnap(meta, appState, scene, dragOffset)
+    if (snap) {
+      const [wb, wa] = [snap.partStart, snap.partEnd]
+      const wallAngle = normalizeAngle(Math.atan2(wb.y - wa.y, wb.x - wa.x))
+      console.log(wallAngle)
 
-      // make basis center follow user cursor XY
-      center.x = center.x + dragOffset.x
-      center.y = center.y + dragOffset.y
-
-      // TODO handle not only 1-2 wall points, but all point and all walls
-      const [wa, wb] = LinearElementEditor.getPointsGlobalCoordinates(targetWall)
-      const dist = getDistanceAbs(wa, wb, center)
-      const distNotAbs = getDistance(wa, wb, center)
-      const isShouldSnap = 0 < dist && dist < 40
-
-      if (isShouldSnap) {
-        const wallAngle = normalizeAngle(Math.atan2(wb[1] - wa[1], wb[0] - wa[0]))
-        const distAngle = 90 - wallAngle
-        const snapOffset = {
-          x: Math.cos(distAngle) * distNotAbs * -1,
-          y: Math.sin(distAngle) * distNotAbs,
-        }
-
-        return {
-          snapOffset,
-          snapLines: [],
-        }
+      return {
+        snapOffset: getLocationSnapOffset(snap),
+        snapLines: [],
       }
     }
   }

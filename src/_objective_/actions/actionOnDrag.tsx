@@ -1,21 +1,17 @@
-import { LinearElementEditor } from '../../../packages/excalidraw/element/linearElementEditor'
 import { normalizeAngle } from '../../../packages/excalidraw/element/resizeElements'
-import {
-  ExcalidrawElement,
-  ExcalidrawLinearElement,
-} from '../../../packages/excalidraw/element/types'
+import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import Scene from '../../../packages/excalidraw/scene/Scene'
-import { AppClassProperties } from '../../../packages/excalidraw/types'
+import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
 
-import { getAbsLineStartEnd, getDistanceAbs, getRotationCenterAndAngle } from '../elements/math'
 import { rotateMultipleElementsOnAngle } from '../elements/mutateElements'
-import { getObjectiveBasis, getObjectiveMetas } from '../selectors/selectors'
-import { ObjectiveMeta, isLocationMeta, isWallElement } from '../types/types'
+import { getLocationSnap } from '../elements/snapElements'
+import { getObjectiveMetas } from '../selectors/selectors'
+import { ObjectiveMeta, isLocationMeta } from '../types/types'
 import { register } from './register'
 
 /** Internal action called on `pointerUp` event handler */
-export const actionSnapLocation = register({
-  name: 'actionSnapLocation',
+export const actionFinalizeSelectionDrag = register({
+  name: 'actionFinalizeSelectionDrag',
   trackEvent: { category: 'element' },
   perform: (elements, appState, formData, app: AppClassProperties) => {
     const selected = app.scene.getSelectedElements({
@@ -25,7 +21,7 @@ export const actionSnapLocation = register({
     const singleObjectiveItem = metas.length === 1
 
     if (singleObjectiveItem && isLocationMeta(metas[0])) {
-      performActionSnapLocation(selected, metas[0], app.scene)
+      performRotationLocationOnDragFinalize(selected, metas[0], appState, app.scene)
     }
 
     return {
@@ -35,55 +31,23 @@ export const actionSnapLocation = register({
   },
 })
 
-const performActionSnapLocation = (
-  selected: readonly ExcalidrawElement[],
+const performRotationLocationOnDragFinalize = (
+  selected: ExcalidrawElement[],
   meta: ObjectiveMeta,
+  appState: AppState,
   scene: Scene
 ) => {
-  const elements = scene.getNonDeletedElements()
-  const walls = elements.filter(isWallElement)
-  const targetWall = walls.length === 1 ? walls[0] : null
-  if (targetWall) {
-    let wallAngle = 0
-
-    let prevPoint = null
-    for (const currentPoint of targetWall.points) {
-      if (prevPoint) {
-        const [a, b] = getAbsLineStartEnd(targetWall, prevPoint, currentPoint)
-        wallAngle = normalizeAngle(Math.atan2(b[1] - a[1], b[0] - a[0])) // NORMALIZE!
-      }
-      prevPoint = currentPoint
-    }
-
-    const [basisCenterOrig, rotateForValueOrig] = getRotationCenterAndAngle(meta, wallAngle)
-
-    const basis = getObjectiveBasis<ExcalidrawLinearElement>(meta)
-    const basisPoints = LinearElementEditor.getPointsGlobalCoordinates(basis)
-
-    const wallPoints = LinearElementEditor.getPointsGlobalCoordinates(targetWall)
-    const dist = getDistanceAbs(wallPoints[0], wallPoints[1], basisCenterOrig)
-    const isShouldSnap = 0 < dist && dist < 50
-
-    // do rotate only if there are angle (if not, drag elements)
-    if (isShouldSnap && rotateForValueOrig) {
-      console.log('DO ROTATE')
-
-      rotateMultipleElementsOnAngle(
-        scene.getElementsMapIncludingDeleted(),
-        selected,
-        scene.getElementsMapIncludingDeleted(),
-        basisCenterOrig.x,
-        basisCenterOrig.y,
-        rotateForValueOrig
-      )
-
-      // NOTE:
-      // do not drag elements at the same time with rotation, otherwise elements in group go appart
-      // so return empty elementsToUpdate to prevent dragging
-    }
-    //
-    // no rotaion..
+  const snap = getLocationSnap(meta, appState, scene)
+  if (snap) {
+    const basisAngle = normalizeAngle(snap.basis.angle)
+    const rotateForValue = snap.partAngle - basisAngle
+    rotateMultipleElementsOnAngle(
+      scene.getElementsMapIncludingDeleted(),
+      selected,
+      scene.getElementsMapIncludingDeleted(),
+      snap.basisCenter.x,
+      snap.basisCenter.y,
+      rotateForValue
+    )
   }
-  //
-  // no rotaion..
 }
