@@ -1,4 +1,4 @@
-import { decomposeWall } from "../../src/_objective_/actions/helpers";
+import { decomposeWall } from "../../src/_objective_/elements/helpers";
 import { snapDraggedElementsLocation } from "../../src/_objective_/elements/snapElements";
 import {
   isAllElementsLocation,

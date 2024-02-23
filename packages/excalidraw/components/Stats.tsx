@@ -9,7 +9,7 @@ import { Island } from "./Island";
 import "./Stats.scss";
 import { isLinearElement } from "../element/typeChecks";
 import { LinearElementEditor } from "../element/linearElementEditor";
-import { getAng, getLineFunc } from "../../../src/_objective_/elements/math";
+import { getAngDeg, getLineFunc } from "../../../src/_objective_/elements/math";
 
 export const Stats = (props: {
   appState: UIAppState;
@@ -59,7 +59,7 @@ export const Stats = (props: {
               selectedElement,
               currentPoint,
             );
-            const ang = getAng(absStart, absEnd);
+            const ang = getAngDeg(absStart, absEnd);
             const func = getLineFunc(absStart, absEnd);
             const funcStr = ` | func y = ${func.slope} * x + ${func.intercept}`;
 
@@ -88,7 +88,7 @@ export const Stats = (props: {
           {selectedElement.points.map((currentPoint, i, points) => {
             if (i === 0) return <tr key={i}></tr>;
             const prevPoint = points[i - 1];
-            const ang = getAng(prevPoint, currentPoint);
+            const ang = getAngDeg(prevPoint, currentPoint);
             return (
               <tr key={i}>
                 <td>

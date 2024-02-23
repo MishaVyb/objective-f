@@ -411,7 +411,7 @@ import { textWysiwyg } from "../element/textWysiwyg";
 import { ObjectiveKinds } from "../../../src/_objective_/types/types";
 import { getBaseInitialMeta } from "../../../src/_objective_/objects/initial";
 import { actionToggleGridSnapMode } from "../../../src/_objective_/actions/actionSettings";
-import { onPointerUpFromPointerDownEventHandler } from "../../../src/_objective_/actions/events";
+import { onPointerUpFromPointerDownEventHandler } from "../../../src/_objective_/elements/events";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);

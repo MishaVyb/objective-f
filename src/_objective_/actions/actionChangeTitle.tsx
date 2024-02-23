@@ -8,7 +8,7 @@ import { focusNearestParent } from '../../../packages/excalidraw/utils'
 import { TextField } from '../UI/TextField'
 import { newNameRepr } from '../objects/primitives'
 import { getObjectiveMetas } from '../selectors/selectors'
-import { handleMetaRepresentation, mutateElementsMeta } from './helpers'
+import { handleMetaRepresentation, mutateElementsMeta } from '../elements/helpers'
 import { register } from './register'
 
 /**

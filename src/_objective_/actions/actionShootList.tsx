@@ -15,7 +15,7 @@ import {
   getSelectedCameraMetas,
 } from '../selectors/selectors'
 import { CameraMeta, isAllElementsCameras, isCameraElement } from '../types/types'
-import { handleMetaRepresentation, mutateElementsMeta } from './helpers'
+import { handleMetaRepresentation, mutateElementsMeta } from '../elements/helpers'
 import { register } from './register'
 
 type ActionType = 'init' | 'remove' | 'incraseShotNumber' | 'decraseShotNumber'

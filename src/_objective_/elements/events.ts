@@ -24,7 +24,7 @@ import {
   isObjective,
   isShotCameraMeta,
 } from '../types/types'
-import { actionSnapLocation } from './actionOnDrag'
+import { actionFinalizeSelectionDrag } from '../actions/actionOnDrag'
 import { changeElementProperty, createMetaRepr, deleteMetaRepr } from './helpers'
 
 /**
@@ -199,5 +199,5 @@ export const onPointerUpFromPointerDownEventHandler = (
   pointerDownState: PointerDownState
 ) => {
   if (app.state.draggingElement?.type === 'selection')
-    app.actionManager.executeAction(actionSnapLocation)
+    app.actionManager.executeAction(actionFinalizeSelectionDrag)
 }

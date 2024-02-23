@@ -13,7 +13,7 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import Scene from '../../../packages/excalidraw/scene/Scene'
 import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
-import { getAbsLineStartEnd } from '../elements/math'
+import { getAbsLineStartEnd } from './math'
 import { getElement, getElementsMapStrict } from '../selectors/selectors'
 import {
   ObjectiveElement,

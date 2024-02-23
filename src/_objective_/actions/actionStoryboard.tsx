@@ -29,8 +29,8 @@ import {
   isImageRelatedToCamera,
 } from '../types/types'
 import './../scss/actionStoryboard.scss'
-import { deleteEventHandler } from './events'
-import { changeElementMeta, changeElementProperty } from './helpers'
+import { deleteEventHandler } from '../elements/events'
+import { changeElementMeta, changeElementProperty } from '../elements/helpers'
 import { register } from './register'
 
 /**
