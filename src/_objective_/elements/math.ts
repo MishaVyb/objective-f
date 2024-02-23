@@ -9,9 +9,11 @@ export type Vector = {
 
 type PointType = Vector | Point
 
-export const ensureVector = (point: PointType): Vector => {
-  return 'length' in point ? { x: point[0], y: point[1] } : point
-}
+export const ensureVector = (arg: PointType): Vector =>
+  'length' in arg ? { x: arg[0], y: arg[1] } : arg
+
+export const ensurePoint = (arg: PointType): Point => ('length' in arg ? arg : [arg.x, arg.y])
+
 export const getAngRad = (a: PointType, b: PointType) => {
   a = ensureVector(a)
   b = ensureVector(b)
@@ -20,8 +22,9 @@ export const getAngRad = (a: PointType, b: PointType) => {
 
 export const getAngDeg = (a: PointType, b: PointType) => (getAngRad(a, b) * 180) / Math.PI
 
-export const MathRound = (n: number, k: number = 2) => n
-// Math.round(n * Math.pow(10, k)) / Math.pow(10, k)
+export const MathRound = (x: number, decimalPlaces = 6) => {
+  return Math.round(x * 10 ** decimalPlaces) / 10 ** decimalPlaces
+}
 
 /** Get distance between line _1<->_2 and point _0 */
 export const getDistanceAbs = (_1: PointType, _2: PointType, _0: PointType) =>

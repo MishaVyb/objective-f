@@ -13,9 +13,11 @@ import {
   ensureVector,
   getAngRad,
   isTargetInsideSquare,
+  ensurePoint,
 } from './math'
 import { getObjectiveBasis, getObjectiveMetas } from '../selectors/selectors'
 import { LocationMeta, isWallElement } from '../types/types'
+import { PointSnapLine } from '../../../packages/excalidraw/snapping'
 
 const LOCATION_SNAP_DISTANCE = 50
 
@@ -122,18 +124,21 @@ export const snapDraggedElementsLocation = (
   appState: AppState,
   event: KeyboardModifiersObject,
   scene: Scene
-) => {
+): { snapOffset: Vector; snapLines: PointSnapLine[] } => {
   const metas = getObjectiveMetas(selectedElements)
   const singleObjectiveItem = metas.length === 1
   if (singleObjectiveItem) {
     const meta = metas[0]
     const snap = getLocationSnap(meta, appState, scene, dragOffset)
     if (snap) {
-      console.log('DO SNAP')
-
       return {
         snapOffset: getLocationSnapOffset(snap),
-        snapLines: [],
+        snapLines: [
+          {
+            type: 'points',
+            points: [ensurePoint(snap.partStart), ensurePoint(snap.partEnd)], //
+          },
+        ],
       }
     }
   }
