@@ -1,5 +1,5 @@
 import React from "react";
-import { getCommonBounds } from "../element/bounds";
+import { getCommonBounds, getElementAbsoluteCoords } from "../element/bounds";
 import { NonDeletedExcalidrawElement } from "../element/types";
 import { t } from "../i18n";
 import { getTargetElements } from "../scene";
@@ -9,7 +9,18 @@ import { Island } from "./Island";
 import "./Stats.scss";
 import { isLinearElement } from "../element/typeChecks";
 import { LinearElementEditor } from "../element/linearElementEditor";
-import { getAngDeg, getLineFunc } from "../../../objective-app/objective/elements/math";
+import {
+  getAngDeg,
+  getBasisPoints,
+  getLineFunc,
+  getRectangleCoordinates,
+} from "../../../objective-app/objective/elements/math";
+import { Code } from "@radix-ui/themes";
+import {
+  getObjectiveBasis,
+  getObjectiveSingleMeta,
+} from "../../../objective-app/objective/meta/selectors";
+import { BasisElementType } from "../../../objective-app/objective/elements/snapElements";
 
 export const Stats = (props: {
   appState: UIAppState;
@@ -24,22 +35,88 @@ export const Stats = (props: {
 
   const objectiveStats = () => {
     const selectedElement = selectedElements[0];
+    const coordSimple =
+      selectedElement && getElementAbsoluteCoords(selectedElement);
+    const coordSmart =
+      selectedElement &&
+      selectedElement.type === "rectangle" &&
+      getRectangleCoordinates(selectedElement);
+
+    const basis =
+      selectedElement &&
+      getObjectiveBasis<BasisElementType>(
+        getObjectiveSingleMeta([selectedElement]),
+      );
+    const basisPoints = basis && getBasisPoints(basis);
+
     const singleElementInfo =
       selectedElements.length === 1 ? (
         <>
           <tr>
-            <td>{"pinter x y (see debug console)"}</td>
+            <td>{"pointer x y (see debug console)"}</td>
           </tr>
           <tr>
             <td>{"x y"}</td>
-            <td>{Math.round(selectedElements[0].x)}</td>
-            <td>{Math.round(selectedElements[0].y)}</td>
+            <td>
+              <Code>{Math.round(selectedElements[0].x)}</Code>
+            </td>
+            <td>
+              <Code>{Math.round(selectedElements[0].y)}</Code>
+            </td>
           </tr>
           <tr>
             <td>{"w h"}</td>
-            <td>{Math.round(selectedElements[0].width)}</td>
-            <td>{Math.round(selectedElements[0].height)}</td>
+            <td>
+              <Code>{Math.round(selectedElements[0].width)}</Code>
+            </td>
+            <td>
+              <Code>{Math.round(selectedElements[0].height)}</Code>
+            </td>
           </tr>
+          <tr>
+            <td>{"coord (simple)"}</td>
+            <td>
+              {" "}
+              <Code>{Math.round(coordSimple[0])}</Code>{" "}
+              <Code>{Math.round(coordSimple[1])}</Code>
+              {" | "}
+              <Code>{Math.round(coordSimple[2])}</Code>{" "}
+              <Code>{Math.round(coordSimple[3])}</Code>
+              {" | center "}
+              <Code>{Math.round(coordSimple[4])}</Code>{" "}
+              <Code>{Math.round(coordSimple[5])}</Code>
+            </td>
+          </tr>
+          {coordSmart && (
+            <tr>
+              <td>{"coord (smart)"}</td>
+              <td>
+                {" "}
+                <Code>
+                  <Code>{Math.round(coordSmart[0].x)}</Code>
+                </Code>{" "}
+                <Code>{Math.round(coordSmart[0].y)}</Code>
+                {" | "}
+                <Code>{Math.round(coordSmart[1].x)}</Code>{" "}
+                <Code>{Math.round(coordSmart[1].y)}</Code>
+              </td>
+            </tr>
+          )}
+          {basisPoints && (
+            <tr>
+              <td>{"basis points"}</td>
+              <td>
+                {" "}
+                <Code>
+                  <Code>{Math.round(basisPoints[0].x)}</Code>
+                </Code>{" "}
+                <Code>{Math.round(basisPoints[0].y)}</Code>
+                {" | "}
+                <Code>{Math.round(basisPoints[1].x)}</Code>{" "}
+                <Code>{Math.round(basisPoints[1].y)}</Code>
+              </td>
+            </tr>
+          )}
         </>
       ) : null;
     const linerElementInfo =
@@ -68,16 +145,14 @@ export const Stats = (props: {
                 <td>
                   {i}
                   {") start "}
-                  {Math.round(absStart[0])}
-                  {"-"}
-                  {Math.round(absStart[1])}
+                  <Code>{Math.round(absStart[0])}</Code>{" "}
+                  <Code>{Math.round(absStart[1])}</Code>
                   {" | end "}
-                  {Math.round(absEnd[0])}
-                  {"-"}
-                  {Math.round(absEnd[1])}
+                  <Code>{Math.round(absEnd[0])}</Code>{" "}
+                  <Code>{Math.round(absEnd[1])}</Code>
                   {" | angle "}
-                  {Math.round(ang)}
-                  {funcStr}
+                  <Code>{Math.round(ang)}</Code>
+                  {/* {funcStr} */}
                 </td>
               </tr>
             );
@@ -94,15 +169,13 @@ export const Stats = (props: {
                 <td>
                   {i}
                   {") start "}
-                  {Math.round(prevPoint[0])}
-                  {"-"}
-                  {Math.round(prevPoint[1])}
+                  <Code>{Math.round(prevPoint[0])}</Code>{" "}
+                  <Code>{Math.round(prevPoint[1])}</Code>
                   {" | end "}
-                  {Math.round(currentPoint[0])}
-                  {"-"}
-                  {Math.round(currentPoint[1])}
+                  <Code>{Math.round(currentPoint[0])}</Code>{" "}
+                  <Code>{Math.round(currentPoint[1])}</Code>
                   {" | angle "}
-                  {Math.round(ang)}
+                  <Code>{Math.round(ang)}</Code>
                 </td>
               </tr>
             );
@@ -139,11 +212,19 @@ export const Stats = (props: {
             </tr>
             <tr>
               <td>{t("stats.width")}</td>
-              <td>{Math.round(boundingBox[2]) - Math.round(boundingBox[0])}</td>
+              <td>
+                <Code>
+                  {Math.round(boundingBox[2]) - Math.round(boundingBox[0])}
+                </Code>
+              </td>
             </tr>
             <tr>
               <td>{t("stats.height")}</td>
-              <td>{Math.round(boundingBox[3]) - Math.round(boundingBox[1])}</td>
+              <td>
+                <Code>
+                  {Math.round(boundingBox[3]) - Math.round(boundingBox[1])}
+                </Code>
+              </td>
             </tr>
 
             {selectedElements.length === 1 && (
@@ -166,27 +247,35 @@ export const Stats = (props: {
             {selectedElements.length > 0 && (
               <>
                 <tr>
-                  <td>{"x"}</td>
-                  <td>{Math.round(selectedBoundingBox[0])}</td>
-                </tr>
-                <tr>
-                  <td>{"y"}</td>
-                  <td>{Math.round(selectedBoundingBox[1])}</td>
-                </tr>
-                <tr>
-                  <td>{t("stats.width")}</td>
+                  <td>{"x (bounding)"}</td>
                   <td>
-                    {Math.round(
-                      selectedBoundingBox[2] - selectedBoundingBox[0],
-                    )}
+                    <Code>{Math.round(selectedBoundingBox[0])}</Code>
                   </td>
                 </tr>
                 <tr>
-                  <td>{t("stats.height")}</td>
+                  <td>{"y (bounding)"}</td>
                   <td>
-                    {Math.round(
-                      selectedBoundingBox[3] - selectedBoundingBox[1],
-                    )}
+                    <Code>{Math.round(selectedBoundingBox[1])}</Code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>{"w (bounding)"}</td>
+                  <td>
+                    <Code>
+                      {Math.round(
+                        selectedBoundingBox[2] - selectedBoundingBox[0],
+                      )}
+                    </Code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>{"h (bounding)"}</td>
+                  <td>
+                    <Code>
+                      {Math.round(
+                        selectedBoundingBox[3] - selectedBoundingBox[1],
+                      )}
+                    </Code>
                   </td>
                 </tr>
               </>
@@ -195,9 +284,11 @@ export const Stats = (props: {
               <tr>
                 <td>{t("stats.angle")}</td>
                 <td>
-                  {`${Math.round(
-                    (selectedElements[0].angle * 180) / Math.PI,
-                  )}°`}
+                  <Code>
+                    {`${Math.round(
+                      (selectedElements[0].angle * 180) / Math.PI,
+                    )}°`}
+                  </Code>
                 </td>
               </tr>
             )}

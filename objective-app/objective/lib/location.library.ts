@@ -6,7 +6,9 @@ import { createObjFromClipboard } from './helpers'
 import doorOpen from './location/door-open'
 import doorClose from './location/door-close'
 import doorHalfOpen from './location/door-half-open'
+import window from './location/window'
 
+const WINDOW_BASIS_INDEX = 0
 const DOOR_BASIS_INDEX = 1 // dashed line
 
 const createObj = (
@@ -24,6 +26,7 @@ const createObj = (
 }
 
 export const LIB_LOCATION: LibraryItems = [
+  createObj(window, 'Window', WINDOW_BASIS_INDEX),
   createObj(doorClose, 'Door Close', DOOR_BASIS_INDEX),
   createObj(doorHalfOpen, 'Door Half Open', DOOR_BASIS_INDEX),
   createObj(doorOpen, 'Door Open', DOOR_BASIS_INDEX),

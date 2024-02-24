@@ -14,7 +14,7 @@ export const getObjectiveCommonBounds = (elements: ElementsMapOrArray) => {
     const extraBasis = location.elements[0] // TODO refactor
 
     // we need at least 2 elements to respond, otherwise Excalidraw fails on resize
-    return [extraBasis, basis]
+    if (basis && extraBasis) return [extraBasis, basis]
   }
   return elements
 }

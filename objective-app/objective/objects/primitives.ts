@@ -1,5 +1,8 @@
 import { newElement, newLinearElement, newTextElement } from '../../../packages/excalidraw/element'
-import { bindLinearElement, updateBoundElements } from '../../../packages/excalidraw/element/binding'
+import {
+  bindLinearElement,
+  updateBoundElements,
+} from '../../../packages/excalidraw/element/binding'
 import {
   ExcalidrawBindableElement,
   ExcalidrawRectangleElement,
@@ -69,10 +72,10 @@ export const newNameRepr = (meta: ObjectiveMeta, initialValue: string) => {
     strokeStyle: 'solid',
     roughness: 0,
     opacity: 30,
-    x: basis.x + basis.width / 2 - w / 2,
-    y: basis.y + basis.height + gap,
+    x: basis!.x + basis!.width / 2 - w / 2,
+    y: basis!.y + basis!.height + gap,
     strokeColor: 'transparent',
-    backgroundColor: basis.backgroundColor,
+    backgroundColor: basis!.backgroundColor,
     width: w,
     height: h,
     roundness: {
@@ -116,7 +119,6 @@ export const newNameRepr = (meta: ObjectiveMeta, initialValue: string) => {
   return [container, text] as [ExcalidrawRectangleElement, ExcalidrawTextElementWithContainer]
 }
 
-
 export const newShotNumberRepr = (meta: ObjectiveMeta, initialValue: string) => {
   const basis = getObjectiveBasis(meta)
   const gap = 5
@@ -128,10 +130,10 @@ export const newShotNumberRepr = (meta: ObjectiveMeta, initialValue: string) => 
     strokeStyle: 'solid',
     roughness: 0,
     opacity: 30,
-    x: basis.x + basis.width / 2 - w / 2,
-    y: basis.y + basis.height + gap,
+    x: basis!.x + basis!.width / 2 - w / 2,
+    y: basis!.y + basis!.height + gap,
     strokeColor: 'transparent',
-    backgroundColor: basis.backgroundColor,
+    backgroundColor: basis!.backgroundColor,
     width: w,
     height: h,
     roundness: null,

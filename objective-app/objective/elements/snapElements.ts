@@ -2,9 +2,10 @@ import { LinearElementEditor } from '../../../packages/excalidraw/element/linear
 import {
   ExcalidrawElement,
   ExcalidrawLinearElement,
+  ExcalidrawRectangleElement,
 } from '../../../packages/excalidraw/element/types'
 import Scene from '../../../packages/excalidraw/scene/Scene'
-import { AppState, KeyboardModifiersObject, Point } from '../../../packages/excalidraw/types'
+import { AppState, KeyboardModifiersObject } from '../../../packages/excalidraw/types'
 
 import {
   getCenter,
@@ -14,6 +15,7 @@ import {
   getAngRad,
   isTargetInsideSquare,
   ensurePoint,
+  getBasisPoints,
 } from './math'
 import { getObjectiveBasis, getObjectiveMetas } from '../meta/selectors'
 import { LocationMeta, isWallElement } from '../meta/types'
@@ -21,10 +23,12 @@ import { PointSnapLine } from '../../../packages/excalidraw/snapping'
 
 const LOCATION_SNAP_DISTANCE = 50
 
+export type BasisElementType = ExcalidrawLinearElement | ExcalidrawRectangleElement
+
 export type LocationSnap = {
-  basis: ExcalidrawLinearElement
+  basis: BasisElementType
   /** global coordinates [start, end] */
-  basisPoints: Point[]
+  basisPoints: [Vector, Vector]
   /** global coordinates with dratOffset applied */
   basisCenter: Vector
   wall: ExcalidrawLinearElement
@@ -65,11 +69,9 @@ export const getLocationSnap = (
   const walls = elements.filter(isWallElement)
   if (!walls.length) return
 
-  const basis = getObjectiveBasis<ExcalidrawLinearElement>(draggedMeta)
+  const basis = getObjectiveBasis<BasisElementType>(draggedMeta)
   if (!basis) return
-  if (basis.points.length !== 2) return
-
-  const basisPoints = LinearElementEditor.getPointsGlobalCoordinates(basis)
+  const basisPoints = getBasisPoints(basis)
   const basisCenter = getCenter(basisPoints[0], basisPoints[1])
 
   // make basis center follow user cursor XY

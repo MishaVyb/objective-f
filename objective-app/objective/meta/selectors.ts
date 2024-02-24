@@ -196,8 +196,12 @@ export const selectObjectiveElements = (elements: readonly ExcalidrawElement[]) 
 export const selectCameraElements = (elements: readonly ExcalidrawElement[]) =>
   elements.filter(isCameraElement)
 
-export const getObjectiveBasis = <T extends ExcalidrawElement>(meta: ObjectiveMeta): T =>
-  meta.elements[meta.basisIndex || 0] as T
+export const getObjectiveBasis = <T extends ExcalidrawElement>(
+  meta: ObjectiveMeta | undefined | null
+): T | undefined =>
+  // TODO basis validation
+  (meta?.elements?.length && (meta.elements[meta.basisIndex || 0] as T)) || undefined
+
 /**
  * Camera Basis is a half-transparent circle. Camera are located inside it.
  * We bind any pointer to this circle by default.

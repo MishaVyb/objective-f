@@ -73,16 +73,16 @@ export default function LibraryMenuItems({
   const { svgCache } = useLibraryCache();
 
   // VBRN objects as lib items
+  const locationLibItems = useMemo(
+    () => libraryItems.filter((item) => item.kind === ObjectiveKinds.LOCATION),
+    [libraryItems],
+  );
   const camerasLibItems = useMemo(
     () => libraryItems.filter((item) => item.kind === ObjectiveKinds.CAMERA),
     [libraryItems],
   );
   const charactersLibItems = useMemo(
     () => libraryItems.filter((item) => item.kind === ObjectiveKinds.CHARACTER),
-    [libraryItems],
-  );
-  const locationLibItems = useMemo(
-    () => libraryItems.filter((item) => item.kind === ObjectiveKinds.LOCATION),
     [libraryItems],
   );
   const propsLibItems = useMemo(
@@ -208,7 +208,6 @@ export default function LibraryMenuItems({
   const onItemClick = useCallback(
     (id: LibraryItem["id"] | null) => {
       if (id) {
-        // NAV trigered on add lib item by click
         onInsertLibraryItems(getInsertedElements(id));
       }
     },
@@ -231,7 +230,7 @@ export default function LibraryMenuItems({
     >
       {/*
 
-      VBRN diable dropdown menu
+      VBRN disable dropdown menu
       {!isLibraryEmpty && (
         <LibraryDropdownMenu
           selectedItems={selectedItems}
@@ -250,7 +249,10 @@ export default function LibraryMenuItems({
         }}
         ref={libraryContainerRef}
       >
-        {/* NAV lib items render */}
+        {renderObjectiveLibItems(
+          locationLibItems, //
+          t("labels.libLocation", null, "Location"),
+        )}
         {renderObjectiveLibItems(
           camerasLibItems,
           t("labels.libCameras", null, "Cameras"),
@@ -258,10 +260,6 @@ export default function LibraryMenuItems({
         {renderObjectiveLibItems(
           charactersLibItems,
           t("labels.libCharacters", null, "Characters"),
-        )}
-        {renderObjectiveLibItems(
-          locationLibItems, //
-          t("labels.libLocation", null, "Location"),
         )}
         {renderObjectiveLibItems(
           setLibItems, //
@@ -275,10 +273,6 @@ export default function LibraryMenuItems({
           outdoorLibItems,
           t("labels.libOutdoor", null, "Outdoor"),
         )}
-
-        {/* NAV lib items render (remote lib) UNUSED  */}
-        {/* {publeshedLibItems()} */}
-
         {showBtn && (
           <LibraryMenuControlButtons
             style={{ padding: "16px 0", width: "100%" }}

@@ -1,4 +1,14 @@
+import { isLinearElement } from '../../../packages/excalidraw'
+import { getElementAbsoluteCoords } from '../../../packages/excalidraw/element'
+import { LinearElementEditor } from '../../../packages/excalidraw/element/linearElementEditor'
 import { normalizeAngle } from '../../../packages/excalidraw/element/resizeElements'
+import { isRectangleElement } from '../../../packages/excalidraw/element/typeChecks'
+import {
+  ExcalidrawElement,
+  ExcalidrawLinearElement,
+  ExcalidrawRectangleElement,
+} from '../../../packages/excalidraw/element/types'
+import { rotate } from '../../../packages/excalidraw/math'
 
 import { Point } from '../../../packages/excalidraw/types'
 
@@ -53,6 +63,41 @@ export const getCenter = (a: PointType, b: PointType): Vector => {
     x: a.x + (b.x - a.x) / 2,
     y: a.y + (b.y - a.y) / 2,
   }
+}
+
+export const getElementCenter = (element: ExcalidrawElement): Vector => {
+  const [x1, y1, x2, y2] = getElementAbsoluteCoords(element)
+  return { x: (x1 + x2) / 2, y: (y1 + y2) / 2 }
+}
+
+export const getBasisPoints = (
+  basis: ExcalidrawRectangleElement | ExcalidrawLinearElement
+): [Vector, Vector] => {
+  if (isLinearElement(basis)) {
+    const [a, b] = LinearElementEditor.getPointsGlobalCoordinates(basis).map(ensureVector)
+    return [a, b]
+  } else if (isRectangleElement(basis)) {
+    //
+    // (a -> b) line (`left-top` -> `right-bottom`)
+    const [a, b] = getRectangleCoordinates(basis)
+
+    // as we need rectangle middle line, calculated it by applying rotation correction
+    const c = getCenter(a, b)
+    const angCorrection = basis.angle - getAngRad(a, b)
+    const aMiddle = rotate(a.x, a.y, c.x, c.y, angCorrection)
+    const bMiddle = rotate(b.x, b.y, c.x, c.y, angCorrection)
+    return [ensureVector(aMiddle), ensureVector(bMiddle)]
+  }
+  throw Error
+}
+
+/** get `left-top` and `right-bottom` points with rectangle rotation(!) */
+export const getRectangleCoordinates = (el: ExcalidrawRectangleElement): [Vector, Vector] => {
+  const [x1, y1, x2, y2, cx, cy] = getElementAbsoluteCoords(el)
+  const a = rotate(x1, y1, cx, cy, el.angle)
+  const b = rotate(x2, y2, cx, cy, el.angle)
+
+  return [ensureVector(a), ensureVector(b)]
 }
 
 export const isHorizontallLine = (a: Vector, b: Vector) => a.y === b.y
