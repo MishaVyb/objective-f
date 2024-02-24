@@ -42,23 +42,6 @@ export type LocationSnap = {
   distAbs: number
 }
 
-export const shouldSnap = (target: LocationSnap, appState: AppState) => {
-  // TODO LOCATION_SNAP_DISTANCE / appState.zoom.value
-  if (LOCATION_SNAP_DISTANCE < target.distAbs) return false
-
-  if (
-    !isTargetInsideSquare(
-      target.partStart,
-      target.partEnd,
-      target.basisCenter,
-      LOCATION_SNAP_DISTANCE
-    )
-  )
-    return false
-
-  return true
-}
-
 export const getLocationSnap = (
   draggedMeta: LocationMeta,
   appState: AppState,
@@ -88,7 +71,19 @@ export const getLocationSnap = (
       if (prevPoint) {
         const dist = getDistance(prevPoint, currentPoint, basisCenter)
         const distAbs = Math.abs(dist)
-        if (distAbs < minDist) {
+
+        if (
+          distAbs < minDist &&
+          //
+          // TODO LOCATION_SNAP_DISTANCE / appState.zoom.value
+          distAbs < LOCATION_SNAP_DISTANCE &&
+          isTargetInsideSquare(
+            ensureVector(prevPoint),
+            ensureVector(currentPoint),
+            basisCenter,
+            LOCATION_SNAP_DISTANCE
+          )
+        ) {
           minDist = distAbs
           target = {
             basis,
@@ -108,7 +103,6 @@ export const getLocationSnap = (
   }
 
   if (!target) return
-  if (!shouldSnap(target, appState)) return
 
   target.partAngle = getAngRad(target.partStart, target.partEnd)
   return target

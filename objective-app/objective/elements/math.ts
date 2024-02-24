@@ -100,8 +100,8 @@ export const getRectangleCoordinates = (el: ExcalidrawRectangleElement): [Vector
   return [ensureVector(a), ensureVector(b)]
 }
 
-export const isHorizontallLine = (a: Vector, b: Vector) => a.y === b.y
-export const isVerticalLine = (a: Vector, b: Vector) => a.x === b.x
+export const isHorizontallLine = (a: Vector, b: Vector) => Math.round(a.y) === Math.round(b.y)
+export const isVerticalLine = (a: Vector, b: Vector) => Math.round(a.x) === Math.round(b.x)
 
 export const isTargetInsideSquare = (
   a: Vector,
