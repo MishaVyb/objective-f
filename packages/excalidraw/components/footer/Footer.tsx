@@ -7,7 +7,6 @@ import {
   UndoRedoActions,
   ZoomActions,
 } from "../Actions";
-import { useDevice } from "../App";
 import { useTunnels } from "../../context/tunnels";
 import { HelpButton } from "../HelpButton";
 import { Section } from "../Section";
@@ -27,9 +26,7 @@ const Footer = ({
 }) => {
   const { FooterCenterTunnel, WelcomeScreenHelpHintTunnel } = useTunnels();
 
-  const device = useDevice();
-  const showFinalize =
-    !appState.viewModeEnabled && appState.multiElement && device.isTouchScreen;
+  const showFinalize = !appState.viewModeEnabled && appState.multiElement;
 
   return (
     <footer
