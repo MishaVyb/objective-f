@@ -43,7 +43,7 @@ export const actionToggleGridSnapMode = register({
       commitToHistory: false,
     }
   },
-  checked: (appState: AppState) => !!appState.gridSnappingEnabled,
+  checked: (appState: AppState) => !!(appState.gridSize && appState.gridSnappingEnabled),
   predicate: (element, appState, props) => {
     return typeof props.gridModeEnabled === 'undefined'
   },
