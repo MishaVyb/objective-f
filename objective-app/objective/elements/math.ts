@@ -100,18 +100,20 @@ export const getRectangleCoordinates = (el: ExcalidrawRectangleElement): [Vector
   return [ensureVector(a), ensureVector(b)]
 }
 
-export const isHorizontallLine = (a: Vector, b: Vector) => Math.round(a.y) === Math.round(b.y)
-export const isVerticalLine = (a: Vector, b: Vector) => Math.round(a.x) === Math.round(b.x)
+export const isHorizontallLine = (a: Vector, b: Vector, inaccuracy: number = 0) =>
+  Math.abs(Math.round(a.y) - Math.round(b.y)) <= inaccuracy
+export const isVerticalLine = (a: Vector, b: Vector, inaccuracy: number = 0) =>
+  Math.abs(Math.round(a.x) - Math.round(b.x)) <= inaccuracy
 
-export const isTargetInsideSquare = (
+export const isTargetInsideLineArea = (
   a: Vector,
   b: Vector,
   target: Vector,
   paddingShift: number = 0
 ) => {
   const padding = { x: 0, y: 0 }
-  if (isHorizontallLine(a, b)) padding.y = paddingShift
-  if (isVerticalLine(a, b)) padding.x = paddingShift
+  if (isHorizontallLine(a, b, paddingShift)) padding.y = paddingShift
+  if (isVerticalLine(a, b, paddingShift)) padding.x = paddingShift
 
   // x condition or x condition reversed
   // y condition or y condition reversed

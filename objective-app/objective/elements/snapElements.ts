@@ -13,7 +13,7 @@ import {
   Vector,
   ensureVector,
   getAngRad,
-  isTargetInsideSquare,
+  isTargetInsideLineArea,
   ensurePoint,
   getBasisPoints,
 } from './math'
@@ -77,7 +77,7 @@ export const getLocationSnap = (
           //
           // TODO LOCATION_SNAP_DISTANCE / appState.zoom.value
           distAbs < LOCATION_SNAP_DISTANCE &&
-          isTargetInsideSquare(
+          isTargetInsideLineArea(
             ensureVector(prevPoint),
             ensureVector(currentPoint),
             basisCenter,
