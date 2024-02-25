@@ -17,23 +17,27 @@ const MODES: Mode[] = [
   { size: 25, freq: 2 }, // 1
   // 1m
   { size: 20, freq: 5 }, // 2
-  { size: 25, freq: 4 }, // 3
+  { size: 25, freq: 4 }, // 3  -- DEFAULT
   { size: 50, freq: 2 }, // 4
   // 2m
   { size: 20, freq: 10 }, // 5
   { size: 50, freq: 4 }, // 6
 ]
 
+export const DEFAULT_GRID_MODE = MODES[3]
+
 const ScaleVerboseMap = {
   50: '0.5m',
   100: '1.0m',
   200: '2.0m',
 }
-const getMode = (gridSize: number, boldLineFreq: number) => {
-  const modeIndex = MODES.findIndex((v) => v.size === gridSize && v.freq === boldLineFreq)
-  if (modeIndex === -1) return 2 // fallbacks to default mode 2
+
+export const getGridMode = (appState: AppState) => {
+  const { gridSize, gridBoldLineFrequency } = appState
+  const modeIndex = MODES.findIndex((v) => v.size === gridSize && v.freq === gridBoldLineFrequency)
   return modeIndex
 }
+
 export const getBoldLineGridScaleVerbose = (appState: AppState) => {
   //@ts-ignore
   return ScaleVerboseMap[appState.gridSizeConfig * appState.gridBoldLineFrequency]
@@ -48,7 +52,7 @@ export const ObjectiveSettingsDialog = ({ onClose }: { onClose?: () => void }) =
 
   const appState: AppState = useExcalidrawAppState()
   const setAppState = useExcalidrawSetAppState()
-  const mode = getMode(appState.gridSizeConfig, appState.gridBoldLineFrequency)
+  const mode = getGridMode(appState)
 
   const setGridSize = (modeIndex: number) => {
     setAppState({

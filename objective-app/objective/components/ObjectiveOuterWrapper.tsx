@@ -23,6 +23,7 @@ import { OBJECTIVE_LIB as OBJECTIVE_LIB_ITEMS } from '../lib'
 import { objectValues } from '../meta/utils'
 import './../scss/app.scss'
 import { Theme } from '../../../packages/excalidraw/element/types'
+import { DEFAULT_GRID_MODE, getGridMode } from './ObjectiveSettingsDialog'
 
 const ENSURE_THEME: Theme | null = 'light' //'dark' // TODO configure it from process.env
 
@@ -50,6 +51,7 @@ const ObjectiveOuterWrapper: FC<{
         .then((scene) => {
           // Data serialization. Ensure types.
           const serializedElements = scene.elements.map((e) => deepCopyElement(e))
+
           const serializedAppState = {
             ...scene.appState,
             name: scene.name,
@@ -59,6 +61,10 @@ const ObjectiveOuterWrapper: FC<{
             //@ts-ignore
             Object.entries(serializedAppState.collaborators || {})
           )
+          if (getGridMode(serializedAppState) === -1) {
+            serializedAppState.gridSizeConfig = DEFAULT_GRID_MODE.size
+            serializedAppState.gridBoldLineFrequency = DEFAULT_GRID_MODE.freq
+          }
 
           excalidrawApi.updateScene({
             elements: serializedElements,
