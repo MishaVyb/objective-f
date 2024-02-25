@@ -52,7 +52,7 @@ import { LibraryIcon } from "./icons";
 import MainMenu from "./main-menu/MainMenu";
 
 import clsx from "clsx";
-import React from "react";
+import React, { useState } from "react";
 import TopLeftUI from "../../../objective-app/objective/components/TopLeftUI";
 import { mutateElement } from "../element/mutateElement";
 import Scene from "../scene/Scene";
@@ -65,7 +65,7 @@ import Stack from "./Stack";
 import { TTDDialog } from "./TTDDialog/TTDDialog";
 import "./Toolbar.scss";
 import { UserList } from "./UserList";
-import { ObjectiveSettingsDialog } from "../../../objective-app/objective/components/ObjectiveSettingsDialog"
+import { ObjectiveSettingsDialog } from "../../../objective-app/objective/components/ObjectiveSettingsDialog";
 
 interface LayerUIProps {
   actionManager: ActionManager;
@@ -362,11 +362,14 @@ const LayerUI = ({
     );
   };
 
+  const [docked, setDocked] = useState(true);
   const renderSidebars = () => {
     return (
       <DefaultSidebar
         __fallback
+        docked={docked}
         onDock={(docked) => {
+          setDocked(docked);
           trackEvent(
             "sidebar",
             `toggleDock (${docked ? "dock" : "undock"})`,
