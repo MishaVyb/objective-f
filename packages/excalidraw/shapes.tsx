@@ -11,8 +11,18 @@ import {
   TextIcon,
 } from "./components/icons";
 import { KEYS } from "./keys";
+import { ToolType } from "./types";
 
-export const SHAPES = [
+export type TShape = {
+  icon: JSX.Element;
+  value: ToolType;
+  key: null | string | string[];
+  numericKey: string;
+  fillable: boolean;
+  label?: string;
+};
+
+export const SHAPES: readonly TShape[] = [
   {
     icon: SelectionIcon,
     value: "selection",
@@ -21,38 +31,18 @@ export const SHAPES = [
     fillable: true,
   },
   {
-    icon: RectangleIcon,
-    value: "rectangle",
-    key: KEYS.R,
-    numericKey: KEYS["2"],
+    icon: LineIcon,
+    value: "line",
+    key: KEYS.L,
+    numericKey: KEYS["6"],
     fillable: true,
-  },
-  {
-    icon: DiamondIcon,
-    value: "diamond",
-    key: KEYS.D,
-    numericKey: KEYS["3"],
-    fillable: true,
-  },
-  {
-    icon: EllipseIcon,
-    value: "ellipse",
-    key: KEYS.O,
-    numericKey: KEYS["4"],
-    fillable: true,
+    label: "Wall",
   },
   {
     icon: ArrowIcon,
     value: "arrow",
     key: KEYS.A,
     numericKey: KEYS["5"],
-    fillable: true,
-  },
-  {
-    icon: LineIcon,
-    value: "line",
-    key: KEYS.L,
-    numericKey: KEYS["6"],
     fillable: true,
   },
   {
@@ -76,6 +66,30 @@ export const SHAPES = [
     numericKey: KEYS["9"],
     fillable: false,
   },
+] as const;
+
+export const MORE_SHAPES: readonly TShape[] = [
+  {
+    icon: RectangleIcon,
+    value: "rectangle",
+    key: KEYS.R,
+    numericKey: KEYS["2"],
+    fillable: true,
+  },
+  {
+    icon: EllipseIcon,
+    value: "ellipse",
+    key: KEYS.O,
+    numericKey: KEYS["4"],
+    fillable: true,
+  },
+  {
+    icon: DiamondIcon,
+    value: "diamond",
+    key: KEYS.D,
+    numericKey: KEYS["3"],
+    fillable: true,
+  },
   {
     icon: EraserIcon,
     value: "eraser",
@@ -83,7 +97,7 @@ export const SHAPES = [
     numericKey: KEYS["0"],
     fillable: false,
   },
-] as const;
+];
 
 export const findShapeByKey = (key: string) => {
   const shape = SHAPES.find((shape, index) => {

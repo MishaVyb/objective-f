@@ -15,7 +15,7 @@ import {
   hasStrokeStyle,
   hasStrokeWidth,
 } from "../scene";
-import { SHAPES } from "../shapes";
+import { MORE_SHAPES, SHAPES } from "../shapes";
 import { AppClassProperties, AppProps, UIAppState, Zoom } from "../types";
 import { capitalizeString, isTransparent } from "../utils";
 import Stack from "./Stack";
@@ -53,6 +53,7 @@ import {
   isAnyElementsObjective,
 } from "../../../objective-app/objective/meta/types";
 import { CaretDownIcon, CaretRightIcon } from "@radix-ui/react-icons";
+import { Separator } from "@radix-ui/themes";
 
 export const SelectedShapeActions = ({
   appState,
@@ -336,55 +337,60 @@ export const ShapesSwitcher = ({
 
   return (
     <>
-      {SHAPES.map(({ value, icon, key, numericKey, fillable }, index) => {
-        if (
-          UIOptions.tools?.[
-            value as Extract<typeof value, keyof AppProps["UIOptions"]["tools"]>
-          ] === false
-        ) {
-          return null;
-        }
+      {SHAPES.map(
+        ({ value, icon, key, numericKey, fillable, label }, index) => {
+          if (
+            UIOptions.tools?.[
+              value as Extract<
+                typeof value,
+                keyof AppProps["UIOptions"]["tools"]
+              >
+            ] === false
+          ) {
+            return null;
+          }
 
-        const label = t(`toolBar.${value}`);
-        const letter =
-          key && capitalizeString(typeof key === "string" ? key : key[0]);
-        const shortcut = letter
-          ? `${letter} ${t("helpDialog.or")} ${numericKey}`
-          : `${numericKey}`;
-        return (
-          <ToolButton
-            className={clsx("Shape", { fillable })}
-            key={value}
-            type="radio"
-            icon={icon}
-            checked={activeTool.type === value}
-            name="editor-current-shape"
-            title={`${capitalizeString(label)} — ${shortcut}`}
-            keyBindingLabel={numericKey || letter}
-            aria-label={capitalizeString(label)}
-            aria-keyshortcuts={shortcut}
-            data-testid={`toolbar-${value}`}
-            onPointerDown={({ pointerType }) => {
-              if (!appState.penDetected && pointerType === "pen") {
-                app.togglePenMode(true);
-              }
-            }}
-            onChange={({ pointerType }) => {
-              if (appState.activeTool.type !== value) {
-                trackEvent("toolbar", value, "ui");
-              }
-              if (value === "image") {
-                app.setActiveTool({
-                  type: value,
-                  insertOnCanvasDirectly: pointerType !== "mouse",
-                });
-              } else {
-                app.setActiveTool({ type: value });
-              }
-            }}
-          />
-        );
-      })}
+          label = label || t(`toolBar.${value}`);
+          const letter =
+            key && capitalizeString(typeof key === "string" ? key : key[0]);
+          const shortcut = letter
+            ? `${letter} ${t("helpDialog.or")} ${numericKey}`
+            : `${numericKey}`;
+          return (
+            <ToolButton
+              className={clsx("Shape", { fillable })}
+              key={value}
+              type="radio"
+              icon={icon}
+              checked={activeTool.type === value}
+              name="editor-current-shape"
+              title={`${capitalizeString(label)} — ${shortcut}`}
+              keyBindingLabel={numericKey || letter}
+              aria-label={capitalizeString(label)}
+              aria-keyshortcuts={shortcut}
+              data-testid={`toolbar-${value}`}
+              onPointerDown={({ pointerType }) => {
+                if (!appState.penDetected && pointerType === "pen") {
+                  app.togglePenMode(true);
+                }
+              }}
+              onChange={({ pointerType }) => {
+                if (appState.activeTool.type !== value) {
+                  trackEvent("toolbar", value, "ui");
+                }
+                if (value === "image") {
+                  app.setActiveTool({
+                    type: value,
+                    insertOnCanvasDirectly: pointerType !== "mouse",
+                  });
+                } else {
+                  app.setActiveTool({ type: value });
+                }
+              }}
+            />
+          );
+        },
+      )}
       <div className="App-toolbar__divider" />
 
       <DropdownMenu open={isExtraToolsMenuOpen}>
@@ -408,6 +414,61 @@ export const ShapesSwitcher = ({
           onSelect={() => setIsExtraToolsMenuOpen(false)}
           className="App-toolbar__extra-tools-dropdown"
         >
+          {MORE_SHAPES.map(
+            ({ value, icon, key, numericKey, fillable, label }, index) => {
+              if (
+                UIOptions.tools?.[
+                  value as Extract<
+                    typeof value,
+                    keyof AppProps["UIOptions"]["tools"]
+                  >
+                ] === false
+              ) {
+                return null;
+              }
+
+              label = label || t(`toolBar.${value}`);
+              const letter =
+                key && capitalizeString(typeof key === "string" ? key : key[0]);
+              const shortcut = letter
+                ? `${letter} ${t("helpDialog.or")} ${numericKey}`
+                : `${numericKey}`;
+              return (
+                <ToolButton
+                  className={clsx("Shape", { fillable })}
+                  key={value}
+                  type="radio"
+                  icon={icon}
+                  checked={activeTool.type === value}
+                  name="editor-current-shape"
+                  title={`${capitalizeString(label)} — ${shortcut}`}
+                  keyBindingLabel={numericKey || letter}
+                  aria-label={capitalizeString(label)}
+                  aria-keyshortcuts={shortcut}
+                  data-testid={`toolbar-${value}`}
+                  onPointerDown={({ pointerType }) => {
+                    if (!appState.penDetected && pointerType === "pen") {
+                      app.togglePenMode(true);
+                    }
+                  }}
+                  onChange={({ pointerType }) => {
+                    if (appState.activeTool.type !== value) {
+                      trackEvent("toolbar", value, "ui");
+                    }
+                    if (value === "image") {
+                      app.setActiveTool({
+                        type: value,
+                        insertOnCanvasDirectly: pointerType !== "mouse",
+                      });
+                    } else {
+                      app.setActiveTool({ type: value });
+                    }
+                  }}
+                />
+              );
+            },
+          )}
+          <Separator style={{ width: "100%" }} mt={"2"} />
           <DropdownMenu.Item
             onSelect={() => app.setActiveTool({ type: "frame" })}
             icon={frameToolIcon}
@@ -417,15 +478,15 @@ export const ShapesSwitcher = ({
           >
             {t("toolBar.frame")}
           </DropdownMenu.Item>
-          <DropdownMenu.Item
+          {/* <DropdownMenu.Item
             onSelect={() => app.setActiveTool({ type: "embeddable" })}
             icon={EmbedIcon}
             data-testid="toolbar-embeddable"
             selected={embeddableToolSelected}
           >
             {t("toolBar.embeddable")}
-          </DropdownMenu.Item>
-          <DropdownMenu.Item
+          </DropdownMenu.Item> */}
+          {/* <DropdownMenu.Item
             onSelect={() => app.setActiveTool({ type: "laser" })}
             icon={laserPointerToolIcon}
             data-testid="toolbar-laser"
@@ -433,8 +494,8 @@ export const ShapesSwitcher = ({
             shortcut={KEYS.K.toLocaleUpperCase()}
           >
             {t("toolBar.laser")}
-          </DropdownMenu.Item>
-          <div style={{ margin: "6px 0", fontSize: 14, fontWeight: 600 }}>
+          </DropdownMenu.Item> */}
+          {/* <div style={{ margin: "6px 0", fontSize: 14, fontWeight: 600 }}>
             Generate
           </div>
           {app.props.aiEnabled !== false && <TTDDialogTriggerTunnel.Out />}
@@ -470,7 +531,7 @@ export const ShapesSwitcher = ({
                 {t("toolBar.magicSettings")}
               </DropdownMenu.Item>
             </>
-          )}
+          )} */}
         </DropdownMenu.Content>
       </DropdownMenu>
     </>
