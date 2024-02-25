@@ -1,5 +1,6 @@
 import isEqual from 'lodash/isEqual'
-import { FC, ReactNode, createContext, useContext, useEffect, useState } from 'react'
+import { FC, ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react'
+import * as Tooltip from '@radix-ui/react-tooltip'
 
 import { SymbolIcon } from '@radix-ui/react-icons'
 import { Flex, Text } from '@radix-ui/themes'
@@ -10,10 +11,17 @@ import {
   selectLoadingSceneIsPending,
 } from '../../objective-plus/store/projects/reducer'
 import { actionToggleViewMode } from '../../../packages/excalidraw/actions/actionToggleViewMode'
-import App, { useApp, useExcalidrawElements } from '../../../packages/excalidraw/components/App'
+import App, {
+  useApp,
+  useExcalidrawAppState,
+  useExcalidrawElements,
+} from '../../../packages/excalidraw/components/App'
 import { BinaryFiles } from '../../../packages/excalidraw/types'
 import { getCameraMetas } from '../meta/selectors'
 import { CameraMeta } from '../meta/types'
+import { useMouse } from '../hooks/useMouse'
+import { LinearElementEditor } from '../../../packages/excalidraw/element/linearElementEditor'
+import { getLastLineLength, numberToStr } from '../elements/math'
 
 /**
  * Extra contexts
@@ -30,11 +38,19 @@ export const useExcalidrawFiles = () => useContext(ExcalidrawFilesContext)
  * - Handle loading span.
  */
 const ObjectiveInnerWrapper: FC<{ children: ReactNode }> = ({ children }) => {
-  const elements = useExcalidrawElements()
   const app = useApp() as App
-  const loading = useSelector(selectLoadingSceneIsPending)
+  const { multiElement } = useExcalidrawAppState()
+  const elements = useExcalidrawElements()
 
+  const loading = useSelector(selectLoadingSceneIsPending)
   const isMyScene = useSelector(selectIsMyScene)
+
+  const showMeasurement = !!multiElement // TODO show when `appState.editingLinearElement`
+  const mouse = useMouse(showMeasurement)
+
+  const lineMeasurementStr = useMemo(() => {
+    return multiElement ? numberToStr(getLastLineLength(multiElement) / 100, { unit: 'm' }) : null
+  }, [multiElement?.points.at(-2), multiElement?.points.at(-1)])
 
   /**
    * NOTE:
@@ -85,7 +101,27 @@ const ObjectiveInnerWrapper: FC<{ children: ReactNode }> = ({ children }) => {
 
   return (
     <ObjectiveCamerasContext.Provider value={cameras}>
-      <ExcalidrawFilesContext.Provider value={files}>{children}</ExcalidrawFilesContext.Provider>
+      <ExcalidrawFilesContext.Provider value={files}>
+        {/*  */}
+        <Tooltip.TooltipProvider>
+          <Tooltip.Root delayDuration={0} open={showMeasurement}>
+            <Tooltip.TooltipTrigger asChild>
+              <div ref={mouse.ref} style={{ height: '100vh', width: '100vw' }}>
+                {children}
+              </div>
+            </Tooltip.TooltipTrigger>
+            <Tooltip.Content
+              align='start'
+              alignOffset={mouse.x + 10}
+              sideOffset={-mouse.y - 40}
+              hideWhenDetached
+              className='objective-tooltip-content'
+            >
+              {lineMeasurementStr}
+            </Tooltip.Content>
+          </Tooltip.Root>
+        </Tooltip.TooltipProvider>
+      </ExcalidrawFilesContext.Provider>
     </ObjectiveCamerasContext.Provider>
   )
 }

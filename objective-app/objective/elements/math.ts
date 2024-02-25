@@ -56,6 +56,43 @@ export const getDistance = (_1: PointType, _2: PointType, _0: PointType) => {
   )
 }
 
+export const getLastLineLength = (el: ExcalidrawLinearElement) => {
+  if (el.points.length < 2) return 0
+
+  const a = ensureVector(LinearElementEditor.getPointGlobalCoordinates(el, el.points.at(-2)!))
+  const b = ensureVector(LinearElementEditor.getPointGlobalCoordinates(el, el.points.at(-1)!))
+
+  // d=√((x2 – x1)² + (y2 – y1)²).
+  return Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2)
+}
+
+export const numberToStr = (
+  v: number | null | undefined,
+  opts?: { unit?: string; roundVal?: number | null; hideDecimalVal?: number }
+) => {
+  const defaultOpts = {
+    roundVal: 2,
+    hideDecimalVal: 10,
+  }
+  if (typeof v !== 'number') return ''
+
+  // apply default
+  let decimalPlaces = typeof opts?.roundVal === 'undefined' ? defaultOpts.roundVal : opts?.roundVal
+  const hideDecimalAfter =
+    typeof opts?.hideDecimalVal === 'undefined' ? defaultOpts.hideDecimalVal : opts?.hideDecimalVal
+
+  // normalize
+  let strVal
+  decimalPlaces = hideDecimalAfter && hideDecimalAfter <= v ? 0 : decimalPlaces
+  if (typeof decimalPlaces === 'number') {
+    v = MathRound(v, decimalPlaces)
+    strVal = v.toFixed(decimalPlaces)
+  } else strVal = `${strVal}`
+
+  if (opts?.unit) return `${strVal}${opts?.unit}`
+  return strVal
+}
+
 export const getCenter = (a: PointType, b: PointType): Vector => {
   a = ensureVector(a)
   b = ensureVector(b)

@@ -5,6 +5,7 @@ import {
   useExcalidrawSetAppState,
 } from '../../../packages/excalidraw/components/App'
 import { AppState } from '../../../packages/excalidraw/types'
+import { numberToStr } from '../elements/math'
 
 type Mode = {
   size: number
@@ -39,8 +40,10 @@ export const getGridMode = (appState: AppState) => {
 }
 
 export const getBoldLineGridScaleVerbose = (appState: AppState) => {
-  //@ts-ignore
-  return ScaleVerboseMap[appState.gridSizeConfig * appState.gridBoldLineFrequency]
+  return numberToStr((appState.gridSizeConfig * appState.gridBoldLineFrequency) / 100, {
+    unit: 'm',
+    roundVal: 1,
+  })
 }
 
 export const ObjectiveSettingsDialog = ({ onClose }: { onClose?: () => void }) => {

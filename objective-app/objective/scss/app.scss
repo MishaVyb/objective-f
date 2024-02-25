@@ -38,3 +38,17 @@
     margin-bottom: 0;
   }
 }
+
+.objective-tooltip-content {
+  background: var(--color-gray-20);
+  padding: 4px;
+  box-shadow: 1px 1px 5px var(--color-gray-40);
+
+  z-index: 999999999;
+
+  --ui-font: Assistant, system-ui, BlinkMacSystemFont, -apple-system, Segoe UI, Roboto, Helvetica,
+    Arial, sans-serif;
+  font-family: var(--ui-font);
+  font-size: 13px;
+  font-weight: 500;
+}
