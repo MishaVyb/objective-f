@@ -1,4 +1,6 @@
 import React, {
+  FC,
+  ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -8,7 +10,7 @@ import React, {
 import { MIME_TYPES } from "../constants";
 import { serializeLibraryAsJSON } from "../data/json";
 import { duplicateElements } from "../element/newElement";
-import { useLibraryCache } from "../hooks/useLibraryItemSvg";
+import { SvgCache, useLibraryCache } from "../hooks/useLibraryItemSvg";
 import { useScrollPosition } from "../hooks/useScrollPosition";
 import { t } from "../i18n";
 import {
@@ -29,6 +31,9 @@ import Stack from "./Stack";
 import "./LibraryMenuItems.scss";
 import Spinner from "./Spinner";
 import { ObjectiveKinds } from "../../../objective-app/objective/meta/types";
+
+import wallImage from "../../../public/objective/icons/wall-png-275.png";
+import { useApp } from "./App";
 
 // using an odd number of items per batch so the rendering creates an irregular
 // pattern which looks more organic
@@ -105,8 +110,6 @@ export default function LibraryMenuItems({
   );
 
   const showBtn = !libraryItems.length && !pendingElements.length;
-
-  const isLibraryEmpty = false; // VBRN
 
   const [lastSelectedItem, setLastSelectedItem] = useState<
     LibraryItem["id"] | null
@@ -200,11 +203,6 @@ export default function LibraryMenuItems({
     [selectedItems],
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const onAddToLibraryClick = useCallback(() => {
-    onAddToLibrary(pendingElements);
-  }, [pendingElements, onAddToLibrary]);
-
   const onItemClick = useCallback(
     (id: LibraryItem["id"] | null) => {
       if (id) {
@@ -219,6 +217,16 @@ export default function LibraryMenuItems({
       ? CACHED_ITEMS_RENDERED_PER_BATCH
       : ITEMS_RENDERED_PER_BATCH;
 
+  const commonProps = {
+    isLoading,
+    itemsRenderedPerBatch,
+    onItemClick,
+    onItemSelectToggle,
+    onItemDrag,
+    isItemSelected,
+    svgCache,
+  };
+
   return (
     <div
       className="library-menu-items-container"
@@ -228,17 +236,6 @@ export default function LibraryMenuItems({
           : { borderBottom: 0 }
       }
     >
-      {/*
-
-      VBRN disable dropdown menu
-      {!isLibraryEmpty && (
-        <LibraryDropdownMenu
-          selectedItems={selectedItems}
-          onSelectItems={onSelectItems}
-          className="library-menu-dropdown-container--in-heading"
-        />
-      )} */}
-
       <Stack.Col
         className="library-menu-items-container__items"
         align="start"
@@ -249,30 +246,43 @@ export default function LibraryMenuItems({
         }}
         ref={libraryContainerRef}
       >
-        {renderObjectiveLibItems(
-          locationLibItems, //
-          t("labels.libLocation", null, "Location"),
-        )}
-        {renderObjectiveLibItems(
-          camerasLibItems,
-          t("labels.libCameras", null, "Cameras"),
-        )}
-        {renderObjectiveLibItems(
-          charactersLibItems,
-          t("labels.libCharacters", null, "Characters"),
-        )}
-        {renderObjectiveLibItems(
-          setLibItems, //
-          t("labels.libSet", null, "Set"),
-        )}
-        {renderObjectiveLibItems(
-          propsLibItems,
-          t("labels.libProps", null, "Props"),
-        )}
-        {renderObjectiveLibItems(
-          outdoorLibItems,
-          t("labels.libOutdoor", null, "Outdoor"),
-        )}
+        <ObjectiveLibraryItems
+          items={locationLibItems}
+          title={t("labels.libLocation", null, "Location")}
+          {...commonProps}
+          extraItem={<WallToolLibraryItem />}
+        />
+
+        <ObjectiveLibraryItems
+          items={camerasLibItems}
+          title={t("labels.libCameras", null, "Cameras")}
+          {...commonProps}
+        />
+
+        <ObjectiveLibraryItems
+          items={charactersLibItems}
+          title={t("labels.libCharacters", null, "Characters")}
+          {...commonProps}
+        />
+
+        <ObjectiveLibraryItems
+          items={setLibItems}
+          title={t("labels.libSet", null, "Set")}
+          {...commonProps}
+        />
+
+        <ObjectiveLibraryItems
+          items={propsLibItems}
+          title={t("labels.libProps", null, "Props")}
+          {...commonProps}
+        />
+
+        <ObjectiveLibraryItems
+          items={outdoorLibItems}
+          title={t("labels.libOutdoor", null, "Outdoor")}
+          {...commonProps}
+        />
+
         {showBtn && (
           <LibraryMenuControlButtons
             style={{ padding: "16px 0", width: "100%" }}
@@ -289,106 +299,75 @@ export default function LibraryMenuItems({
       </Stack.Col>
     </div>
   );
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function publishedLibItems() {
-    return (
-      <>
-        {(publishedItems.length > 0 || pendingElements.length > 0) && (
-          <div className="library-menu-items-container__header library-menu-items-container__header--excal">
-            {/* TITLE */}
-          </div>
-        )}
-        {publishedItems.length > 0 ? (
-          <LibraryMenuSectionGrid>
-            <LibraryMenuSection
-              itemsRenderedPerBatch={itemsRenderedPerBatch}
-              items={publishedItems}
-              onItemSelectToggle={onItemSelectToggle}
-              onItemDrag={onItemDrag}
-              onClick={onItemClick}
-              isItemSelected={isItemSelected}
-              svgCache={svgCache}
-            />
-          </LibraryMenuSectionGrid>
-        ) : (
-          <div
-            style={{
-              margin: "1rem 0",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              width: "100%",
-              fontSize: ".9rem",
-            }}
-          >
-            {t("library.noItems")}
-          </div>
-        )}
-      </>
-    );
-  }
-
-  function renderObjectiveLibItems(items: LibraryItem[], title: string) {
-    return (
-      <>
-        {!isLibraryEmpty && (
-          <div className="library-menu-items-container__header">
-            {title} {/* VBRN lib title */}
-          </div>
-        )}
-        {isLoading && (
-          <div
-            style={{
-              position: "absolute",
-              top: "var(--container-padding-y)",
-              right: "var(--container-padding-x)",
-              transform: "translateY(50%)",
-            }}
-          >
-            <Spinner />
-          </div>
-        )}
-        {!pendingElements.length && !items.length ? (
-          <div className="library-menu-items__no-items">
-            <div className="library-menu-items__no-items__label">
-              {t("library.noItems")}
-            </div>
-            <div className="library-menu-items__no-items__hint">
-              {publishedItems.length > 0
-                ? t("library.hint_emptyPrivateLibrary")
-                : t("library.hint_emptyLibrary")}
-            </div>
-          </div>
-        ) : (
-          <LibraryMenuSectionGrid>
-            {/*
-            VBRN disable "add pending element to library"
-
-            {pendingElements.length > 0 && (
-              <LibraryMenuSection
-                itemsRenderedPerBatch={itemsRenderedPerBatch}
-                items={[{ id: null, elements: pendingElements }]}
-                onItemSelectToggle={onItemSelectToggle}
-                onItemDrag={onItemDrag}
-                onClick={onAddToLibraryClick}
-                isItemSelected={isItemSelected}
-                svgCache={svgCache}
-              />
-            )} */}
-            <LibraryMenuSection
-              itemsRenderedPerBatch={itemsRenderedPerBatch}
-              items={items}
-              onItemSelectToggle={onItemSelectToggle}
-              onItemDrag={onItemDrag}
-              onClick={onItemClick}
-              isItemSelected={isItemSelected}
-              svgCache={svgCache}
-            />
-          </LibraryMenuSectionGrid>
-        )}
-      </>
-    );
-  }
 }
+
+const ObjectiveLibraryItems: FC<{
+  items: LibraryItem[];
+  title: string;
+  isLoading: boolean;
+  itemsRenderedPerBatch: number;
+  onItemClick: (id: LibraryItem["id"] | null) => void;
+  onItemSelectToggle: (id: LibraryItem["id"], event: React.MouseEvent) => void;
+  onItemDrag: (id: LibraryItem["id"], event: React.DragEvent) => void;
+  isItemSelected: (id: LibraryItem["id"] | null) => boolean;
+  svgCache: SvgCache;
+  extraItem?: ReactNode;
+}> = (props) => {
+  // const isLibItem = items && typeof items === "object" && "length" in items;
+  return (
+    <>
+      <div className="library-menu-items-container__header">{props.title}</div>
+      {props.isLoading ? (
+        <LibSpinner />
+      ) : (
+        <LibraryMenuSectionGrid>
+          {props.extraItem}
+          <LibraryMenuSection
+            itemsRenderedPerBatch={props.itemsRenderedPerBatch}
+            items={props.items}
+            onItemSelectToggle={props.onItemSelectToggle}
+            onItemDrag={props.onItemDrag}
+            onClick={props.onItemClick}
+            isItemSelected={props.isItemSelected}
+            svgCache={props.svgCache}
+          />
+        </LibraryMenuSectionGrid>
+      )}
+    </>
+  );
+};
+
+const WallToolLibraryItem = () => {
+  const app = useApp();
+
+  const onClick = () => {
+    // close sidebar if it's not docked?
+    app.setActiveTool({ type: "line" });
+  };
+  return (
+    <img
+      draggable={false}
+      onClick={onClick} //
+      className="objective-library-unit"
+      src={wallImage}
+      alt=""
+      width={55}
+      height={55}
+    />
+  );
+};
+
+const LibSpinner = () => {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: "var(--container-padding-y)",
+        right: "var(--container-padding-x)",
+        transform: "translateY(50%)",
+      }}
+    >
+      <Spinner />
+    </div>
+  );
+};

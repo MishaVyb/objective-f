@@ -52,3 +52,20 @@
   font-size: 13px;
   font-weight: 500;
 }
+
+.objective-library-unit {
+  align-items: center;
+  border: 1px solid transparent;
+
+  display: flex;
+  justify-content: center;
+  position: relative;
+  width: 55px;
+  height: 55px;
+  box-sizing: border-box;
+  border-radius: var(--border-radius-lg);
+
+  &:hover {
+    border-color: var(--color-primary);
+  }
+}
