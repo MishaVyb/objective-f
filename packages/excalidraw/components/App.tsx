@@ -4606,9 +4606,9 @@ class App extends React.Component<AppProps, AppState> {
 
     if (selectedElements.length === 1 && isLinearElement(selectedElements[0])) {
       if (
-        event[KEYS.CTRL_OR_CMD] &&
-        (!this.state.editingLinearElement ||
-          this.state.editingLinearElement.elementId !== selectedElements[0].id)
+        // event[KEYS.CTRL_OR_CMD] && // VBRN allow editing Wall with doubleclick without CMD
+        !this.state.editingLinearElement ||
+        this.state.editingLinearElement.elementId !== selectedElements[0].id
       ) {
         this.history.resumeRecording();
         this.setState({
