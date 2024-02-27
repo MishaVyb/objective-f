@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { ExcalidrawElement } from "../../packages/excalidraw/element/types";
 import { AppState } from "../../packages/excalidraw/types";
 import {
@@ -39,8 +40,9 @@ export const importFromLocalStorage = () => {
   let savedState = null;
 
   try {
-    savedElements = localStorage.getItem(STORAGE_KEYS.LOCAL_STORAGE_ELEMENTS);
-    savedState = localStorage.getItem(STORAGE_KEYS.LOCAL_STORAGE_APP_STATE);
+    // VBRN disable loading from local storage
+    // savedElements = localStorage.getItem(STORAGE_KEYS.LOCAL_STORAGE_ELEMENTS);
+    // savedState = localStorage.getItem(STORAGE_KEYS.LOCAL_STORAGE_APP_STATE);
   } catch (error: any) {
     // Unable to access localStorage
     console.error(error);
