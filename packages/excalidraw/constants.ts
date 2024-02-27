@@ -1,6 +1,10 @@
 import cssVariables from "./css/variables.module.scss";
 import { AppProps } from "./types";
-import { ExcalidrawElement, FontFamilyValues } from "./element/types";
+import {
+  ExcalidrawElement,
+  FontFamilyValues,
+  StrokeRoundness,
+} from "./element/types";
 import { COLOR_PALETTE } from "./colors";
 export const isDarwin = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
 export const isWindows = /^Win/.test(navigator.platform);
@@ -141,7 +145,7 @@ export const WINDOWS_EMOJI_FALLBACK_FONT = "Segoe UI Emoji";
 
 export const MIN_FONT_SIZE = 1;
 export const DEFAULT_FONT_SIZE = 20;
-export const DEFAULT_FONT_FAMILY: FontFamilyValues = FONT_FAMILY.Virgil;
+export const DEFAULT_FONT_FAMILY: FontFamilyValues = FONT_FAMILY.Cascadia;
 export const DEFAULT_TEXT_ALIGN = "left";
 export const DEFAULT_VERTICAL_ALIGN = "top";
 export const DEFAULT_VERSION = "{version}";
@@ -334,6 +338,7 @@ export const DEFAULT_ELEMENT_PROPS: {
   backgroundColor: ExcalidrawElement["backgroundColor"];
   fillStyle: ExcalidrawElement["fillStyle"];
   strokeWidth: ExcalidrawElement["strokeWidth"];
+  roundness: StrokeRoundness;
   strokeStyle: ExcalidrawElement["strokeStyle"];
   roughness: ExcalidrawElement["roughness"];
   opacity: ExcalidrawElement["opacity"];
@@ -344,7 +349,8 @@ export const DEFAULT_ELEMENT_PROPS: {
   fillStyle: "solid",
   strokeWidth: 2,
   strokeStyle: "solid",
-  roughness: ROUGHNESS.artist,
+  roundness: "sharp",
+  roughness: ROUGHNESS.architect,
   opacity: 100,
   locked: false,
 };

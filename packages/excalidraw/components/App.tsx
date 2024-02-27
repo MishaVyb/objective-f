@@ -86,6 +86,7 @@ import {
   MQ_RIGHT_SIDEBAR_MIN_WIDTH,
   POINTER_BUTTON,
   POINTER_EVENTS,
+  ROUGHNESS,
   ROUNDNESS,
   SCROLL_TIMEOUT,
   TAP_TWICE_TIMEOUT,
@@ -408,7 +409,7 @@ import {
   setEraserCursor,
 } from "../cursor";
 import { textWysiwyg } from "../element/textWysiwyg";
-import { ObjectiveKinds } from "../../../objective-app/objective/meta/types";
+import { ObjectiveKinds, isWallTool } from "../../../objective-app/objective/meta/types";
 import { getBaseInitialMeta } from "../../../objective-app/objective/objects/initial";
 import { actionToggleGridSnapMode } from "../../../objective-app/objective/actions/actionSettings";
 import {
@@ -4103,6 +4104,18 @@ class App extends React.Component<AppProps, AppState> {
     }
     if (!isLinearElementType(nextActiveTool.type)) {
       this.setState({ suggestedBindings: [] });
+    }
+    if (isWallTool(nextActiveTool)) {
+      // for Wall always apply defaults
+      this.setState({
+        currentItemStrokeColor: COLOR_PALETTE.black,
+        currentItemBackgroundColor: COLOR_PALETTE.transparent,
+        currentItemFillStyle: "solid",
+        currentItemStrokeWidth: 2,
+        currentItemStrokeStyle: "solid",
+        currentItemRoundness: "sharp",
+        currentItemRoughness: ROUGHNESS.architect,
+      });
     }
     if (nextActiveTool.type === "image") {
       this.onImageAction({

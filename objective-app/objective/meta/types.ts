@@ -8,7 +8,7 @@ import {
   GroupId,
   InitializedExcalidrawImageElement,
 } from '../../../packages/excalidraw/element/types'
-import { BinaryFileData } from '../../../packages/excalidraw/types'
+import { ActiveTool, BinaryFileData } from '../../../packages/excalidraw/types'
 
 export enum ObjectiveKinds {
   CAMERA = 'Camera',
@@ -170,6 +170,9 @@ export const isCameraElement = (el: MaybeExcalidrawElement): el is CameraElement
 /** TMP solution when any simple lien is Wall. */
 export const isWallElement = (el: MaybeExcalidrawElement): el is ExcalidrawLinearElement =>
   !!(el && el.type === 'line' && !el.customData)
+
+/** TMP solution when any simple lien is Wall. */
+export const isWallTool = (t: ActiveTool) => t.type === 'line'
 
 export const isLocationMeta = (meta: MaybeMeta): meta is LocationMeta =>
   meta?.kind === ObjectiveKinds.LOCATION

@@ -49,7 +49,7 @@ import {
   TextAlignLeftIcon,
   TextAlignMiddleIcon,
   TextAlignRightIcon,
-  TextAlignTopIcon
+  TextAlignTopIcon,
 } from "../components/icons";
 import {
   DEFAULT_FONT_FAMILY,
@@ -307,12 +307,12 @@ export const actionChangeBackgroundColor = register({
   },
   PanelComponent: ({ elements, appState, updateData, appProps }) => (
     <>
-      <h3 aria-hidden="true">{t("labels.background")}</h3>
+      <h3 aria-hidden="true">{t("labels.fillColor", {}, "Fill color")}</h3>
       <ColorPicker
         topPicks={DEFAULT_ELEMENT_BACKGROUND_PICKS}
         palette={DEFAULT_ELEMENT_BACKGROUND_COLOR_PALETTE}
         type="elementBackground"
-        label={t("labels.background")}
+        label={t("labels.fillColor", {}, "Fill color")}
         color={getFormValue(
           elements,
           appState,

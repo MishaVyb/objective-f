@@ -41,12 +41,13 @@ import { extraToolsIcon, frameToolIcon } from "./icons";
 import { KEYS } from "../keys";
 import { useTunnels } from "../context/tunnels";
 import {
+  ObjectiveKinds,
   isAllElementsObjective,
-  isAnyElementsObjective,
 } from "../../../objective-app/objective/meta/types";
 import { CaretDownIcon, CaretRightIcon } from "@radix-ui/react-icons";
 import { Separator } from "@radix-ui/themes";
 import { __DEBUG_EDITOR } from "../../../objective-app/objective-plus/constants";
+import { getObjectiveMetas } from "../../../objective-app/objective/meta/selectors";
 
 export const SelectedShapeActions = ({
   appState,
@@ -109,21 +110,19 @@ export const SelectedShapeActions = ({
 
   const [showOBJStyle, setShowOBJStyle] = useState(false);
   const isAllObjective = isAllElementsObjective(targetElements);
-  const isAnyObjective = isAnyElementsObjective(targetElements);
+  const metas = getObjectiveMetas(targetElements);
+  const metasSet = new Set(metas.map((m) => m.kind));
+  const isAnyObjective = !!metas.length;
   const isAllExcali = !isAnyObjective || __DEBUG_EDITOR;
   const isObjAndExcali = !isAllObjective && isAnyObjective;
   const isSingleImage =
     targetElements.length === 1 && isInitializedImageElement(targetElements[0]);
 
-  // TODO
-  // const metas = getObjectiveMetas(targetElements)
-  // const
-
   const actionsToRender = {
     // Objective
     // common:
     metaKind: isAllObjective,
-    metaName: isAllObjective,
+    metaName: isAllObjective && !metasSet.has(ObjectiveKinds.POINTER),
     showExcalidrawStyle: isAllObjective,
 
     // when camera selected:
@@ -134,13 +133,37 @@ export const SelectedShapeActions = ({
     metaInitStoryboard: isSingleImage,
 
     // Excalidraw
-    strokeColor: isAllExcali,
+    strokeColor:
+      isAllExcali ||
+      metasSet.has(ObjectiveKinds.LOCATION) ||
+      metasSet.has(ObjectiveKinds.POINTER),
     bgColor: isAllExcali || showOBJStyle,
     bgStyle: isAllExcali || showOBJStyle,
-    strokeWidth: isAllExcali,
-    strokeStyle: isAllExcali,
+    strokeWidth:
+      isAllExcali ||
+      metasSet.has(ObjectiveKinds.LOCATION) ||
+      metasSet.has(ObjectiveKinds.POINTER),
+
+    /** solid / dashed / dottee */
+    strokeStyle:
+      isAllExcali ||
+      metasSet.has(ObjectiveKinds.LOCATION) ||
+      metasSet.has(ObjectiveKinds.POINTER),
+
+    /** only(!) for pure excalidraw figures */
+    strokeSloppiness:
+      !isAnyObjective &&
+      !!targetElements.length &&
+      targetElements.every(
+        (e) =>
+          e.type === "rectangle" ||
+          e.type === "diamond" ||
+          e.type === "ellipse",
+      ),
+
+    /** unknown and do nothing??? */
     strokeShape: isAllExcali,
-    sloppiness: isAllExcali,
+
     roundness: isAllExcali,
     arrowheads: isAllExcali,
     textStyle: isAllExcali,
@@ -196,13 +219,14 @@ export const SelectedShapeActions = ({
         renderAction("changeStrokeShape")}
 
       {actionsToRender.strokeStyle &&
-        ((actionsToRender.sloppiness &&
-          hasStrokeStyle(appState.activeTool.type)) ||
+        (hasStrokeStyle(appState.activeTool.type) ||
           targetElements.some((element) => hasStrokeStyle(element.type))) && (
-          <>
-            {renderAction("changeStrokeStyle")}
-            {renderAction("changeSloppiness")}
-          </>
+          <>{renderAction("changeStrokeStyle")}</>
+        )}
+      {actionsToRender.strokeSloppiness &&
+        (hasStrokeStyle(appState.activeTool.type) ||
+          targetElements.some((element) => hasStrokeStyle(element.type))) && (
+          <>{renderAction("changeSloppiness")}</>
         )}
 
       {actionsToRender.roundness &&
