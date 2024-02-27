@@ -1,13 +1,37 @@
 import clsx from "clsx";
-import { memo, useEffect, useRef, useState } from "react";
+import { FC, memo, useEffect, useRef, useState } from "react";
 import { SvgCache, useLibraryItemSvg } from "../hooks/useLibraryItemSvg";
 import { LibraryItem } from "../types";
 import { useDevice } from "./App";
 import "./LibraryUnit.scss";
 import { PlusIcon } from "./icons";
-import { Tooltip } from "@radix-ui/themes";
+import { Flex, Text, Tooltip } from "@radix-ui/themes";
 import { getMetaReference } from "../../../objective-app/objective/meta/selectors";
-import { ObjectiveElement } from "../../../objective-app/objective/meta/types";
+import {
+  ObjectiveElement,
+  ObjectiveMeta,
+} from "../../../objective-app/objective/meta/types";
+
+export const LibraryUnitAsImage: FC<{
+  libraryImg: ObjectiveMeta["libraryImg"];
+}> = ({ libraryImg }) => {
+  if (!libraryImg) return;
+
+  return (
+    <Flex direction={"column"} justify={"center"}>
+      <Text align={"center"} size={"1"} weight={"light"}>
+        {libraryImg.title}
+      </Text>
+      <img
+        src={libraryImg.src}
+        alt=""
+        width={libraryImg.w}
+        height={libraryImg.h}
+        draggable={false}
+      />
+    </Flex>
+  );
+};
 
 export const LibraryUnit = memo(
   ({
@@ -31,7 +55,8 @@ export const LibraryUnit = memo(
   }) => {
     const element = elements![0] as ObjectiveElement;
     const meta = getMetaReference(element);
-    const toolTip = meta.name || "";
+    const asImage = meta.libraryImg;
+    const toolTip = (!meta.libraryImg?.title && meta.name) || "";
 
     const ref = useRef<HTMLDivElement | null>(null);
     const svg = useLibraryItemSvg(id, elements, svgCache);
@@ -39,6 +64,7 @@ export const LibraryUnit = memo(
     useEffect(() => {
       const node = ref.current;
 
+      if (asImage) return;
       if (!node) {
         return;
       }
@@ -50,13 +76,50 @@ export const LibraryUnit = memo(
       return () => {
         node.innerHTML = "";
       };
-    }, [svg]);
+    }, [asImage, svg]);
 
     const [isHovered, setIsHovered] = useState(false);
     const isMobile = useDevice().editor.isMobile;
     const adder = isPending && (
       <div className="library-unit__adder">{PlusIcon}</div>
     );
+
+    if (asImage)
+      return (
+        <Tooltip content={toolTip} style={toolTip ? {} : { display: "none" }}>
+          <div
+            className={clsx("library-unit", {
+              "library-unit__active": elements,
+              "library-unit--hover": elements && isHovered,
+            })}
+            style={{ overflow: "hidden" }} // hide overflow img
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            draggable={!!elements}
+            onClick={
+              !!elements || !!isPending
+                ? (event) => {
+                    if (id && event.shiftKey) {
+                      onToggle(id, event);
+                    } else {
+                      onClick(id);
+                    }
+                  }
+                : undefined
+            }
+            onDragStart={(event) => {
+              if (!id) {
+                event.preventDefault();
+                return;
+              }
+              setIsHovered(false);
+              onDrag(id, event);
+            }}
+          >
+            <LibraryUnitAsImage libraryImg={meta.libraryImg} />
+          </div>
+        </Tooltip>
+      );
 
     return (
       <Tooltip content={toolTip} style={toolTip ? {} : { display: "none" }}>
@@ -97,15 +160,6 @@ export const LibraryUnit = memo(
             }}
           />
           {adder}
-          {/*
-        VBRN DISABLE: library item checkbox item
-        {id && elements && (isHovered || isMobile || selected) && (
-          <CheckboxItem
-            checked={selected}
-            onChange={(checked, event) => onToggle(id, event)}
-            className="library-unit__checkbox"
-          />
-        )} */}
         </div>
       </Tooltip>
     );

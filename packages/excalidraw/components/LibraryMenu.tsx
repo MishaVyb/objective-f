@@ -29,7 +29,6 @@ import { LIBRARY_DISABLED_TYPES } from "../constants";
 import { NonDeletedExcalidrawElement } from "../element/types";
 import { isShallowEqual } from "../utils";
 import "./LibraryMenu.scss";
-import { LibraryMenuControlButtons } from "./LibraryMenuControlButtons";
 
 export const isLibraryMenuOpenAtom = atom(false);
 
@@ -116,7 +115,6 @@ export const LibraryMenuContent = ({
     );
   }
 
-  const showBtn = false; // VBRN disable lib control button
   return (
     <LibraryMenuWrapper>
       <LibraryMenuItems
@@ -131,15 +129,6 @@ export const LibraryMenuContent = ({
         onSelectItems={onSelectItems}
         selectedItems={selectedItems}
       />
-      {showBtn && (
-        <LibraryMenuControlButtons
-          className="library-menu-control-buttons--at-bottom"
-          style={{ padding: "16px 12px 0 12px" }}
-          id={id}
-          libraryReturnUrl={libraryReturnUrl}
-          theme={theme}
-        />
-      )}
     </LibraryMenuWrapper>
   );
 };

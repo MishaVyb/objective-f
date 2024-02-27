@@ -69,6 +69,13 @@ export interface ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> {
    */
   basisIndex: number
 
+  libraryImg?: {
+    src: string
+    title: string
+    w: number
+    h: number
+  }
+
   //
   //
   /** HACK: as TS support for internal Excalidraw properties for IFrames. Objective do not use that. */

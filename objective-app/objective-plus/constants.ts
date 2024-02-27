@@ -1,3 +1,5 @@
+import { Theme } from '../../packages/excalidraw/element/types'
+
 export const LOCAL_DEV = true
 export const MINUTE = 1000
 
@@ -22,4 +24,7 @@ export enum ENDPOINTS {
   ERROR = '/api/error',
 }
 
-export const API_MOCK_FREEZE_MS = 250
+// TODO configure it from process.env
+export const __DEBUG_API_FREEZE_MS = 250
+export const __DEBUG_EDITOR = true
+export const __DEBUG_ENSURE_THEME: Theme | null = 'light' //'dark'

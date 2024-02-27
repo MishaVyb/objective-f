@@ -31,9 +31,10 @@ import Stack from "./Stack";
 import "./LibraryMenuItems.scss";
 import Spinner from "./Spinner";
 import { ObjectiveKinds } from "../../../objective-app/objective/meta/types";
+import { WALL_IMAGE } from "../../../objective-app/objective/lib/location.library";
 
-import wallImage from "../../../public/objective/icons/wall-png-275.png";
 import { useApp } from "./App";
+import { LibraryUnitAsImage } from "./LibraryUnit";
 
 // using an odd number of items per batch so the rendering creates an irregular
 // pattern which looks more organic
@@ -345,15 +346,9 @@ const WallToolLibraryItem = () => {
     app.setActiveTool({ type: "line" });
   };
   return (
-    <img
-      draggable={false}
-      onClick={onClick} //
-      className="objective-library-unit"
-      src={wallImage}
-      alt=""
-      width={55}
-      height={55}
-    />
+    <div className="objective-library-unit" onClick={onClick} draggable={false}>
+      <LibraryUnitAsImage libraryImg={WALL_IMAGE} />
+    </div>
   );
 };
 

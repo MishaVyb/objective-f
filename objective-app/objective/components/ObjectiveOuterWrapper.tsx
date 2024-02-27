@@ -1,7 +1,7 @@
 import { FC, ReactNode, useCallback, useEffect } from 'react'
 
 import { useParams } from 'react-router-dom'
-import { SCENE_PERSISTENCE } from '../../objective-plus/constants'
+import { SCENE_PERSISTENCE, __DEBUG_ENSURE_THEME } from '../../objective-plus/constants'
 import { useDispatch, useSelector } from '../../objective-plus/hooks/redux'
 import {
   createFile,
@@ -22,10 +22,7 @@ import { Collaborator, ExcalidrawImperativeAPI, SocketId } from '../../../packag
 import { OBJECTIVE_LIB as OBJECTIVE_LIB_ITEMS } from '../lib'
 import { objectValues } from '../meta/utils'
 import './../scss/app.scss'
-import { Theme } from '../../../packages/excalidraw/element/types'
 import { DEFAULT_GRID_MODE, getGridMode } from './ObjectiveSettingsDialog'
-
-const ENSURE_THEME: Theme | null = 'light' //'dark' // TODO configure it from process.env
 
 /** Implements scene loading and saving */
 const ObjectiveOuterWrapper: FC<{
@@ -55,7 +52,7 @@ const ObjectiveOuterWrapper: FC<{
           const serializedAppState = {
             ...scene.appState,
             name: scene.name,
-            theme: ENSURE_THEME ? ENSURE_THEME : scene.appState.theme,
+            theme: __DEBUG_ENSURE_THEME ? __DEBUG_ENSURE_THEME : scene.appState.theme,
           }
           serializedAppState.collaborators = new Map<SocketId, Collaborator>(
             //@ts-ignore

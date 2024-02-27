@@ -37,15 +37,7 @@ import {
 
 import "./Actions.scss";
 import DropdownMenu from "./dropdownMenu/DropdownMenu";
-import {
-  EmbedIcon,
-  extraToolsIcon,
-  frameToolIcon,
-  mermaidLogoIcon,
-  laserPointerToolIcon,
-  OpenAIIcon,
-  MagicIcon,
-} from "./icons";
+import { extraToolsIcon, frameToolIcon } from "./icons";
 import { KEYS } from "../keys";
 import { useTunnels } from "../context/tunnels";
 import {
@@ -54,6 +46,7 @@ import {
 } from "../../../objective-app/objective/meta/types";
 import { CaretDownIcon, CaretRightIcon } from "@radix-ui/react-icons";
 import { Separator } from "@radix-ui/themes";
+import { __DEBUG_EDITOR } from "../../../objective-app/objective-plus/constants";
 
 export const SelectedShapeActions = ({
   appState,
@@ -117,10 +110,14 @@ export const SelectedShapeActions = ({
   const [showOBJStyle, setShowOBJStyle] = useState(false);
   const isAllObjective = isAllElementsObjective(targetElements);
   const isAnyObjective = isAnyElementsObjective(targetElements);
-  const isAllExcali = !isAnyObjective;
+  const isAllExcali = !isAnyObjective || __DEBUG_EDITOR;
   const isObjAndExcali = !isAllObjective && isAnyObjective;
   const isSingleImage =
     targetElements.length === 1 && isInitializedImageElement(targetElements[0]);
+
+  // TODO
+  // const metas = getObjectiveMetas(targetElements)
+  // const
 
   const actionsToRender = {
     // Objective
