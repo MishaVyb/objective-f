@@ -39,8 +39,7 @@ import { register } from './register'
  */
 const getSelectedImage = (elements: readonly ExcalidrawElement[], appState: AppState) => {
   const images = getSelectedElements(elements, appState)
-  if (images.length !== 1) throw Error('Not Implemented!')
-  return images[0] as ExcalidrawImageElement
+  return images[0] as ExcalidrawImageElement | undefined
 }
 
 export const actionInitStoryboard = register({
@@ -53,6 +52,8 @@ export const actionInitStoryboard = register({
    */
   perform: (elements, appState, camera: CameraMeta) => {
     const image = getSelectedImage(elements, appState)
+    if (!image) return { commitToHistory: false }
+
     const cameraBasis = getCameraBasis(elements, camera)
     const action = camera.relatedImages.includes(image.id) ? 'unlink' : 'link'
     const pointer = getPointerBetween(elements, image, cameraBasis)
@@ -91,6 +92,8 @@ export const actionInitStoryboard = register({
   },
   PanelComponent: ({ elements, appState, updateData, appProps }: PanelComponentProps) => {
     const image = getSelectedImage(elements, appState)
+    if (!image) return <></>
+
     const cameras = getShotCameraMetas(elements)
     const device = useDevice()
 

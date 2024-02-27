@@ -12,6 +12,7 @@ import {
   ObjectiveMeta,
 } from "../../../objective-app/objective/meta/types";
 
+//@ts-ignore
 export const LibraryUnitAsImage: FC<{
   libraryImg: ObjectiveMeta["libraryImg"];
 }> = ({ libraryImg }) => {
