@@ -2,13 +2,10 @@ import isEqual from 'lodash/isEqual'
 import { FC, ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react'
 import * as Tooltip from '@radix-ui/react-tooltip'
 
-import { SymbolIcon } from '@radix-ui/react-icons'
-import { Flex, Text } from '@radix-ui/themes'
-import { RootBox } from '../../objective-plus/components/layout'
 import { useSelector } from '../../objective-plus/hooks/redux'
 import {
   selectIsMyScene,
-  selectLoadingSceneIsPending,
+  selectInitialSceneLoadingIsPending,
 } from '../../objective-plus/store/projects/reducer'
 import { actionToggleViewMode } from '../../../packages/excalidraw/actions/actionToggleViewMode'
 import App, {
@@ -20,8 +17,8 @@ import { BinaryFiles } from '../../../packages/excalidraw/types'
 import { getCameraMetas } from '../meta/selectors'
 import { CameraMeta } from '../meta/types'
 import { useMouse } from '../hooks/useMouse'
-import { LinearElementEditor } from '../../../packages/excalidraw/element/linearElementEditor'
 import { getLastLineLength, numberToStr } from '../elements/math'
+import { LoadingMessage } from '../../../packages/excalidraw/components/LoadingMessage'
 
 /**
  * Extra contexts
@@ -42,7 +39,7 @@ const ObjectiveInnerWrapper: FC<{ children: ReactNode }> = ({ children }) => {
   const { multiElement } = useExcalidrawAppState()
   const elements = useExcalidrawElements()
 
-  const loading = useSelector(selectLoadingSceneIsPending)
+  const loading = useSelector(selectInitialSceneLoadingIsPending)
   const isMyScene = useSelector(selectIsMyScene)
 
   const showMeasurement = !!multiElement // TODO show when `appState.editingLinearElement`
@@ -89,15 +86,7 @@ const ObjectiveInnerWrapper: FC<{ children: ReactNode }> = ({ children }) => {
     }
   }, [isMyScene, loading, app])
 
-  if (loading)
-    return (
-      <RootBox>
-        <Flex justify={'center'} align={'center'} gap={'2'}>
-          <SymbolIcon />
-          <Text>loading</Text>
-        </Flex>
-      </RootBox>
-    )
+  if (loading) return <LoadingMessage />
 
   return (
     <ObjectiveCamerasContext.Provider value={cameras}>

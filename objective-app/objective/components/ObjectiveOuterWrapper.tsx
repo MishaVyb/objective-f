@@ -1,10 +1,11 @@
-import { FC, ReactNode, useCallback, useEffect } from 'react'
+import { FC, ReactNode, useCallback, useEffect, useState } from 'react'
 
 import { useParams } from 'react-router-dom'
 import { SCENE_PERSISTENCE, __DEBUG_ENSURE_THEME } from '../../objective-plus/constants'
 import { useDispatch, useSelector } from '../../objective-plus/hooks/redux'
 import {
   createFile,
+  setInitialSceneLoadingIsPending,
   loadFile,
   loadSceneContinuos,
   loadSceneInitial,
@@ -14,7 +15,7 @@ import {
 import {
   selectCurrentScene,
   selectIsMyScene,
-  selectLoadingSceneIsPending,
+  selectInitialSceneLoadingIsPending,
 } from '../../objective-plus/store/projects/reducer'
 import { deepCopyElement } from '../../../packages/excalidraw/element/newElement'
 import { isImageElement } from '../../../packages/excalidraw/element/typeChecks'
@@ -33,7 +34,7 @@ const ObjectiveOuterWrapper: FC<{
   const { sceneId } = useParams()
   const isMyScene = useSelector(selectIsMyScene)
   const scene = useSelector(selectCurrentScene)
-  const loading = useSelector(selectLoadingSceneIsPending)
+  const loading = useSelector(selectInitialSceneLoadingIsPending)
 
   /** loading... */
   const loadingScene = useCallback(
@@ -78,6 +79,11 @@ const ObjectiveOuterWrapper: FC<{
             .filter(isImageElement)
             .filter((e) => e.fileId && !localFileIds.has(e.fileId))
 
+          // scene has been load from server, but we need a little bit more for Excalidraw internal work
+          setTimeout(() => {
+            dispatch(setInitialSceneLoadingIsPending(false))
+          }, 100)
+
           imageElementsWithFileNotInLocalFileIds.forEach((e) => {
             // TODO
             // chick is action to fetch already dispatched or not? (do not dispatche the same request)
@@ -106,8 +112,13 @@ const ObjectiveOuterWrapper: FC<{
     // edge case, when we exiting from scene, Excalidraw api release elements store and return
     // empty list (but scene actually may has elements)
     //
-    // and also preventing updates scene with no elements, if any app error occurs
-    if (!els.length) return
+    // and it also prevents scene updateing with no elements, if any app error occurs
+    // and to ensure that schene has no elements for real (at server side), dispatch load action for one more time
+    //
+    if (!els.length) {
+      loadingScene(loadSceneContinuos({ id: sceneId! }), { updateAppState: true })
+      return
+    }
 
     dispatch(
       loadUpdateScene({
@@ -134,7 +145,11 @@ const ObjectiveOuterWrapper: FC<{
   // load scene on mount, save scene on un-mount
   useEffect(() => {
     loadingScene(loadSceneInitial({ id: sceneId! }))
+
     return () => {
+      // set true by as default to ensure when other scene will be opened,
+      // it will have pending status initially
+      dispatch(setInitialSceneLoadingIsPending(true))
       updatingScene()
     }
   }, [loadingScene, updatingScene, sceneId])
@@ -164,6 +179,11 @@ const ObjectiveOuterWrapper: FC<{
   useEffect(() => {
     if (isMyScene && scene) dispatch(toggleProject(scene.project_id))
   }, [isMyScene, scene, dispatch])
+
+  // NOTE
+  // Do not render loader here, othervie it won't render Excalidraw App and we never get excalidrawAPI
+  // that is required to finalize initial loading action. Therefore we display render at `ObjectiveInnerWrapper`
+  // if (loading) return <LoadingMessage />
 
   return <>{children}</>
 }

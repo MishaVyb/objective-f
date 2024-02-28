@@ -1,9 +1,8 @@
-import { t } from "../i18n";
 import { useState, useEffect } from "react";
-import Spinner from "./Spinner";
-import clsx from "clsx";
-import { THEME } from "../constants";
 import { Theme } from "../element/types";
+import { RootBox } from "../../../objective-app/objective-plus/components/layout";
+import { Flex, Text } from "@radix-ui/themes";
+import { SymbolIcon } from "@radix-ui/react-icons";
 
 export const LoadingMessage: React.FC<{ delay?: number; theme?: Theme }> = ({
   delay,
@@ -26,15 +25,11 @@ export const LoadingMessage: React.FC<{ delay?: number; theme?: Theme }> = ({
   }
 
   return (
-    <div
-      className={clsx("LoadingMessage", {
-        "LoadingMessage--dark": theme === THEME.DARK,
-      })}
-    >
-      <div>
-        <Spinner />
-      </div>
-      <div className="LoadingMessage-text">{t("labels.loadingScene")}</div>
-    </div>
+    <RootBox>
+      <Flex justify={"center"} align={"center"} gap={"2"}>
+        <SymbolIcon />
+        <Text>loading</Text>
+      </Flex>
+    </RootBox>
   );
 };

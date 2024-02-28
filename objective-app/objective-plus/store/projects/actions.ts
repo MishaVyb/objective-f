@@ -117,7 +117,9 @@ export const resetRequestStatusAction = createAction('projects/resetRequestStatu
 export type TResetRequestStatusAction = ReturnType<typeof resetRequestStatusAction>
 
 export const toggleProject = createAction<IProject['id']>('projects/toggleProject')
-export type TToggleProject = ReturnType<typeof toggleProject>
+export const setInitialSceneLoadingIsPending = createAction<boolean>(
+  'projects/setInitialLoadingSceneStatus'
+)
 
 export const loadProjects = createAsyncThunk<
   TGetProjectsResponse,

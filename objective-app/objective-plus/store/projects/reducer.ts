@@ -7,6 +7,7 @@ import {
   TPendingAction,
   TRejectedAction,
   TResetRequestStatusAction,
+  setInitialSceneLoadingIsPending,
   loadProjects,
   loadSceneInitial,
   resetRequestStatusAction,
@@ -56,7 +57,7 @@ export interface IProjectsState {
   error: string | undefined
   pendingRequest: boolean
   /** Pending initial loading */
-  pendingLoadingScene: boolean
+  initialSceneLoadingIsPending: boolean
 }
 
 export const initialState: IProjectsState = {
@@ -66,7 +67,7 @@ export const initialState: IProjectsState = {
   currentScene: undefined,
   error: undefined,
   pendingRequest: false,
-  pendingLoadingScene: false,
+  initialSceneLoadingIsPending: true, // default true so when component is mounted for the fist time, it will render Loader immediately
 }
 
 const reducer = createReducer(initialState, (builder) => {
@@ -78,6 +79,11 @@ const reducer = createReducer(initialState, (builder) => {
     })
   )
 
+  builder.addCase(setInitialSceneLoadingIsPending, (state, action) => {
+    state.initialSceneLoadingIsPending = action.payload
+    return state
+  })
+
   // -------------------- Thunk Actions -----------------------------------------------
 
   builder.addCase(loadProjects.fulfilled, (state, action) =>
@@ -88,18 +94,18 @@ const reducer = createReducer(initialState, (builder) => {
   )
 
   // Scenes REQUEST LIFECYCLE
+
+  // DO NOT CHANGE state.initialSceneLoadingIsPending here, we do it in separate action above
+  // and we call that action in proper time scene would be fully initialized
   builder.addCase(loadSceneInitial.pending, (state, action) => {
-    state.pendingLoadingScene = true
     state.currentScene = undefined
     return state
   })
   builder.addCase(loadSceneInitial.rejected, (state, action) => {
-    state.pendingLoadingScene = false
     state.currentScene = undefined
     return state
   })
   builder.addCase(loadSceneInitial.fulfilled, (state, action) => {
-    state.pendingLoadingScene = false
     state.currentScene = action.payload
     return state
   })
@@ -143,7 +149,8 @@ const reducer = createReducer(initialState, (builder) => {
 })
 
 export const selectIsPending = (state: RootState) => state.projects.pendingRequest
-export const selectLoadingSceneIsPending = (state: RootState) => state.projects.pendingLoadingScene
+export const selectInitialSceneLoadingIsPending = (state: RootState) =>
+  state.projects.initialSceneLoadingIsPending
 export const selectError = (state: RootState) => state.projects.error
 
 export const selectProjects = createSelector(

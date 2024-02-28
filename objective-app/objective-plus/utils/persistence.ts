@@ -15,8 +15,8 @@ export function saveToLocalStorage<T>(key: string, value: T): T {
 
 export function loadFromLocalStorage<T>(
   key: string,
-  defaultValue: T | undefined = undefined
-): T | undefined {
+  defaultValue: T,
+): T {
   try {
     const value = localStorage.getItem(key)
     if (value === null) return defaultValue
