@@ -34,8 +34,10 @@ const ScaleVerboseMap = {
 }
 
 export const getGridMode = (appState: AppState) => {
-  const { gridSize, gridBoldLineFrequency } = appState
-  const modeIndex = MODES.findIndex((v) => v.size === gridSize && v.freq === gridBoldLineFrequency)
+  const { gridSizeConfig, gridBoldLineFrequency } = appState
+  const modeIndex = MODES.findIndex(
+    (v) => v.size === gridSizeConfig && v.freq === gridBoldLineFrequency
+  )
   return modeIndex
 }
 
@@ -60,7 +62,7 @@ export const ObjectiveSettingsDialog = ({ onClose }: { onClose?: () => void }) =
   const setGridSize = (modeIndex: number) => {
     setAppState({
       ...appState,
-      gridSize: appState.gridSize ? MODES[modeIndex].size : null,
+      gridSize: MODES[modeIndex].size, // enable grid, even if it was disabled
       gridSizeConfig: MODES[modeIndex].size,
       gridBoldLineFrequency: MODES[modeIndex].freq,
     })
