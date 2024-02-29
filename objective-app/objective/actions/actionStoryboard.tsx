@@ -11,7 +11,7 @@ import {
   ExcalidrawImageElement,
 } from '../../../packages/excalidraw/element/types'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
-import { AppState } from '../../../packages/excalidraw/types'
+import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
 import { newPointerBeetween } from '../objects/primitives'
 import '../scss/cameraItem.scss'
 import '../scss/popover.scss'
@@ -140,7 +140,7 @@ interface IPerformValue {
 export const actionStoryboard = register({
   name: 'actionStoryboard',
   trackEvent: false,
-  perform: (elements, appState, { camera, image, action }: IPerformValue) => {
+  perform: (elements, appState, { camera, image, action }: IPerformValue, app: AppClassProperties) => {
     const cameraBasis = getCameraBasis(elements, camera)
     const pointer = getPointerBetween(elements, image, cameraBasis)
     const otherCamerasRelatedToImage = getCameraMetas(elements, {
@@ -189,7 +189,7 @@ export const actionStoryboard = register({
         break
       case 'remove':
         // [1] remove image
-        elements = deleteEventHandler(elements, [image], appState)
+        elements = deleteEventHandler(app, elements, [image])
         break
     }
     return {

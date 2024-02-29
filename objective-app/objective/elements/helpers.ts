@@ -13,7 +13,6 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import Scene from '../../../packages/excalidraw/scene/Scene'
 import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
-import { getElement, getElementsMapStrict } from '../meta/selectors'
 import {
   ObjectiveElement,
   ObjectiveMeta,
@@ -173,6 +172,7 @@ type TNewReprConstructor = (
  * Generic function to create\update\remove `on Canvas` representation  for meta information.
  */
 export const handleMetaRepresentation = <TMeta extends ObjectiveMeta>(
+  scene: Scene,
   metas: readonly TMeta[],
   fieldName: keyof TMeta,
   newValue: string | ((meta: TMeta) => string),
@@ -185,9 +185,9 @@ export const handleMetaRepresentation = <TMeta extends ObjectiveMeta>(
     if (newValue && !meta[fieldName])
       newEls.push(...createMetaRepr(meta, fieldName, newValue, newRepr))
     // [2] update
-    else if (newValue && meta[fieldName]) updateMetaRepr(meta, fieldName, newValue)
+    else if (newValue && meta[fieldName]) updateMetaRepr(scene, meta, fieldName, newValue)
     // [3] change
-    else if (!newValue && meta[fieldName]) deleteMetaRepr(meta, fieldName)
+    else if (!newValue && meta[fieldName]) deleteMetaRepr(scene, meta, fieldName)
   })
   return newEls
 }
@@ -197,6 +197,7 @@ export const createMetaRepr = <TMeta extends ObjectiveMeta>(
   fieldName: keyof TMeta,
   newValue: string,
   newRepr: TNewReprConstructor
+  // TODO scene do not required here and it's to much to refactor to pass it here
 ) => {
   const [rectangle, text] = newRepr(meta, newValue)
   // Link representation:
@@ -206,16 +207,18 @@ export const createMetaRepr = <TMeta extends ObjectiveMeta>(
 }
 
 export const updateMetaRepr = <TMeta extends ObjectiveMeta>(
+  scene: Scene,
   meta: TMeta,
   fieldName: keyof TMeta,
   newValue: string
 ) => {
   const containerId = meta[fieldName] as ExcalidrawElement['id']
-  const container = getElement(containerId)
-  const elementsMap = getElementsMapStrict(container)
+  const container = scene.getElement(containerId)
+  if (!container) return
+
   handleBindTextResize(
-    container!,
-    elementsMap,
+    container,
+    scene.getElementsMapIncludingDeleted(),
     false,
     false,
     { newOriginalText: newValue } //
@@ -223,6 +226,7 @@ export const updateMetaRepr = <TMeta extends ObjectiveMeta>(
 }
 
 export const deleteMetaRepr = <TMeta extends ObjectiveMeta>(
+  scene: Scene,
   meta: TMeta,
   fieldName: keyof TMeta
 ) => {
@@ -232,12 +236,14 @@ export const deleteMetaRepr = <TMeta extends ObjectiveMeta>(
 
   // Remove repr:
   const containerId = meta[fieldName] as ExcalidrawElement['id']
-  const container = getElement(containerId)
+  const container = scene.getElement(containerId)
   if (!container) return
-  mutateElement(container!, { isDeleted: true })
 
-  const text = getBoundTextElement(container!, getElementsMapStrict(container))
+  mutateElement(container, { isDeleted: true })
+
+  const text = getBoundTextElement(container, scene.getElementsMapIncludingDeleted())
   if (!text) return
+
   mutateElement(text!, { isDeleted: true })
 }
 

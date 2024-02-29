@@ -7,7 +7,11 @@ import {
 } from '../../../packages/excalidraw/element/types'
 
 import Scene from '../../../packages/excalidraw/scene/Scene'
-import { AppState, BinaryFiles, PointerDownState } from '../../../packages/excalidraw/types'
+import {
+  AppClassProperties,
+  BinaryFiles,
+  PointerDownState,
+} from '../../../packages/excalidraw/types'
 import { Mutable } from '../../../packages/excalidraw/utility-types'
 import { cameraInitialMeta, getBaseInitialMeta } from '../objects/initial'
 import { newNameRepr, newShotNumberRepr } from '../objects/primitives'
@@ -73,9 +77,9 @@ export const duplicateAsInitialEventHandler = (el: Mutable<ExcalidrawElement>) =
  * @returns New array with unchanged previous elements and new elements with updated properties.
  */
 export const deleteEventHandler = (
+  app: AppClassProperties,
   elements: readonly ExcalidrawElement[],
-  deletingElements: Set<ExcalidrawElement> | Array<ExcalidrawElement>,
-  appState: AppState
+  deletingElements: Set<ExcalidrawElement> | Array<ExcalidrawElement>
 ) => {
   // - Handle if deleting element not marked as deleted (in case direct call)
   elements = elements.map((el) =>
@@ -87,19 +91,20 @@ export const deleteEventHandler = (
   )
 
   // - Handle Excalidraw
-  elements = deleteExcalidrawElements(elements, deletingElements)
+  elements = deleteExcalidrawElements(app, elements, deletingElements)
 
   // - Handle Objective
   const delitingMetas = getObjectiveMetas(elements, {
     extraPredicate: (meta) => [...deletingElements].some((el) => meta.elementIds.includes(el.id)),
     includingDelited: true,
   })
-  elements = deleteObjectiveMetas(elements, delitingMetas)
+  elements = deleteObjectiveMetas(app, elements, delitingMetas)
 
   return elements
 }
 
 export const deleteExcalidrawElements = (
+  app: AppClassProperties,
   elements: readonly ExcalidrawElement[],
   deletingElements: Set<ExcalidrawElement> | Array<ExcalidrawElement>
 ) => {
@@ -126,12 +131,13 @@ export const deleteExcalidrawElements = (
 }
 
 export const deleteObjectiveMetas = (
+  app: AppClassProperties,
   elements: readonly ExcalidrawElement[],
   delitingMetas: readonly Readonly<ObjectiveMeta>[]
 ) => {
   delitingMetas.forEach((target) => {
     // [0] delete repr
-    deleteMetaRepr(target, 'nameRepr')
+    deleteMetaRepr(app.scene, target, 'nameRepr')
 
     // [1] delete camera
     if (isCameraMeta(target)) {
@@ -154,7 +160,7 @@ export const deleteObjectiveMetas = (
           })
       })
       // [1.2] delete delete repr
-      deleteMetaRepr(target, 'shotNumberRepr')
+      deleteMetaRepr(app.scene, target, 'shotNumberRepr')
     }
 
     // .... other handlers per Objective kind

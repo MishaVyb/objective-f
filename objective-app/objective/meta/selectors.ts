@@ -225,18 +225,22 @@ export const getElementById = <TElement extends ExcalidrawElement>(
  *
  * NOTE: If element type is known from context, it could be specified via generic.
  * But be aware, there are no checks for type guard for real.
+ *
+ * @deprecated (use app.scene directly)
  */
 export const getElement = <TElement extends ExcalidrawElement>(id: string | undefined) =>
   id ? (Scene.getScene(id)?.getElement(id) as TElement) || undefined : undefined
 
 /**
- * Shortcat to get Elements Map associated with provided Elements from global Scene.
+ * Shortcut to get Elements Map associated with provided Elements from global Scene.
+ * @deprecated (use app.scene directly)
  */
 export const getElementsMap = (elementKey: ElementKey | undefined | null) =>
   Scene.getScene(elementKey)?.getElementsMapIncludingDeleted()
 
 /**
- * Shortcat to get Elements Map associated with provided Elements from global Scene.
+ * Shortcut to get Elements Map associated with provided Elements from global Scene.
+ * @deprecated (use app.scene directly)
  */
 export const getElementsMapStrict = (elementKey: ElementKey | undefined | null) => {
   const map = Scene.getScene(elementKey)?.getElementsMapIncludingDeleted()
@@ -250,6 +254,8 @@ export const getElementsMapStrict = (elementKey: ElementKey | undefined | null) 
 /**
  * NOTE: If element type is known from context, it could be specified via generic.
  * But be aware, there are no checks for type guard for real.
+ *
+ * @deprecated (use app.scene.getElementsMap directly)
  */
 export const getElementsByIds = <TElement extends ExcalidrawElement>(
   elements: readonly ExcalidrawElement[],

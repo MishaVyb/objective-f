@@ -11,11 +11,12 @@ import { getElementsInGroup } from "../groups";
 import { t } from "../i18n";
 import { KEYS } from "../keys";
 import { getSelectedElements, isSomeElementSelected } from "../scene";
-import { AppState } from "../types";
+import { AppClassProperties, AppState } from "../types";
 import { updateActiveTool } from "../utils";
 import { register } from "./register";
 
 const deleteSelectedElements = (
+  app: AppClassProperties,
   elements: readonly ExcalidrawElement[],
   appState: AppState,
 ) => {
@@ -30,6 +31,7 @@ const deleteSelectedElements = (
   //
   return {
     elements: deleteEventHandler(
+      app,
       elements.map((el) => {
         if (appState.selectedElementIds[el.id]) {
           delitingElements.add(el);
@@ -51,7 +53,6 @@ const deleteSelectedElements = (
         return el;
       }),
       delitingElements,
-      appState,
     ),
     appState: {
       ...appState,
@@ -83,7 +84,7 @@ const handleGroupEditingState = (
 export const actionDeleteSelected = register({
   name: "deleteSelectedElements",
   trackEvent: { category: "element", action: "delete" },
-  perform: (elements, appState) => {
+  perform: (elements, appState, _, app) => {
     if (appState.editingLinearElement) {
       const {
         elementId,
@@ -155,7 +156,7 @@ export const actionDeleteSelected = register({
       };
     }
     let { elements: nextElements, appState: nextAppState } =
-      deleteSelectedElements(elements, appState);
+      deleteSelectedElements(app, elements, appState);
     fixBindingsAfterDeletion(
       nextElements,
       elements.filter(({ id }) => appState.selectedElementIds[id]),
