@@ -135,20 +135,22 @@ export const SelectedShapeActions = ({
     // Excalidraw
     strokeColor:
       isAllExcali ||
-      metasSet.has(ObjectiveKinds.LOCATION) ||
-      metasSet.has(ObjectiveKinds.POINTER),
+      (metasSet.has(ObjectiveKinds.LOCATION) && showOBJStyle) ||
+      (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
+
     bgColor: isAllExcali || showOBJStyle,
     bgStyle: isAllExcali || showOBJStyle,
+
     strokeWidth:
       isAllExcali ||
-      metasSet.has(ObjectiveKinds.LOCATION) ||
-      metasSet.has(ObjectiveKinds.POINTER),
+      (metasSet.has(ObjectiveKinds.LOCATION) && showOBJStyle) ||
+      (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
 
     /** solid / dashed / dottee */
     strokeStyle:
       isAllExcali ||
-      metasSet.has(ObjectiveKinds.LOCATION) ||
-      metasSet.has(ObjectiveKinds.POINTER),
+      (metasSet.has(ObjectiveKinds.LOCATION) && showOBJStyle) ||
+      (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
 
     /** only(!) for pure excalidraw figures */
     strokeSloppiness:
@@ -169,7 +171,9 @@ export const SelectedShapeActions = ({
     textStyle: isAllExcali,
     opacity: isAllExcali || showOBJStyle || isObjAndExcali,
     layers: isAllExcali || showOBJStyle || isObjAndExcali,
-    align: isAllExcali || showOBJStyle || isObjAndExcali,
+    align:
+      (metas.length === 0 || metas.length > 1) &&
+      (isAllExcali || showOBJStyle || isObjAndExcali),
 
     /** duplicate group un-group hyper Link */
     actionsAll: isAllExcali || showOBJStyle || isObjAndExcali,
