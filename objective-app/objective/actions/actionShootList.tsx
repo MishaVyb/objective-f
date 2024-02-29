@@ -5,7 +5,7 @@ import { ToolButton } from '../../../packages/excalidraw/components/ToolButton'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { t } from '../../../packages/excalidraw/i18n'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
-import { createMetaReprElement } from '../objects/primitives'
+import { newMetaReprElement } from '../elements/newElement'
 import {
   getCameraMetas, getSelectedCameraMetas
 } from '../meta/selectors'
@@ -59,7 +59,7 @@ export const actionChangeMetaCameraShot = register({
           cameras,
           'nameRepr',
           (c: CameraMeta) => isShot ? getCameraMetaReprStr(c, {snotNumber: newCameraShootProps.shotNumber}) : '',
-          createMetaReprElement
+          newMetaReprElement
         )
 
         break
@@ -69,7 +69,7 @@ export const actionChangeMetaCameraShot = register({
           cameras,
           'nameRepr',
           (c: CameraMeta) => getCameraMetaReprStr(c, {shotNumberUpdate: 1}),
-          createMetaReprElement,
+          newMetaReprElement,
         )
         mutateElementsMeta(app, (c: CameraMeta) => ({
           shotNumber: getCameraShotNumberUpdate(c, 1),
@@ -81,7 +81,7 @@ export const actionChangeMetaCameraShot = register({
           cameras,
           'nameRepr',
           (c: CameraMeta) => getCameraMetaReprStr(c, {shotNumberUpdate: -1}),
-          createMetaReprElement
+          newMetaReprElement
         )
         mutateElementsMeta(app, (c: CameraMeta) => ({
           shotNumber: getCameraShotNumberUpdate(c, -1),

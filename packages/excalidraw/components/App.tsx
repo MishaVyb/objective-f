@@ -414,7 +414,7 @@ import {
   isKind,
   isWallTool,
 } from "../../../objective-app/objective/meta/types";
-import { getBaseInitialMeta } from "../../../objective-app/objective/objects/initial";
+import { getInitialMeta } from "../../../objective-app/objective/meta/initial";
 import { actionToggleGridSnapMode } from "../../../objective-app/objective/actions/actionSettings";
 import {
   addElementsFromPasteOrLibraryHandler,
@@ -1803,7 +1803,7 @@ class App extends React.Component<AppProps, AppState> {
         {
           customData: {
             ...(frameElement.customData ||
-              getBaseInitialMeta(ObjectiveKinds.PROP)), // only for TS supports
+              getInitialMeta(ObjectiveKinds.PROP)), // only for TS supports
             generationData: undefined,
           },
         },
@@ -1815,7 +1815,7 @@ class App extends React.Component<AppProps, AppState> {
         {
           customData: {
             ...(frameElement.customData ||
-              getBaseInitialMeta(ObjectiveKinds.PROP)), // only for TS supports
+              getInitialMeta(ObjectiveKinds.PROP)), // only for TS supports
             generationData: data,
           },
         },

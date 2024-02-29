@@ -13,8 +13,8 @@ import {
   PointerDownState,
 } from '../../../packages/excalidraw/types'
 import { Mutable } from '../../../packages/excalidraw/utility-types'
-import { cameraInitialMeta, getBaseInitialMeta } from '../objects/initial'
-import { createMetaReprElement } from '../objects/primitives'
+import { cameraInitialMeta, getInitialMeta } from '../meta/initial'
+import { newMetaReprElement } from './newElement'
 import {
   getCameraBasis,
   getCameraMetas,
@@ -54,14 +54,14 @@ export const duplicateEventHandler = (elements: Mutable<ExcalidrawElement>[]) =>
       }
       if (meta.nameRepr)
         extraNewEls.push(
-          ...createMetaRepr(meta, 'nameRepr', getCameraMetaReprStr(meta), createMetaReprElement)
+          ...createMetaRepr(meta, 'nameRepr', getCameraMetaReprStr(meta), newMetaReprElement)
         )
 
       meta.relatedImages = []
     } else {
       // all other els
       if (meta.nameRepr)
-        extraNewEls.push(...createMetaRepr(meta, 'nameRepr', meta.name!, createMetaReprElement))
+        extraNewEls.push(...createMetaRepr(meta, 'nameRepr', meta.name!, newMetaReprElement))
     }
   })
 
@@ -70,7 +70,7 @@ export const duplicateEventHandler = (elements: Mutable<ExcalidrawElement>[]) =>
 
 export const duplicateAsInitialEventHandler = (el: Mutable<ExcalidrawElement>) => {
   if (isCameraElement(el)) Object.assign(el.customData, cameraInitialMeta)
-  else if (isObjective(el)) Object.assign(el.customData, getBaseInitialMeta(el.customData?.kind))
+  else if (isObjective(el)) Object.assign(el.customData, getInitialMeta(el.customData?.kind))
 }
 
 /**

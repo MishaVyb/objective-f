@@ -12,7 +12,7 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
 import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
-import { newPointerBeetween } from '../objects/primitives'
+import { newPointerBeetween } from '../elements/newElement'
 import '../scss/cameraItem.scss'
 import '../scss/popover.scss'
 import {

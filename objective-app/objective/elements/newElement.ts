@@ -10,7 +10,7 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import { getObjectiveBasis } from '../meta/selectors'
 import { ObjectiveKinds, ObjectiveMeta } from '../meta/types'
-import { getBaseInitialMeta } from './initial'
+import { getInitialMeta } from '../meta/initial'
 
 export const newMockPointer = () =>
   newLinearElement({
@@ -27,7 +27,7 @@ export const newMockPointer = () =>
     ],
     startArrowhead: null,
     endArrowhead: null,
-    customData: getBaseInitialMeta(ObjectiveKinds.POINTER),
+    customData: getInitialMeta(ObjectiveKinds.POINTER),
   })
 
 /**
@@ -61,12 +61,12 @@ export const newPointerBeetween = (
   return newPointer
 }
 
-export const createMetaReprElement = (meta: ObjectiveMeta, initialValue: string) => {
+export const newMetaReprElement = (meta: ObjectiveMeta, initialValue: string) => {
   const basis = getObjectiveBasis(meta)
   const gap = 1
   const [w, h] = [70, 30]
   const container = newElement({
-    customData: getBaseInitialMeta(ObjectiveKinds.LABEL),
+    customData: getInitialMeta(ObjectiveKinds.LABEL),
 
     type: 'rectangle',
     fillStyle: 'solid',
@@ -87,7 +87,7 @@ export const createMetaReprElement = (meta: ObjectiveMeta, initialValue: string)
   // All other props generated dynamically inside
   const widthExtension = 12
   const text = newTextElement({
-    customData: getBaseInitialMeta(ObjectiveKinds.LABEL),
+    customData: getInitialMeta(ObjectiveKinds.LABEL),
 
     x: container.x + container.width / 2,
     y: container.y + container.height / 2,

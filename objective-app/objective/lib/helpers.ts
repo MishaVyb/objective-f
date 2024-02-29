@@ -3,7 +3,7 @@ import { COLOR_PALETTE } from '../../../packages/excalidraw/colors'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { randomId, randomInteger } from '../../../packages/excalidraw/random'
 import { LibraryItem } from '../../../packages/excalidraw/types'
-import { getBaseInitialMeta } from '../objects/initial'
+import { getInitialMeta } from '../meta/initial'
 import { ObjectiveKinds, ObjectiveMeta } from '../meta/types'
 
 export const createObjFromClipboard = (
@@ -25,7 +25,7 @@ export const createObjFromClipboard = (
         ? COLOR_PALETTE.transparent
         : elOverrides.backgroundColor || el.backgroundColor,
     //
-    customData: getBaseInitialMeta(kind, { name: name, ...metaOverrides }),
+    customData: getInitialMeta(kind, { name: name, ...metaOverrides }),
     //
     version: 1,
     versionNonce: 0,

@@ -6,7 +6,7 @@ import { KEYS } from '../../../packages/excalidraw/keys'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
 import { focusNearestParent } from '../../../packages/excalidraw/utils'
 import { TextField } from '../UI/TextField'
-import { createMetaReprElement } from '../objects/primitives'
+import { newMetaReprElement } from '../elements/newElement'
 import { getObjectiveMetas } from '../meta/selectors'
 import { handleMetaRepresentation, mutateElementsMeta } from '../elements/helpers'
 import { register } from './register'
@@ -34,7 +34,7 @@ export const actionChangeMetaName = register({
       'nameRepr',
       (m: ObjectiveMeta) =>
         isCameraMeta(m) ? getCameraMetaReprStr(m, { name: newTextValue }) : newTextValue,
-      createMetaReprElement
+      newMetaReprElement
     )
 
     // [2] change name in meta
