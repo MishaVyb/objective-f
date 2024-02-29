@@ -14,7 +14,7 @@ import {
 } from '../../../packages/excalidraw/types'
 import { Mutable } from '../../../packages/excalidraw/utility-types'
 import { cameraInitialMeta, getBaseInitialMeta } from '../objects/initial'
-import { newNameRepr, newShotNumberRepr } from '../objects/primitives'
+import { createMetaReprElement } from '../objects/primitives'
 import {
   getCameraBasis,
   getCameraMetas,
@@ -36,6 +36,7 @@ import {
 } from '../actions/actionOnDrag'
 import { changeElementProperty, createMetaRepr, deleteMetaRepr } from './helpers'
 import { snapDraggedElementsLocation } from './snapElements'
+import { getCameraMetaReprStr } from '../actions/actionShootList'
 
 /**
  * It's assumed that meta (`customData`) already copied properly by `_deppCopyElement`
@@ -43,23 +44,24 @@ import { snapDraggedElementsLocation } from './snapElements'
  */
 export const duplicateEventHandler = (elements: Mutable<ExcalidrawElement>[]) => {
   const extraNewEls: ExcalidrawElement[] = []
-  const metas = getObjectiveMetas(elements) as Mutable<ObjectiveMeta>[] // !!!
+  const metas = getObjectiveMetas(elements) as Mutable<ObjectiveMeta>[]
 
   metas.forEach((meta) => {
-    if (meta.nameRepr)
-      extraNewEls.push(...createMetaRepr(meta, 'nameRepr', meta.name!, newNameRepr))
-
     if (isCameraMeta(meta)) {
       if (meta.shotNumber) {
         // ??? incrase shot number on copy/past ?
         // Object.assign(meta, determineCameraMeta(elements, true))
       }
-      if (meta.shotNumberRepr)
+      if (meta.nameRepr)
         extraNewEls.push(
-          ...createMetaRepr(meta, 'shotNumberRepr', `cam ${meta.shotNumber}`, newShotNumberRepr)
+          ...createMetaRepr(meta, 'nameRepr', getCameraMetaReprStr(meta), createMetaReprElement)
         )
 
       meta.relatedImages = []
+    } else {
+      // all other els
+      if (meta.nameRepr)
+        extraNewEls.push(...createMetaRepr(meta, 'nameRepr', meta.name!, createMetaReprElement))
     }
   })
 
@@ -159,8 +161,6 @@ export const deleteObjectiveMetas = (
             isDeleted: true,
           })
       })
-      // [1.2] delete delete repr
-      deleteMetaRepr(app.scene, target, 'shotNumberRepr')
     }
 
     // .... other handlers per Objective kind
@@ -186,19 +186,12 @@ export const dragEventHandler = (
     (e) => pointerDownState.originalElements.get(e.id) || e
   )
   const metas = getObjectiveMetas(originalSelectedElements)
-  const singleObjectiveItem = metas.length === 1
 
   metas.forEach((meta) => {
     //
     // - handle name repr drag
     if (meta.nameRepr) {
       const container = scene.getNonDeletedElement(meta.nameRepr)
-      if (container) elementsToUpdate.add(container)
-    }
-    //
-    // - handle camera drag
-    if (isShotCameraMeta(meta) && meta.shotNumberRepr) {
-      const container = scene.getNonDeletedElement(meta.shotNumberRepr)
       if (container) elementsToUpdate.add(container)
     }
   })

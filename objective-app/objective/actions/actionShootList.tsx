@@ -2,17 +2,12 @@ import { CameraIcon } from '@radix-ui/react-icons'
 import { getFormValue } from '../../../packages/excalidraw/actions/actionProperties'
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
 import { ToolButton } from '../../../packages/excalidraw/components/ToolButton'
-import { mutateElement } from '../../../packages/excalidraw/element/mutateElement'
-import { handleBindTextResize } from '../../../packages/excalidraw/element/textElement'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { t } from '../../../packages/excalidraw/i18n'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
-import { newShotNumberRepr } from '../objects/primitives'
+import { createMetaReprElement } from '../objects/primitives'
 import {
-  getCameraMetas,
-  getElement,
-  getElementsMapStrict,
-  getSelectedCameraMetas,
+  getCameraMetas, getSelectedCameraMetas
 } from '../meta/selectors'
 import { CameraMeta, isAllElementsCameras, isCameraElement } from '../meta/types'
 import { handleMetaRepresentation, mutateElementsMeta } from '../elements/helpers'
@@ -20,6 +15,27 @@ import { register } from './register'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
 
 type ActionType = 'init' | 'remove' | 'incraseShotNumber' | 'decraseShotNumber'
+
+export const getCameraShotNumberUpdate = (c: CameraMeta, updateValue: number) => {
+  const shotNumber = (c.shotNumber || 0) + updateValue
+  if (shotNumber <= 0) return 1
+  return shotNumber
+}
+
+export const getCameraMetaReprStr= (c: CameraMeta, opts?: {
+    name?: string,
+    snotNumber?: number,
+    shotNumberUpdate?: number // incrase/decrase value
+  }) => {
+  let name = typeof opts?.name === 'undefined' ? c.name || '' : opts.name
+  let shotNumber = opts?.snotNumber || c.shotNumber
+  if (shotNumber) {
+    shotNumber = opts?.shotNumberUpdate ? getCameraShotNumberUpdate(c, opts?.shotNumberUpdate || 0) : shotNumber
+    name = name ? `\n${name}` : ''
+    return `cam ${shotNumber}` + name
+  }
+  return name
+}
 
 export const actionChangeMetaCameraShot = register({
   name: 'actionChangeMetaCameraShot',
@@ -41,47 +57,34 @@ export const actionChangeMetaCameraShot = register({
         newEls = handleMetaRepresentation(
           app.scene,
           cameras,
-          'shotNumberRepr',
-          isShot ? `cam ${newCameraShootProps.shotNumber}` : '',
-          newShotNumberRepr
+          'nameRepr',
+          (c: CameraMeta) => isShot ? getCameraMetaReprStr(c, {snotNumber: newCameraShootProps.shotNumber}) : '',
+          createMetaReprElement
         )
-
-        // [3] move name repr up/down
-        cameras.forEach((c) => {
-          const container = getElement(c.nameRepr)
-          if (!container) return
-          mutateElement(container, { y: isShot ? container.y + 25 : container.y - 25 })
-          handleBindTextResize(
-            container!,
-            getElementsMapStrict(container),
-            false //
-          )
-        })
 
         break
       case 'incraseShotNumber':
         newEls = handleMetaRepresentation(
           app.scene,
           cameras,
-          'shotNumberRepr',
-          (c: CameraMeta) => `cam ${c.shotNumber && c.shotNumber + 1}`,
-          newShotNumberRepr,
+          'nameRepr',
+          (c: CameraMeta) => getCameraMetaReprStr(c, {shotNumberUpdate: 1}),
+          createMetaReprElement,
         )
         mutateElementsMeta(app, (c: CameraMeta) => ({
-          shotNumber: c.shotNumber && c.shotNumber + 1,
+          shotNumber: getCameraShotNumberUpdate(c, 1),
         }))
         break
       case 'decraseShotNumber':
         newEls = handleMetaRepresentation(
           app.scene,
           cameras,
-          'shotNumberRepr',
-          (c: CameraMeta) =>
-            `cam ${c.shotNumber && c.shotNumber > 1 ? c.shotNumber - 1 : c.shotNumber}`,
-          newShotNumberRepr
+          'nameRepr',
+          (c: CameraMeta) => getCameraMetaReprStr(c, {shotNumberUpdate: -1}),
+          createMetaReprElement
         )
         mutateElementsMeta(app, (c: CameraMeta) => ({
-          shotNumber: c.shotNumber && c.shotNumber > 1 ? c.shotNumber - 1 : c.shotNumber,
+          shotNumber: getCameraShotNumberUpdate(c, -1),
         }))
         break
     }

@@ -44,7 +44,7 @@ export interface ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> {
 
   /** Aka Title / Label. Populated by User from `actionProps` panel. */
   name?: string
-  /** nameRepr: `rectangle.id` === `containderId` for bound inside text element */
+  /** Relation to Meta representation `rectangle.id` that nested Text has as `containderId`*/
   nameRepr?: ExcalidrawElement['id']
 
   /** Excalidraw group id for all primitives of this Objective element. Populated by `getMetas`. */
@@ -138,12 +138,9 @@ export interface CameraMeta extends ObjectiveMeta {
   kind: ObjectiveKinds.CAMERA
 
   isShot?: boolean // is camera in shot list
-  shotNumber?: number // Cam A / Cam B
-  shotVersion?: number // Cam A-1 / Cam A-2
+  shotNumber?: number // Cam 1 / Cam 2
+  shotVersion?: number // Cam 1-A / Cam 1-B
   focalLength?: number
-
-  /** shotNumberRepr: `rectangle.id` === `containderId` for bound inside text element */
-  shotNumberRepr?: ExcalidrawElement['id']
 
   /**
    * Storyboard images. Source `ExcalidrawImage.id` (not `fileId`).

@@ -6,11 +6,13 @@ import { KEYS } from '../../../packages/excalidraw/keys'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
 import { focusNearestParent } from '../../../packages/excalidraw/utils'
 import { TextField } from '../UI/TextField'
-import { newNameRepr } from '../objects/primitives'
+import { createMetaReprElement } from '../objects/primitives'
 import { getObjectiveMetas } from '../meta/selectors'
 import { handleMetaRepresentation, mutateElementsMeta } from '../elements/helpers'
 import { register } from './register'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
+import { ObjectiveMeta, isCameraMeta } from '../meta/types'
+import { getCameraMetaReprStr } from './actionShootList'
 
 /**
  * Change object Name (aka Title, aka Label)
@@ -26,7 +28,14 @@ export const actionChangeMetaName = register({
   ) => {
     // [1] change name in representation
     const metas = getObjectiveMetas(getSelectedElements(elements, appState))
-    const newEls = handleMetaRepresentation(app.scene, metas, 'nameRepr', newTextValue, newNameRepr)
+    const newEls = handleMetaRepresentation(
+      app.scene,
+      metas,
+      'nameRepr',
+      (m: ObjectiveMeta) =>
+        isCameraMeta(m) ? getCameraMetaReprStr(m, { name: newTextValue }) : newTextValue,
+      createMetaReprElement
+    )
 
     // [2] change name in meta
     mutateElementsMeta(app, { name: newTextValue })

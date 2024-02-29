@@ -23,7 +23,5 @@ export const cameraInitialMeta: CameraMeta = {
   shotVersion: undefined,
   focalLength: undefined,
 
-  shotNumberRepr: undefined,
-
   relatedImages: [],
 }
