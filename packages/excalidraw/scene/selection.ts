@@ -1,4 +1,9 @@
-import { MaybeMeta, isMeta } from "../../../objective-app/objective/meta/types";
+import {
+  MaybeMeta,
+  ObjectiveKinds,
+  isKind,
+  isMeta,
+} from "../../../objective-app/objective/meta/types";
 
 import { getElementAbsoluteCoords, getElementBounds } from "../element";
 import { isElementInViewport } from "../element/sizeHelpers";
@@ -75,6 +80,11 @@ export const getElementsWithinSelection = (
       selectionY2 >= elementY2
     );
   });
+
+  // VBRN filter out labels
+  elementsInSelection = elementsInSelection.filter(
+    (e) => !isKind(e, ObjectiveKinds.LABEL),
+  );
 
   elementsInSelection = excludeElementsInFrames
     ? excludeElementsInFramesFromSelection(elementsInSelection)

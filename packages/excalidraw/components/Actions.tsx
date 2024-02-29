@@ -112,6 +112,7 @@ export const SelectedShapeActions = ({
   const isAllObjective = isAllElementsObjective(targetElements);
   const metas = getObjectiveMetas(targetElements);
   const metasSet = new Set(metas.map((m) => m.kind));
+  const isSingleMetaKind = metasSet.size === 1;
   const isAnyObjective = !!metas.length;
   const isAllExcali = !isAnyObjective || __DEBUG_EDITOR;
   const isObjAndExcali = !isAllObjective && isAnyObjective;
@@ -122,7 +123,12 @@ export const SelectedShapeActions = ({
     // Objective
     // common:
     metaKind: isAllObjective,
-    metaName: isAllObjective && !metasSet.has(ObjectiveKinds.POINTER),
+    metaName:
+      isAllObjective &&
+      isSingleMetaKind &&
+      !metasSet.has(ObjectiveKinds.POINTER) &&
+      !metasSet.has(ObjectiveKinds.LABEL),
+
     showExcalidrawStyle: isAllObjective,
 
     // when camera selected:
@@ -143,12 +149,14 @@ export const SelectedShapeActions = ({
 
     strokeWidth:
       isAllExcali ||
+      (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle) ||
       (metasSet.has(ObjectiveKinds.LOCATION) && showOBJStyle) ||
       (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
 
     /** solid / dashed / dottee */
     strokeStyle:
       isAllExcali ||
+      (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle) ||
       (metasSet.has(ObjectiveKinds.LOCATION) && showOBJStyle) ||
       (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
 
@@ -166,9 +174,11 @@ export const SelectedShapeActions = ({
     /** unknown and do nothing??? */
     strokeShape: isAllExcali,
 
-    roundness: isAllExcali,
+    roundness:
+      isAllExcali || (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle),
     arrowheads: isAllExcali,
-    textStyle: isAllExcali,
+    textStyle:
+      isAllExcali || (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle),
     opacity: isAllExcali || showOBJStyle || isObjAndExcali,
     layers: isAllExcali || showOBJStyle || isObjAndExcali,
     align:

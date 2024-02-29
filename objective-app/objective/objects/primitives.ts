@@ -66,6 +66,8 @@ export const createMetaReprElement = (meta: ObjectiveMeta, initialValue: string)
   const gap = 1
   const [w, h] = [70, 30]
   const container = newElement({
+    customData: getBaseInitialMeta(ObjectiveKinds.LABEL),
+
     type: 'rectangle',
     fillStyle: 'solid',
     strokeWidth: 1,
@@ -79,16 +81,14 @@ export const createMetaReprElement = (meta: ObjectiveMeta, initialValue: string)
     width: w,
     height: h,
     roundness: null,
-
-    // TODO
-    // By default it's locked. For better User's elements select experience.
-    // But User cannot change style anymore. So we are going to add 🔓 button.
-    locked: true,
+    locked: false, // so user can move it easily, but we prevent it from multiply selection
   })
 
   // All other props generated dynamically inside
   const widthExtension = 12
   const text = newTextElement({
+    customData: getBaseInitialMeta(ObjectiveKinds.LABEL),
+
     x: container.x + container.width / 2,
     y: container.y + container.height / 2,
     width: container.width / 2 + widthExtension,
@@ -101,7 +101,7 @@ export const createMetaReprElement = (meta: ObjectiveMeta, initialValue: string)
     roughness: 1,
     opacity: 100,
     text: initialValue,
-    fontSize: 12,
+    fontSize: 14,
     fontFamily: 3,
     textAlign: 'center',
     verticalAlign: 'middle',

@@ -13,7 +13,6 @@ import { ActiveTool, BinaryFileData } from '../../../packages/excalidraw/types'
 export enum ObjectiveKinds {
   CAMERA = 'Camera',
   CHARACTER = 'Character',
-  POINTER = 'Pointer',
 
   /** window or door (not wall!) ... */
   LOCATION = 'Location',
@@ -21,12 +20,17 @@ export enum ObjectiveKinds {
 
   /** furniture (big items) */
   SET = 'Set',
-
   /** small items */
   PROP = 'Prop',
-
   OUTDOR = 'Outdor',
+
+  /** internal */
+  POINTER = 'Pointer',
+  /** internal: container or nested text */
+  LABEL = 'Label',
 }
+
+export type TObjectiveKind = `${ObjectiveKinds}`
 
 // ---------------------------------------------------------------------- Base
 

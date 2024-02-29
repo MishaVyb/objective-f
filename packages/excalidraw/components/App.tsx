@@ -409,7 +409,11 @@ import {
   setEraserCursor,
 } from "../cursor";
 import { textWysiwyg } from "../element/textWysiwyg";
-import { ObjectiveKinds, isWallTool } from "../../../objective-app/objective/meta/types";
+import {
+  ObjectiveKinds,
+  isKind,
+  isWallTool,
+} from "../../../objective-app/objective/meta/types";
 import { getBaseInitialMeta } from "../../../objective-app/objective/objects/initial";
 import { actionToggleGridSnapMode } from "../../../objective-app/objective/actions/actionSettings";
 import {
@@ -4691,6 +4695,7 @@ class App extends React.Component<AppProps, AppState> {
       );
 
       if (container) {
+        if (isKind(container, ObjectiveKinds.LABEL)) return; // VBRN disable edit label text at canvas
         if (
           hasBoundTextElement(container) ||
           !isTransparent(container.backgroundColor) ||
