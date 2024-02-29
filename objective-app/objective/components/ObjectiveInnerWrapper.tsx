@@ -45,9 +45,12 @@ const ObjectiveInnerWrapper: FC<{ children: ReactNode }> = ({ children }) => {
   const showMeasurement = !!multiElement // TODO show when `appState.editingLinearElement`
   const mouse = useMouse(showMeasurement)
 
+  const lastPoint = multiElement?.points.at(-1) || [0, 0]
+  const memoDepends = [Math.round(lastPoint[0] / 10) * 10, Math.round(lastPoint[1] / 10) * 10]
   const lineMeasurementStr = useMemo(() => {
+    console.log('useMemo', memoDepends)
     return multiElement ? numberToStr(getLastLineLength(multiElement) / 100, { unit: 'm' }) : null
-  }, [multiElement?.points.at(-2), multiElement?.points.at(-1)])
+  }, [...memoDepends])
 
   /**
    * NOTE:
