@@ -30,9 +30,10 @@ import {
 import { toBrandedType } from '../../../packages/excalidraw/utils'
 
 /**
- * Simplified version of `getMeta`, when we know that elements belongs to single Objective Item
+ * Get readonly `el.customData` reference (net copy).
+ * Simplified version of `getMeta` without `elements` nested field population.
  */
-export const getMetaReference = <TMeta extends ObjectiveMeta>(
+export const getMetaSimple = <TMeta extends ObjectiveMeta>(
   el: ObjectiveElement<TMeta>
 ): Readonly<TMeta> => el.customData
 

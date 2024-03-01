@@ -13,6 +13,7 @@ import { register } from './register'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
 import { ObjectiveMeta, isCameraMeta } from '../meta/types'
 import { getCameraMetaReprStr } from './actionShootList'
+import { arrangeElements } from './zindex'
 
 /**
  * Change object Name (aka Title, aka Label)
@@ -41,7 +42,7 @@ export const actionChangeMetaName = register({
     mutateElementsMeta(app, { name: newTextValue })
 
     return {
-      elements: [...elements, ...newEls],
+      elements: arrangeElements(elements, newEls),
       commitToHistory: !!newTextValue,
     }
   },

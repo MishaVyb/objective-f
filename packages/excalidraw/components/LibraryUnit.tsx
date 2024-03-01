@@ -6,7 +6,7 @@ import { useDevice } from "./App";
 import "./LibraryUnit.scss";
 import { PlusIcon } from "./icons";
 import { Flex, Text, Tooltip } from "@radix-ui/themes";
-import { getMetaReference } from "../../../objective-app/objective/meta/selectors";
+import { getMetaSimple } from "../../../objective-app/objective/meta/selectors";
 import {
   ObjectiveElement,
   ObjectiveMeta,
@@ -55,7 +55,7 @@ export const LibraryUnit = memo(
     svgCache: SvgCache;
   }) => {
     const element = elements![0] as ObjectiveElement;
-    const meta = getMetaReference(element);
+    const meta = getMetaSimple(element);
     const asImage = meta.libraryImg;
     const toolTip = (!meta.libraryImg?.title && meta.name) || "";
 

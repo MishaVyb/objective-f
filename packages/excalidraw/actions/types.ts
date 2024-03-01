@@ -25,8 +25,13 @@ export type ActionResult =
     }
   | false;
 
+/**
+ * All current scene elements, including deleted. Verbose type alias to `readonly ExcalidrawElement[]`.
+ */
+export type AllExcalidrawElements = readonly ExcalidrawElement[];
+
 type ActionFn = (
-  elements: readonly ExcalidrawElement[],
+  elements: AllExcalidrawElements,
   appState: Readonly<AppState>,
   formData: any,
   app: AppClassProperties,

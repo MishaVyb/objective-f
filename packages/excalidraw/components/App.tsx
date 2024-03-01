@@ -1802,8 +1802,7 @@ class App extends React.Component<AppProps, AppState> {
         frameElement,
         {
           customData: {
-            ...(frameElement.customData ||
-              getInitialMeta(ObjectiveKinds.PROP)), // only for TS supports
+            ...(frameElement.customData || getInitialMeta(ObjectiveKinds.PROP)), // only for TS supports
             generationData: undefined,
           },
         },
@@ -1814,8 +1813,7 @@ class App extends React.Component<AppProps, AppState> {
         frameElement,
         {
           customData: {
-            ...(frameElement.customData ||
-              getInitialMeta(ObjectiveKinds.PROP)), // only for TS supports
+            ...(frameElement.customData || getInitialMeta(ObjectiveKinds.PROP)), // only for TS supports
             generationData: data,
           },
         },
@@ -3151,13 +3149,11 @@ class App extends React.Component<AppProps, AppState> {
       },
     );
 
-    const newElementsAfterObjectiveHAndler =
-      addElementsFromPasteOrLibraryHandler(this, newElements, opts);
-
-    const allElements = [
-      ...this.scene.getElementsIncludingDeleted(),
-      ...newElementsAfterObjectiveHAndler,
-    ];
+    const allElements = addElementsFromPasteOrLibraryHandler(
+      this,
+      newElements,
+      opts,
+    );
 
     const topLayerFrame = this.getTopLayerFrameAtSceneCoords({ x, y });
 

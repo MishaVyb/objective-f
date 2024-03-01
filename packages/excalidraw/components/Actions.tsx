@@ -180,7 +180,7 @@ export const SelectedShapeActions = ({
     textStyle:
       isAllExcali || (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle),
     opacity: isAllExcali || showOBJStyle || isObjAndExcali,
-    layers: isAllExcali || showOBJStyle || isObjAndExcali,
+    layers: false, // TODO
     align:
       (metas.length === 0 || metas.length > 1) &&
       (isAllExcali || showOBJStyle || isObjAndExcali),

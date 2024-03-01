@@ -45,11 +45,6 @@ const getSelectedImage = (elements: readonly ExcalidrawElement[], appState: AppS
 export const actionInitStoryboard = register({
   name: 'actionInitStoryboard',
   trackEvent: false,
-
-  /**
-   *
-   * @param elements *ALL* canvas elements, including deleted!
-   */
   perform: (elements, appState, camera: CameraMeta) => {
     const image = getSelectedImage(elements, appState)
     if (!image) return { commitToHistory: false }

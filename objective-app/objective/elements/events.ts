@@ -37,6 +37,8 @@ import {
 import { changeElementProperty, createMetaRepr, deleteMetaRepr } from './helpers'
 import { snapDraggedElementsLocation } from './snapElements'
 import { getCameraMetaReprStr } from '../actions/actionShootList'
+import { AllExcalidrawElements } from '../../../packages/excalidraw/actions/types'
+import { arrangeElements } from '../actions/zindex'
 
 /**
  * It's assumed that meta (`customData`) already copied properly by `_deppCopyElement`
@@ -207,6 +209,7 @@ export const onPointerUpFromPointerDownEventHandler = (
     app.actionManager.executeAction(actionFinalizeSelectionDrag)
 }
 
+/** mutate new elements. merge new elements with current scene elements, return all elements */
 export const addElementsFromPasteOrLibraryHandler = (
   app: App,
   newElements: ExcalidrawElement[],
@@ -218,7 +221,7 @@ export const addElementsFromPasteOrLibraryHandler = (
     retainSeed?: boolean
     fitToContent?: boolean
   }
-) => {
+): AllExcalidrawElements => {
   const location = getObjectiveSingleMeta(newElements, { kind: ObjectiveKinds.LOCATION })
   if (location) {
     performRotationLocationOnDragFinalize(newElements, location, app.state, app.scene)
@@ -238,5 +241,5 @@ export const addElementsFromPasteOrLibraryHandler = (
     })
   }
 
-  return newElements
+  return arrangeElements(app.scene.getElementsMapIncludingDeleted(), newElements)
 }
