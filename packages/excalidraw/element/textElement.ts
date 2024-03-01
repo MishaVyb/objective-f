@@ -168,8 +168,7 @@ export const handleBindTextResize = (
   transformHandleType: MaybeTransformHandleType,
   shouldMaintainAspectRatio = false,
   opts?: {
-    // VBRN CONFLICT: resolve call with opts
-    newOriginalText?: string;
+    newOriginalText?: string; // VBRN
   },
 ) => {
   const boundTextElementId = getBoundTextElementId(container);

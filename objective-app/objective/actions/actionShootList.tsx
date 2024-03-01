@@ -16,26 +16,6 @@ import { AppClassProperties } from '../../../packages/excalidraw/types'
 
 type ActionType = 'init' | 'remove' | 'incraseShotNumber' | 'decraseShotNumber'
 
-export const getCameraShotNumberUpdate = (c: CameraMeta, updateValue: number) => {
-  const shotNumber = (c.shotNumber || 0) + updateValue
-  if (shotNumber <= 0) return 1
-  return shotNumber
-}
-
-export const getCameraMetaReprStr= (c: CameraMeta, opts?: {
-    name?: string,
-    snotNumber?: number,
-    shotNumberUpdate?: number // incrase/decrase value
-  }) => {
-  let name = typeof opts?.name === 'undefined' ? c.name || '' : opts.name
-  let shotNumber = opts?.snotNumber || c.shotNumber
-  if (shotNumber) {
-    shotNumber = opts?.shotNumberUpdate ? getCameraShotNumberUpdate(c, opts?.shotNumberUpdate || 0) : shotNumber
-    name = name ? `\n${name}` : ''
-    return `cam ${shotNumber}` + name
-  }
-  return name
-}
 
 export const actionChangeMetaCameraShot = register({
   name: 'actionChangeMetaCameraShot',
@@ -151,6 +131,27 @@ export const actionChangeMetaCameraShot = register({
     )
   },
 })
+
+export const getCameraShotNumberUpdate = (c: CameraMeta, updateValue: number) => {
+  const shotNumber = (c.shotNumber || 0) + updateValue
+  if (shotNumber <= 0) return 1
+  return shotNumber
+}
+
+export const getCameraMetaReprStr= (c: CameraMeta, opts?: {
+    name?: string,
+    snotNumber?: number,
+    shotNumberUpdate?: number // incrase/decrase value
+  }) => {
+  let name = typeof opts?.name === 'undefined' ? c.name || '' : opts.name
+  let shotNumber = opts?.snotNumber || c.shotNumber
+  if (shotNumber) {
+    shotNumber = opts?.shotNumberUpdate ? getCameraShotNumberUpdate(c, opts?.shotNumberUpdate || 0) : shotNumber
+    name = name ? `\n${name}` : ''
+    return `cam ${shotNumber}` + name
+  }
+  return name
+}
 
 export const determineCameraMeta = (elements: readonly ExcalidrawElement[], isShot: boolean) => {
   if (isShot) {
