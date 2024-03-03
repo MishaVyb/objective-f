@@ -3658,6 +3658,7 @@ class App extends React.Component<AppProps, AppState> {
         window.history.replaceState(null, APP_NAME, window.location.pathname);
       }
     } catch (error: any) {
+      console.error(error);
       this.setState({ errorMessage: error.message });
     }
   };
@@ -6789,6 +6790,7 @@ class App extends React.Component<AppProps, AppState> {
     elementType: ExcalidrawGenericElement["type"] | "embeddable",
     pointerDownState: PointerDownState,
   ): void => {
+    console.log('createGenericElementOnPointerDown')
     const [gridX, gridY] = getGridPoint(
       pointerDownState.origin.x,
       pointerDownState.origin.y,
@@ -8922,6 +8924,7 @@ class App extends React.Component<AppProps, AppState> {
           files: null,
         });
       } catch (error: any) {
+        console.error(error);
         this.setState({ errorMessage: error.message });
       }
       return;

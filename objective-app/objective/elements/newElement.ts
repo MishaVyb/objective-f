@@ -61,7 +61,7 @@ export const newPointerBeetween = (
   return newPointer
 }
 
-export const newMetaReprElement = (meta: ObjectiveMeta, initialValue: string) => {
+export const newMetaReprElement = (meta: ObjectiveMeta, initialValue: string | undefined) => {
   const basis = getObjectiveBasis(meta)
   const gap = 1
   const [w, h] = [70, 30]
@@ -100,7 +100,7 @@ export const newMetaReprElement = (meta: ObjectiveMeta, initialValue: string) =>
     strokeStyle: 'solid',
     roughness: 1,
     opacity: 100,
-    text: initialValue,
+    text: initialValue || '',
     fontSize: 14,
     fontFamily: 3,
     textAlign: 'center',

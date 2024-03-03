@@ -182,6 +182,7 @@ export const LibraryDropdownMenuButton: React.FC<{
     saveLibraryAsJSON(libraryItems)
       .catch(muteFSAbortError)
       .catch((error) => {
+        console.error(error);
         setAppState({ errorMessage: error.message });
       });
   };

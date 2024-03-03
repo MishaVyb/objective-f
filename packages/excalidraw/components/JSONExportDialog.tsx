@@ -81,6 +81,7 @@ const JSONExportModal = ({
                   await onExportToBackend(elements, appState, files);
                   onCloseRequest();
                 } catch (error: any) {
+                  console.error(error);
                   setAppState({ errorMessage: error.message });
                 }
               }}

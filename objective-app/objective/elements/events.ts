@@ -80,12 +80,18 @@ export const duplicateMeta = (newElement: Mutable<ExcalidrawElement>) => {
       newElement.customData,
       getInitialMeta(ObjectiveKinds.CAMERA, {
         name: weekMeta.name,
-        nameRepr: randomId(),
+
+        // HACK
+        // pass here TMP id in order to tell `duplicateObjectiveEventHandler` hat Object has nameRep.
+        // So it will recreate Label with new id and provide that id here as well.
+        nameRepr: weekMeta.nameRepr ? randomId() : undefined,
 
         isShot: weekMeta.isShot,
         shotNumber: weekMeta.shotNumber, // do not incrase shot number atomatecly, user will do it by itself
         shotVersion: weekMeta.shotVersion,
         focalLength: weekMeta.focalLength,
+
+        // initial values
         relatedImages: [],
       })
     )
