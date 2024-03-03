@@ -13,17 +13,15 @@ import {
   PointerDownState,
 } from '../../../packages/excalidraw/types'
 import { Mutable } from '../../../packages/excalidraw/utility-types'
-import { getInitialMeta } from '../meta/initial'
 import { newMetaReprElement } from './newElement'
 import {
   getCameraBasis,
   getCameraMetas,
-  getMetaSimple,
   getObjectiveMetas,
   getObjectiveSingleMeta,
   getPointerBetween,
 } from '../meta/selectors'
-import { ObjectiveKinds, ObjectiveMeta, isCameraMeta, isObjective } from '../meta/types'
+import { ObjectiveKinds, ObjectiveMeta, isCameraMeta } from '../meta/types'
 import {
   actionFinalizeSelectionDrag,
   performRotationLocationOnDragFinalize,
@@ -33,7 +31,6 @@ import { snapDraggedElementsLocation } from './snapElements'
 import { getCameraMetaReprStr } from '../actions/actionShootList'
 import { AllExcalidrawElements } from '../../../packages/excalidraw/actions/types'
 import { arrangeElements } from '../actions/zindex'
-import { randomId } from '../../../packages/excalidraw/random'
 
 /**
  * It's assumed that elements metas already copied properly by `duplicateAsInitialEventHandler`
@@ -63,50 +60,6 @@ export const duplicateObjectiveEventHandler = (newElements: Mutable<ExcalidrawEl
   })
 
   return extraNewEls
-}
-
-/**
- * Initialize new meta. Some values are copied, some other taken from initial Meta.
- * MUTATE PROVIDED ELEMENT's META
- *
- * It's Objective replacement of Excalidraw deepCopyElement.
- */
-export const duplicateMeta = (newElement: Mutable<ExcalidrawElement>) => {
-  if (!isObjective(newElement)) return
-  const weekMeta = getMetaSimple(newElement)
-
-  if (isCameraMeta(weekMeta)) {
-    Object.assign(
-      newElement.customData,
-      getInitialMeta(ObjectiveKinds.CAMERA, {
-        name: weekMeta.name,
-        description: weekMeta.description,
-
-        // HACK
-        // pass here TMP id in order to tell `duplicateObjectiveEventHandler` hat Object has nameRep.
-        // So it will recreate Label with new id and provide that id here as well.
-        nameRepr: weekMeta.nameRepr ? randomId() : undefined,
-
-        isShot: weekMeta.isShot,
-        shotNumber: weekMeta.shotNumber, // do not incrase shot number atomatecly, user will do it by itself
-        shotVersion: weekMeta.shotVersion,
-        focalLength: weekMeta.focalLength,
-
-        // initial values
-        relatedImages: [],
-      })
-    )
-  } else {
-    Object.assign(
-      newElement.customData,
-      getInitialMeta(weekMeta.kind, {
-        name: weekMeta.name,
-        description: weekMeta.description,
-        
-        nameRepr: weekMeta.nameRepr ? randomId() : undefined, // HACK
-      })
-    )
-  }
 }
 
 /**

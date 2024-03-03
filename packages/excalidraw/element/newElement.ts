@@ -1,8 +1,6 @@
 import { getElementAbsoluteCoords } from ".";
-import {
-  duplicateMeta,
-  duplicateObjectiveEventHandler,
-} from "../../../objective-app/objective/elements/events";
+import { duplicateObjectiveEventHandler } from "../../../objective-app/objective/elements/events";
+import { duplicateMeta } from "../../../objective-app/objective/meta/initial";
 import {
   DEFAULT_ELEMENT_PROPS,
   DEFAULT_FONT_FAMILY,
