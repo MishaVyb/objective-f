@@ -170,6 +170,9 @@ type TNewReprConstructor = (
 
 /**
  * Generic function to create\update\remove `on Canvas` representation  for meta information.
+ * -- or create
+ * -- or update
+ * -- or delete (if newValue === '')
  */
 export const handleMetaRepresentation = <TMeta extends ObjectiveMeta>(
   scene: Scene,
@@ -179,15 +182,19 @@ export const handleMetaRepresentation = <TMeta extends ObjectiveMeta>(
   newRepr: TNewReprConstructor
 ) => {
   const newEls: ExcalidrawElement[] = []
+  let newValueResolved
   metas.forEach((meta) => {
-    newValue = typeof newValue === 'function' ? newValue(meta) : newValue
-    // [1] create
-    if (newValue && !meta[fieldName])
-      newEls.push(...createMetaRepr(meta, fieldName, newValue, newRepr))
-    // [2] update
-    else if (newValue && meta[fieldName]) updateMetaRepr(scene, meta, fieldName, newValue)
-    // [3] change
-    else if (!newValue && meta[fieldName]) deleteMetaRepr(scene, meta, fieldName)
+    newValueResolved = typeof newValue === 'function' ? newValue(meta) : newValue
+
+    if (newValueResolved && !meta[fieldName])
+      //
+      newEls.push(...createMetaRepr(meta, fieldName, newValueResolved, newRepr))
+    else if (newValueResolved && meta[fieldName])
+      //
+      updateMetaRepr(scene, meta, fieldName, newValueResolved)
+    else if (!newValueResolved && meta[fieldName])
+      //
+      deleteMetaRepr(scene, meta, fieldName)
   })
   return newEls
 }

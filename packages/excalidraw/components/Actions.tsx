@@ -205,6 +205,8 @@ export const SelectedShapeActions = ({
       {actionsToRender.metaName && renderAction("actionChangeMetaName")}
       {actionsToRender.metaCameraShot &&
         renderAction("actionChangeMetaCameraShot")}
+      {actionsToRender.metaCameraShot &&
+        renderAction("actionChangeMetaCameraVersion")}
       {actionsToRender.metaActionStoryboard && renderAction("actionStoryboard")}
 
       {actionsToRender.metaDescription &&

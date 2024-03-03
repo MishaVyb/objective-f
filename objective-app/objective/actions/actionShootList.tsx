@@ -1,4 +1,4 @@
-import { CameraIcon, CircleBackslashIcon, MinusIcon, PlusIcon } from '@radix-ui/react-icons'
+import { CameraIcon, CircleBackslashIcon, EnterIcon, ExitIcon, MinusIcon, PlusIcon } from '@radix-ui/react-icons'
 import { getFormValue } from '../../../packages/excalidraw/actions/actionProperties'
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
 import { ToolButton } from '../../../packages/excalidraw/components/ToolButton'
@@ -14,13 +14,13 @@ import { handleMetaRepresentation, mutateElementsMeta } from '../elements/helper
 import { register } from './register'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
 
-type ActionType = 'init' | 'remove' | 'incraseShotNumber' | 'decraseShotNumber'
+type TChangeShotActionValue = 'init' | 'remove' | 'incraseShotNumber' | 'decraseShotNumber'
 
 
 export const actionChangeMetaCameraShot = register({
   name: 'actionChangeMetaCameraShot',
   trackEvent: false,
-  perform: (elements, appState, actionType: ActionType, app: AppClassProperties) => {
+  perform: (elements, appState, actionType: TChangeShotActionValue, app: AppClassProperties) => {
     const cameras = getSelectedCameraMetas(elements, appState)
     const isShot = actionType === 'init' ? true : false
     let newCameraShootProps: ReturnType<typeof determineCameraMeta>
@@ -38,7 +38,7 @@ export const actionChangeMetaCameraShot = register({
           app.scene,
           cameras,
           'nameRepr',
-          (c: CameraMeta) => isShot ? getCameraMetaReprStr(c, {snotNumber: newCameraShootProps.shotNumber}) : '',
+          (c: CameraMeta) => isShot ? getCameraMetaReprStr(c, {shotNumber: newCameraShootProps.shotNumber}) : '',
           newMetaReprElement
         )
 
@@ -48,7 +48,10 @@ export const actionChangeMetaCameraShot = register({
           app.scene,
           cameras,
           'nameRepr',
-          (c: CameraMeta) => getCameraMetaReprStr(c, {shotNumberUpdate: 1}),
+          (c: CameraMeta) => {
+            console.log(c)
+            return getCameraMetaReprStr(c, { shotNumberUpdate: 1 })
+          },
           newMetaReprElement,
         )
         mutateElementsMeta(app, (c: CameraMeta) => ({
@@ -80,7 +83,7 @@ export const actionChangeMetaCameraShot = register({
     appState,
     updateData,
     appProps,
-  }: PanelComponentProps<ActionType>) => {
+  }: PanelComponentProps<TChangeShotActionValue>) => {
     if (!isAllElementsCameras(getSelectedElements(elements, appState))) return <></>
     const isShot = getFormValue<boolean>(
       elements,
@@ -99,7 +102,6 @@ export const actionChangeMetaCameraShot = register({
             icon=<CameraIcon/>
             onClick={() => updateData('init')}
             title={t('labels.cameraAddToShotlist', null, 'Add to shotlist')}
-            aria-label={'undefined'}
             visible={!isShot}
           />
           <ToolButton
@@ -107,7 +109,6 @@ export const actionChangeMetaCameraShot = register({
             icon=<CircleBackslashIcon/>
             onClick={() => updateData('remove')}
             title={t('labels.cameraRemoveFromShotList', null, 'Remove from shot list')}
-            aria-label={'undefined'}
             visible={isShot}
           />
           <ToolButton
@@ -115,7 +116,6 @@ export const actionChangeMetaCameraShot = register({
             icon=<MinusIcon/>
             onClick={() => updateData('decraseShotNumber')}
             title={t('labels.cameraDecraseShotNumber', null, 'Decrase shot number')}
-            aria-label={'undefined'}
             visible={isShot}
           />
           <ToolButton
@@ -123,7 +123,6 @@ export const actionChangeMetaCameraShot = register({
             icon=<PlusIcon/>
             onClick={() => updateData('incraseShotNumber')}
             title={t('labels.cameraIncraseShotNumber', null, 'Incrase shot number')}
-            aria-label={'undefined'}
             visible={isShot}
           />
         </fieldset>
@@ -132,26 +131,144 @@ export const actionChangeMetaCameraShot = register({
   },
 })
 
+// NOTE
+// do not expose actions to init\remove shotVersion, as we handle it only be incrase\decrase version counter
+type TChangeVersionActionValue = 'moveTo' | 'moveFrom'  | 'incraseShotVersion' | 'decraseShotVersion'
+
+export const actionChangeMetaCameraVersion = register({
+  name: 'actionChangeMetaCameraVersion',
+  trackEvent: false,
+  perform: (elements, appState, actionType: TChangeVersionActionValue, app: AppClassProperties) => {
+    const cameras = getSelectedCameraMetas(elements, appState)
+    // const isShot = actionType === 'init' ? true : false
+    let newEls: ReturnType<typeof handleMetaRepresentation> = []
+
+    switch (actionType) {
+      // TODO
+      // Move To \ From
+      //--------------------------------------------//
+      case 'incraseShotVersion':
+        newEls = handleMetaRepresentation(
+          app.scene,
+          cameras,
+          'nameRepr',
+          (c: CameraMeta) => getCameraMetaReprStr(c, {shotVersionUpdate: 1}),
+          newMetaReprElement,
+        )
+        mutateElementsMeta(app, (c: CameraMeta) => ({
+          shotVersion: getCameraShotVersionUpdate(c, 1),
+        }))
+        break
+      case 'decraseShotVersion':
+        newEls = handleMetaRepresentation(
+          app.scene,
+          cameras,
+          'nameRepr',
+          (c: CameraMeta) => getCameraMetaReprStr(c, {shotVersionUpdate: -1}),
+          newMetaReprElement
+        )
+        mutateElementsMeta(app, (c: CameraMeta) => ({
+          shotVersion: getCameraShotVersionUpdate(c, -1),
+        }))
+        break
+    }
+
+    return {
+      elements: [...elements, ...newEls],
+      commitToHistory: true,
+    }
+  },
+
+  PanelComponent: ({
+    elements,
+    appState,
+    updateData,
+    appProps,
+  }: PanelComponentProps<TChangeVersionActionValue>) => {
+    if (!isAllElementsCameras(getSelectedElements(elements, appState))) return <></>
+    const isShot = getFormValue<boolean>(
+      elements,
+      appState,
+      (element) => (isCameraElement(element) ? element.customData.isShot : false) || false,
+      true,
+      false
+    )
+
+    return (
+      <>
+        <fieldset>
+          <legend>{"Shot version"}</legend>
+          <ToolButton
+            type='button'
+            icon=<EnterIcon/>
+            onClick={() => updateData('moveFrom')}
+            title={"Move From"}
+          />
+          <ToolButton
+            type='button'
+            icon=<ExitIcon/>
+            onClick={() => updateData('moveTo')}
+            title={"Move To"}
+          />
+
+          {/* -------------------- */}
+          <br/>
+          <ToolButton
+            type='button'
+            icon=<MinusIcon/>
+            onClick={() => updateData('decraseShotVersion')}
+            title={'Decrase shot version'}
+            visible={isShot}
+          />
+          <ToolButton
+            type='button'
+            icon=<PlusIcon/>
+            onClick={() => updateData('incraseShotVersion')}
+            title={'Incrase shot version'}
+            visible={isShot}
+          />
+
+        </fieldset>
+
+      </>
+    )
+  },
+})
+
+
 export const getCameraShotNumberUpdate = (c: CameraMeta, updateValue: number) => {
   const shotNumber = (c.shotNumber || 0) + updateValue
   if (shotNumber <= 0) return 1
   return shotNumber
 }
 
-const ALPHABET = (' ' + 'abcdefghijklmnopqrstuvwxyz').split('');
+export const getCameraShotVersionUpdate = (c: CameraMeta, updateValue: number) => {
+  const shotVersion = (c.shotVersion || 0) + updateValue
+  if (shotVersion <= 0) return undefined // that camera has no version anymore
+  return shotVersion
+}
 
-export const getCameraVersionStr = (shotVersion: number)=> ALPHABET[shotVersion] || `${shotVersion}`
+
+const ALPHABET = (' ' + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ').split('');
+
+export const getCameraVersionStr = (shotVersion: number | undefined) => shotVersion ? ALPHABET[shotVersion] || `${shotVersion}` : ''
 
 export const getCameraMetaReprStr= (c: CameraMeta, opts?: {
     name?: string,
-    snotNumber?: number,
+    shotNumber?: number,
+    shotVersion?: number,
     shotNumberUpdate?: number // incrase/decrase value
+    shotVersionUpdate?: number // incrase/decrase value
   }) => {
   let name = typeof opts?.name === 'undefined' ? c.name || '' : opts.name
-  let shotNumber = opts?.snotNumber || c.shotNumber
+  let shotNumber = opts?.shotNumber || c.shotNumber
+  let shotVersion = opts?.shotVersion || c.shotVersion
   if (shotNumber) {
     shotNumber = opts?.shotNumberUpdate ? getCameraShotNumberUpdate(c, opts?.shotNumberUpdate || 0) : shotNumber
+    shotVersion = opts?.shotVersionUpdate ? getCameraShotVersionUpdate(c, opts?.shotVersionUpdate || 0) : shotVersion
     name = name ? `\n${name}` : ''
+
+    if (shotVersion) return `cam ${shotNumber}-${getCameraVersionStr(shotVersion)}` + name
     return `cam ${shotNumber}` + name
   }
   return name

@@ -12,7 +12,7 @@ export type ToolButtonSize = "small" | "medium";
 
 type ToolButtonBaseProps = {
   icon?: React.ReactNode;
-  "aria-label": string;
+  "aria-label"?: string;
   "aria-keyshortcuts"?: string;
   "data-testid"?: string;
   label?: string;
