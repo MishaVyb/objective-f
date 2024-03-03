@@ -1,4 +1,4 @@
-import { CameraIcon } from '@radix-ui/react-icons'
+import { CameraIcon, CircleBackslashIcon, MinusIcon, PlusIcon } from '@radix-ui/react-icons'
 import { getFormValue } from '../../../packages/excalidraw/actions/actionProperties'
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
 import { ToolButton } from '../../../packages/excalidraw/components/ToolButton'
@@ -104,7 +104,7 @@ export const actionChangeMetaCameraShot = register({
           />
           <ToolButton
             type='button'
-            icon='❌'
+            icon=<CircleBackslashIcon/>
             onClick={() => updateData('remove')}
             title={t('labels.cameraRemoveFromShotList', null, 'Remove from shot list')}
             aria-label={'undefined'}
@@ -112,7 +112,7 @@ export const actionChangeMetaCameraShot = register({
           />
           <ToolButton
             type='button'
-            icon='➖'
+            icon=<MinusIcon/>
             onClick={() => updateData('decraseShotNumber')}
             title={t('labels.cameraDecraseShotNumber', null, 'Decrase shot number')}
             aria-label={'undefined'}
@@ -120,7 +120,7 @@ export const actionChangeMetaCameraShot = register({
           />
           <ToolButton
             type='button'
-            icon='➕'
+            icon=<PlusIcon/>
             onClick={() => updateData('incraseShotNumber')}
             title={t('labels.cameraIncraseShotNumber', null, 'Incrase shot number')}
             aria-label={'undefined'}
@@ -137,6 +137,10 @@ export const getCameraShotNumberUpdate = (c: CameraMeta, updateValue: number) =>
   if (shotNumber <= 0) return 1
   return shotNumber
 }
+
+const ALPHABET = (' ' + 'abcdefghijklmnopqrstuvwxyz').split('');
+
+export const getCameraVersionStr = (shotVersion: number)=> ALPHABET[shotVersion] || `${shotVersion}`
 
 export const getCameraMetaReprStr= (c: CameraMeta, opts?: {
     name?: string,

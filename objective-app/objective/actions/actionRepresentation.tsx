@@ -1,9 +1,9 @@
+import { Flex, Kbd } from '@radix-ui/themes'
 import { getFormValue } from '../../../packages/excalidraw/actions/actionProperties'
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
-import { t } from '../../../packages/excalidraw/i18n'
 import { isCameraElement, isObjective } from '../meta/types'
-import style from './actionRepresentation.module.css'
 import { register } from './register'
+import { getCameraVersionStr } from './actionShootList'
 
 export const representationMeta = register({
   name: 'representationMeta',
@@ -35,14 +35,14 @@ export const representationMeta = register({
     )
 
     return (
-      <div className={style.container}>
-        <div className={style.metaKind}>{metaKind && t('labels.metaKind', null, metaKind)}</div>
-        <div className={style.shotNumber}>
-          {shotNumber && ` ${shotNumber}`}
-          {shotVersion && ` (${shotVersion})`}
-        </div>
-      </div>
+      <Flex justify={'between'}>
+        <Kbd>{metaKind}</Kbd>
+        {shotNumber ? (
+          <Kbd style={{ minWidth: 30 }}>
+            {shotVersion ? `${shotNumber}-${getCameraVersionStr(shotVersion)}` : `${shotNumber}`}
+          </Kbd>
+        ) : null}
+      </Flex>
     )
   },
 })
-

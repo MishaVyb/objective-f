@@ -5,7 +5,7 @@ import { getSelectedElements } from '../../../packages/excalidraw/scene'
 import { focusNearestParent } from '../../../packages/excalidraw/utils'
 import { TextField } from '../UI/TextField'
 import { newMetaReprElement } from '../elements/newElement'
-import { getObjectiveMetas } from '../meta/selectors'
+import { getObjectiveBasis, getObjectiveMetas, getObjectiveSingleMeta } from '../meta/selectors'
 import { handleMetaRepresentation, mutateElementsMeta } from '../elements/helpers'
 import { register } from './register'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
@@ -45,7 +45,7 @@ export const actionChangeMetaName = register({
     }
   },
 
-  PanelComponent: ({ elements, appState, updateData }: PanelComponentProps) => {
+  PanelComponent: ({ elements, appState, updateData, app }: PanelComponentProps) => {
     const name = getFormValue(
       elements,
       appState,
@@ -54,13 +54,23 @@ export const actionChangeMetaName = register({
       null //
     )
 
+    const singleMeta = getObjectiveSingleMeta(
+      app.scene.getSelectedElements({ selectedElementIds: appState.selectedElementIds })
+    )
+    const basis = getObjectiveBasis(singleMeta)
+    const bgOpacity = '30' // from `00` up to `FF`
+    const bgColor = basis ? basis.backgroundColor + bgOpacity : null
+
     return (
-      <TextField
-        placeholder='Label'
-        value={name || ''}
-        onChange={(newTextValue) => updateData({ newTextValue })}
-        onKeyDown={(event) => event.key === KEYS.ENTER && focusNearestParent(event.target as any)}
-      />
+      <>
+        <TextField
+          placeholder='Label'
+          value={name || ''}
+          onChange={(newTextValue) => updateData({ newTextValue })}
+          onKeyDown={(event) => event.key === KEYS.ENTER && focusNearestParent(event.target as any)}
+          bgColor={bgColor}
+        />
+      </>
     )
   },
 })

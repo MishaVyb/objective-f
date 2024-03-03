@@ -1,8 +1,6 @@
 import clsx from 'clsx'
 import { KeyboardEvent, forwardRef, useImperativeHandle, useRef } from 'react'
 
-import './TextField.scss'
-
 export type TextFieldProps = {
   value?: string
 
@@ -15,19 +13,26 @@ export type TextFieldProps = {
 
   label?: string
   placeholder?: string
+
+  bgColor?: any
 }
 
+/** Simplified version of /packages/excalidraw/components/TextField.tsx  */
 export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
-  ({ value, onChange, label, fullWidth, placeholder, readonly, onKeyDown }, ref) => {
+  ({ value, onChange, label, fullWidth, placeholder, readonly, onKeyDown, bgColor }, ref) => {
     const innerRef = useRef<HTMLInputElement | null>(null)
 
     useImperativeHandle(ref, () => innerRef.current!)
 
     return (
       <div
-        className={clsx('ExcTextField', {
-          'ExcTextField--fullWidth': fullWidth,
-        })}
+        className={clsx(
+          'ExcTextField',
+          {
+            'ExcTextField--fullWidth': fullWidth,
+          },
+          bgColor
+        )}
         onClick={() => {
           innerRef.current?.focus()
         }}
@@ -37,6 +42,9 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
           className={clsx('ExcTextField__input', {
             'ExcTextField__input--readonly': readonly,
           })}
+          style={
+            bgColor ? { background: bgColor } : {} //
+          }
         >
           <input
             readOnly={readonly}
