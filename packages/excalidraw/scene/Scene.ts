@@ -15,6 +15,7 @@ import { AppState } from "../types";
 import { Assert, SameType } from "../utility-types";
 import { randomInteger } from "../random";
 import { toBrandedType } from "../utils";
+import { arrangeElements } from "../../../objective-app/objective/actions/zindex";
 
 type ElementIdKey =
   | InstanceType<typeof LinearElementEditor>["elementId"]
@@ -361,7 +362,9 @@ class Scene {
     if (element.frameId) {
       this.insertElementAtIndex(element, this.getElementIndex(element.frameId));
     } else {
-      this.replaceAllElements([...this.elements, element]);
+      this.replaceAllElements(
+        arrangeElements(this.elements, [element]), // VBRN
+      );
     }
   };
 
