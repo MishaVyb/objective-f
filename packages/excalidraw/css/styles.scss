@@ -549,21 +549,21 @@
   input[type="text"],
   textarea:not(.excalidraw-wysiwyg) {
     color: var(--text-primary-color);
-    border: 1.5px solid var(--input-border-color);
+    border: 1.5px solid transparent;
     padding: 0.75rem;
     white-space: nowrap;
-    border-radius: var(--space-factor);
+    border-radius: 0.5rem;
     background-color: var(--input-bg-color);
 
     &:not(:focus) {
       &:hover {
-        border-color: var(--color-brand-hover);
+        border-color: var(--color-gray-10);
       }
     }
 
     &:focus {
       outline: none;
-      border-color: var(--color-brand-hover);
+      border-color: var(--color-gray-10);
     }
   }
 

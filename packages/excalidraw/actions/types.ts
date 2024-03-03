@@ -133,8 +133,9 @@ export type ActionName =
 
   // VBRN actions:
   | "actionChangeMetaName"
+  | "actionChangeMetaDescription"
   | "actionChangeMetaCameraShot"
-  | "representationMeta"
+  | "actionDisplayMeta"
   | "actionInitStoryboard"
   | "actionStoryboard"
   | "toggleObjectiveSettings"

@@ -22,6 +22,14 @@ export type TShape = {
   label?: string;
 };
 
+export const SHAPE_IMAGE: TShape = {
+  icon: ImageIcon,
+  value: "image",
+  key: KEYS.I,
+  numericKey: KEYS["6"],
+  fillable: false,
+};
+
 export const SHAPES: readonly TShape[] = [
   {
     icon: SelectionIcon,
@@ -59,13 +67,7 @@ export const SHAPES: readonly TShape[] = [
     numericKey: KEYS["5"],
     fillable: false,
   },
-  {
-    icon: ImageIcon,
-    value: "image",
-    key: null,
-    numericKey: null,
-    fillable: false,
-  },
+  SHAPE_IMAGE,
 ] as const;
 
 export const MORE_SHAPES: readonly TShape[] = [
@@ -73,21 +75,21 @@ export const MORE_SHAPES: readonly TShape[] = [
     icon: RectangleIcon,
     value: "rectangle",
     key: KEYS.R,
-    numericKey: KEYS["6"],
+    numericKey: KEYS["7"],
     fillable: true,
   },
   {
     icon: EllipseIcon,
     value: "ellipse",
     key: KEYS.O,
-    numericKey: KEYS["7"],
+    numericKey: KEYS["8"],
     fillable: true,
   },
   {
     icon: DiamondIcon,
     value: "diamond",
     key: KEYS.D,
-    numericKey: KEYS["8"],
+    numericKey: KEYS["9"],
     fillable: true,
   },
   {

@@ -11,7 +11,7 @@ import {
   ExcalidrawImageElement,
 } from '../../../packages/excalidraw/element/types'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
-import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
+import { AppClassProperties, AppProps, AppState } from '../../../packages/excalidraw/types'
 import { newPointerBeetween } from '../elements/newElement'
 import '../scss/cameraItem.scss'
 import '../scss/popover.scss'
@@ -32,6 +32,8 @@ import './../scss/actionStoryboard.scss'
 import { deleteEventHandler } from '../elements/events'
 import { changeElementMeta, changeElementProperty } from '../elements/helpers'
 import { register } from './register'
+import { getShapeButton } from '../../../packages/excalidraw/components/Actions'
+import { SHAPE_IMAGE } from '../../../packages/excalidraw/shapes'
 
 /**
  * NOTE: No checking is selected element is image or not.
@@ -135,7 +137,12 @@ interface IPerformValue {
 export const actionStoryboard = register({
   name: 'actionStoryboard',
   trackEvent: false,
-  perform: (elements, appState, { camera, image, action }: IPerformValue, app: AppClassProperties) => {
+  perform: (
+    elements,
+    appState,
+    { camera, image, action }: IPerformValue,
+    app: AppClassProperties
+  ) => {
     const cameraBasis = getCameraBasis(elements, camera)
     const pointer = getPointerBetween(elements, image, cameraBasis)
     const otherCamerasRelatedToImage = getCameraMetas(elements, {
@@ -198,6 +205,7 @@ export const actionStoryboard = register({
     appState,
     updateData,
     appProps,
+    app,
   }: PanelComponentProps<IPerformValue>) => {
     const cameras = getCameraMetas(getSelectedElements(elements, appState))
     const images = useCamerasImages(cameras)
@@ -208,6 +216,13 @@ export const actionStoryboard = register({
     return (
       <div className='storyboard-images'>
         <legend>Storyboard</legend>
+        {getShapeButton(
+          app,
+          app.state,
+          app.state.activeTool,
+          appProps.UIOptions as AppProps['UIOptions'],
+          SHAPE_IMAGE
+        )}
         {images.map((image) => (
           <fieldset key={image.id}>
             <img src={image.dataURL} alt='' />

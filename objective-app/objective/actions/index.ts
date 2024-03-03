@@ -1,6 +1,5 @@
 export { actionChangeMetaCameraShot } from './actionShootList'
-export { actionChangeMetaName } from './actionChangeTitle'
-export { representationMeta } from './actionRepresentation'
+export { actionChangeMetaName } from './actionMetaCommon'
 export { actionInitStoryboard } from './actionStoryboard'
 export { actionFinalizeSelectionDrag as actionSnapLocation } from './actionOnDrag'
 export { actionObjectiveSettings as actionSettings } from './actionSettings'

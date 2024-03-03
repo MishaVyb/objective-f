@@ -51,6 +51,9 @@ export interface ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> {
   /** Relation to Meta representation `rectangle.id` that nested Text has as `containderId`*/
   nameRepr?: ExcalidrawElement['id']
 
+  /** long object description */
+  description?: string
+
   /** Excalidraw group id for all primitives of this Objective element. Populated by `getMetas`. */
   id: GroupId
   /**
