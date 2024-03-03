@@ -7283,6 +7283,7 @@ class App extends React.Component<AppProps, AppState> {
             }
 
             // VBRN
+            // BUG: Storyboard's POINT are pointing to previous camera, but related to new dragged...
             const extraNewElements = duplicateObjectiveEventHandler(
               nextElements.filter(
                 // handle only new elements

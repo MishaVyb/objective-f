@@ -688,6 +688,7 @@ export const duplicateElements = (
     clonedElements.push(clonedElement);
   }
 
+  clonedElements.forEach((e) => duplicateMeta(e));
   const extraNewEls = duplicateObjectiveEventHandler(clonedElements);
   clonedElements.push(...extraNewEls);
   return clonedElements;

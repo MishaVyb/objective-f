@@ -65,14 +65,19 @@ export const duplicateObjectiveEventHandler = (newElements: Mutable<ExcalidrawEl
   return extraNewEls
 }
 
-/** Smart meta DEEP copy. Some values are copied, some other taken from initial Meta. */
-export const duplicateMeta = (el: Mutable<ExcalidrawElement>) => {
-  if (!isObjective(el)) return
-  const weekMeta = getMetaSimple(el)
+/**
+ * Initialize new meta. Some values are copied, some other taken from initial Meta.
+ * MUTATE PROVIDED ELEMENT's META
+ *
+ * It's Objective replacement of Excalidraw deepCopyElement.
+ */
+export const duplicateMeta = (newElement: Mutable<ExcalidrawElement>) => {
+  if (!isObjective(newElement)) return
+  const weekMeta = getMetaSimple(newElement)
 
   if (isCameraMeta(weekMeta)) {
     Object.assign(
-      el.customData,
+      newElement.customData,
       getInitialMeta(ObjectiveKinds.CAMERA, {
         name: weekMeta.name,
         nameRepr: randomId(),
@@ -86,7 +91,7 @@ export const duplicateMeta = (el: Mutable<ExcalidrawElement>) => {
     )
   } else {
     Object.assign(
-      el.customData,
+      newElement.customData,
       getInitialMeta(weekMeta.kind, {
         name: weekMeta.name,
         nameRepr: randomId(),
