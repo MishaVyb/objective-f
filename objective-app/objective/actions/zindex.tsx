@@ -86,8 +86,8 @@ export const arrangeElements = (elements: ElementsMapOrArray, newEls: ElementsMa
     els.forEach((e) => takenElements.add(e.id))
   }
   return [
-    ...wall,
     ...otherExcalidraw,
+    ...wall,
     ...location,
     ...outdoor,
     ...set,
