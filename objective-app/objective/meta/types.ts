@@ -13,6 +13,7 @@ import { ActiveTool, BinaryFileData } from '../../../packages/excalidraw/types'
 export enum ObjectiveKinds {
   CAMERA = 'Camera',
   CHARACTER = 'Character',
+  LIGHT = 'Light',
 
   /** window or door (not wall!) ... */
   LOCATION = 'Location',

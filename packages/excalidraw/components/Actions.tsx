@@ -44,6 +44,7 @@ import {
   ObjectiveKinds,
   isAllElementsObjective,
 } from "../../../objective-app/objective/meta/types";
+import { objectEntries } from "../../../objective-app/objective/meta/utils";
 import { CaretDownIcon, CaretRightIcon } from "@radix-ui/react-icons";
 import { Separator } from "@radix-ui/themes";
 import { __DEBUG_EDITOR } from "../../../objective-app/objective-plus/constants";
@@ -96,7 +97,7 @@ export const SelectedShapeActions = ({
     }
   }
 
-  const objectiveItemShowExcalidrawActions = () => {
+  const buttonShowOrHideExcalidrawStyle = () => {
     return (
       <ToolButton
         type="button"
@@ -123,23 +124,29 @@ export const SelectedShapeActions = ({
   const isSingleImage =
     targetElements.length === 1 && isInitializedImageElement(targetElements[0]);
 
-  const actionsToRender = {
+  const getActionsToRender = (showOBJStyle: boolean) => ({
     // Objective
     // common:
-    metaKind: isAllObjective,
+    metaHeader: isAllObjective,
     metaName:
       isAllObjective &&
       isSingleMetaKind &&
-      !metasSet.has(ObjectiveKinds.POINTER) &&
-      !metasSet.has(ObjectiveKinds.LABEL),
+      (metasSet.has(ObjectiveKinds.CAMERA) ||
+        metasSet.has(ObjectiveKinds.CHARACTER) ||
+        metasSet.has(ObjectiveKinds.LIGHT)),
 
-    metaDescription: isSingleMeta,
+    metaDescription:
+      isSingleMeta &&
+      (metasSet.has(ObjectiveKinds.CAMERA) ||
+        metasSet.has(ObjectiveKinds.CHARACTER) ||
+        metasSet.has(ObjectiveKinds.LIGHT)),
 
-    showExcalidrawStyle: isAllObjective,
+    buttonToShowOrHideExcalidrawStyle: isAllObjective,
 
     // when camera selected:
-    metaCameraShot: isAllObjective,
-    metaActionStoryboard: isAllObjective,
+    metaCameraShot: isAllObjective && metasSet.has(ObjectiveKinds.CAMERA),
+    metaActionStoryboard:
+      isAllObjective && isSingleMeta && metasSet.has(ObjectiveKinds.CAMERA),
 
     // when image selected:
     metaInitStoryboard: isSingleImage,
@@ -197,11 +204,24 @@ export const SelectedShapeActions = ({
     delete: isAllExcali || showOBJStyle || isObjAndExcali,
     group: isAllExcali || showOBJStyle || isObjAndExcali,
     hyperLink: isAllExcali || showOBJStyle || isObjAndExcali,
-  };
+  });
+
+  let actionsToRender = getActionsToRender(showOBJStyle);
+  const actionsToRenderTotal = objectEntries(actionsToRender).filter(([k, v]) =>
+    k === "metaHeader" || !k.startsWith("meta") ? false : v,
+  );
+  console.log("Actions to Render", actionsToRenderTotal);
+
+  // NOTE
+  // if no actions to render (except metaHeader), show Excalidraw actions
+  if (!actionsToRenderTotal.length) {
+    actionsToRender = getActionsToRender(true);
+    actionsToRender.buttonToShowOrHideExcalidrawStyle = false;
+  }
 
   return (
     <div className="panelColumn">
-      {actionsToRender.metaKind && renderAction("actionDisplayMeta")}
+      {actionsToRender.metaHeader && renderAction("actionDisplayMetaHeader")}
       {actionsToRender.metaName && renderAction("actionChangeMetaName")}
       {actionsToRender.metaCameraShot &&
         renderAction("actionChangeMetaCameraShot")}
@@ -214,8 +234,8 @@ export const SelectedShapeActions = ({
 
       {actionsToRender.metaInitStoryboard &&
         renderAction("actionInitStoryboard")}
-      {actionsToRender.showExcalidrawStyle &&
-        objectiveItemShowExcalidrawActions()}
+      {actionsToRender.buttonToShowOrHideExcalidrawStyle &&
+        buttonShowOrHideExcalidrawStyle()}
 
       <div>
         {actionsToRender.strokeColor &&

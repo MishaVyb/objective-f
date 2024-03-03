@@ -136,7 +136,7 @@ export type ActionName =
   | "actionChangeMetaDescription"
   | "actionChangeMetaCameraShot"
   | "actionChangeMetaCameraVersion"
-  | "actionDisplayMeta"
+  | "actionDisplayMetaHeader"
   | "actionInitStoryboard"
   | "actionStoryboard"
   | "toggleObjectiveSettings"

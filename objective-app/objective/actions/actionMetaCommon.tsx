@@ -9,13 +9,19 @@ import { getObjectiveBasis, getObjectiveMetas, getObjectiveSingleMeta } from '..
 import { handleMetaRepresentation, mutateElementsMeta } from '../elements/helpers'
 import { register } from './register'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
-import { ObjectiveMeta, isCameraElement, isCameraMeta, isObjective } from '../meta/types'
+import {
+  ObjectiveKinds,
+  ObjectiveMeta,
+  isCameraElement,
+  isCameraMeta,
+  isObjective,
+} from '../meta/types'
 import { getCameraMetaReprStr, getCameraVersionStr } from './actionShootList'
 import { arrangeElements } from './zindex'
 import { Flex, Kbd } from '@radix-ui/themes'
 
-export const actionDisplayMeta = register({
-  name: 'actionDisplayMeta',
+export const actionDisplayMetaHeader = register({
+  name: 'actionDisplayMetaHeader',
   trackEvent: false,
   perform: (elements, appState, value) => {
     return false // No perform action, actually
@@ -28,29 +34,55 @@ export const actionDisplayMeta = register({
       true,
       null
     )
-    const shotNumber = getFormValue(
-      elements,
-      appState,
-      (element) => isCameraElement(element) && element.customData.shotNumber,
-      true,
-      null
-    )
-    const shotVersion = getFormValue(
-      elements,
-      appState,
-      (element) => isCameraElement(element) && element.customData.shotVersion,
-      true,
-      null
-    )
+    if (!metaKind) return <></> // different metas selected
 
+    if (metaKind === ObjectiveKinds.CHARACTER || metaKind === ObjectiveKinds.LIGHT)
+      return (
+        <Flex justify={'between'}>
+          <Kbd>{metaKind}</Kbd>
+        </Flex>
+      )
+
+    if (metaKind === ObjectiveKinds.CAMERA) {
+      const shotNumber = getFormValue(
+        elements,
+        appState,
+        (element) => isCameraElement(element) && element.customData.shotNumber,
+        true,
+        null
+      )
+      const shotVersion = getFormValue(
+        elements,
+        appState,
+        (element) => isCameraElement(element) && element.customData.shotVersion,
+        true,
+        null
+      )
+      return (
+        <Flex justify={'between'}>
+          <Kbd>{metaKind}</Kbd>
+          {shotNumber ? (
+            <Kbd style={{ minWidth: 30 }}>
+              {shotVersion ? `${shotNumber}-${getCameraVersionStr(shotVersion)}` : `${shotNumber}`}
+            </Kbd>
+          ) : null}
+        </Flex>
+      )
+    }
+
+    // all other Objective kinds
+    // NOTE: display name here, as we do not display meta name input
+    const name = getFormValue(
+      elements,
+      appState,
+      (element) => isObjective(element) && element.customData.name,
+      true,
+      null
+    )
     return (
       <Flex justify={'between'}>
         <Kbd>{metaKind}</Kbd>
-        {shotNumber ? (
-          <Kbd style={{ minWidth: 30 }}>
-            {shotVersion ? `${shotNumber}-${getCameraVersionStr(shotVersion)}` : `${shotNumber}`}
-          </Kbd>
-        ) : null}
+        {name ? <Kbd style={{ minWidth: 30 }}>{name}</Kbd> : null}
       </Flex>
     )
   },
@@ -97,15 +129,13 @@ export const actionChangeMetaName = register({
     const bgColor = basis ? basis.backgroundColor + bgOpacity : null
 
     return (
-      <>
-        <TextField
-          placeholder='Label'
-          value={name || ''}
-          onChange={(newTextValue) => updateData(newTextValue)}
-          onKeyDown={(event) => event.key === KEYS.ENTER && focusNearestParent(event.target as any)}
-          bgColor={bgColor}
-        />
-      </>
+      <TextField
+        placeholder='Label'
+        value={name || ''}
+        onChange={(newTextValue) => updateData(newTextValue)}
+        onKeyDown={(event) => event.key === KEYS.ENTER && focusNearestParent(event.target as any)}
+        bgColor={bgColor}
+      />
     )
   },
 })
