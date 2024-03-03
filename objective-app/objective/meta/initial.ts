@@ -3,7 +3,7 @@ import { CameraMeta, ObjectiveKinds, ObjectiveMeta } from './types'
 /** getDefaultMeta */
 export const getInitialMeta = <T extends ObjectiveKinds>(
   kind: T,
-  overriddes: Omit<Partial<ObjectiveMeta<T>>, 'kind'> = {}
+  overriddes = {}
 ): ObjectiveMeta<T> => ({
   kind: kind,
   id: '',

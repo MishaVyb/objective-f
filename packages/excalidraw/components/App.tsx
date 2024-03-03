@@ -418,8 +418,10 @@ import { getInitialMeta } from "../../../objective-app/objective/meta/initial";
 import { actionToggleGridSnapMode } from "../../../objective-app/objective/actions/actionSettings";
 import {
   addElementsFromPasteOrLibraryHandler,
+  duplicateObjectiveEventHandler,
   onPointerUpFromPointerDownEventHandler,
 } from "../../../objective-app/objective/elements/events";
+import { arrangeElements } from "../../../objective-app/objective/actions/zindex";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -7279,7 +7281,21 @@ class App extends React.Component<AppProps, AppState> {
                 nextElements.push(element);
               }
             }
-            const nextSceneElements = [...nextElements, ...elementsToAppend];
+
+            // VBRN
+            const extraNewElements = duplicateObjectiveEventHandler(
+              nextElements.filter(
+                // handle only new elements
+                (e) => !this.scene.getElementsMapIncludingDeleted().has(e.id),
+              ),
+            );
+            elementsToAppend.push(...extraNewElements);
+            const nextSceneElements = arrangeElements(
+              nextElements,
+              elementsToAppend,
+            );
+            // VBRN
+
             bindTextToShapeAfterDuplication(
               nextElements,
               elementsToAppend,

@@ -1,7 +1,7 @@
 import { getElementAbsoluteCoords } from ".";
 import {
-  duplicateAsInitialEventHandler,
-  duplicateEventHandler,
+  duplicateMeta,
+  duplicateObjectiveEventHandler,
 } from "../../../objective-app/objective/elements/events";
 import {
   DEFAULT_ELEMENT_PROPS,
@@ -571,12 +571,7 @@ export const duplicateElement = <TElement extends ExcalidrawElement>(
     copy = Object.assign(copy, overrides);
   }
 
-  // duplicateEventHandler([copy], { asInitial: true });
-  duplicateAsInitialEventHandler(copy);
-  // @ts-ignore
-  // copy.customData.shotNumber = undefined
-  // // @ts-ignore
-  // copy.customData.shotNumberRepr = undefined
+  duplicateMeta(copy);
   return copy;
 };
 
@@ -693,7 +688,7 @@ export const duplicateElements = (
     clonedElements.push(clonedElement);
   }
 
-  const extraNewEls = duplicateEventHandler(clonedElements);
+  const extraNewEls = duplicateObjectiveEventHandler(clonedElements);
   clonedElements.push(...extraNewEls);
   return clonedElements;
 };

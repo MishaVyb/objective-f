@@ -13,23 +13,17 @@ import {
   PointerDownState,
 } from '../../../packages/excalidraw/types'
 import { Mutable } from '../../../packages/excalidraw/utility-types'
-import { cameraInitialMeta, getInitialMeta } from '../meta/initial'
+import { getInitialMeta } from '../meta/initial'
 import { newMetaReprElement } from './newElement'
 import {
   getCameraBasis,
   getCameraMetas,
+  getMetaSimple,
   getObjectiveMetas,
   getObjectiveSingleMeta,
   getPointerBetween,
 } from '../meta/selectors'
-import {
-  ObjectiveKinds,
-  ObjectiveMeta,
-  isCameraElement,
-  isCameraMeta,
-  isObjective,
-  isShotCameraMeta,
-} from '../meta/types'
+import { ObjectiveKinds, ObjectiveMeta, isCameraMeta, isObjective } from '../meta/types'
 import {
   actionFinalizeSelectionDrag,
   performRotationLocationOnDragFinalize,
@@ -39,14 +33,15 @@ import { snapDraggedElementsLocation } from './snapElements'
 import { getCameraMetaReprStr } from '../actions/actionShootList'
 import { AllExcalidrawElements } from '../../../packages/excalidraw/actions/types'
 import { arrangeElements } from '../actions/zindex'
+import { randomId } from '../../../packages/excalidraw/random'
 
 /**
- * It's assumed that meta (`customData`) already copied properly by `_deppCopyElement`
- * @param elements new (cloned/copied) elements
+ * It's assumed that elements metas already copied properly by `duplicateAsInitialEventHandler`
+ * @param newElements new (cloned/copied) elements
  */
-export const duplicateEventHandler = (elements: Mutable<ExcalidrawElement>[]) => {
+export const duplicateObjectiveEventHandler = (newElements: Mutable<ExcalidrawElement>[]) => {
   const extraNewEls: ExcalidrawElement[] = []
-  const metas = getObjectiveMetas(elements) as Mutable<ObjectiveMeta>[]
+  const metas = getObjectiveMetas(newElements) as Mutable<ObjectiveMeta>[]
 
   metas.forEach((meta) => {
     if (isCameraMeta(meta)) {
@@ -61,7 +56,7 @@ export const duplicateEventHandler = (elements: Mutable<ExcalidrawElement>[]) =>
 
       meta.relatedImages = []
     } else {
-      // all other els
+      // all other meta kinds
       if (meta.nameRepr)
         extraNewEls.push(...createMetaRepr(meta, 'nameRepr', meta.name!, newMetaReprElement))
     }
@@ -70,9 +65,34 @@ export const duplicateEventHandler = (elements: Mutable<ExcalidrawElement>[]) =>
   return extraNewEls
 }
 
-export const duplicateAsInitialEventHandler = (el: Mutable<ExcalidrawElement>) => {
-  if (isCameraElement(el)) Object.assign(el.customData, cameraInitialMeta)
-  else if (isObjective(el)) Object.assign(el.customData, getInitialMeta(el.customData?.kind))
+/** Smart meta DEEP copy. Some values are copied, some other taken from initial Meta. */
+export const duplicateMeta = (el: Mutable<ExcalidrawElement>) => {
+  if (!isObjective(el)) return
+  const weekMeta = getMetaSimple(el)
+
+  if (isCameraMeta(weekMeta)) {
+    Object.assign(
+      el.customData,
+      getInitialMeta(ObjectiveKinds.CAMERA, {
+        name: weekMeta.name,
+        nameRepr: randomId(),
+
+        isShot: weekMeta.isShot,
+        shotNumber: weekMeta.shotNumber, // do not incrase shot number atomatecly, user will do it by itself
+        shotVersion: weekMeta.shotVersion,
+        focalLength: weekMeta.focalLength,
+        relatedImages: [],
+      })
+    )
+  } else {
+    Object.assign(
+      el.customData,
+      getInitialMeta(weekMeta.kind, {
+        name: weekMeta.name,
+        nameRepr: randomId(),
+      })
+    )
+  }
 }
 
 /**

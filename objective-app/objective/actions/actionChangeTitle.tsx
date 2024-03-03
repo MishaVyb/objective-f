@@ -42,7 +42,7 @@ export const actionChangeMetaName = register({
     mutateElementsMeta(app, { name: newTextValue })
 
     return {
-      elements: arrangeElements(elements, newEls),
+      elements: newEls.length ? arrangeElements(elements, newEls) : elements,
       commitToHistory: !!newTextValue,
     }
   },

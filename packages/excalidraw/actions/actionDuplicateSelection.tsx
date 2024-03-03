@@ -1,3 +1,5 @@
+import { arrangeElements } from "../../../objective-app/objective/actions/zindex";
+import { duplicateObjectiveEventHandler } from "../../../objective-app/objective/elements/events";
 import { ToolButton } from "../components/ToolButton";
 import { DuplicateIcon } from "../components/icons";
 import { duplicateElement, getNonDeletedElements } from "../element";
@@ -26,7 +28,7 @@ import {
   excludeElementsInFramesFromSelection,
   getSelectedElements,
 } from "../scene/selection";
-import { AppState } from "../types";
+import { AppClassProperties, AppState } from "../types";
 import { arrayToMap, getShortcutKey } from "../utils";
 import { register } from "./register";
 import { ActionResult } from "./types";
@@ -34,7 +36,7 @@ import { ActionResult } from "./types";
 export const actionDuplicateSelection = register({
   name: "duplicateSelection",
   trackEvent: { category: "element" },
-  perform: (elements, appState) => {
+  perform: (elements, appState, _, app) => {
     // duplicate selected point(s) if editing a line
     if (appState.editingLinearElement) {
       const ret = LinearElementEditor.duplicateSelectedPoints(appState);
@@ -51,7 +53,7 @@ export const actionDuplicateSelection = register({
     }
 
     return {
-      ...duplicateElements(elements, appState),
+      ...duplicateElements(elements, appState, app),
       commitToHistory: true,
     };
   },
@@ -74,6 +76,7 @@ export const actionDuplicateSelection = register({
 const duplicateElements = (
   elements: readonly ExcalidrawElement[],
   appState: AppState,
+  app: AppClassProperties,
 ): Partial<ActionResult> => {
   // ---------------------------------------------------------------------------
 
@@ -232,8 +235,17 @@ const duplicateElements = (
   }
 
   // step (3)
+  let finalElements = finalElementsReversed.reverse();
 
-  const finalElements = finalElementsReversed.reverse();
+  // VBRN
+  const extraNewElements = duplicateObjectiveEventHandler(
+    finalElements.filter(
+      // handle only new elements
+      (e) => !app.scene.getElementsMapIncludingDeleted().has(e.id),
+    ),
+  );
+  finalElements = arrangeElements(finalElements, extraNewElements);
+  // VBRN
 
   // ---------------------------------------------------------------------------
 
