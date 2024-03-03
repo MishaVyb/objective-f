@@ -100,7 +100,7 @@ export const duplicateMeta = (newElement: Mutable<ExcalidrawElement>) => {
       newElement.customData,
       getInitialMeta(weekMeta.kind, {
         name: weekMeta.name,
-        nameRepr: randomId(),
+        nameRepr: weekMeta.nameRepr ? randomId() : undefined, // HACK
       })
     )
   }
