@@ -3,13 +3,13 @@
 .excalidraw {
   --ExcTextField--color: var(--color-on-surface);
   --ExcTextField--label-color: var(--color-on-surface);
-  --ExcTextField--background: transparent;
+  --ExcTextField--background: var(--color-primary-lightest);
   --ExcTextField--readonly--background: var(--color-surface-high);
   --ExcTextField--readonly--color: var(--color-on-surface);
-  --ExcTextField--border: var(--color-border-outline);
+  --ExcTextField--border: transparent;
   --ExcTextField--readonly--border: var(--color-border-outline-variant);
-  --ExcTextField--border-hover: var(--color-brand-hover);
-  --ExcTextField--border-active: var(--color-brand-active);
+  --ExcTextField--border-hover: var(--color-primary-light);
+  --ExcTextField--border-active: var(--color-primary-light);
   --ExcTextField--placeholder: var(--color-border-outline-variant);
 
   .ExcTextField {

@@ -1,7 +1,5 @@
 import { getFormValue } from '../../../packages/excalidraw/actions/actionProperties'
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
-import { useApp } from '../../../packages/excalidraw/components/App'
-import { t } from '../../../packages/excalidraw/i18n'
 import { KEYS } from '../../../packages/excalidraw/keys'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
 import { focusNearestParent } from '../../../packages/excalidraw/utils'
@@ -47,8 +45,7 @@ export const actionChangeMetaName = register({
     }
   },
 
-  PanelComponent: ({ elements, appState, updateData, appProps }: PanelComponentProps) => {
-    const app = useApp()
+  PanelComponent: ({ elements, appState, updateData }: PanelComponentProps) => {
     const name = getFormValue(
       elements,
       appState,
@@ -59,11 +56,10 @@ export const actionChangeMetaName = register({
 
     return (
       <TextField
-        placeholder={t('labels.metaName', null, 'Label')}
+        placeholder='Label'
         value={name || ''}
-        onChange={(newTextValue) => updateData({ newTextValue, app })}
-        //@ts-ignore
-        onKeyDown={(event) => event.key === KEYS.ENTER && focusNearestParent(event.target)}
+        onChange={(newTextValue) => updateData({ newTextValue })}
+        onKeyDown={(event) => event.key === KEYS.ENTER && focusNearestParent(event.target as any)}
       />
     )
   },
