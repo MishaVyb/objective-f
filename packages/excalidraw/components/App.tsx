@@ -4109,7 +4109,7 @@ class App extends React.Component<AppProps, AppState> {
       this.setState({ suggestedBindings: [] });
     }
     if (isWallTool(nextActiveTool)) {
-      // for Wall always apply defaults
+      // VBRN for Wall always apply defaults
       this.setState({
         currentItemStrokeColor: COLOR_PALETTE.black,
         currentItemBackgroundColor: COLOR_PALETTE.transparent,
@@ -4118,9 +4118,16 @@ class App extends React.Component<AppProps, AppState> {
         currentItemStrokeStyle: "solid",
         currentItemRoundness: "sharp",
         currentItemRoughness: ROUGHNESS.architect,
+        currentItemOpacity: 100,
       });
     }
     if (nextActiveTool.type === "image") {
+      // VBRN for Image always apply defaults
+      this.setState({
+        // currentItemRoundness: "sharp", // We decided do not apply that default...
+        currentItemRoughness: ROUGHNESS.architect,
+        currentItemOpacity: 100,
+      });
       this.onImageAction({
         insertOnCanvasDirectly:
           (tool.type === "image" && tool.insertOnCanvasDirectly) ?? false,
