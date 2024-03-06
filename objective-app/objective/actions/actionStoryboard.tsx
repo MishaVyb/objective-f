@@ -4,14 +4,13 @@ import { logger } from 'workbox-core/_private'
 
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
 import { useDevice } from '../../../packages/excalidraw/components/App'
-import { ToolButton } from '../../../packages/excalidraw/components/ToolButton'
 import { unbindLinearElements } from '../../../packages/excalidraw/element/binding'
 import {
   ExcalidrawElement,
   ExcalidrawImageElement,
 } from '../../../packages/excalidraw/element/types'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
-import { AppClassProperties, AppProps, AppState } from '../../../packages/excalidraw/types'
+import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
 import { newPointerBeetween } from '../elements/newElement'
 import '../scss/cameraItem.scss'
 import '../scss/popover.scss'
@@ -32,8 +31,9 @@ import './../scss/actionStoryboard.scss'
 import { deleteEventHandler } from '../elements/events'
 import { changeElementMeta, changeElementProperty } from '../elements/helpers'
 import { register } from './register'
-import { getShapeButton } from '../../../packages/excalidraw/components/Actions'
-import { SHAPE_IMAGE } from '../../../packages/excalidraw/shapes'
+import { Flex, IconButton } from '@radix-ui/themes'
+import { CircleBackslashIcon, EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
+import { ImageIcon, TrashIcon } from '../../../packages/excalidraw/components/icons'
 
 /**
  * NOTE: No checking is selected element is image or not.
@@ -213,42 +213,76 @@ export const actionStoryboard = register({
     if (cameras.length !== 1) return <></> // supports only for single camera selection
     const camera = cameras[0]
 
+    const onAddImageClick = () => {
+      app.setActiveTool({
+        type: 'image',
+        insertOnCanvasDirectly: false, // let user decide where to put this image
+      })
+    }
+
     return (
       <div className='storyboard-images'>
         <legend>Storyboard</legend>
-        {getShapeButton(
-          app,
-          app.state,
-          app.state.activeTool,
-          appProps.UIOptions as AppProps['UIOptions'],
-          SHAPE_IMAGE
+
+        {images.length ? (
+          images.map((image) => (
+            <fieldset key={image.id}>
+              <img src={image.dataURL} alt='' />
+
+              <Flex gap={'1'} pb={'3'}>
+                <IconButton
+                  size={'2'}
+                  variant={'surface'}
+                  color={'gray'}
+                  onClick={() => onAddImageClick()}
+                  title={'Add another image'}
+                >
+                  <div className='ToolIcon__icon'>{ImageIcon}</div>
+                </IconButton>
+
+                <IconButton
+                  size={'2'}
+                  variant={'soft'}
+                  color={'gray'}
+                  onClick={() => updateData({ camera, image, action: 'display' })}
+                  title={isDisplayed(image) ? 'Hide image on canvas' : 'Show image on canvas'}
+                >
+                  {isDisplayed(image) ? <EyeClosedIcon /> : <EyeOpenIcon />}
+                </IconButton>
+
+                <IconButton
+                  size={'2'}
+                  variant={'outline'}
+                  color={'red'}
+                  onClick={() => updateData({ camera, image, action: 'unlink' })}
+                  title={'Remove image from storyboard'}
+                >
+                  <CircleBackslashIcon />
+                </IconButton>
+                <IconButton
+                  size={'2'}
+                  variant={'outline'}
+                  color={'gray'}
+                  highContrast
+                  onClick={() => updateData({ camera, image, action: 'remove' })}
+                  title={'Delete image'}
+                >
+                  <div className='ToolIcon__icon'>{TrashIcon}</div>
+                </IconButton>
+              </Flex>
+            </fieldset>
+          ))
+        ) : (
+          <IconButton
+            size={'2'}
+            variant={'surface'}
+            color={'gray'}
+            onClick={() => onAddImageClick()}
+            title={'Add image frame'}
+          >
+            <div className='ToolIcon__icon'>{ImageIcon}</div>
+          </IconButton>
         )}
-        {images.map((image) => (
-          <fieldset key={image.id}>
-            <img src={image.dataURL} alt='' />
-            <ToolButton
-              type='button'
-              icon='👁'
-              onClick={() => updateData({ camera, image, action: 'display' })}
-              title={'Show on canvas'}
-              aria-label={'undefined'}
-            />
-            <ToolButton
-              type='button'
-              icon='❌'
-              onClick={() => updateData({ camera, image, action: 'unlink' })}
-              title={'Disable storyboard'}
-              aria-label={'undefined'}
-            />
-            <ToolButton
-              type='button'
-              icon='🗑'
-              onClick={() => updateData({ camera, image, action: 'remove' })}
-              title={'Remove image'}
-              aria-label={'undefined'}
-            />
-          </fieldset>
-        ))}
       </div>
     )
   },
