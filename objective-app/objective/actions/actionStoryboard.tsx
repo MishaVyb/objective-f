@@ -247,7 +247,7 @@ export const actionStoryboard = register({
                   onClick={() => updateData({ camera, image, action: 'display' })}
                   title={isDisplayed(image) ? 'Hide image on canvas' : 'Show image on canvas'}
                 >
-                  {isDisplayed(image) ? <EyeClosedIcon /> : <EyeOpenIcon />}
+                  {isDisplayed(image) ? <EyeOpenIcon /> : <EyeClosedIcon />}
                 </IconButton>
 
                 <IconButton

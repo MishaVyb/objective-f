@@ -169,7 +169,7 @@ type TNewReprConstructor = (
 ) => [ExcalidrawRectangleElement, ExcalidrawTextElementWithContainer]
 
 /**
- * Generic function to create\update\remove `on Canvas` representation  for meta information.
+ * Generic function to create\update\remove `on Canvas` representation for meta information.
  * -- or create
  * -- or update
  * -- or delete (if newValue === '')

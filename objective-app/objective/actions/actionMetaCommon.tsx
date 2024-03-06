@@ -1,24 +1,34 @@
 import { getFormValue } from '../../../packages/excalidraw/actions/actionProperties'
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
 import { KEYS } from '../../../packages/excalidraw/keys'
-import { getSelectedElements } from '../../../packages/excalidraw/scene'
 import { focusNearestParent } from '../../../packages/excalidraw/utils'
 import { TextField } from '../UI/TextField'
-import { newMetaReprElement } from '../elements/newElement'
-import { getObjectiveBasis, getObjectiveMetas, getObjectiveSingleMeta } from '../meta/selectors'
+import { META_REPR_CONTAINER_INITIAL, newMetaReprElement } from '../elements/newElement'
+import {
+  getMetaSimple,
+  getObjectiveBasis,
+  getObjectiveMetas,
+  getObjectiveSingleMeta,
+} from '../meta/selectors'
 import { handleMetaRepresentation, mutateElementsMeta } from '../elements/helpers'
 import { register } from './register'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
 import {
+  ObjectiveElement,
   ObjectiveKinds,
   ObjectiveMeta,
   isCameraElement,
   isCameraMeta,
+  isDisplayed,
   isObjective,
 } from '../meta/types'
 import { getCameraMetaReprStr, getCameraVersionStr } from './actionShootList'
 import { arrangeElements } from './zindex'
 import { Flex, Kbd } from '@radix-ui/themes'
+import { EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
+import { getBoundTextElement } from '../../../packages/excalidraw/element/textElement'
+import { mutateElement } from '../../../packages/excalidraw'
+import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 
 export const actionDisplayMetaHeader = register({
   name: 'actionDisplayMetaHeader',
@@ -91,34 +101,108 @@ export const actionDisplayMetaHeader = register({
 export const actionChangeMetaName = register({
   name: 'actionChangeMetaName',
   trackEvent: false,
-  perform: (elements, appState, newTextValue: string, app: AppClassProperties) => {
-    // [1] change name in representation
-    const metas = getObjectiveMetas(getSelectedElements(elements, appState))
-    const newEls = handleMetaRepresentation(
-      app.scene,
-      metas,
-      'nameRepr',
-      (m: ObjectiveMeta) =>
-        isCameraMeta(m) ? getCameraMetaReprStr(m, { name: newTextValue }) : newTextValue,
-      newMetaReprElement
+  perform: (
+    elements,
+    appState,
+    action: { newTextValue: string; type: 'updateValue' | 'hideRepr' | 'showRepr' },
+    app: AppClassProperties
+  ) => {
+    const elsMap = app.scene.getElementsMapIncludingDeleted()
+    const metas = getObjectiveMetas(
+      // TODO SHORTCUT
+      app.scene.getSelectedElements({ selectedElementIds: app.state.selectedElementIds })
     )
+    let newEls: ExcalidrawElement[] = []
 
-    // [2] change name in meta
-    mutateElementsMeta(app, { name: newTextValue })
+    if (action.type === 'showRepr' || action.type === 'hideRepr') {
+      // [1] display or hide
+
+      metas.forEach((meta) => {
+        if (!meta.nameRepr) {
+          if (meta.name && action.type === 'showRepr')
+            // extra case: create
+            return actionChangeMetaName.perform(
+              elements,
+              appState,
+              {
+                newTextValue: meta.name,
+                type: 'updateValue',
+              },
+              app
+            )
+          return
+        }
+
+        const container = elsMap.get(meta.nameRepr)
+        if (!container) {
+          if (meta.name && action.type === 'showRepr')
+            // extra case: create (no container but should be, maybe user has deleted it by hemself)
+            return actionChangeMetaName.perform(
+              elements,
+              appState,
+              {
+                newTextValue: meta.name,
+                type: 'updateValue',
+              },
+              app
+            )
+          return
+        }
+
+        mutateElement(container, {
+          opacity: action.type === 'showRepr' ? META_REPR_CONTAINER_INITIAL.opacity : 0,
+        })
+        const text = getBoundTextElement(container, elsMap)
+        if (!text) return console.warn('No text container for meta representation. ')
+
+        mutateElement(text, { opacity: action.type === 'showRepr' ? 100 : 0 })
+      })
+    } else {
+      // [2-1] change name in representation
+      newEls = handleMetaRepresentation(
+        app.scene,
+        metas,
+        'nameRepr',
+        (m: ObjectiveMeta) =>
+          isCameraMeta(m)
+            ? getCameraMetaReprStr(m, { name: action.newTextValue })
+            : action.newTextValue,
+        newMetaReprElement
+      )
+
+      // [2-2] change name in meta
+      mutateElementsMeta(app, { name: action.newTextValue })
+    }
 
     return {
       elements: newEls.length ? arrangeElements(elements, newEls) : elements,
-      commitToHistory: !!newTextValue,
+      commitToHistory: true,
     }
   },
 
   PanelComponent: ({ elements, appState, updateData, app }: PanelComponentProps) => {
+    const elsMap = app.scene.getElementsMapIncludingDeleted()
+
     const name = getFormValue(
       elements,
       appState,
       (element) => element.customData?.name,
       true,
-      null //
+      null // default
+    )
+    const metaReprIsDisplayed = getFormValue(
+      elements,
+      appState,
+      (element) => {
+        const meta = getMetaSimple(element as ObjectiveElement)
+        if (!meta.nameRepr) return true
+        const container = elsMap.get(meta.nameRepr)
+        if (!container) return true
+
+        return isDisplayed(container)
+      },
+      true,
+      null // default
     )
 
     const singleMeta = getObjectiveSingleMeta(
@@ -127,14 +211,17 @@ export const actionChangeMetaName = register({
     const basis = getObjectiveBasis(singleMeta)
     const bgOpacity = '20' // from `00` up to `FF`
     const bgColor = basis ? basis.backgroundColor + bgOpacity : null
+    const showEyeButton = singleMeta ? !!name : true
 
     return (
       <TextField
         placeholder='Label'
         value={name || ''}
-        onChange={(newTextValue) => updateData(newTextValue)}
+        onChange={(newTextValue) => updateData({ newTextValue, type: 'updateValue' })}
         onKeyDown={(event) => event.key === KEYS.ENTER && focusNearestParent(event.target as any)}
         bgColor={bgColor}
+        slotIcon={showEyeButton ? metaReprIsDisplayed ? <EyeOpenIcon /> : <EyeClosedIcon /> : null}
+        onSlotIconClick={() => updateData({ type: metaReprIsDisplayed ? 'hideRepr' : 'showRepr' })}
       />
     )
   },

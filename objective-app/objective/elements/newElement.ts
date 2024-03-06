@@ -5,6 +5,7 @@ import {
 } from '../../../packages/excalidraw/element/binding'
 import {
   ExcalidrawBindableElement,
+  ExcalidrawElement,
   ExcalidrawRectangleElement,
   ExcalidrawTextElementWithContainer,
 } from '../../../packages/excalidraw/element/types'
@@ -61,27 +62,33 @@ export const newPointerBeetween = (
   return newPointer
 }
 
+export const META_REPR_CONTAINER_INITIAL: Partial<ExcalidrawElement> = {
+  type: 'rectangle',
+  fillStyle: 'solid',
+  strokeWidth: 1,
+  strokeStyle: 'solid',
+  roughness: 0,
+  opacity: 30,
+  strokeColor: 'transparent',
+
+  roundness: null,
+  locked: false, // so user can move it easily, but we prevent it from multiply selection
+}
+
 export const newMetaReprElement = (meta: ObjectiveMeta, initialValue: string | undefined) => {
   const basis = getObjectiveBasis(meta)
   const gap = 1
   const [w, h] = [70, 30]
+
+  //@ts-ignore
   const container = newElement({
     customData: getInitialMeta(ObjectiveKinds.LABEL),
-
-    type: 'rectangle',
-    fillStyle: 'solid',
-    strokeWidth: 1,
-    strokeStyle: 'solid',
-    roughness: 0,
-    opacity: 30,
-    x: basis!.x + basis!.width / 2 - w / 2,
-    y: basis!.y + basis!.height + gap,
-    strokeColor: 'transparent',
-    backgroundColor: basis!.backgroundColor,
     width: w,
     height: h,
-    roundness: null,
-    locked: false, // so user can move it easily, but we prevent it from multiply selection
+    x: basis!.x + basis!.width / 2 - w / 2,
+    y: basis!.y + basis!.height + gap,
+    backgroundColor: basis!.backgroundColor,
+    ...META_REPR_CONTAINER_INITIAL,
   })
 
   // All other props generated dynamically inside
