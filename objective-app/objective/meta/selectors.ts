@@ -1,15 +1,13 @@
 import { useMemo } from 'react'
 
-import { useExcalidrawElements } from '../../../packages/excalidraw/components/App'
+import { useApp, useExcalidrawElements } from '../../../packages/excalidraw/components/App'
 import { isNonDeletedElement } from '../../../packages/excalidraw/element'
 import {
   ElementsMapOrArray,
-  ExcalidrawBindableElement,
   ExcalidrawElement,
   InitializedExcalidrawImageElement,
-  SceneElementsMap,
 } from '../../../packages/excalidraw/element/types'
-import Scene, { ElementKey } from '../../../packages/excalidraw/scene/Scene'
+import Scene from '../../../packages/excalidraw/scene/Scene'
 import { AppState } from '../../../packages/excalidraw/types'
 import { useExcalidrawFiles } from '../components/ObjectiveInnerWrapper'
 import {
@@ -27,7 +25,7 @@ import {
   isPointerElement,
   isShotCameraElement,
 } from './types'
-import { toBrandedType } from '../../../packages/excalidraw/utils'
+import { isInitializedImageElement } from '../../../packages/excalidraw/element/typeChecks'
 
 /**
  * Get readonly `el.customData` reference (net copy).
@@ -107,7 +105,7 @@ export const getObjectiveMetas = <TMeta extends ObjectiveMeta>(
 
       // meta duplicates: append element id and omit meta duplicate
       if (idsByGroup.has(objectiveId)) {
-        idsByGroup.get(objectiveId)?.push(e.id) // TMP backwards capability! Now using elements not ids
+        idsByGroup.get(objectiveId)?.push(e.id) // TMP backwards capability! Use elements, not ids.
         elementsByGroups.get(objectiveId)?.push(e)
         return false
       }
@@ -139,9 +137,10 @@ export const getObjectiveSingleMeta = <TKind extends ObjectiveKinds>(
   return null
 }
 
-/**
- * Extract unique Camera metas from elements.
- */
+/** simple shortcut */
+export const getSelectedElements = (scene: Scene, appState: AppState) =>
+  scene.getSelectedElements({ selectedElementIds: appState.selectedElementIds })
+
 export const getCameraMetas = (
   elements: readonly ExcalidrawElement[],
   opts?: {
@@ -149,26 +148,30 @@ export const getCameraMetas = (
     includingDelited?: boolean
   }
 ) => getObjectiveMetas<CameraMeta>(elements, { ...opts, objectivePredicate: isCameraElement })
-/**
- * Extract unique Camera metas from elements.
- */
+
+export const getSelectedObjectiveMetas = <TMeta extends ObjectiveMeta>(
+  scene: Scene,
+  appState: AppState,
+  opts?: {
+    kind?: ObjectiveKinds
+    extraPredicate?: (meta: TMeta) => boolean
+    includingDelited?: boolean
+
+    /** @deprecated use `kind` */
+    objectivePredicate?: (el: MaybeExcalidrawElement) => el is ObjectiveElement
+  }
+): readonly Readonly<TMeta>[] =>
+  getObjectiveMetas<TMeta>(getSelectedElements(scene, appState), { ...opts })
+
 export const getSelectedCameraMetas = (
-  elements: readonly ExcalidrawElement[],
+  scene: Scene,
   appState: AppState,
   opts?: {
     extraPredicate?: (meta: CameraMeta) => boolean
     includingDelited?: boolean
   }
-) =>
-  getCameraMetas(elements, {
-    extraPredicate: (meta) =>
-      meta.elementIds.some((id) => appState.selectedElementIds[id]) &&
-      (opts?.extraPredicate ? opts.extraPredicate(meta) : true),
-  })
+) => getCameraMetas(getSelectedElements(scene, appState), opts)
 
-/**
- * Extract unique Camera metas from elements (only cameras in Shot List).
- */
 export const getShotCameraMetas = (
   elements: readonly ExcalidrawElement[],
   opts?: {
@@ -181,92 +184,13 @@ export const getShotCameraMetas = (
     objectivePredicate: isShotCameraElement,
   })
 
-/**
- * Select all Objective primitive elements (including *deleted)*.
- * For example, it returns all excalidraw elements for single Camera Element
- * as every single Camera represented by a few elements, not the only one.
- */
-export const selectObjectiveElements = (elements: readonly ExcalidrawElement[]) =>
-  elements.filter(isObjective)
-
-/**
- * Select all Camera primitive elements (including *deleted)*.
- * For example, it returns all excalidraw elements for single Camera Element
- * as every single Camera represented by a few elements, not the only one.
- */
-export const selectCameraElements = (elements: readonly ExcalidrawElement[]) =>
-  elements.filter(isCameraElement)
-
 export const getObjectiveBasis = <T extends ExcalidrawElement>(
   meta: ObjectiveMeta | undefined | null
 ): T | undefined =>
   // TODO basis validation
   (meta?.elements?.length && (meta.elements[meta.basisIndex || 0] as T)) || undefined
 
-/**
- * Camera Basis is a half-transparent circle. Camera are located inside it.
- * We bind any pointer to this circle by default.
- */
-export const getCameraBasis = (elements: readonly ExcalidrawElement[], camera: CameraMeta) =>
-  getElementById(elements, camera.elementIds[0]) as ExcalidrawBindableElement | undefined
-
-/**
- * @deprecated use getElement
- *
- * NOTE: If element type is known from context, it could be specified via generic.
- * But be aware, there are no checks for type guard for real.
- */
-export const getElementById = <TElement extends ExcalidrawElement>(
-  elements: readonly ExcalidrawElement[],
-  id: string | undefined
-) => (id ? (elements.find((el) => el.id === id) as TElement | undefined) : undefined)
-
-/**
- * Get element by id using `Scene`
- *
- * NOTE: If element type is known from context, it could be specified via generic.
- * But be aware, there are no checks for type guard for real.
- *
- * @deprecated (use app.scene directly)
- */
-export const getElement = <TElement extends ExcalidrawElement>(id: string | undefined) =>
-  id ? (Scene.getScene(id)?.getElement(id) as TElement) || undefined : undefined
-
-/**
- * Shortcut to get Elements Map associated with provided Elements from global Scene.
- * @deprecated (use app.scene directly)
- */
-export const getElementsMap = (elementKey: ElementKey | undefined | null) =>
-  Scene.getScene(elementKey)?.getElementsMapIncludingDeleted()
-
-/**
- * Shortcut to get Elements Map associated with provided Elements from global Scene.
- * @deprecated (use app.scene directly)
- */
-export const getElementsMapStrict = (elementKey: ElementKey | undefined | null) => {
-  const map = Scene.getScene(elementKey)?.getElementsMapIncludingDeleted()
-  if (!map) {
-    console.warn('[VBRN] No elements map, but it should be. Fallback to new empty Map. ')
-    return toBrandedType<SceneElementsMap>(new Map())
-  }
-  return map
-}
-
-/**
- * NOTE: If element type is known from context, it could be specified via generic.
- * But be aware, there are no checks for type guard for real.
- *
- * @deprecated (use app.scene.getElementsMap directly)
- */
-export const getElementsByIds = <TElement extends ExcalidrawElement>(
-  elements: readonly ExcalidrawElement[],
-  ids: readonly string[]
-) =>
-  elements.reduce<TElement[]>((accumulator, element) => {
-    if (ids.includes(element.id)) accumulator.push(element as TElement)
-    return accumulator
-  }, [])
-
+// TODO refactor to use ElementsMap
 export const getPointerBetween = (
   elements: readonly ExcalidrawElement[],
   one: ExcalidrawElement | undefined,
@@ -296,14 +220,18 @@ export const getPointerBetween = (
 export const useCamerasImages = (cameras: readonly CameraMeta[]) => {
   const files = useExcalidrawFiles()
   const elements = useExcalidrawElements()
+  const app = useApp()
+  const elsMap = app.scene.getElementsMapIncludingDeleted()
 
   return useMemo(() => {
     const imageElementIds: string[] = []
     cameras.forEach((c) => imageElementIds.push(...c.relatedImages))
-    const imageElements = getElementsByIds<InitializedExcalidrawImageElement>(
-      elements,
-      imageElementIds
-    )
+    const imageElements = imageElementIds
+      .map((id) => elsMap.get(id))
+      .filter(
+        (e): e is InitializedExcalidrawImageElement =>
+          !!e && !e.isDeleted && isInitializedImageElement(e)
+      )
     const images: ObjectiveImageElement[] = []
     imageElements.forEach((e) =>
       files[e.fileId] ? images.push({ ...files[e.fileId], ...e }) : null

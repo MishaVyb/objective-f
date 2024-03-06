@@ -7,6 +7,7 @@ import { useDevice } from '../../../packages/excalidraw/components/App'
 import { unbindLinearElements } from '../../../packages/excalidraw/element/binding'
 import {
   ExcalidrawElement,
+  ExcalidrawEmbeddableElement,
   ExcalidrawImageElement,
 } from '../../../packages/excalidraw/element/types'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
@@ -15,7 +16,7 @@ import { newPointerBeetween } from '../elements/newElement'
 import '../scss/cameraItem.scss'
 import '../scss/popover.scss'
 import {
-  getCameraBasis,
+  getObjectiveBasis,
   getCameraMetas,
   getPointerBetween,
   getShotCameraMetas,
@@ -35,23 +36,17 @@ import { Flex, IconButton } from '@radix-ui/themes'
 import { CircleBackslashIcon, EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
 import { ImageIcon, TrashIcon } from '../../../packages/excalidraw/components/icons'
 
-/**
- * NOTE: No checking is selected element is image or not.
- * Because of action context we are already expecting that only images are selected.
- */
-const getSelectedImage = (elements: readonly ExcalidrawElement[], appState: AppState) => {
-  const images = getSelectedElements(elements, appState)
-  return images[0] as ExcalidrawImageElement | undefined
-}
-
 export const actionInitStoryboard = register({
   name: 'actionInitStoryboard',
   trackEvent: false,
   perform: (elements, appState, camera: CameraMeta) => {
-    const image = getSelectedImage(elements, appState)
-    if (!image) return { commitToHistory: false }
+    const images = getSelectedElements(elements, appState)
+    if (images.length !== 1) return false
+    const image = images[0] as ExcalidrawImageElement
 
-    const cameraBasis = getCameraBasis(elements, camera)
+    const cameraBasis = getObjectiveBasis<ExcalidrawEmbeddableElement>(camera)
+    if (!cameraBasis) return false
+
     const action = camera.relatedImages.includes(image.id) ? 'unlink' : 'link'
     const pointer = getPointerBetween(elements, image, cameraBasis)
 
@@ -88,8 +83,9 @@ export const actionInitStoryboard = register({
     }
   },
   PanelComponent: ({ elements, appState, updateData, appProps }: PanelComponentProps) => {
-    const image = getSelectedImage(elements, appState)
-    if (!image) return <></>
+    const images = getSelectedElements(elements, appState)
+    if (images.length !== 1) return <></>
+    const image = images[0] as ExcalidrawImageElement
 
     const cameras = getShotCameraMetas(elements)
     const device = useDevice()
@@ -143,7 +139,7 @@ export const actionStoryboard = register({
     { camera, image, action }: IPerformValue,
     app: AppClassProperties
   ) => {
-    const cameraBasis = getCameraBasis(elements, camera)
+    const cameraBasis = getObjectiveBasis(camera)
     const pointer = getPointerBetween(elements, image, cameraBasis)
     const otherCamerasRelatedToImage = getCameraMetas(elements, {
       extraPredicate: (c) => c.relatedImages.includes(image.id),
@@ -164,7 +160,7 @@ export const actionStoryboard = register({
         })
         // [3] change display for other pointers
         otherCamerasRelatedToImage.forEach((camera) => {
-          const cameraBasis = getCameraBasis(elements, camera)
+          const cameraBasis = getObjectiveBasis(camera)
           const pointer = getPointerBetween(elements, image, cameraBasis)
           if (pointer)
             elements = changeElementProperty(elements, pointer, {

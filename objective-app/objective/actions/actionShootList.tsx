@@ -24,7 +24,7 @@ export const actionChangeMetaCameraShot = register({
   name: 'actionChangeMetaCameraShot',
   trackEvent: false,
   perform: (elements, appState, actionType: TChangeShotActionValue, app: AppClassProperties) => {
-    const cameras = getSelectedCameraMetas(elements, appState)
+    const cameras = getSelectedCameraMetas(app.scene, appState)
     const isShot = actionType === 'init' ? true : false
     let newCameraShootProps: ReturnType<typeof determineCameraMeta>
     let newEls: ReturnType<typeof handleMetaRepresentation> = []
@@ -155,7 +155,7 @@ export const actionChangeMetaCameraVersion = register({
   name: 'actionChangeMetaCameraVersion',
   trackEvent: false,
   perform: (elements, appState, actionType: TChangeVersionActionValue, app: AppClassProperties) => {
-    const cameras = getSelectedCameraMetas(elements, appState)
+    const cameras = getSelectedCameraMetas(app.scene, appState)
     // const isShot = actionType === 'init' ? true : false
     let newEls: ReturnType<typeof handleMetaRepresentation> = []
 

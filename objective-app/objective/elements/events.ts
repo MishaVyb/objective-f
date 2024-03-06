@@ -15,7 +15,7 @@ import {
 import { Mutable } from '../../../packages/excalidraw/utility-types'
 import { newMetaReprElement } from './newElement'
 import {
-  getCameraBasis,
+  getObjectiveBasis,
   getCameraMetas,
   getObjectiveMetas,
   getObjectiveSingleMeta,
@@ -107,7 +107,7 @@ export const deleteExcalidrawElements = (
         extraPredicate: (c) => c.relatedImages.includes(image.id),
       })
       otherCamerasRelatedToImage.forEach((camera) => {
-        const cameraBasis = getCameraBasis(elements, camera)
+        const cameraBasis = getObjectiveBasis(camera)
         const pointer = getPointerBetween(elements, image, cameraBasis)
         if (pointer)
           elements = changeElementProperty(elements, pointer, {
@@ -139,7 +139,7 @@ export const deleteObjectiveMetas = (
         (element) => element.type === 'image' && camera.relatedImages.includes(element.id)
       )
       otherImagesRelatedToCamera.forEach((image) => {
-        const cameraBasis = getCameraBasis(elements, camera)
+        const cameraBasis = getObjectiveBasis(camera)
 
         // UNUSED... in case we handle deliting not whole Camera, but separate camera primitive
         if (!cameraBasis) return

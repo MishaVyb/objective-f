@@ -9,6 +9,7 @@ import {
   getObjectiveBasis,
   getObjectiveMetas,
   getObjectiveSingleMeta,
+  getSelectedElements,
 } from '../meta/selectors'
 import { handleMetaRepresentation, mutateElementsMeta } from '../elements/helpers'
 import { register } from './register'
@@ -108,10 +109,7 @@ export const actionChangeMetaName = register({
     app: AppClassProperties
   ) => {
     const elsMap = app.scene.getElementsMapIncludingDeleted()
-    const metas = getObjectiveMetas(
-      // TODO SHORTCUT
-      app.scene.getSelectedElements({ selectedElementIds: app.state.selectedElementIds })
-    )
+    const metas = getObjectiveMetas(getSelectedElements(app.scene, appState))
     let newEls: ExcalidrawElement[] = []
 
     if (action.type === 'showRepr' || action.type === 'hideRepr') {
