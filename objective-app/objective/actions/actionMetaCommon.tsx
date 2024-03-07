@@ -25,11 +25,12 @@ import {
 } from '../meta/types'
 import { getCameraMetaReprStr, getCameraVersionStr } from './actionShootList'
 import { arrangeElements } from './zindex'
-import { Flex, Kbd } from '@radix-ui/themes'
+import { Button, Dialog, Flex, Kbd, TextArea } from '@radix-ui/themes'
 import { EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
 import { getBoundTextElement } from '../../../packages/excalidraw/element/textElement'
 import { mutateElement } from '../../../packages/excalidraw'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
+import { useState } from 'react'
 
 export const actionDisplayMetaHeader = register({
   name: 'actionDisplayMetaHeader',
@@ -240,21 +241,63 @@ export const actionChangeMetaDescription = register({
     const singleMeta = getObjectiveSingleMeta(
       app.scene.getSelectedElements({ selectedElementIds: appState.selectedElementIds })
     )
+    const [textValue, setTextValue] = useState(singleMeta?.description || '')
+
     if (!singleMeta) return <></>
 
+    console.log(singleMeta.description)
     return (
       <div>
-        {/* CSS: /packages/excalidraw/css/styles.scss#550*/}
-        <legend>Description</legend>
-        <textarea
-          style={{
-            maxWidth: 160, // how to inherit width properly?
-          }}
-          // placeholder='...'
-          value={singleMeta.description || ''}
-          onChange={(e) => updateData(e.target.value)}
-          onKeyDown={(event) => event.key === KEYS.ENTER && focusNearestParent(event.target as any)}
-        />
+        <legend>{'Properties'}</legend>
+        <Dialog.Root onOpenChange={(open) => !open && updateData(textValue)}>
+          <Dialog.Trigger>
+            <Button variant={'soft'} color={'gray'}>
+              {'Description'}
+            </Button>
+          </Dialog.Trigger>
+
+          <Dialog.Content style={{ maxWidth: 450 }}>
+            <Dialog.Title>{app.actionManager.renderAction('actionDisplayMetaHeader')}</Dialog.Title>
+            <Dialog.Description size='2' mb='4'>
+              {'Edit description'}
+            </Dialog.Description>
+
+            {/* <div className='panelColumn'>
+              {app.actionManager.renderAction('actionChangeMetaName')}
+            </div> */}
+
+            <TextArea
+              style={{
+                minHeight: 200,
+              }}
+              placeholder={`${singleMeta.kind} description...`}
+              value={textValue}
+              onChange={(e) => setTextValue(e.target.value)}
+              onKeyDown={(event) =>
+                event.key === KEYS.ENTER && focusNearestParent(event.target as any)
+              }
+            />
+
+            <Flex gap='3' mt='4' justify='end' align={'baseline'}>
+              <Dialog.Close>
+                {textValue !== singleMeta.description && (
+                  <Button
+                    variant={'ghost'}
+                    color='gray'
+                    onClick={(e) => setTextValue(singleMeta.description || '')}
+                  >
+                    Cancel
+                  </Button>
+                )}
+              </Dialog.Close>
+              <Dialog.Close>
+                <Button highContrast variant={'soft'} color='gray'>
+                  Ok
+                </Button>
+              </Dialog.Close>
+            </Flex>
+          </Dialog.Content>
+        </Dialog.Root>
       </div>
     )
   },

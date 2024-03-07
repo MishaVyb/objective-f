@@ -591,6 +591,7 @@ export type AppClassProperties = {
   // VBRN:
   state: App["state"];
   objectiveProps: App["objectiveProps"];
+  actionManager: App["actionManager"];
 };
 
 export type PointerDownState = Readonly<{
