@@ -45,7 +45,6 @@ import {
   isAllElementsObjective,
 } from "../../../objective-app/objective/meta/types";
 import { objectEntries } from "../../../objective-app/objective/meta/utils";
-import { CaretDownIcon, CaretRightIcon } from "@radix-ui/react-icons";
 import { Button, Separator } from "@radix-ui/themes";
 import { __DEBUG_EDITOR } from "../../../objective-app/objective-plus/constants";
 import { getObjectiveMetas } from "../../../objective-app/objective/meta/selectors";
