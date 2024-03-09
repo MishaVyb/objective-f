@@ -8,7 +8,12 @@ import {
 } from "../types";
 import { MarkOptional } from "../utility-types";
 
-export type ActionSource = "ui" | "keyboard" | "contextMenu" | "api";
+export type ActionSource =
+  | "ui"
+  | "keyboard"
+  | "contextMenu"
+  | "api"
+  | "internal"; // VBRN flag
 
 /** if false, the action should be prevented */
 export type ActionResult =
@@ -141,7 +146,9 @@ export type ActionName =
   | "actionStoryboard"
   | "toggleObjectiveSettings"
   | "toggleGridSnapMode"
-  | "actionFinalizeSelectionDrag";
+  | "actionFinalizeSelectionDrag"
+  | "actionCreatePointer"
+  | "actionDeletePointer";
 
 export type PanelComponentProps<TFormData = any> = {
   elements: readonly ExcalidrawElement[];

@@ -411,7 +411,7 @@ import {
 import { textWysiwyg } from "../element/textWysiwyg";
 import {
   ObjectiveKinds,
-  isKind,
+  isKindEl,
   isWallTool,
 } from "../../../objective-app/objective/meta/types";
 import { getInitialMeta } from "../../../objective-app/objective/meta/initial";
@@ -4701,7 +4701,7 @@ class App extends React.Component<AppProps, AppState> {
       );
 
       if (container) {
-        if (isKind(container, ObjectiveKinds.LABEL)) return; // VBRN disable edit label text at canvas
+        if (isKindEl(container, ObjectiveKinds.LABEL)) return; // VBRN disable edit label text at canvas
         if (
           hasBoundTextElement(container) ||
           !isTransparent(container.backgroundColor) ||
@@ -7225,6 +7225,7 @@ class App extends React.Component<AppProps, AppState> {
               this.scene,
               snapOffset,
               event[KEYS.CTRL_OR_CMD] ? null : this.state.gridSize,
+              this,
             );
 
           this.maybeSuggestBindingForAll(selectedElements);

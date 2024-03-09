@@ -1,9 +1,13 @@
 import { getFormValue } from '../../../packages/excalidraw/actions/actionProperties'
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
 import { KEYS } from '../../../packages/excalidraw/keys'
-import { focusNearestParent } from '../../../packages/excalidraw/utils'
+import { arrayToMap, focusNearestParent } from '../../../packages/excalidraw/utils'
 import { TextField } from '../UI/TextField'
-import { META_REPR_CONTAINER_INITIAL, newMetaReprElement } from '../elements/newElement'
+import {
+  META_REPR_CONTAINER_INITIAL,
+  newMetaReprElement,
+  newPointerBeetween,
+} from '../elements/newElement'
 import {
   getMetaSimple,
   getObjectiveBasis,
@@ -11,7 +15,11 @@ import {
   getObjectiveSingleMeta,
   getSelectedElements,
 } from '../meta/selectors'
-import { handleMetaRepresentation, mutateElementsMeta } from '../elements/helpers'
+import {
+  getPointersBetween,
+  handleMetaRepresentation,
+  mutateElementsMeta,
+} from '../elements/helpers'
 import { register } from './register'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
 import {
@@ -29,8 +37,12 @@ import { Button, Dialog, Flex, Kbd, TextArea } from '@radix-ui/themes'
 import { EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
 import { getBoundTextElement } from '../../../packages/excalidraw/element/textElement'
 import { mutateElement } from '../../../packages/excalidraw'
-import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
+import {
+  ExcalidrawBindableElement,
+  ExcalidrawElement,
+} from '../../../packages/excalidraw/element/types'
 import { useState } from 'react'
+import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
 
 export const actionDisplayMetaHeader = register({
   name: 'actionDisplayMetaHeader',
@@ -245,7 +257,6 @@ export const actionChangeMetaDescription = register({
 
     if (!singleMeta) return <></>
 
-    console.log(singleMeta.description)
     return (
       <div>
         <legend>{'Properties'}</legend>
@@ -300,5 +311,55 @@ export const actionChangeMetaDescription = register({
         </Dialog.Root>
       </div>
     )
+  },
+})
+
+export const actionCreatePointer = register({
+  name: 'actionCreatePointer',
+  trackEvent: false,
+  perform: (elements, appState, value, app) => {
+    const [a, b] = value
+    const pointer = newPointerBeetween(a, b)
+    console.log('actionCreatePointer', pointer)
+    return {
+      elements: pointer ? [...elements, pointer] : elements,
+      commitToHistory: true,
+    }
+  },
+})
+
+export const actionDeletePointer = register({
+  name: 'actionDeletePointer',
+  trackEvent: false,
+  perform: (
+    elements,
+    appState,
+    value: [ExcalidrawBindableElement, ExcalidrawBindableElement],
+    app
+  ) => {
+    const [a, b] = value
+    const idsToDelete = getPointersBetween(a, b)
+    if (!idsToDelete.size) return false
+
+    const elsMap = arrayToMap(elements)
+    const pointersToDelete  = [...idsToDelete].map(id => elsMap.get(id)!)
+
+    pointersToDelete.forEach((pointer) => mutateElement(pointer, { isDeleted: true }))
+
+    // pop ref on pointer from `element.boundElements`
+    fixBindingsAfterDeletion(elements, pointersToDelete)
+
+    // THE SAME AS ABOVE:
+    // mutateElement(a, {
+    //   boundElements: a.boundElements?.filter((e) => !idsToDelete.has(e.id)),
+    // })
+    // mutateElement(b, {
+    //   boundElements: b.boundElements?.filter((e) => !idsToDelete.has(e.id)),
+    // })
+
+    return {
+      elements: elements,
+      commitToHistory: true,
+    }
   },
 })

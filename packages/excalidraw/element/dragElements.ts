@@ -1,6 +1,6 @@
 import { getGridPoint } from "../math";
 import Scene from "../scene/Scene";
-import { AppState, PointerDownState } from "../types";
+import { AppClassProperties, AppState, PointerDownState } from "../types";
 import { updateBoundElements } from "./binding";
 import { Bounds, getCommonBounds } from "./bounds";
 import { mutateElement } from "./mutateElement";
@@ -21,6 +21,7 @@ export const dragSelectedElements = (
     y: number;
   },
   gridSize: AppState["gridSize"],
+  app: AppClassProperties
 ) => {
   // we do not want a frame and its elements to be selected at the same time
   // but when it happens (due to some bug), we want to avoid updating element
@@ -55,7 +56,8 @@ export const dragSelectedElements = (
     pointerDownState,
     selectedElements,
     elementsToUpdate,
-    scene,
+    adjustedOffset,
+    app,
   );
 
   elementsToUpdate.forEach((element) => {

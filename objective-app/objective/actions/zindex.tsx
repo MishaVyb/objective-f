@@ -16,7 +16,7 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import { arrayToMap } from '../../../packages/excalidraw/utils'
 import { getMetaSimple } from '../meta/selectors'
-import { ObjectiveKinds, isKind, isObjective, isWallElement } from '../meta/types'
+import { ObjectiveKinds, isKindEl, isObjective, isWallElement } from '../meta/types'
 
 // TODO
 // remember order tha user have applied for specific elements
@@ -44,7 +44,7 @@ export const arrangeElements = (elements: ElementsMapOrArray, newEls: ElementsMa
   // iteration happens in insertion order according to MDN doc.
   for (const el of elsMap.values()) {
     if (takenElements.has(el.id)) continue
-    if (isKind(el, ObjectiveKinds.LABEL)) continue // container&text add below by `meta.nameRepr` relation
+    if (isKindEl(el, ObjectiveKinds.LABEL)) continue // container&text add below by `meta.nameRepr` relation
     if (hasBoundTextElement(el)) continue // container add below by its text)
 
     const els = [el]
@@ -70,14 +70,14 @@ export const arrangeElements = (elements: ElementsMapOrArray, newEls: ElementsMa
     }
 
     if (isWallElement(el)) wall.push(...els)
-    else if (isKind(el, ObjectiveKinds.LOCATION)) location.push(...els)
-    else if (isKind(el, ObjectiveKinds.OUTDOR)) outdoor.push(...els)
-    else if (isKind(el, ObjectiveKinds.SET)) set.push(...els)
-    else if (isKind(el, ObjectiveKinds.PROP)) prop.push(...els)
+    else if (isKindEl(el, ObjectiveKinds.LOCATION)) location.push(...els)
+    else if (isKindEl(el, ObjectiveKinds.OUTDOR)) outdoor.push(...els)
+    else if (isKindEl(el, ObjectiveKinds.SET)) set.push(...els)
+    else if (isKindEl(el, ObjectiveKinds.PROP)) prop.push(...els)
     else if (isImageElement(el)) image.push(...els)
-    else if (isKind(el, ObjectiveKinds.CHARACTER)) character.push(...els)
-    else if (isKind(el, ObjectiveKinds.CAMERA)) camera.push(...els)
-    else if (isKind(el, ObjectiveKinds.POINTER)) pointer.push(...els)
+    else if (isKindEl(el, ObjectiveKinds.CHARACTER)) character.push(...els)
+    else if (isKindEl(el, ObjectiveKinds.CAMERA)) camera.push(...els)
+    else if (isKindEl(el, ObjectiveKinds.POINTER)) pointer.push(...els)
     else if (isArrowElement(el)) arrow.push(...els)
     else if (isFreeDrawElement(el)) draw.push(...els)
     else if (isTextElement(el)) text.push(...els)

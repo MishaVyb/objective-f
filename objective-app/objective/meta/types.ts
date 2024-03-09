@@ -90,6 +90,16 @@ export interface ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> {
   generationData?: MagicCacheData
 }
 
+export interface LabelMeta extends ObjectiveMeta {
+  kind: ObjectiveKinds.LABEL
+  /** back ref main Objective meta id that has this meta as represention */
+  labelOf: ObjectiveMeta['id']
+
+  name: never
+  nameRepr: never
+  description: never
+}
+
 /**
  * Special interface to represent `ExcalidrawImage` with prepopulated `BinaryFile`properties.
  * NOTE: Property `id` are taken from `ExcalidrawImage.id` (not `fileId`).
@@ -119,10 +129,29 @@ export const isObjective = (el: MaybeExcalidrawElement): el is ObjectiveElement 
 
 /** as `isMeta` or `isObjective` but when we asking for specific Objective kind */
 export const isKind = <T extends ObjectiveKinds>(
-  arg: MaybeExcalidrawElement | MaybeMeta,
+  arg: MaybeMeta,
   kind: T
-): arg is ObjectiveElement<ObjectiveMeta<T>> | ObjectiveMeta<T> =>
-  arg && 'type' in arg ? arg?.customData?.kind === kind : arg?.kind === kind
+): arg is T extends ObjectiveKinds.CAMERA
+  ? CameraMeta
+  : T extends ObjectiveKinds.LABEL
+  ? LabelMeta
+  : ObjectiveMeta<T> => {
+  return arg?.kind === kind
+}
+
+export const isKindEl = <T extends ObjectiveKinds>(
+  arg: MaybeExcalidrawElement,
+  kind: T
+): arg is T extends ObjectiveKinds.CAMERA
+  ? ObjectiveElement<CameraMeta>
+  : T extends ObjectiveKinds.LABEL
+  ? ObjectiveElement<LabelMeta>
+  : ObjectiveElement<ObjectiveMeta<T>> => {
+  return isKind(arg?.customData, kind)
+}
+
+// ): arg is ObjectiveElement<ObjectiveMeta<T>> | ObjectiveMeta<T> =>
+//   arg && 'type' in arg ? arg?.customData?.kind === kind : arg?.kind === kind
 
 export const isAllElementsObjective = (elements: readonly ExcalidrawElement[]) =>
   !!elements.length && elements.every((e) => isObjective(e))
@@ -240,5 +269,11 @@ const __test = () => {
 
   if (isKind(meta, ObjectiveKinds.LOCATION)) {
     const location = meta
+  }
+  if (isKind(meta, ObjectiveKinds.CAMERA)) {
+    const cam = meta
+  }
+  if (isKind(meta, ObjectiveKinds.LABEL)) {
+    const label = meta
   }
 }

@@ -6,6 +6,7 @@ import {
   handleBindTextResize,
 } from '../../../packages/excalidraw/element/textElement'
 import {
+  ExcalidrawBindableElement,
   ExcalidrawElement,
   ExcalidrawLinearElement,
   ExcalidrawRectangleElement,
@@ -15,11 +16,15 @@ import Scene from '../../../packages/excalidraw/scene/Scene'
 import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
 import {
   ObjectiveElement,
+  ObjectiveKinds,
   ObjectiveMeta,
   isElementRelatedToMeta,
   isElementTarget,
+  isKind,
 } from '../meta/types'
 import { LinearElementEditor } from '../../../packages/excalidraw/element/linearElementEditor'
+import { getObjectiveBasis } from '../meta/selectors'
+import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
 
 /**
  * New propertries generic type. Where `T` is `ObjectiveMeta` or `ExcalidrawElement`.
@@ -78,7 +83,7 @@ export const mutateElementsMeta = <TMeta extends ObjectiveMeta>(
 /** Mutate target meta */
 export const mutateMeta = <TMeta extends ObjectiveMeta>(
   target: TMeta,
-  newMeta: TNewMetaAttrs<TMeta>
+  newMeta: any //Partial<TMeta> TODO
 ) => {
   // HACK
   // As meta information are placed across each Objective primitive ExcalidrawElement
@@ -177,7 +182,7 @@ type TNewReprConstructor = (
 export const handleMetaRepresentation = <TMeta extends ObjectiveMeta>(
   scene: Scene,
   metas: readonly TMeta[],
-  fieldName: keyof TMeta,
+  fieldName: 'nameRepr',
   newValue: string | ((meta: TMeta) => string),
   newRepr: TNewReprConstructor
 ) => {
@@ -234,19 +239,30 @@ export const updateMetaRepr = <TMeta extends ObjectiveMeta>(
 
 export const deleteMetaRepr = <TMeta extends ObjectiveMeta>(
   scene: Scene,
-  meta: TMeta,
-  fieldName: keyof TMeta
+  meta: TMeta, // main Objactive element, not repr container itself
+  fieldName: 'nameRepr' // LEGACY
 ) => {
+  if (isKind(meta, ObjectiveKinds.LABEL)) return // Label can not has repr
+
+  const containerId = meta[fieldName] as ExcalidrawElement['id']
+
   // Unlink representation:
-  // @ts-ignore
-  mutateMeta(meta, { [fieldName]: undefined })
+  mutateMeta(meta, { nameRepr: undefined })
 
   // Remove repr:
-  const containerId = meta[fieldName] as ExcalidrawElement['id']
-  const container = scene.getElement(containerId)
+  const container = scene.getElement(containerId) as ExcalidrawBindableElement
   if (!container) return
-
   mutateElement(container, { isDeleted: true })
+
+  // Remove pointers (if any):
+  const basis = getObjectiveBasis<ExcalidrawBindableElement>(meta)
+  const pointerIds = getPointersBetween(basis, container)
+  const pointers = [...pointerIds].map((id) => scene.getElement(id)!)
+
+  pointers.forEach((el) => mutateElement(el, { isDeleted: true }))
+
+  // pop ref on pointer from `element.boundElements`
+  fixBindingsAfterDeletion(scene.getNonDeletedElements(), pointers)
 
   const text = getBoundTextElement(container, scene.getElementsMapIncludingDeleted())
   if (!text) return
@@ -278,4 +294,24 @@ export const decomposeWall = (e: ExcalidrawLinearElement) => {
     prevPoint = currentPoint
   }
   return result
+}
+
+/**
+ * we do not store ids of pointer at any special meta field,
+ * so extract all lines/arrays from element.boundElements and find common elements,
+ * @returns Set of common elements ids from `one/another.boundElements`
+ */
+export const getPointersBetween = (
+  one: ExcalidrawBindableElement | undefined,
+  another: ExcalidrawBindableElement | undefined
+) => {
+  const oneBoundsIds = new Set(
+    one?.boundElements?.filter((e) => e.type === 'arrow').map((e) => e.id)
+  )
+  const commonArrayBoundsIds = another?.boundElements
+    ?.filter((e) => e.type === 'arrow' && oneBoundsIds.has(e.id))
+    .map((e) => e.id)
+
+  // ??? Check for isKind(el, POINTER)
+  return new Set(commonArrayBoundsIds)
 }

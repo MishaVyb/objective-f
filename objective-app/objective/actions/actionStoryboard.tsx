@@ -6,12 +6,11 @@ import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
 import { useDevice } from '../../../packages/excalidraw/components/App'
 import { unbindLinearElements } from '../../../packages/excalidraw/element/binding'
 import {
-  ExcalidrawElement,
   ExcalidrawEmbeddableElement,
   ExcalidrawImageElement,
 } from '../../../packages/excalidraw/element/types'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
-import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
+import { AppClassProperties } from '../../../packages/excalidraw/types'
 import { newPointerBeetween } from '../elements/newElement'
 import '../scss/cameraItem.scss'
 import '../scss/popover.scss'
@@ -62,19 +61,21 @@ export const actionInitStoryboard = register({
       })
     } else {
       if (pointer) {
-        logger.error('Camera and related Image are not linked, but have pointer already!')
+        logger.warn('Camera and related Image are not linked, but have pointer already!')
         return false
       }
 
       // [2] Create pointer and link
-      elements = changeElementMeta(
-        elements,
-        camera,
-        {
-          relatedImages: [...camera.relatedImages, image.id], // add new link
-        },
-        [newPointerBeetween(image, cameraBasis)] // add new pointer
-      )
+      const newPointer = newPointerBeetween(image, cameraBasis)
+      if (newPointer)
+        elements = changeElementMeta(
+          elements,
+          camera,
+          {
+            relatedImages: [...camera.relatedImages, image.id], // add new link
+          },
+          [newPointer] // add new pointer
+        )
     }
 
     return {

@@ -2,11 +2,12 @@ import App from '../../../packages/excalidraw/components/App'
 import { newElementWith } from '../../../packages/excalidraw/element/mutateElement'
 import { isImageElement } from '../../../packages/excalidraw/element/typeChecks'
 import {
+  ExcalidrawBindableElement,
   ExcalidrawElement,
+  ExcalidrawEllipseElement,
   NonDeletedExcalidrawElement,
 } from '../../../packages/excalidraw/element/types'
 
-import Scene from '../../../packages/excalidraw/scene/Scene'
 import {
   AppClassProperties,
   BinaryFiles,
@@ -20,17 +21,27 @@ import {
   getObjectiveMetas,
   getObjectiveSingleMeta,
   getPointerBetween,
+  getMetaByObjectiveId,
 } from '../meta/selectors'
-import { ObjectiveKinds, ObjectiveMeta, isCameraMeta } from '../meta/types'
+import { ObjectiveKinds, ObjectiveMeta, isCameraMeta, isKind } from '../meta/types'
 import {
   actionFinalizeSelectionDrag,
   performRotationLocationOnDragFinalize,
 } from '../actions/actionOnDrag'
-import { changeElementProperty, createMetaRepr, deleteMetaRepr } from './helpers'
+import {
+  changeElementProperty,
+  createMetaRepr,
+  deleteMetaRepr,
+  getPointersBetween,
+} from './helpers'
 import { snapDraggedElementsLocation } from './snapElements'
 import { getCameraMetaReprStr } from '../actions/actionShootList'
 import { AllExcalidrawElements } from '../../../packages/excalidraw/actions/types'
 import { arrangeElements } from '../actions/zindex'
+
+import { Vector, getElementCenter } from './math'
+import { getDistance } from '../../../packages/excalidraw/gesture'
+import { actionCreatePointer, actionDeletePointer } from '../actions/actionMetaCommon'
 
 /**
  * It's assumed that elements metas already copied properly by `duplicateAsInitialEventHandler`
@@ -63,9 +74,15 @@ export const duplicateObjectiveEventHandler = (newElements: Mutable<ExcalidrawEl
 }
 
 /**
- * `elements` are **NOT mutating** inside.
- * New changed element created by `changeElementProperty`.
- * @returns New array with unchanged previous elements and new elements with updated properties.
+ * Objective Delete Event Handler
+ * - called from Excalidraw
+ * - or called directly on other Objective actions
+ *
+ * Implementation:
+ * - mutate some original elements with `isDeleted: true`
+ * - or create new element with `changeElementProperty` and extend elements list with that changed el.
+ *
+ * BOTH soultion works
  */
 export const deleteEventHandler = (
   app: AppClassProperties,
@@ -85,8 +102,8 @@ export const deleteEventHandler = (
   elements = deleteExcalidrawElements(app, elements, deletingElements)
 
   // - Handle Objective
-  const delitingMetas = getObjectiveMetas(elements, {
-    extraPredicate: (meta) => [...deletingElements].some((el) => meta.elementIds.includes(el.id)),
+  const delitingMetas = getObjectiveMetas([...deletingElements], {
+    // extraPredicate: (meta) => [...deletingElements].some((el) => meta.elementIds.includes(el.id)),
     includingDelited: true,
   })
   elements = deleteObjectiveMetas(app, elements, delitingMetas)
@@ -130,7 +147,12 @@ export const deleteObjectiveMetas = (
     // [0] delete repr
     deleteMetaRepr(app.scene, target, 'nameRepr')
 
-    // [1] delete camera
+    if (isKind(target, ObjectiveKinds.LABEL)) {
+      // is case of deleting repr container, we call for specific handler that implements all logic
+      const labelOfMeta = getMetaByObjectiveId(app.scene, target.labelOf)
+      if (labelOfMeta) deleteMetaRepr(app.scene, labelOfMeta, 'nameRepr')
+    }
+
     if (isCameraMeta(target)) {
       //
       // [1.1] delete storyboard
@@ -157,6 +179,8 @@ export const deleteObjectiveMetas = (
   return elements
 }
 
+const DRAG_META_LABEL_MAX_GAP = 100
+
 /**
  * Populate `elementsToUpdate` with new elements to move it alongside with selected.
  */
@@ -164,9 +188,11 @@ export const dragEventHandler = (
   pointerDownState: PointerDownState,
   selectedElements: NonDeletedExcalidrawElement[],
   elementsToUpdate: Set<NonDeletedExcalidrawElement>,
-  scene: Scene
+  adjustedOffset: Vector,
+  app: AppClassProperties
 ): Set<NonDeletedExcalidrawElement> => {
-  //
+  const allSceneMetas = getObjectiveMetas(app.scene.getElementsMapIncludingDeleted())
+
   // NOTE: be aware of using/mutating `selectedElements` directly, as Excalidraw may call for event
   // handler twice per 'one moment' and mutateElement will be called several times... but if we refer
   // to original elements, we have deal with original-not-mutated elements and prevent this unexpected
@@ -174,14 +200,52 @@ export const dragEventHandler = (
   const originalSelectedElements = selectedElements.map(
     (e) => pointerDownState.originalElements.get(e.id) || e
   )
-  const metas = getObjectiveMetas(originalSelectedElements)
+  // elements state before drag had started
+  // const metasOrig = getObjectiveMetas(originalSelectedElements)
 
-  metas.forEach((meta) => {
+  // current elements state
+  const metasCurrent = getObjectiveMetas(selectedElements)
+
+  metasCurrent.forEach((meta) => {
+    if (isKind(meta, ObjectiveKinds.LABEL)) {
+      const containerMeta = meta
+      const container = containerMeta.elements[0]
+
+      const cameraMeta = allSceneMetas.find((meta) => meta.nameRepr === container.id)
+      const basis = getObjectiveBasis<ExcalidrawEllipseElement>(cameraMeta)
+      if (basis) {
+        const basisCenter = getElementCenter(basis)
+        const dist = getDistance([getElementCenter(container), basisCenter])
+
+        if (dist > DRAG_META_LABEL_MAX_GAP) {
+          app.actionManager.executeAction(actionCreatePointer, 'internal', [container, basis])
+        } else {
+          app.actionManager.executeAction(actionDeletePointer, 'internal', [container, basis])
+        }
+      }
+    }
     //
     // - handle name repr drag
-    if (meta.nameRepr) {
-      const container = scene.getNonDeletedElement(meta.nameRepr)
-      if (container) elementsToUpdate.add(container)
+    else if (meta.nameRepr) {
+      const container = app.scene.getNonDeletedElement(meta.nameRepr) as ExcalidrawBindableElement
+      if (container) {
+        const basis = getObjectiveBasis<ExcalidrawBindableElement>(meta)
+        if (basis) {
+          // TODO
+          // drag container if camera is close to container, but there are pointer already
+          // FIXME handle label jump in that case with help of `adjustedOffset`
+          //
+          // const basisCenter = getElementCenter(basis)
+          // const currentDist = getDistance([getElementCenter(container), basisCenter])
+
+          if (
+            // currentDist < DRAG_META_LABEL_MAX_GAP ||
+            !getPointersBetween(container, basis).size
+          ) {
+            elementsToUpdate.add(container)
+          }
+        }
+      }
     }
   })
 

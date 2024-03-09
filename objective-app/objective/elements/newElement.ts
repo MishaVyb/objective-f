@@ -12,6 +12,8 @@ import {
 import { getObjectiveBasis } from '../meta/selectors'
 import { ObjectiveKinds, ObjectiveMeta } from '../meta/types'
 import { getInitialMeta } from '../meta/initial'
+import { getPointersBetween } from './helpers'
+import { randomId } from '../../../packages/excalidraw/random'
 
 export const newMockPointer = () =>
   newLinearElement({
@@ -29,6 +31,7 @@ export const newMockPointer = () =>
     startArrowhead: null,
     endArrowhead: null,
     customData: getInitialMeta(ObjectiveKinds.POINTER),
+    locked: true,
   })
 
 /**
@@ -41,12 +44,16 @@ export const newPointerBeetween = (
   one: ExcalidrawBindableElement | undefined,
   another: ExcalidrawBindableElement | undefined
 ) => {
-  if (!another || !one)
-    throw Error(
+  if (!another || !one) {
+    console.warn(
       'Cannot get pointer for undefined element. ' +
         'You are probably getting Objective basis element not properly' +
         `${one} ${another}`
     )
+    return
+  }
+
+  if (getPointersBetween(one, another).size) return // already has pointer
 
   const newPointer = newMockPointer()
   bindLinearElement(newPointer, one, 'start')
@@ -82,19 +89,20 @@ export const newMetaReprElement = (meta: ObjectiveMeta, initialValue: string | u
 
   //@ts-ignore
   const container = newElement({
-    customData: getInitialMeta(ObjectiveKinds.LABEL),
+    customData: getInitialMeta(ObjectiveKinds.LABEL, { labelOf: meta.id }),
     width: w,
     height: h,
     x: basis!.x + basis!.width / 2 - w / 2,
     y: basis!.y + basis!.height + gap,
     backgroundColor: basis!.backgroundColor,
+    groupIds: [randomId()],
     ...META_REPR_CONTAINER_INITIAL,
   })
 
   // All other props generated dynamically inside
   const widthExtension = 12
   const text = newTextElement({
-    customData: getInitialMeta(ObjectiveKinds.LABEL),
+    // customData -- bound text not marked as Objective as we handle only its container as Obj.
 
     x: container.x + container.width / 2,
     y: container.y + container.height / 2,

@@ -210,7 +210,7 @@ export const SelectedShapeActions = ({
   const actionsToRenderTotal = objectEntries(actionsToRender).filter(([k, v]) =>
     k === "metaHeader" || !k.startsWith("meta") ? false : v,
   );
-  console.log("Actions to Render", actionsToRenderTotal);
+  // console.log("Actions to Render", actionsToRenderTotal);
 
   // NOTE
   // if no actions to render (except metaHeader), show Excalidraw actions

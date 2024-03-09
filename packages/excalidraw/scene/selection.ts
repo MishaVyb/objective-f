@@ -1,7 +1,7 @@
 import {
   MaybeMeta,
   ObjectiveKinds,
-  isKind,
+  isKindEl,
   isMeta,
 } from "../../../objective-app/objective/meta/types";
 
@@ -83,7 +83,7 @@ export const getElementsWithinSelection = (
 
   // VBRN filter out labels
   elementsInSelection = elementsInSelection.filter(
-    (e) => !isKind(e, ObjectiveKinds.LABEL),
+    (e) => !isKindEl(e, ObjectiveKinds.LABEL),
   );
 
   elementsInSelection = excludeElementsInFrames

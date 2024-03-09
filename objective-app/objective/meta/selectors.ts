@@ -21,11 +21,14 @@ import {
   ensureArray,
   isCameraElement,
   isKind,
+  isKindEl,
   isObjective,
   isPointerElement,
   isShotCameraElement,
 } from './types'
 import { isInitializedImageElement } from '../../../packages/excalidraw/element/typeChecks'
+import { randomId } from '../../../packages/excalidraw/random'
+import { logger } from 'workbox-core/_private'
 
 /**
  * Get readonly `el.customData` reference (net copy).
@@ -58,7 +61,10 @@ export const getMeta = <TMeta extends ObjectiveMeta>(
  * @param element objective element
  * @returns first group id of element
  */
-export const getObjectiveId = (element: ObjectiveElement) => element.groupIds[0]
+export const getObjectiveId = (element: ObjectiveElement) => {
+  if (!element.groupIds[0]) logger.warn('No objective id: ', element.customData)
+  return element.groupIds[0] || randomId()
+}
 
 /**
  * Extract unique objective metas from elements.
@@ -91,7 +97,7 @@ export const getObjectiveMetas = <TMeta extends ObjectiveMeta>(
 
   const kind = opts?.kind
   const objectivePredicate = kind
-    ? (el: MaybeExcalidrawElement) => isKind(el, kind)
+    ? (el: MaybeExcalidrawElement) => isKindEl(el, kind)
     : opts?.objectivePredicate || isObjective
   const extraPredicate = opts?.extraPredicate || (() => true)
   const idsByGroup = new Map<string, string[]>() // groupId : [element.id, element.id, ...]
@@ -214,6 +220,13 @@ export const getPointerBetween = (
   if (pointers.length > 1) console.warn('Found more than 1 pointers.')
   return pointers[0]
 }
+
+// TODO cache (see original Scene implementation)
+export const getElementsByObjectiveId = (scene: Scene, id: ObjectiveMeta['id']) =>
+  scene.getNonDeletedElements().filter((e) => isObjective(e) && getObjectiveId(e) === id)
+
+export const getMetaByObjectiveId = (scene: Scene, id: ObjectiveMeta['id']) =>
+  getObjectiveSingleMeta(getElementsByObjectiveId(scene, id))
 
 // -------------------------- selectors hooks -----------------------//
 
