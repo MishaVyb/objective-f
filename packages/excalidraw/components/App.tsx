@@ -3915,8 +3915,9 @@ class App extends React.Component<AppProps, AppState> {
               }
             }
           } else if (
-            isTextElement(selectedElement) ||
-            isValidTextContainer(selectedElement)
+            !isKindEl(selectedElement, ObjectiveKinds.LABEL) && // VBRN TMP disalow edit label directly
+            (isTextElement(selectedElement) ||
+              isValidTextContainer(selectedElement))
           ) {
             let container;
             if (!isTextElement(selectedElement)) {
