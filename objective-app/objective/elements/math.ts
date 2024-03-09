@@ -125,7 +125,7 @@ export const getBasisPoints = (
     const bMiddle = rotate(b.x, b.y, c.x, c.y, angCorrection)
     return [ensureVector(aMiddle), ensureVector(bMiddle)]
   }
-  throw Error
+  return [{x: -1, y: -1}, {x: -1, y: -1}] // TODO other types
 }
 
 /** get `left-top` and `right-bottom` points with rectangle rotation(!) */

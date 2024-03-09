@@ -32,6 +32,7 @@ export const Stats = (props: {
   const boundingBox = getCommonBounds(props.elements);
   const selectedElements = getTargetElements(props.elements, props.appState);
   const selectedBoundingBox = getCommonBounds(selectedElements);
+  const singleMeta = getObjectiveSingleMeta(selectedElements);
 
   const objectiveStats = () => {
     const selectedElement = selectedElements[0];
@@ -48,6 +49,17 @@ export const Stats = (props: {
         getObjectiveSingleMeta([selectedElement]),
       );
     const basisPoints = basis && getBasisPoints(basis);
+
+    const singleMetaElementInfo = singleMeta && (
+      <>
+        <tr>
+          <td>{"nameRepr"}</td>
+          <td>
+            <Code>{singleMeta.nameRepr} </Code>
+          </td>
+        </tr>
+      </>
+    );
 
     const singleElementInfo =
       selectedElements.length === 1 ? (
@@ -190,6 +202,7 @@ export const Stats = (props: {
         </tr>
         {singleElementInfo}
         {linerElementInfo}
+        {singleMetaElementInfo}
       </>
     );
   };

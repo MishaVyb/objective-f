@@ -226,11 +226,15 @@ export const getPointers = (
     .filter((e): e is NonDeletedExcalidrawElement => !!e && e.isDeleted === false)
 
 // TODO cache (see original Scene implementation)
-export const getElementsByObjectiveId = (scene: Scene, id: ObjectiveMeta['id']) =>
-  scene.getNonDeletedElements().filter((e) => isObjective(e) && getObjectiveId(e) === id)
+export const getElementsByObjectiveId = (
+  elements: readonly ExcalidrawElement[],
+  id: ObjectiveMeta['id']
+) => elements.filter((e) => isObjective(e) && getObjectiveId(e) === id)
 
-export const getMetaByObjectiveId = (scene: Scene, id: ObjectiveMeta['id']) =>
-  getObjectiveSingleMeta(getElementsByObjectiveId(scene, id))
+export const getMetaByObjectiveId = (
+  elements: readonly ExcalidrawElement[],
+  id: ObjectiveMeta['id']
+) => getObjectiveSingleMeta(getElementsByObjectiveId(elements, id))
 
 // -------------------------- selectors hooks -----------------------//
 

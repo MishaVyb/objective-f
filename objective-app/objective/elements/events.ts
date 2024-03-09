@@ -149,7 +149,7 @@ export const deleteObjectiveMetas = (
 
     if (isKind(target, ObjectiveKinds.LABEL)) {
       // is case of deleting repr container, we call for specific handler that implements all logic
-      const labelOfMeta = getMetaByObjectiveId(app.scene, target.labelOf)
+      const labelOfMeta = getMetaByObjectiveId(elements, target.labelOf)
       if (labelOfMeta) deleteMetaRepr(app.scene, labelOfMeta, 'nameRepr')
     }
 

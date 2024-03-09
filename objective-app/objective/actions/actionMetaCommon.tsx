@@ -14,6 +14,7 @@ import {
   getObjectiveMetas,
   getObjectiveSingleMeta,
   getPointerIds,
+  getPointers,
   getSelectedElements,
 } from '../meta/selectors'
 
@@ -37,6 +38,7 @@ import { mutateElement } from '../../../packages/excalidraw'
 import {
   ExcalidrawBindableElement,
   ExcalidrawElement,
+  ExcalidrawRectangleElement,
 } from '../../../packages/excalidraw/element/types'
 import { useState } from 'react'
 import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
@@ -131,7 +133,8 @@ export const actionChangeMetaName = register({
         if (!meta.nameRepr) {
           if (meta.name && action.type === 'showRepr')
             // extra case: create
-            return actionChangeMetaName.perform(
+            // CALL RECURSIVELY
+            elements = actionChangeMetaName.perform(
               elements,
               appState,
               {
@@ -139,15 +142,16 @@ export const actionChangeMetaName = register({
                 type: 'updateValue',
               },
               app
-            )
+            ).elements
           return
         }
 
-        const container = elsMap.get(meta.nameRepr)
+        const container = elsMap.get(meta.nameRepr) as ExcalidrawRectangleElement | undefined
         if (!container) {
           if (meta.name && action.type === 'showRepr')
             // extra case: create (no container but should be, maybe user has deleted it by hemself)
-            return actionChangeMetaName.perform(
+            // CALL RECURSIVELY
+            elements = actionChangeMetaName.perform(
               elements,
               appState,
               {
@@ -155,13 +159,21 @@ export const actionChangeMetaName = register({
                 type: 'updateValue',
               },
               app
-            )
+            ).elements
           return
         }
 
         mutateElement(container, {
           opacity: action.type === 'showRepr' ? META_REPR_CONTAINER_INITIAL.opacity : 0,
         })
+
+        const basis = getObjectiveBasis<ExcalidrawBindableElement>(meta)
+        getPointers(elsMap, container, basis).map((pointer) =>
+          mutateElement(pointer, {
+            opacity: action.type === 'showRepr' ? META_REPR_CONTAINER_INITIAL.opacity : 0,
+          })
+        )
+
         const text = getBoundTextElement(container, elsMap)
         if (!text) return console.warn('No text container for meta representation. ')
 
@@ -205,9 +217,9 @@ export const actionChangeMetaName = register({
       appState,
       (element) => {
         const meta = getMetaSimple(element as ObjectiveElement)
-        if (!meta.nameRepr) return true
+        if (!meta.nameRepr) return false
         const container = elsMap.get(meta.nameRepr)
-        if (!container) return true
+        if (!container) return false
 
         return isDisplayed(container)
       },
@@ -319,7 +331,6 @@ export const actionCreatePointer = register({
   perform: (elements, appState, value, app) => {
     const [a, b] = value
     const pointer = newPointerBeetween(a, b)
-    console.log('actionCreatePointer', pointer)
     return {
       elements: pointer ? [...elements, pointer] : elements,
       commitToHistory: true,

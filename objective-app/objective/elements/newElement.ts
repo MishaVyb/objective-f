@@ -17,6 +17,9 @@ import { randomId } from '../../../packages/excalidraw/random'
 
 export const newMockPointer = () =>
   newLinearElement({
+    customData: getInitialMeta(ObjectiveKinds.POINTER),
+    locked: true, // ??? lock for label but not for images...
+    //
     type: 'arrow',
     x: 1,
     y: 1,
@@ -30,8 +33,7 @@ export const newMockPointer = () =>
     ],
     startArrowhead: null,
     endArrowhead: null,
-    customData: getInitialMeta(ObjectiveKinds.POINTER),
-    locked: true,
+    groupIds: [randomId()],
   })
 
 /**
