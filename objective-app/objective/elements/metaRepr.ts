@@ -14,6 +14,7 @@ import { ObjectiveKinds, ObjectiveMeta, isKind } from '../meta/types'
 import { getObjectiveBasis, getPointerIds } from '../meta/selectors'
 import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
 import { mutateMeta } from './mutateElements'
+import { arrayToMap } from '../../../packages/excalidraw/utils'
 
 type TNewReprConstructor = (
   meta: ObjectiveMeta,
@@ -58,11 +59,19 @@ export const createMetaRepr = <TMeta extends ObjectiveMeta>(
   newRepr: TNewReprConstructor
   // TODO scene do not required here and it's to much to refactor to pass it here
 ) => {
-  const [rectangle, text] = newRepr(meta, newValue)
+  const [container, text] = newRepr(meta, newValue)
+  handleBindTextResize(
+    container,
+    arrayToMap([text]),
+    false,
+    false,
+    { newOriginalText: newValue } //
+  )
+
   // Link representation:
-  // @ts-ignore
-  mutateMeta(meta, { [fieldName]: rectangle.id })
-  return [rectangle, text]
+  mutateMeta(meta, { [fieldName]: container.id })
+
+  return [container, text]
 }
 
 export const updateMetaRepr = <TMeta extends ObjectiveMeta>(
@@ -87,14 +96,14 @@ export const updateMetaRepr = <TMeta extends ObjectiveMeta>(
 export const deleteMetaRepr = <TMeta extends ObjectiveMeta>(
   scene: Scene,
   meta: TMeta, // main Objactive element, not repr container itself
-  fieldName: 'nameRepr' // LEGACY
+  fieldName: keyof TMeta
 ) => {
   if (isKind(meta, ObjectiveKinds.LABEL)) return // Label can not has repr
 
   const containerId = meta[fieldName] as ExcalidrawElement['id']
 
   // Unlink representation:
-  mutateMeta(meta, { nameRepr: undefined })
+  mutateMeta(meta, { [fieldName]: undefined })
 
   // Remove repr:
   const container = scene.getElement(containerId) as ExcalidrawBindableElement

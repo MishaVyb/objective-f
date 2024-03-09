@@ -87,7 +87,7 @@ export const META_REPR_CONTAINER_INITIAL: Partial<ExcalidrawElement> = {
 export const newMetaReprElement = (meta: ObjectiveMeta, initialValue: string | undefined) => {
   const basis = getObjectiveBasis(meta)
   const gap = 1
-  const [w, h] = [70, 30]
+  const [w, h] = [70, 30] // TODO dynamic ?
 
   //@ts-ignore
   const container = newElement({
