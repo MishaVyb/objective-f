@@ -79,7 +79,7 @@ export const mutateElementsMeta = <TMeta extends ObjectiveMeta>(
 /** Mutate target meta */
 export const mutateMeta = <TMeta extends ObjectiveMeta>(
   target: TMeta,
-  newMeta: any //Partial<TMeta> TODO
+  newMeta: Partial<TMeta>,
 ) => {
   // HACK
   // As meta information are placed across each Objective primitive ExcalidrawElement

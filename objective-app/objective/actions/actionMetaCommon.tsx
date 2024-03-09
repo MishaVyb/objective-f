@@ -330,9 +330,9 @@ export const actionCreatePointer = register({
   trackEvent: false,
   perform: (elements, appState, value, app) => {
     const [a, b] = value
-    const pointer = newPointerBeetween(a, b)
+    const pointer = newPointerBeetween(a, b, app.scene.getNonDeletedElementsMap())
     return {
-      elements: pointer ? [...elements, pointer] : elements,
+      elements: pointer ? arrangeElements(elements, [pointer]) : elements,
       commitToHistory: true,
     }
   },

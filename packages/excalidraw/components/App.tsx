@@ -48,7 +48,10 @@ import { createRedoAction, createUndoAction } from "../actions/actionHistory";
 import { actionToggleViewMode } from "../actions/actionToggleViewMode";
 import { ActionManager } from "../actions/manager";
 import { actions } from "../actions/register";
-import { objectiveActions } from "../../../objective-app/objective/actions";
+import {
+  actionInitStoryboard,
+  objectiveActions,
+} from "../../../objective-app/objective/actions";
 import { Action, ActionResult } from "../actions/types";
 import { trackEvent } from "../analytics";
 import {
@@ -411,6 +414,7 @@ import {
 import { textWysiwyg } from "../element/textWysiwyg";
 import {
   ObjectiveKinds,
+  ObjectiveMeta,
   isKindEl,
   isWallTool,
 } from "../../../objective-app/objective/meta/types";
@@ -422,6 +426,11 @@ import {
   onPointerUpFromPointerDownEventHandler,
 } from "../../../objective-app/objective/elements/events";
 import { arrangeElements } from "../../../objective-app/objective/actions/zindex";
+import {
+  getCameraMetas,
+  getObjectiveBasis,
+} from "../../../objective-app/objective/meta/selectors";
+import { actionCreatePointer } from "../../../objective-app/objective/actions/actionMetaCommon";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -4085,6 +4094,7 @@ class App extends React.Component<AppProps, AppState> {
           | {
               type: Extract<ToolType, "image">;
               insertOnCanvasDirectly?: boolean;
+              asStoryboardForCamera?: ObjectiveMeta["id"];
             }
         )
       | { type: "custom"; customType: string }
@@ -4132,6 +4142,8 @@ class App extends React.Component<AppProps, AppState> {
       this.onImageAction({
         insertOnCanvasDirectly:
           (tool.type === "image" && tool.insertOnCanvasDirectly) ?? false,
+        asStoryboardForCamera:
+          (tool.type === "image" && tool.asStoryboardForCamera) || undefined,
       });
     }
 
@@ -5682,6 +5694,22 @@ class App extends React.Component<AppProps, AppState> {
         y,
         frameId: frame ? frame.id : null,
       });
+
+      // VBRN
+      // create pointers between camera & image
+      // (we couldn't do that on insertImage as we got image XY only now)
+      const cameras = getCameraMetas(this.scene.getNonDeletedElements());
+      const relatedCameras = cameras.filter((c) =>
+        c.relatedImages.some((id) => id === pendingImageElement.id),
+      );
+      relatedCameras.forEach((c) => {
+        const basis = getObjectiveBasis(c);
+        this.actionManager.executeAction(actionCreatePointer, "internal", [
+          basis,
+          pendingImageElement,
+        ]);
+      });
+      // VBRN
     } else if (this.state.activeTool.type === "freedraw") {
       this.handleFreeDrawElementOnPointerDown(
         event,
@@ -8346,10 +8374,12 @@ class App extends React.Component<AppProps, AppState> {
     imageFile,
     imageElement: _imageElement,
     showCursorImagePreview = false,
+    asStoryboardForCamera = undefined, // VBRN
   }: {
     imageFile: File;
     imageElement: ExcalidrawImageElement;
     showCursorImagePreview?: boolean;
+    asStoryboardForCamera?: ObjectiveMeta["id"]; // VBRN
   }) => {
     // at this point this should be guaranteed image file, but we do this check
     // to satisfy TS down the line
@@ -8428,6 +8458,16 @@ class App extends React.Component<AppProps, AppState> {
       false,
     ) as NonDeleted<InitializedExcalidrawImageElement>;
 
+    // VBRN
+    if (asStoryboardForCamera) {
+      this.actionManager.executeAction(actionInitStoryboard, "internal", {
+        camera: asStoryboardForCamera,
+        image: imageElement,
+        handlePointer: false, // do it later at `this.handleCanvasPointerDown`
+      });
+    }
+    // VBRN
+
     return new Promise<NonDeleted<InitializedExcalidrawImageElement>>(
       async (resolve, reject) => {
         try {
@@ -8475,6 +8515,7 @@ class App extends React.Component<AppProps, AppState> {
     imageElement: ExcalidrawImageElement,
     imageFile: File,
     showCursorImagePreview?: boolean,
+    asStoryboardForCamera?: ObjectiveMeta["id"],
   ) => {
     // we should be handling all cases upstream, but in case we forget to handle
     // a future case, let's throw here
@@ -8490,6 +8531,7 @@ class App extends React.Component<AppProps, AppState> {
         imageFile,
         imageElement,
         showCursorImagePreview,
+        asStoryboardForCamera,
       });
     } catch (error: any) {
       mutateElement(imageElement, {
@@ -8544,8 +8586,10 @@ class App extends React.Component<AppProps, AppState> {
 
   private onImageAction = async ({
     insertOnCanvasDirectly,
+    asStoryboardForCamera,
   }: {
     insertOnCanvasDirectly: boolean;
+    asStoryboardForCamera: ObjectiveMeta["id"] | undefined;
   }) => {
     try {
       const clientX = this.state.width / 2 + this.state.offsetLeft;
@@ -8593,6 +8637,7 @@ class App extends React.Component<AppProps, AppState> {
               imageElement,
               imageFile,
               /* showCursorImagePreview */ true,
+              asStoryboardForCamera,
             );
           },
         );

@@ -1,11 +1,11 @@
 import * as Popover from '@radix-ui/react-popover'
 import clsx from 'clsx'
-import { logger } from 'workbox-core/_private'
 
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
 import { useDevice } from '../../../packages/excalidraw/components/App'
 import { unbindLinearElements } from '../../../packages/excalidraw/element/binding'
 import {
+  ExcalidrawElement,
   ExcalidrawEllipseElement,
   ExcalidrawEmbeddableElement,
   ExcalidrawImageElement,
@@ -21,6 +21,7 @@ import {
   getShotCameraMetas,
   useCamerasImages,
   getPointers,
+  getMetaByObjectiveId,
 } from '../meta/selectors'
 import {
   CameraMeta,
@@ -35,15 +36,35 @@ import { register } from './register'
 import { Flex, IconButton } from '@radix-ui/themes'
 import { CircleBackslashIcon, EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
 import { ImageIcon, TrashIcon } from '../../../packages/excalidraw/components/icons'
-import { changeElementMeta, changeElementProperty } from '../elements/mutateElements'
+import { changeElementMeta, changeElementProperty, mutateMeta } from '../elements/mutateElements'
+import { arrangeElements } from './zindex'
 
 export const actionInitStoryboard = register({
   name: 'actionInitStoryboard',
   trackEvent: false,
-  perform: (elements, appState, camera: CameraMeta, app) => {
-    const images = getSelectedElements(elements, appState)
-    if (images.length !== 1) return false
-    const image = images[0] as ExcalidrawImageElement
+  perform: (
+    elements,
+    appState,
+    payload: {
+      camera: CameraMeta | CameraMeta['id']
+      image: ExcalidrawImageElement
+      handlePointer: boolean
+    },
+    app
+  ) => {
+    let camera: CameraMeta
+    if (typeof payload.camera === 'string') {
+      camera = getMetaByObjectiveId(elements, payload.camera) as CameraMeta
+      if (!camera) return false
+    } else {
+      camera = payload.camera
+    }
+
+    const newEls: ExcalidrawElement[] = []
+
+    // const images = getSelectedElements(elements, appState)
+    // if (images.length !== 1) return false
+    const image = payload.image as ExcalidrawImageElement
 
     const cameraBasis = getObjectiveBasis<ExcalidrawEmbeddableElement>(camera)
     if (!cameraBasis) return false
@@ -63,26 +84,22 @@ export const actionInitStoryboard = register({
         relatedImages: [...camera.relatedImages].filter((id) => id !== image.id), // remove prev
       })
     } else {
-      if (pointer) {
-        logger.warn('Camera and related Image are not linked, but have pointer already!')
-        return false
+      // create pointer
+      if (payload.handlePointer) {
+        const newPointer = newPointerBeetween(
+          image,
+          cameraBasis,
+          app.scene.getNonDeletedElementsMap()
+        )
+        if (newPointer) newEls.push(newPointer)
       }
 
-      // [2] Create pointer and link
-      const newPointer = newPointerBeetween(image, cameraBasis)
-      if (newPointer)
-        elements = changeElementMeta(
-          elements,
-          camera,
-          {
-            relatedImages: [...camera.relatedImages, image.id], // add new link
-          },
-          [newPointer] // add new pointer
-        )
+      // link
+      mutateMeta(camera, { relatedImages: [...camera.relatedImages, image.id] })
     }
 
     return {
-      elements: elements,
+      elements: newEls.length ? arrangeElements(elements, newEls) : elements,
       commitToHistory: true,
     }
   },
@@ -95,7 +112,7 @@ export const actionInitStoryboard = register({
     const device = useDevice()
 
     const onClick = (camera: CameraMeta) => {
-      updateData(camera)
+      updateData({ camera, image, handlePointer: true })
     }
 
     return (
@@ -221,6 +238,7 @@ export const actionStoryboard = register({
       app.setActiveTool({
         type: 'image',
         insertOnCanvasDirectly: false, // let user decide where to put this image
+        asStoryboardForCamera: camera.id,
       })
     }
 

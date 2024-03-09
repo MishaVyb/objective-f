@@ -8,6 +8,7 @@ import {
   ExcalidrawElement,
   ExcalidrawRectangleElement,
   ExcalidrawTextElementWithContainer,
+  NonDeletedSceneElementsMap,
 } from '../../../packages/excalidraw/element/types'
 import { getObjectiveBasis, getPointerIds } from '../meta/selectors'
 import { ObjectiveKinds, ObjectiveMeta } from '../meta/types'
@@ -45,18 +46,14 @@ export const newMockPointer = () =>
  */
 export const newPointerBeetween = (
   one: ExcalidrawBindableElement | undefined,
-  another: ExcalidrawBindableElement | undefined
+  another: ExcalidrawBindableElement | undefined,
+  nonDeletedElements: NonDeletedSceneElementsMap
 ) => {
-  if (!another || !one) {
-    console.warn(
-      'Cannot get pointer for undefined element. ' +
-        'You are probably getting Objective basis element not properly' +
-        `${one} ${another}`
-    )
-    return
-  }
+  if (!another || !one) return console.warn('Cannot get pointer for undefined element. ')
 
-  if (getPointerIds(one, another).size) return // already has pointer
+  for (const pointer of getPointerIds(one, another)) {
+    if (nonDeletedElements.get(pointer)) return // already has NON DELETED pointer
+  }
 
   const newPointer = newMockPointer()
   bindLinearElement(newPointer, one, 'start')

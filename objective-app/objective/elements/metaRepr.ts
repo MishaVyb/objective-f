@@ -69,7 +69,7 @@ export const createMetaRepr = <TMeta extends ObjectiveMeta>(
   )
 
   // Link representation:
-  mutateMeta(meta, { [fieldName]: container.id })
+  mutateMeta(meta, { [fieldName]: container.id } as Partial<TMeta>)
 
   return [container, text]
 }
@@ -103,7 +103,7 @@ export const deleteMetaRepr = <TMeta extends ObjectiveMeta>(
   const containerId = meta[fieldName] as ExcalidrawElement['id']
 
   // Unlink representation:
-  mutateMeta(meta, { [fieldName]: undefined })
+  mutateMeta(meta, { [fieldName]: undefined } as Partial<TMeta>)
 
   // Remove repr:
   const container = scene.getElement(containerId) as ExcalidrawBindableElement

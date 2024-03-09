@@ -94,11 +94,11 @@ export const arrangeElements = (elements: ElementsMapOrArray, newEls: ElementsMa
     ...outdoor,
     ...set,
     ...prop,
+    ...pointer, // pointer is small line and its better place it before other important elements
     ...image,
     ...light,
     ...character,
     ...camera,
-    ...pointer,
     ...arrow,
     ...draw,
     ...text,
