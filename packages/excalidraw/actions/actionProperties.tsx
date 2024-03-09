@@ -614,7 +614,7 @@ export const actionChangeFontSize = register({
         group="font-size"
         options={[
           {
-            value: 16,
+            value: DEFAULT_FONT_SIZE,
             text: t("labels.small"),
             icon: FontSizeSmallIcon,
             testId: "fontSize-small",

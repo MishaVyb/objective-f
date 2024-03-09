@@ -14,6 +14,7 @@ import { ObjectiveKinds, ObjectiveMeta } from '../meta/types'
 import { getInitialMeta } from '../meta/initial'
 
 import { randomId } from '../../../packages/excalidraw/random'
+import { DEFAULT_FONT_SIZE } from '../../../packages/excalidraw/constants'
 
 export const newMockPointer = () =>
   newLinearElement({
@@ -118,7 +119,7 @@ export const newMetaReprElement = (meta: ObjectiveMeta, initialValue: string | u
     roughness: 1,
     opacity: 100,
     text: initialValue || '',
-    fontSize: 14,
+    fontSize: DEFAULT_FONT_SIZE,
     fontFamily: 3,
     textAlign: 'center',
     verticalAlign: 'middle',

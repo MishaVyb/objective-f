@@ -144,7 +144,7 @@ export const FRAME_STYLE = {
 export const WINDOWS_EMOJI_FALLBACK_FONT = "Segoe UI Emoji";
 
 export const MIN_FONT_SIZE = 1;
-export const DEFAULT_FONT_SIZE = 20;
+export const DEFAULT_FONT_SIZE = 14;
 export const DEFAULT_FONT_FAMILY: FontFamilyValues = FONT_FAMILY.Cascadia;
 export const DEFAULT_TEXT_ALIGN = "left";
 export const DEFAULT_VERTICAL_ALIGN = "top";

@@ -46,7 +46,7 @@ import {
 } from "../../../objective-app/objective/meta/types";
 import { objectEntries } from "../../../objective-app/objective/meta/utils";
 import { CaretDownIcon, CaretRightIcon } from "@radix-ui/react-icons";
-import { Separator } from "@radix-ui/themes";
+import { Button, Separator } from "@radix-ui/themes";
 import { __DEBUG_EDITOR } from "../../../objective-app/objective-plus/constants";
 import { getObjectiveMetas } from "../../../objective-app/objective/meta/selectors";
 
@@ -99,18 +99,38 @@ export const SelectedShapeActions = ({
 
   const buttonShowOrHideExcalidrawStyle = () => {
     return (
-      <ToolButton
-        type="button"
-        icon={showOBJStyle ? <CaretDownIcon /> : <CaretRightIcon />}
-        onClick={() => setShowOBJStyle(!showOBJStyle)}
-        title={showOBJStyle ? "More options" : "Less options"}
-        aria-label={"undefined"}
-      />
+      <>
+        <Button
+          style={{ width: "min-content" }}
+          variant={showOBJStyle ? "outline" : "soft"}
+          color={showOBJStyle ? "blue" : "gray"}
+          onClick={() => setShowOBJStyle(!showOBJStyle)}
+        >
+          {"Style"}
+        </Button>
+        {/* <Button
+          style={{height: 20}}
+          variant={"ghost"}
+          onClick={() => setShowOBJStyle(!showOBJStyle)}
+        >
+          <Separator size={"3"} />
+        </Button> */}
+        {/* <ToolButton
+          type="button"
+          icon={showOBJStyle ? <CaretDownIcon /> : <CaretRightIcon />}
+          onClick={() => setShowOBJStyle(!showOBJStyle)}
+          title={showOBJStyle ? "More options" : "Less options"}
+          aria-label={"undefined"}
+        /> */}
+      </>
     );
   };
 
   const [showOBJStyle, setShowOBJStyle] = useState(false);
-  const isAllObjective = isAllElementsObjective(targetElements);
+  const isAllObjective = isAllElementsObjective(
+    // HACK text with containerId is a part of Objective Label: filter it out
+    targetElements.filter((e) => (isTextElement(e) ? !e.containerId : true)),
+  );
   const metas = getObjectiveMetas(targetElements);
   const metasSet = new Set(metas.map((m) => m.kind));
 
@@ -158,18 +178,19 @@ export const SelectedShapeActions = ({
       (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
 
     bgColor: isAllExcali || showOBJStyle,
-    bgStyle: isAllExcali || showOBJStyle,
+    bgStyle:
+      isAllExcali || (showOBJStyle && !metasSet.has(ObjectiveKinds.LABEL)),
 
     strokeWidth:
       isAllExcali ||
-      (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle) ||
+      // (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle) ||
       (metasSet.has(ObjectiveKinds.LOCATION) && showOBJStyle) ||
       (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
 
     /** solid / dashed / dottee */
     strokeStyle:
       isAllExcali ||
-      (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle) ||
+      // (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle) ||
       (metasSet.has(ObjectiveKinds.LOCATION) && showOBJStyle) ||
       (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
 
@@ -187,8 +208,8 @@ export const SelectedShapeActions = ({
     /** unknown and do nothing??? */
     strokeShape: isAllExcali,
 
-    roundness:
-      isAllExcali || (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle),
+    roundness: isAllExcali,
+
     arrowheads: isAllExcali,
     textStyle:
       isAllExcali || (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle),
@@ -199,11 +220,15 @@ export const SelectedShapeActions = ({
       (isAllExcali || showOBJStyle || isObjAndExcali),
 
     /** duplicate group un-group hyper Link */
-    actionsAll: isAllExcali || showOBJStyle || isObjAndExcali,
-    duplicate: isAllExcali || showOBJStyle || isObjAndExcali,
-    delete: isAllExcali || showOBJStyle || isObjAndExcali,
-    group: isAllExcali || showOBJStyle || isObjAndExcali,
-    hyperLink: isAllExcali || showOBJStyle || isObjAndExcali,
+    actionsAll:
+      isAllExcali ||
+      isObjAndExcali ||
+      (showOBJStyle && !metasSet.has(ObjectiveKinds.LABEL)),
+
+    duplicate: isAllExcali || isObjAndExcali || showOBJStyle,
+    delete: isAllExcali || isObjAndExcali || showOBJStyle,
+    group: isAllExcali || isObjAndExcali || showOBJStyle,
+    hyperLink: isAllExcali || isObjAndExcali || showOBJStyle,
   });
 
   let actionsToRender = getActionsToRender(showOBJStyle);

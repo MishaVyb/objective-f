@@ -26,5 +26,7 @@ export enum ENDPOINTS {
 
 // TODO configure it from process.env
 export const __DEBUG_API_FREEZE_MS = 250
-export const __DEBUG_EDITOR = false // true
 export const __DEBUG_ENSURE_THEME: Theme | null = 'light' //'dark'
+
+export const __DEBUG_EDITOR = false
+// export const __DEBUG_EDITOR = true
