@@ -91,6 +91,10 @@ export default function LibraryMenuItems({
     () => libraryItems.filter((item) => item.kind === ObjectiveKinds.CHARACTER),
     [libraryItems],
   );
+  const lightLibItems = useMemo(
+    () => libraryItems.filter((item) => item.kind === ObjectiveKinds.LIGHT),
+    [libraryItems],
+  );
   const propsLibItems = useMemo(
     () => libraryItems.filter((item) => item.kind === ObjectiveKinds.PROP),
     [libraryItems],
@@ -258,13 +262,19 @@ export default function LibraryMenuItems({
 
         <ObjectiveLibraryItems
           items={camerasLibItems}
-          title={t("labels.libCameras", null, "Cameras")}
+          title={t("labels.libCameras", null, "Camera")}
           {...commonProps}
         />
 
         <ObjectiveLibraryItems
           items={charactersLibItems}
-          title={t("labels.libCharacters", null, "Characters")}
+          title={t("labels.libCharacters", null, "Character")}
+          {...commonProps}
+        />
+
+        <ObjectiveLibraryItems
+          items={lightLibItems}
+          title={t("labels.libCharacters", null, "Light")}
           {...commonProps}
         />
 

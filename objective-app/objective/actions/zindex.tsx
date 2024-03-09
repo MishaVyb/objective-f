@@ -34,6 +34,7 @@ export const arrangeElements = (elements: ElementsMapOrArray, newEls: ElementsMa
   const set: ExcalidrawElement[] = []
   const prop: ExcalidrawElement[] = []
   const image: ExcalidrawElement[] = []
+  const light: ExcalidrawElement[] = []
   const character: ExcalidrawElement[] = []
   const camera: ExcalidrawElement[] = []
   const pointer: ExcalidrawElement[] = []
@@ -75,6 +76,7 @@ export const arrangeElements = (elements: ElementsMapOrArray, newEls: ElementsMa
     else if (isKindEl(el, ObjectiveKinds.SET)) set.push(...els)
     else if (isKindEl(el, ObjectiveKinds.PROP)) prop.push(...els)
     else if (isImageElement(el)) image.push(...els)
+    else if (isKindEl(el, ObjectiveKinds.LIGHT)) light.push(...els)
     else if (isKindEl(el, ObjectiveKinds.CHARACTER)) character.push(...els)
     else if (isKindEl(el, ObjectiveKinds.CAMERA)) camera.push(...els)
     else if (isKindEl(el, ObjectiveKinds.POINTER)) pointer.push(...els)
@@ -93,6 +95,7 @@ export const arrangeElements = (elements: ElementsMapOrArray, newEls: ElementsMa
     ...set,
     ...prop,
     ...image,
+    ...light,
     ...character,
     ...camera,
     ...pointer,

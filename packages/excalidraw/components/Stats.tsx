@@ -53,6 +53,18 @@ export const Stats = (props: {
     const singleMetaElementInfo = singleMeta && (
       <>
         <tr>
+          <td>{"kind"}</td>
+          <td>
+            <Code>{singleMeta.kind} </Code>
+          </td>
+        </tr>
+        <tr>
+          <td>{"name"}</td>
+          <td>
+            <Code>{singleMeta.name} </Code>
+          </td>
+        </tr>
+        <tr>
           <td>{"nameRepr"}</td>
           <td>
             <Code>{singleMeta.nameRepr} </Code>
@@ -202,6 +214,9 @@ export const Stats = (props: {
         </tr>
         {singleElementInfo}
         {linerElementInfo}
+        <tr>
+          <th colSpan={2}>{"Objective Meta"}</th>
+        </tr>
         {singleMetaElementInfo}
       </>
     );
