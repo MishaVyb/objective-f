@@ -9,7 +9,7 @@ import {
   ExcalidrawRectangleElement,
   ExcalidrawTextElementWithContainer,
 } from '../../../packages/excalidraw/element/types'
-import { getObjectiveBasis, getPointersBetween } from '../meta/selectors'
+import { getObjectiveBasis, getPointerIds } from '../meta/selectors'
 import { ObjectiveKinds, ObjectiveMeta } from '../meta/types'
 import { getInitialMeta } from '../meta/initial'
 
@@ -53,7 +53,7 @@ export const newPointerBeetween = (
     return
   }
 
-  if (getPointersBetween(one, another).size) return // already has pointer
+  if (getPointerIds(one, another).size) return // already has pointer
 
   const newPointer = newMockPointer()
   bindLinearElement(newPointer, one, 'start')

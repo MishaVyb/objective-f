@@ -3,10 +3,12 @@ import { useMemo } from 'react'
 import { useApp, useExcalidrawElements } from '../../../packages/excalidraw/components/App'
 import { isNonDeletedElement } from '../../../packages/excalidraw/element'
 import {
+  ElementsMap,
   ElementsMapOrArray,
   ExcalidrawBindableElement,
   ExcalidrawElement,
   InitializedExcalidrawImageElement,
+  NonDeletedExcalidrawElement,
 } from '../../../packages/excalidraw/element/types'
 import Scene from '../../../packages/excalidraw/scene/Scene'
 import { AppState } from '../../../packages/excalidraw/types'
@@ -197,37 +199,12 @@ export const getObjectiveBasis = <T extends ExcalidrawElement>(
   // TODO basis validation
   (meta?.elements?.length && (meta.elements[meta.basisIndex || 0] as T)) || undefined
 
-// TODO refactor to use ElementsMap
-export const getPointerBetween = (
-  elements: readonly ExcalidrawElement[],
-  one: ExcalidrawElement | undefined,
-  another: ExcalidrawElement | undefined
-) => {
-  if (!another || !one)
-    throw Error(
-      'Cannot get pointer for undefined element. ' +
-        'You are probably getting Objective basis element not properly' +
-        `${one} ${another}`
-    )
-
-  const ids =
-    one.boundElements?.filter((elOne) =>
-      another.boundElements?.some((elAnother) => elAnother.id === elOne.id)
-    ) || []
-  const pointers = elements.filter(
-    (e) => isPointerElement(e) && isNonDeletedElement(e) && ids.some((o) => o.id === e.id)
-  )
-  if (pointers.length === 0) return null
-  if (pointers.length > 1) console.warn('Found more than 1 pointers.')
-  return pointers[0]
-}
-
 /**
  * we do not store ids of pointer at any special meta field,
  * so extract all lines/arrays from element.boundElements and find common elements,
  * @returns Set of common elements ids from `one/another.boundElements`
  */
-export const getPointersBetween = (
+export const getPointerIds = (
   one: ExcalidrawBindableElement | undefined,
   another: ExcalidrawBindableElement | undefined
 ) => {
@@ -238,9 +215,18 @@ export const getPointersBetween = (
     ?.filter((e) => e.type === 'arrow' && oneBoundsIds.has(e.id))
     .map((e) => e.id)
 
-  // ??? Check for isKind(el, POINTER)
+  // Do not check for isPointerElement here, as user could create pointer by itself
   return new Set(commonArrayBoundsIds)
 }
+
+export const getPointers = (
+  elements: ElementsMap,
+  one: ExcalidrawBindableElement | undefined,
+  another: ExcalidrawBindableElement | undefined
+) =>
+  [...getPointerIds(one, another)]
+    .map((id) => elements.get(id))
+    .filter((e): e is NonDeletedExcalidrawElement => !!e && e.isDeleted === false)
 
 // TODO cache (see original Scene implementation)
 export const getElementsByObjectiveId = (scene: Scene, id: ObjectiveMeta['id']) =>

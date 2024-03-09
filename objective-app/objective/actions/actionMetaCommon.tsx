@@ -13,7 +13,7 @@ import {
   getObjectiveBasis,
   getObjectiveMetas,
   getObjectiveSingleMeta,
-  getPointersBetween,
+  getPointerIds,
   getSelectedElements,
 } from '../meta/selectors'
 
@@ -337,7 +337,7 @@ export const actionDeletePointer = register({
     app
   ) => {
     const [a, b] = value
-    const idsToDelete = getPointersBetween(a, b)
+    const idsToDelete = getPointerIds(a, b)
     if (!idsToDelete.size) return false
 
     const elsMap = arrayToMap(elements)
@@ -345,7 +345,7 @@ export const actionDeletePointer = register({
 
     pointersToDelete.forEach((pointer) => mutateElement(pointer, { isDeleted: true }))
 
-    // pop ref on pointer from `element.boundElements`
+    // pop deleted pointer ids from `element.boundElements`
     fixBindingsAfterDeletion(elements, pointersToDelete)
 
     // THE SAME AS ABOVE:

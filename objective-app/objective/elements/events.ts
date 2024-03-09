@@ -5,6 +5,7 @@ import {
   ExcalidrawBindableElement,
   ExcalidrawElement,
   ExcalidrawEllipseElement,
+  ExcalidrawImageElement,
   NonDeletedExcalidrawElement,
 } from '../../../packages/excalidraw/element/types'
 
@@ -20,9 +21,9 @@ import {
   getCameraMetas,
   getObjectiveMetas,
   getObjectiveSingleMeta,
-  getPointerBetween,
   getMetaByObjectiveId,
-  getPointersBetween,
+  getPointerIds,
+  getPointers,
 } from '../meta/selectors'
 import { ObjectiveKinds, ObjectiveMeta, isCameraMeta, isKind } from '../meta/types'
 import {
@@ -115,19 +116,20 @@ export const deleteExcalidrawElements = (
   deletingElements: Set<ExcalidrawElement> | Array<ExcalidrawElement>
 ) => {
   deletingElements.forEach((target) => {
-    // [case 1] delete image
+    //
+    //
     if (isImageElement(target)) {
       const image = target
       const otherCamerasRelatedToImage = getCameraMetas(elements, {
         extraPredicate: (c) => c.relatedImages.includes(image.id),
       })
       otherCamerasRelatedToImage.forEach((camera) => {
-        const cameraBasis = getObjectiveBasis(camera)
-        const pointer = getPointerBetween(elements, image, cameraBasis)
-        if (pointer)
+        const cameraBasis = getObjectiveBasis<ExcalidrawEllipseElement>(camera)
+        getPointers(app.scene.getNonDeletedElementsMap(), image, cameraBasis).forEach((pointer) => {
           elements = changeElementProperty(elements, pointer, {
             isDeleted: true,
           })
+        })
       })
     }
 
@@ -156,19 +158,20 @@ export const deleteObjectiveMetas = (
       // [1.1] delete storyboard
       const camera = target
       const otherImagesRelatedToCamera = elements.filter(
-        (element) => element.type === 'image' && camera.relatedImages.includes(element.id)
+        (element): element is ExcalidrawImageElement =>
+          element.type === 'image' && camera.relatedImages.includes(element.id)
       )
       otherImagesRelatedToCamera.forEach((image) => {
-        const cameraBasis = getObjectiveBasis(camera)
+        const cameraBasis = getObjectiveBasis<ExcalidrawEllipseElement>(camera)
 
         // UNUSED... in case we handle deliting not whole Camera, but separate camera primitive
         if (!cameraBasis) return
 
-        const pointer = getPointerBetween(elements, image, cameraBasis)
-        if (pointer)
+        getPointers(app.scene.getNonDeletedElementsMap(), image, cameraBasis).forEach((pointer) => {
           elements = changeElementProperty(elements, pointer, {
             isDeleted: true,
           })
+        })
       })
     }
 
@@ -238,7 +241,7 @@ export const dragEventHandler = (
 
           if (
             // currentDist < DRAG_META_LABEL_MAX_GAP ||
-            !getPointersBetween(container, basis).size
+            !getPointerIds(container, basis).size
           ) {
             elementsToUpdate.add(container)
           }

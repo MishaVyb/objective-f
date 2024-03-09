@@ -23,7 +23,7 @@ import {
   isKind,
 } from '../meta/types'
 import { LinearElementEditor } from '../../../packages/excalidraw/element/linearElementEditor'
-import { getObjectiveBasis, getPointersBetween } from '../meta/selectors'
+import { getObjectiveBasis, getPointerIds } from '../meta/selectors'
 import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
 import { mutateMeta } from './mutateElements'
 
@@ -116,7 +116,7 @@ export const deleteMetaRepr = <TMeta extends ObjectiveMeta>(
 
   // Remove pointers (if any):
   const basis = getObjectiveBasis<ExcalidrawBindableElement>(meta)
-  const pointerIds = getPointersBetween(basis, container)
+  const pointerIds = getPointerIds(basis, container)
   const pointers = [...pointerIds].map((id) => scene.getElement(id)!)
 
   pointers.forEach((el) => mutateElement(el, { isDeleted: true }))

@@ -6,6 +6,7 @@ import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
 import { useDevice } from '../../../packages/excalidraw/components/App'
 import { unbindLinearElements } from '../../../packages/excalidraw/element/binding'
 import {
+  ExcalidrawEllipseElement,
   ExcalidrawEmbeddableElement,
   ExcalidrawImageElement,
 } from '../../../packages/excalidraw/element/types'
@@ -17,9 +18,9 @@ import '../scss/popover.scss'
 import {
   getObjectiveBasis,
   getCameraMetas,
-  getPointerBetween,
   getShotCameraMetas,
   useCamerasImages,
+  getPointers,
 } from '../meta/selectors'
 import {
   CameraMeta,
@@ -39,7 +40,7 @@ import { changeElementMeta, changeElementProperty } from '../elements/mutateElem
 export const actionInitStoryboard = register({
   name: 'actionInitStoryboard',
   trackEvent: false,
-  perform: (elements, appState, camera: CameraMeta) => {
+  perform: (elements, appState, camera: CameraMeta, app) => {
     const images = getSelectedElements(elements, appState)
     if (images.length !== 1) return false
     const image = images[0] as ExcalidrawImageElement
@@ -48,7 +49,8 @@ export const actionInitStoryboard = register({
     if (!cameraBasis) return false
 
     const action = camera.relatedImages.includes(image.id) ? 'unlink' : 'link'
-    const pointer = getPointerBetween(elements, image, cameraBasis)
+    const pointers = getPointers(app.scene.getNonDeletedElementsMap(), image, cameraBasis)
+    const pointer = pointers[0] // TODO handle many pointers
 
     if (action === 'unlink') {
       if (pointer) {
@@ -141,8 +143,10 @@ export const actionStoryboard = register({
     { camera, image, action }: IPerformValue,
     app: AppClassProperties
   ) => {
-    const cameraBasis = getObjectiveBasis(camera)
-    const pointer = getPointerBetween(elements, image, cameraBasis)
+    const cameraBasis = getObjectiveBasis<ExcalidrawEllipseElement>(camera)
+    const pointers = getPointers(app.scene.getNonDeletedElementsMap(), image, cameraBasis)
+    const pointer = pointers[0] // TODO handle many pointers
+
     const otherCamerasRelatedToImage = getCameraMetas(elements, {
       extraPredicate: (c) => c.relatedImages.includes(image.id),
     })
@@ -162,8 +166,10 @@ export const actionStoryboard = register({
         })
         // [3] change display for other pointers
         otherCamerasRelatedToImage.forEach((camera) => {
-          const cameraBasis = getObjectiveBasis(camera)
-          const pointer = getPointerBetween(elements, image, cameraBasis)
+          const cameraBasis = getObjectiveBasis<ExcalidrawEllipseElement>(camera)
+          const pointers = getPointers(app.scene.getNonDeletedElementsMap(), image, cameraBasis)
+          const pointer = pointers[0] // TODO handle many pointers
+
           if (pointer)
             elements = changeElementProperty(elements, pointer, {
               opacity: isDisplayed(image) ? 0 : 100,
