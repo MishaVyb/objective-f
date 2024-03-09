@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 
 import { useApp, useExcalidrawElements } from '../../../packages/excalidraw/components/App'
-import { isNonDeletedElement } from '../../../packages/excalidraw/element'
 import {
   ElementsMap,
   ElementsMapOrArray,
@@ -23,10 +22,8 @@ import {
   ShotCameraMeta,
   ensureArray,
   isCameraElement,
-  isKind,
   isKindEl,
   isObjective,
-  isPointerElement,
   isShotCameraElement,
 } from './types'
 import { isInitializedImageElement } from '../../../packages/excalidraw/element/typeChecks'

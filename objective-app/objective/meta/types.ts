@@ -33,10 +33,6 @@ export enum ObjectiveKinds {
 
 export type TObjectiveKind = `${ObjectiveKinds}`
 
-// ---------------------------------------------------------------------- Base
-
-type AnyExceptMeta<T> = T extends ObjectiveMeta ? never : T //FIXME
-
 export type MaybeExcalidrawElement<T extends ExcalidrawElement = ExcalidrawElement> =
   | T
   | undefined
@@ -100,6 +96,45 @@ export interface LabelMeta extends ObjectiveMeta {
   description: never
 }
 
+export interface PointerMeta extends ObjectiveMeta {
+  kind: ObjectiveKinds.POINTER
+  // pointerOf: do not populate back ref as we take it from parent `element.boundElements`
+  name: never
+  nameRepr: never
+  description: never
+}
+
+/** It's always "arrow" ExcalidrawElement */
+export type PointerElement = ObjectiveElement<PointerMeta>
+
+export interface LocationMeta extends ObjectiveMeta {
+  // no special fields
+}
+
+export interface CameraMeta extends ObjectiveMeta {
+  kind: ObjectiveKinds.CAMERA
+
+  isShot?: boolean // is camera in shot list
+  shotNumber?: number // Cam 1 / Cam 2
+  shotVersion?: number // Cam 1-A / Cam 1-B
+  focalLength?: number
+
+  /**
+   * Storyboard images. Source `ExcalidrawImage.id` (not `fileId`).
+   */
+  relatedImages: readonly string[] // images id
+}
+
+export interface ShotCameraMeta extends CameraMeta {
+  isShot: true
+  shotNumber: number // Cam A / Cam B
+  shotVersion: number // Cam A-1 / Cam A-2
+}
+
+export type CameraElement = ObjectiveElement<CameraMeta>
+export type ShotCameraElement = ObjectiveElement<ShotCameraMeta>
+export type LocationElement = ObjectiveElement<LocationMeta>
+
 /**
  * Special interface to represent `ExcalidrawImage` with prepopulated `BinaryFile`properties.
  * NOTE: Property `id` are taken from `ExcalidrawImage.id` (not `fileId`).
@@ -127,7 +162,7 @@ export const isMeta = (meta: MaybeMeta): meta is ObjectiveMeta => !!meta?.kind
 export const isObjective = (el: MaybeExcalidrawElement): el is ObjectiveElement =>
   isMeta(el?.customData)
 
-/** as `isMeta` or `isObjective` but when we asking for specific Objective kind */
+/** generic type guard function */
 export const isKind = <T extends ObjectiveKinds>(
   arg: MaybeMeta,
   kind: T
@@ -150,13 +185,12 @@ export const isKindEl = <T extends ObjectiveKinds>(
   return isKind(arg?.customData, kind)
 }
 
-// ): arg is ObjectiveElement<ObjectiveMeta<T>> | ObjectiveMeta<T> =>
-//   arg && 'type' in arg ? arg?.customData?.kind === kind : arg?.kind === kind
-
 export const isAllElementsObjective = (elements: readonly ExcalidrawElement[]) =>
   !!elements.length && elements.every((e) => isObjective(e))
+
 export const isAnyElementsObjective = (elements: readonly ExcalidrawElement[]) =>
   elements.some((e) => isObjective(e))
+
 export const isElementRelatedToMeta = <TMeta extends ObjectiveMeta>(
   el: ExcalidrawElement,
   relatedMeta: TMeta
@@ -169,32 +203,6 @@ export const isElementTarget = <TElement extends ExcalidrawElement>(
   el: ExcalidrawElement,
   target: TElement | TElement['id']
 ): el is TElement => el.id === (typeof target === 'string' ? target : target.id)
-// ---------------------------------------------------------------------- Camera
-
-export interface CameraMeta extends ObjectiveMeta {
-  kind: ObjectiveKinds.CAMERA
-
-  isShot?: boolean // is camera in shot list
-  shotNumber?: number // Cam 1 / Cam 2
-  shotVersion?: number // Cam 1-A / Cam 1-B
-  focalLength?: number
-
-  /**
-   * Storyboard images. Source `ExcalidrawImage.id` (not `fileId`).
-   */
-  relatedImages: readonly string[] // images id
-}
-export interface LocationMeta extends ObjectiveMeta {}
-
-export type CameraElement = ObjectiveElement<CameraMeta>
-export type ShotCameraElement = ObjectiveElement<ShotCameraMeta>
-export type LocationElement = ObjectiveElement<LocationMeta>
-
-export interface ShotCameraMeta extends CameraMeta {
-  isShot: true
-  shotNumber: number // Cam A / Cam B
-  shotVersion: number // Cam A-1 / Cam A-2
-}
 
 export const isCameraMeta = (meta: MaybeMeta): meta is CameraMeta =>
   meta?.kind === ObjectiveKinds.CAMERA
@@ -228,20 +236,10 @@ export const isAllElementsLocation = (elements: readonly ExcalidrawElement[]) =>
 
 export const isImageRelatedToCamera = (camera: CameraMeta, image: ExcalidrawImageElement) =>
   camera.relatedImages.includes(image.id)
-// ---------------------------------------------------------------------- Pointer
 
-/**
- * customData for "arrow" ExcalidrawElement.
- */
-export interface PointerMeta extends ObjectiveMeta {
-  kind: ObjectiveKinds.CAMERA
-}
-/**
- * It's always "arrow" ExcalidrawElement.
- */
-export type PointerElement = ObjectiveElement<PointerMeta>
 export const isPointerMeta = (meta: MaybeMeta): meta is PointerMeta =>
   meta?.kind === ObjectiveKinds.POINTER
+
 export const isPointerElement = (el: MaybeExcalidrawElement): el is PointerElement =>
   isPointerMeta(el?.customData)
 
@@ -262,8 +260,6 @@ const __test = () => {
     return true
   }
 
-  const myFoo = (el: AnyExceptMeta<Record<string, any>>) => 123
-  myFoo(meta)
   // @ts-ignore
   isMeta(element)
 

@@ -1,6 +1,4 @@
-import { changeProperty } from '../../../packages/excalidraw/actions/actionProperties'
-import { duplicateElement } from '../../../packages/excalidraw/element'
-import { mutateElement, newElementWith } from '../../../packages/excalidraw/element/mutateElement'
+import { mutateElement } from '../../../packages/excalidraw/element/mutateElement'
 import {
   getBoundTextElement,
   handleBindTextResize,
@@ -8,25 +6,14 @@ import {
 import {
   ExcalidrawBindableElement,
   ExcalidrawElement,
-  ExcalidrawLinearElement,
   ExcalidrawRectangleElement,
   ExcalidrawTextElementWithContainer,
 } from '../../../packages/excalidraw/element/types'
 import Scene from '../../../packages/excalidraw/scene/Scene'
-import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
-import {
-  ObjectiveElement,
-  ObjectiveKinds,
-  ObjectiveMeta,
-  isElementRelatedToMeta,
-  isElementTarget,
-  isKind,
-} from '../meta/types'
-import { LinearElementEditor } from '../../../packages/excalidraw/element/linearElementEditor'
+import { ObjectiveKinds, ObjectiveMeta, isKind } from '../meta/types'
 import { getObjectiveBasis, getPointerIds } from '../meta/selectors'
 import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
 import { mutateMeta } from './mutateElements'
-
 
 type TNewReprConstructor = (
   meta: ObjectiveMeta,
