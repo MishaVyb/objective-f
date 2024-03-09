@@ -233,7 +233,7 @@ export const actionChangeMetaName = register({
     const basis = getObjectiveBasis(singleMeta)
     const bgOpacity = '20' // from `00` up to `FF`
     const bgColor = basis ? basis.backgroundColor + bgOpacity : null
-    const showEyeButton = singleMeta ? !!name : true
+    const showEyeButton = true // TODO handle depending on !!singleMeta.name
 
     return (
       <TextField
