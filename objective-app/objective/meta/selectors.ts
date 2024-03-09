@@ -4,6 +4,7 @@ import { useApp, useExcalidrawElements } from '../../../packages/excalidraw/comp
 import { isNonDeletedElement } from '../../../packages/excalidraw/element'
 import {
   ElementsMapOrArray,
+  ExcalidrawBindableElement,
   ExcalidrawElement,
   InitializedExcalidrawImageElement,
 } from '../../../packages/excalidraw/element/types'
@@ -219,6 +220,26 @@ export const getPointerBetween = (
   if (pointers.length === 0) return null
   if (pointers.length > 1) console.warn('Found more than 1 pointers.')
   return pointers[0]
+}
+
+/**
+ * we do not store ids of pointer at any special meta field,
+ * so extract all lines/arrays from element.boundElements and find common elements,
+ * @returns Set of common elements ids from `one/another.boundElements`
+ */
+export const getPointersBetween = (
+  one: ExcalidrawBindableElement | undefined,
+  another: ExcalidrawBindableElement | undefined
+) => {
+  const oneBoundsIds = new Set(
+    one?.boundElements?.filter((e) => e.type === 'arrow').map((e) => e.id)
+  )
+  const commonArrayBoundsIds = another?.boundElements
+    ?.filter((e) => e.type === 'arrow' && oneBoundsIds.has(e.id))
+    .map((e) => e.id)
+
+  // ??? Check for isKind(el, POINTER)
+  return new Set(commonArrayBoundsIds)
 }
 
 // TODO cache (see original Scene implementation)

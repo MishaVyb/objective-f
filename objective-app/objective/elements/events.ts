@@ -22,18 +22,14 @@ import {
   getObjectiveSingleMeta,
   getPointerBetween,
   getMetaByObjectiveId,
+  getPointersBetween,
 } from '../meta/selectors'
 import { ObjectiveKinds, ObjectiveMeta, isCameraMeta, isKind } from '../meta/types'
 import {
   actionFinalizeSelectionDrag,
   performRotationLocationOnDragFinalize,
 } from '../actions/actionOnDrag'
-import {
-  changeElementProperty,
-  createMetaRepr,
-  deleteMetaRepr,
-  getPointersBetween,
-} from './helpers'
+
 import { snapDraggedElementsLocation } from './snapElements'
 import { getCameraMetaReprStr } from '../actions/actionShootList'
 import { AllExcalidrawElements } from '../../../packages/excalidraw/actions/types'
@@ -42,6 +38,8 @@ import { arrangeElements } from '../actions/zindex'
 import { Vector, getElementCenter } from './math'
 import { getDistance } from '../../../packages/excalidraw/gesture'
 import { actionCreatePointer, actionDeletePointer } from '../actions/actionMetaCommon'
+import { changeElementProperty } from './mutateElements'
+import { createMetaRepr, deleteMetaRepr } from './metaRepr'
 
 /**
  * It's assumed that elements metas already copied properly by `duplicateAsInitialEventHandler`

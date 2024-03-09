@@ -13,13 +13,10 @@ import {
   getObjectiveBasis,
   getObjectiveMetas,
   getObjectiveSingleMeta,
+  getPointersBetween,
   getSelectedElements,
 } from '../meta/selectors'
-import {
-  getPointersBetween,
-  handleMetaRepresentation,
-  mutateElementsMeta,
-} from '../elements/helpers'
+
 import { register } from './register'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
 import {
@@ -43,6 +40,8 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import { useState } from 'react'
 import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
+import { handleMetaRepresentation } from '../elements/metaRepr'
+import { mutateElementsMeta } from '../elements/mutateElements'
 
 export const actionDisplayMetaHeader = register({
   name: 'actionDisplayMetaHeader',
@@ -342,7 +341,7 @@ export const actionDeletePointer = register({
     if (!idsToDelete.size) return false
 
     const elsMap = arrayToMap(elements)
-    const pointersToDelete  = [...idsToDelete].map(id => elsMap.get(id)!)
+    const pointersToDelete = [...idsToDelete].map((id) => elsMap.get(id)!)
 
     pointersToDelete.forEach((pointer) => mutateElement(pointer, { isDeleted: true }))
 

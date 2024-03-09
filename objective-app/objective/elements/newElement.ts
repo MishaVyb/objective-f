@@ -9,10 +9,10 @@ import {
   ExcalidrawRectangleElement,
   ExcalidrawTextElementWithContainer,
 } from '../../../packages/excalidraw/element/types'
-import { getObjectiveBasis } from '../meta/selectors'
+import { getObjectiveBasis, getPointersBetween } from '../meta/selectors'
 import { ObjectiveKinds, ObjectiveMeta } from '../meta/types'
 import { getInitialMeta } from '../meta/initial'
-import { getPointersBetween } from './helpers'
+
 import { randomId } from '../../../packages/excalidraw/random'
 
 export const newMockPointer = () =>

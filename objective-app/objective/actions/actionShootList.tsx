@@ -13,10 +13,12 @@ import { getSelectedElements } from '../../../packages/excalidraw/scene'
 import { newMetaReprElement } from '../elements/newElement'
 import { getCameraMetas, getSelectedCameraMetas } from '../meta/selectors'
 import { CameraMeta, isAllElementsCameras, isCameraElement } from '../meta/types'
-import { handleMetaRepresentation, mutateElementsMeta } from '../elements/helpers'
+
 import { register } from './register'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
 import { Flex, IconButton } from '@radix-ui/themes'
+import { handleMetaRepresentation } from '../elements/metaRepr'
+import { mutateElementsMeta } from '../elements/mutateElements'
 
 type TChangeShotActionValue = 'init' | 'remove' | 'incraseShotNumber' | 'decraseShotNumber'
 

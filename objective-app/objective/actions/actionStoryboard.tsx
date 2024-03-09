@@ -29,11 +29,12 @@ import {
 } from '../meta/types'
 import './../scss/actionStoryboard.scss'
 import { deleteEventHandler } from '../elements/events'
-import { changeElementMeta, changeElementProperty } from '../elements/helpers'
+
 import { register } from './register'
 import { Flex, IconButton } from '@radix-ui/themes'
 import { CircleBackslashIcon, EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
 import { ImageIcon, TrashIcon } from '../../../packages/excalidraw/components/icons'
+import { changeElementMeta, changeElementProperty } from '../elements/mutateElements'
 
 export const actionInitStoryboard = register({
   name: 'actionInitStoryboard',

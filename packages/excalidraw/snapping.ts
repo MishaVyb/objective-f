@@ -1,4 +1,4 @@
-import { decomposeWall } from "../../objective-app/objective/elements/helpers";
+import { decomposeWall } from "../../objective-app/objective/elements/linerElementsEditor";
 import { snapDraggedElementsLocation } from "../../objective-app/objective/elements/snapElements";
 import {
   isAllElementsLocation,
