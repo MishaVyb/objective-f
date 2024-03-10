@@ -77,26 +77,11 @@ export const mutateElementsMeta = <TMeta extends ObjectiveMeta>(
     .map((el) => mutateElementMeta(el as ObjectiveElement<TMeta>, newMeta))
 
 /** Mutate target meta */
-export const mutateMeta = <TMeta extends ObjectiveMeta>(
-  target: TMeta,
-  newMeta: Partial<TMeta>,
-) => {
-  // HACK
+export const mutateMeta = <TMeta extends ObjectiveMeta>(target: TMeta, newMeta: Partial<TMeta>) => {
+  // NOTE
   // As meta information are placed across each Objective primitive ExcalidrawElement
   // we update meta for Each element for target meta
-
-  // LEGACY:
-  let metaElementsNotFoundAtScene
-  target.elementIds.forEach((id) => {
-    const el = Scene.getScene(id)?.getElement(id) as ObjectiveElement<TMeta> | undefined
-    if (el) mutateElementMeta(el, newMeta)
-    else metaElementsNotFoundAtScene = true
-  })
-
-  // NEW:
-  if (metaElementsNotFoundAtScene) {
-    target.elements.forEach((el) => mutateElementMeta(el, newMeta as TMeta))
-  }
+  target.elements.forEach((el) => mutateElementMeta(el, newMeta as TMeta))
 }
 
 /**
