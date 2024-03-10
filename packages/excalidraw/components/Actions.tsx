@@ -48,6 +48,7 @@ import { objectEntries } from "../../../objective-app/objective/meta/utils";
 import { Button, Separator } from "@radix-ui/themes";
 import { __DEBUG_EDITOR } from "../../../objective-app/objective-plus/constants";
 import { getObjectiveMetas } from "../../../objective-app/objective/meta/selectors";
+import { MixerHorizontalIcon } from "@radix-ui/react-icons";
 
 export const SelectedShapeActions = ({
   appState,
@@ -105,22 +106,9 @@ export const SelectedShapeActions = ({
           color={showOBJStyle ? "blue" : "gray"}
           onClick={() => setShowOBJStyle(!showOBJStyle)}
         >
+          <MixerHorizontalIcon />
           {"Style"}
         </Button>
-        {/* <Button
-          style={{height: 20}}
-          variant={"ghost"}
-          onClick={() => setShowOBJStyle(!showOBJStyle)}
-        >
-          <Separator size={"3"} />
-        </Button> */}
-        {/* <ToolButton
-          type="button"
-          icon={showOBJStyle ? <CaretDownIcon /> : <CaretRightIcon />}
-          onClick={() => setShowOBJStyle(!showOBJStyle)}
-          title={showOBJStyle ? "More options" : "Less options"}
-          aria-label={"undefined"}
-        /> */}
       </>
     );
   };

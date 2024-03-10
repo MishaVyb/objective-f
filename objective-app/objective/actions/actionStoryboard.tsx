@@ -303,16 +303,6 @@ export const actionStoryboard = register({
 
                 <IconButton
                   size={'2'}
-                  variant={'soft'}
-                  color={'gray'}
-                  onClick={() => updateData({ camera, image, action: 'display' })}
-                  title={isDisplayed(image) ? 'Hide image on canvas' : 'Show image on canvas'}
-                >
-                  {isDisplayed(image) ? <EyeOpenIcon /> : <EyeClosedIcon />}
-                </IconButton>
-
-                <IconButton
-                  size={'2'}
                   variant={'outline'}
                   color={'red'}
                   onClick={() => updateData({ camera, image, action: 'unlink' })}
@@ -320,6 +310,7 @@ export const actionStoryboard = register({
                 >
                   <CircleBackslashIcon />
                 </IconButton>
+                
                 <IconButton
                   size={'2'}
                   variant={'outline'}
@@ -330,6 +321,17 @@ export const actionStoryboard = register({
                 >
                   <div className='ToolIcon__icon'>{TrashIcon}</div>
                 </IconButton>
+
+                <IconButton
+                  size={'2'}
+                  variant={'soft'}
+                  color={'gray'}
+                  onClick={() => updateData({ camera, image, action: 'display' })}
+                  title={isDisplayed(image) ? 'Hide image on canvas' : 'Show image on canvas'}
+                >
+                  {isDisplayed(image) ? <EyeOpenIcon /> : <EyeClosedIcon />}
+                </IconButton>
+
               </Flex>
             </fieldset>
           ))

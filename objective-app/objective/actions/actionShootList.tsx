@@ -16,7 +16,7 @@ import { CameraMeta, isAllElementsCameras, isCameraElement } from '../meta/types
 
 import { register } from './register'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
-import { Flex, IconButton } from '@radix-ui/themes'
+import { Button, Flex, IconButton } from '@radix-ui/themes'
 import { handleMetaRepresentation } from '../elements/metaRepr'
 import { mutateElementsMeta } from '../elements/mutateElements'
 
@@ -133,7 +133,7 @@ export const actionChangeMetaCameraShot = register({
             </IconButton>
           </Flex>
         ) : (
-          <IconButton
+          <Button
             size={'2'}
             variant={'surface'}
             color={'gray'}
@@ -142,7 +142,8 @@ export const actionChangeMetaCameraShot = register({
             title={'Add to shotlist'}
           >
             <CameraIcon />
-          </IconButton>
+            {'Add Samera'}
+          </Button>
         )}
       </fieldset>
     )
@@ -217,25 +218,27 @@ export const actionChangeMetaCameraVersion = register({
         <legend>{'Shot version'}</legend>
         <Flex direction={'column'} gap={'1'}>
           <Flex gap={'1'}>
-            <IconButton
+            <Button
               size={'2'}
               variant={'surface'}
               color={'gray'}
               onClick={() => updateData('moveFrom')}
-              title={'Move From'}
+              title={'Move camera from'}
             >
+              {'From'}
               <EnterIcon />
-            </IconButton>
+            </Button>
 
-            <IconButton
+            <Button
               size={'2'}
               variant={'surface'}
               color={'gray'}
               onClick={() => updateData('moveTo')}
-              title={'Move To'}
+              title={'Move camera to'}
             >
               <ExitIcon />
-            </IconButton>
+              {'To'}
+            </Button>
           </Flex>
           {isShot ? (
             <Flex gap={'1'}>

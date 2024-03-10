@@ -32,7 +32,7 @@ import {
 import { getCameraMetaReprStr, getCameraVersionStr } from './actionShootList'
 import { arrangeElements } from './zindex'
 import { Button, Dialog, Flex, Kbd, TextArea } from '@radix-ui/themes'
-import { EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
+import { EyeClosedIcon, EyeOpenIcon, Pencil1Icon } from '@radix-ui/react-icons'
 import { getBoundTextElement } from '../../../packages/excalidraw/element/textElement'
 import { mutateElement } from '../../../packages/excalidraw'
 import {
@@ -274,6 +274,7 @@ export const actionChangeMetaDescription = register({
         <Dialog.Root onOpenChange={(open) => !open && updateData(textValue)}>
           <Dialog.Trigger>
             <Button variant={'soft'} color={'gray'}>
+              <Pencil1Icon/>
               {'Description'}
             </Button>
           </Dialog.Trigger>
