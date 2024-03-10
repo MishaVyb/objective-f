@@ -1,6 +1,7 @@
 @import 'open-color/open-color';
 @import '../../../packages/excalidraw/css/variables.module';
 
+// https://www.radix-ui.com/colors/docs/overview/usage
 @import '@radix-ui/colors/gray.css';
 @import '@radix-ui/colors/blue.css';
 @import '@radix-ui/colors/green.css';
@@ -55,7 +56,7 @@
 
 .objective-library-unit {
   overflow: hidden;
-  
+
   align-items: center;
   border: 1px solid transparent;
 
@@ -69,5 +70,33 @@
 
   &:hover {
     border-color: var(--color-primary);
+  }
+}
+
+.objective-cameras-list {
+  .toggled-item {
+    // cursor: pointer; // ???
+
+    &.toggled {
+      background-color: var(--blue-3);
+    }
+
+    // click
+    &:active {
+      transform: scale(0.98);
+    }
+
+    &:hover {
+      background-color: var(--blue-3);
+
+      &.toggled {
+        background-color: var(--gray-3);
+      }
+
+      // click
+      &:active {
+        transform: scale(0.98);
+      }
+    }
   }
 }

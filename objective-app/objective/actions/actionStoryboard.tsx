@@ -1,4 +1,3 @@
-import * as Popover from '@radix-ui/react-popover'
 import clsx from 'clsx'
 
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
@@ -33,11 +32,16 @@ import './../scss/actionStoryboard.scss'
 import { deleteEventHandler } from '../elements/events'
 
 import { register } from './register'
-import { Flex, IconButton } from '@radix-ui/themes'
-import { CircleBackslashIcon, EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
+import { Badge, Button, Flex, IconButton, Popover, Text } from '@radix-ui/themes'
+import {
+  CameraIcon, CircleBackslashIcon,
+  EyeClosedIcon,
+  EyeOpenIcon
+} from '@radix-ui/react-icons'
 import { ImageIcon, TrashIcon } from '../../../packages/excalidraw/components/icons'
 import { changeElementMeta, changeElementProperty, mutateMeta } from '../elements/mutateElements'
 import { arrangeElements } from './zindex'
+import { getCameraMetaReprStr } from './actionShootList'
 
 export const actionInitStoryboard = register({
   name: 'actionInitStoryboard',
@@ -116,31 +120,66 @@ export const actionInitStoryboard = register({
     }
 
     return (
-      <>
-        <Popover.Root>
-          <Popover.Trigger className={clsx('popover-trigger__button')}>
-            {'As storyboard ...'}
-          </Popover.Trigger>
-          <Popover.Content
-            className='popover-content'
-            side={device.viewport.isMobile && !device.viewport.isLandscape ? 'bottom' : 'right'}
-            align={device.viewport.isMobile && !device.viewport.isLandscape ? 'center' : 'start'}
-            alignOffset={-16}
-            sideOffset={20}
+      <Popover.Root>
+        <Popover.Trigger>
+          <Button color={'gray'} variant='soft' disabled={!cameras.length}>
+            <CameraIcon />
+            {'Storyboard'}
+          </Button>
+        </Popover.Trigger>
+        <Popover.Content
+          side={device.viewport.isMobile && !device.viewport.isLandscape ? 'bottom' : 'right'}
+          align={device.viewport.isMobile && !device.viewport.isLandscape ? 'center' : 'start'}
+          alignOffset={-10}
+          sideOffset={20}
+        >
+          <Flex
+            direction={'column'}
+            className={'objective-cameras-list'}
+            style={{
+              minHeight: 150,
+            }}
           >
             {cameras.map((camera, index) => (
               <div
-                className={clsx('camera-item', { active: isImageRelatedToCamera(camera, image) })}
                 key={index}
+                className={clsx('toggled-item', { toggled: isImageRelatedToCamera(camera, image) })}
                 onClick={() => onClick(camera)}
               >
-                <div className='shot-number'>{camera.shotNumber}</div>
-                <div className='name'>{camera.name}</div>
+                <Flex
+                  m={'2'}
+                  style={{
+                    width: '100%',
+                  }}
+                >
+                  <Badge
+                    style={{
+                      background: getObjectiveBasis(camera)!.backgroundColor + '40',
+                    }}
+                    radius={'small'}
+                    color={'gray'}
+                  >
+                    {getCameraMetaReprStr(camera, { name: '' })}
+                  </Badge>
+                  <Text
+                    ml={'2'}
+                    style={{
+                      maxWidth: 150,
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap',
+                      textOverflow: 'ellipsis',
+                    }}
+                    weight={'bold'}
+                    size={'1'}
+                  >
+                    {camera.name}
+                  </Text>
+                </Flex>
               </div>
             ))}
-          </Popover.Content>
-        </Popover.Root>
-      </>
+          </Flex>
+        </Popover.Content>
+      </Popover.Root>
     )
   },
 })
