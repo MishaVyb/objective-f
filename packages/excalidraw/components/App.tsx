@@ -431,6 +431,7 @@ import {
   getObjectiveBasis,
 } from "../../../objective-app/objective/meta/selectors";
 import { actionCreatePointer } from "../../../objective-app/objective/actions/actionMetaCommon";
+import { __DEBUG_LOG_POINTER_CORDS } from "../../../objective-app/objective-plus/constants";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -9568,8 +9569,9 @@ class App extends React.Component<AppProps, AppState> {
       tool: this.state.activeTool.type === "laser" ? "laser" : "pointer",
     };
 
-    // eslint-disable-next-line no-console
-    if (this.state.showStats) console.debug(pointer);
+    if (this.state.showStats && __DEBUG_LOG_POINTER_CORDS)
+      // eslint-disable-next-line no-console
+      console.debug(pointer);
 
     this.props.onPointerUpdate?.({
       pointer,

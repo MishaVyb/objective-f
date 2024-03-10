@@ -16,6 +16,7 @@ import { getInitialMeta } from '../meta/initial'
 
 import { randomId } from '../../../packages/excalidraw/random'
 import { DEFAULT_FONT_SIZE } from '../../../packages/excalidraw/constants'
+import Scene from '../../../packages/excalidraw/scene/Scene'
 
 export const newMockPointer = () =>
   newLinearElement({
@@ -47,7 +48,8 @@ export const newMockPointer = () =>
 export const newPointerBeetween = (
   one: ExcalidrawBindableElement | undefined,
   another: ExcalidrawBindableElement | undefined,
-  nonDeletedElements: NonDeletedSceneElementsMap
+  nonDeletedElements: NonDeletedSceneElementsMap,
+  opts?: { scene: Scene }
 ) => {
   if (!another || !one) return console.warn('Cannot get pointer for undefined element. ')
 
@@ -61,10 +63,12 @@ export const newPointerBeetween = (
   updateBoundElements(another, {
     justCreatedBounds: [newPointer],
     justCreatedBoundsAreBoundTo: [another, one],
+    scene: opts?.scene
   })
   updateBoundElements(one, {
     justCreatedBounds: [newPointer],
     justCreatedBoundsAreBoundTo: [another, one],
+    scene: opts?.scene
   })
   return newPointer
 }

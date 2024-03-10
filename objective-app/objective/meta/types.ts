@@ -108,7 +108,7 @@ export interface PointerMeta extends ObjectiveMeta {
 export type PointerElement = ObjectiveElement<PointerMeta>
 
 export interface LocationMeta extends ObjectiveMeta {
-  // no special fields
+  kind: ObjectiveKinds.LOCATION
 }
 
 export interface CameraMeta extends ObjectiveMeta {
@@ -130,6 +130,9 @@ export interface ShotCameraMeta extends CameraMeta {
   shotNumber: number // Cam A / Cam B
   shotVersion: number // Cam A-1 / Cam A-2
 }
+
+// TODO https://www.typescriptlang.org/docs/handbook/2/types-from-types.html
+export type AnyObjectiveMeta = CameraMeta
 
 export type CameraElement = ObjectiveElement<CameraMeta>
 export type ShotCameraElement = ObjectiveElement<ShotCameraMeta>

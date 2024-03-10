@@ -1,5 +1,10 @@
 import { arrangeElements } from "../../../objective-app/objective/actions/zindex";
 import { duplicateObjectiveEventHandler } from "../../../objective-app/objective/elements/events";
+import { Vector } from "../../../objective-app/objective/elements/math";
+import {
+  AnyObjectiveMeta,
+  ObjectiveMeta,
+} from "../../../objective-app/objective/meta/types";
 import { ToolButton } from "../components/ToolButton";
 import { DuplicateIcon } from "../components/icons";
 import { duplicateElement, getNonDeletedElements } from "../element";
@@ -73,10 +78,17 @@ export const actionDuplicateSelection = register({
   ),
 });
 
-const duplicateElements = (
+export const duplicateElements = (
   elements: readonly ExcalidrawElement[],
   appState: AppState,
   app: AppClassProperties,
+
+  // VBRN
+  opts?: {
+    shift: Vector;
+    addPointerWith: ObjectiveMeta;
+    newElementsMeta: Partial<AnyObjectiveMeta>;
+  },
 ): Partial<ActionResult> => {
   // ---------------------------------------------------------------------------
 
@@ -89,13 +101,18 @@ const duplicateElements = (
   const oldIdToDuplicatedId = new Map();
 
   const duplicateAndOffsetElement = (element: ExcalidrawElement) => {
+    // VBRN
+    const shift = opts?.shift || {
+      x: appState.gridSizeConfig / 2,
+      y: appState.gridSizeConfig / 2,
+    };
     const newElement = duplicateElement(
       appState.editingGroupId,
       groupIdMap,
       element,
       {
-        x: element.x + appState.gridSizeConfig / 2,
-        y: element.y + appState.gridSizeConfig / 2,
+        x: element.x + shift.x,
+        y: element.y + shift.y,
       },
     );
     oldIdToDuplicatedId.set(element.id, newElement.id);
@@ -240,9 +257,14 @@ const duplicateElements = (
   // VBRN
   const extraNewElements = duplicateObjectiveEventHandler(
     finalElements.filter(
-      // handle only new elements
+      // handle only new elements // HACK do not use NonDeleted elements here!!!
       (e) => !app.scene.getElementsMapIncludingDeleted().has(e.id),
     ),
+    {
+      scene: app.scene,
+      addPointerWith: opts?.addPointerWith,
+      newElementsMeta: opts?.newElementsMeta,
+    },
   );
   finalElements = arrangeElements(finalElements, extraNewElements);
   // VBRN

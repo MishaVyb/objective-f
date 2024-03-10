@@ -318,6 +318,7 @@ export const updateBoundElements = (
     // As they are not in a Scene yet, we have to provide them directly.
     justCreatedBounds?: readonly ExcalidrawElement[];
     justCreatedBoundsAreBoundTo?: readonly ExcalidrawBindableElement[];
+    scene?: Scene;
   },
 ) => {
   const boundLinearElements = (changedElement.boundElements ?? []).filter(
@@ -330,7 +331,7 @@ export const updateBoundElements = (
   const simultaneouslyUpdatedElementIds = getSimultaneouslyUpdatedElementIds(
     simultaneouslyUpdated,
   );
-  const scene = Scene.getScene(changedElement)!;
+  const scene = options?.scene || Scene.getScene(changedElement)!; // VBRN
   [
     ...getNonDeletedElements(
       scene,

@@ -11,7 +11,7 @@ import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
 import { newMetaReprElement } from '../elements/newElement'
-import { getCameraMetas, getSelectedCameraMetas } from '../meta/selectors'
+import { getCameraMetas, getObjectiveSingleMeta, getSelectedCameraMetas } from '../meta/selectors'
 import { CameraMeta, isAllElementsCameras, isCameraElement } from '../meta/types'
 
 import { register } from './register'
@@ -19,6 +19,7 @@ import { AppClassProperties } from '../../../packages/excalidraw/types'
 import { Button, Flex, IconButton } from '@radix-ui/themes'
 import { handleMetaRepresentation } from '../elements/metaRepr'
 import { mutateElementsMeta } from '../elements/mutateElements'
+import { duplicateElements } from '../../../packages/excalidraw/actions/actionDuplicateSelection'
 
 type TChangeShotActionValue = 'init' | 'remove' | 'incraseShotNumber' | 'decraseShotNumber'
 
@@ -142,7 +143,7 @@ export const actionChangeMetaCameraShot = register({
             title={'Add to shotlist'}
           >
             <CameraIcon />
-            {'Add Samera'}
+            {'Add'}
           </Button>
         )}
       </fieldset>
@@ -159,13 +160,67 @@ export const actionChangeMetaCameraVersion = register({
   trackEvent: false,
   perform: (elements, appState, actionType: TChangeVersionActionValue, app: AppClassProperties) => {
     const cameras = getSelectedCameraMetas(app.scene, appState)
-    // const isShot = actionType === 'init' ? true : false
+    const singleCamera = cameras[0]
+
     let newEls: ReturnType<typeof handleMetaRepresentation> = []
+    let newCameraShotVers: number
 
     switch (actionType) {
-      // TODO
-      // Move To \ From
-      //--------------------------------------------//
+      case 'moveTo':
+        if (!singleCamera.shotVersion) {
+          newCameraShotVers = 2
+          // RECURSIVE CALL
+          elements = actionChangeMetaCameraVersion.perform(
+            elements,
+            appState,
+            'incraseShotVersion',
+            app
+          ).elements!
+        } else {
+          newCameraShotVers = singleCamera.shotVersion + 1
+        }
+        return {
+          ...duplicateElements(elements, appState, app, {
+            shift: { x: 150, y: 0 },
+            addPointerWith: singleCamera,
+            newElementsMeta: { shotVersion: newCameraShotVers },
+          }),
+          commitToHistory: true,
+        }
+      case 'moveFrom':
+        if (!singleCamera.shotVersion) {
+          newCameraShotVers = 1
+          // RECURSIVE CALL x2
+          elements = actionChangeMetaCameraVersion.perform(
+            elements,
+            appState,
+            'incraseShotVersion',
+            app
+          ).elements!
+          elements = actionChangeMetaCameraVersion.perform(
+            elements,
+            appState,
+            'incraseShotVersion',
+            app
+          ).elements!
+        } else {
+          newCameraShotVers = singleCamera.shotVersion - 1
+          elements = actionChangeMetaCameraVersion.perform(
+            elements,
+            appState,
+            'incraseShotVersion',
+            app
+          ).elements!
+        }
+        return {
+          ...duplicateElements(elements, appState, app, {
+            shift: { x: -150, y: 0 },
+            addPointerWith: singleCamera,
+            newElementsMeta: { shotVersion: newCameraShotVers },
+          }),
+          commitToHistory: true,
+        }
+
       case 'incraseShotVersion':
         newEls = handleMetaRepresentation(
           app.scene,
@@ -204,7 +259,8 @@ export const actionChangeMetaCameraVersion = register({
     updateData,
     appProps,
   }: PanelComponentProps<TChangeVersionActionValue>) => {
-    if (!isAllElementsCameras(getSelectedElements(elements, appState))) return <></>
+    const singleMeta = getObjectiveSingleMeta(getSelectedElements(elements, appState))
+
     const isShot = getFormValue<boolean>(
       elements,
       appState,
@@ -217,29 +273,31 @@ export const actionChangeMetaCameraVersion = register({
       <fieldset>
         <legend>{'Shot version'}</legend>
         <Flex direction={'column'} gap={'1'}>
-          <Flex gap={'1'}>
-            <Button
-              size={'2'}
-              variant={'surface'}
-              color={'gray'}
-              onClick={() => updateData('moveFrom')}
-              title={'Move camera from'}
-            >
-              {'From'}
-              <EnterIcon />
-            </Button>
+          {singleMeta && (
+            <Flex gap={'1'}>
+              <Button
+                size={'2'}
+                variant={'surface'}
+                color={'gray'}
+                onClick={() => updateData('moveFrom')}
+                title={'Move camera from'}
+              >
+                {'From'}
+                <EnterIcon />
+              </Button>
 
-            <Button
-              size={'2'}
-              variant={'surface'}
-              color={'gray'}
-              onClick={() => updateData('moveTo')}
-              title={'Move camera to'}
-            >
-              <ExitIcon />
-              {'To'}
-            </Button>
-          </Flex>
+              <Button
+                size={'2'}
+                variant={'surface'}
+                color={'gray'}
+                onClick={() => updateData('moveTo')}
+                title={'Move camera to'}
+              >
+                <ExitIcon />
+                {'To'}
+              </Button>
+            </Flex>
+          )}
           {isShot ? (
             <Flex gap={'1'}>
               <IconButton

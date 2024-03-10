@@ -7,6 +7,7 @@ import {
   ExcalidrawEllipseElement,
   ExcalidrawImageElement,
   NonDeletedExcalidrawElement,
+  NonDeletedSceneElementsMap,
 } from '../../../packages/excalidraw/element/types'
 
 import {
@@ -15,7 +16,7 @@ import {
   PointerDownState,
 } from '../../../packages/excalidraw/types'
 import { Mutable } from '../../../packages/excalidraw/utility-types'
-import { newMetaReprElement } from './newElement'
+import { newMetaReprElement, newPointerBeetween } from './newElement'
 import {
   getObjectiveBasis,
   getCameraMetas,
@@ -25,7 +26,13 @@ import {
   getPointerIds,
   getPointers,
 } from '../meta/selectors'
-import { ObjectiveKinds, ObjectiveMeta, isCameraMeta, isKind } from '../meta/types'
+import {
+  AnyObjectiveMeta,
+  ObjectiveKinds,
+  ObjectiveMeta,
+  isCameraMeta,
+  isKind,
+} from '../meta/types'
 import {
   actionFinalizeSelectionDrag,
   performRotationLocationOnDragFinalize,
@@ -39,26 +46,51 @@ import { arrangeElements } from '../actions/zindex'
 import { Vector, getElementCenter } from './math'
 import { getDistance } from '../../../packages/excalidraw/gesture'
 import { actionCreatePointer, actionDeletePointer } from '../actions/actionMetaCommon'
-import { changeElementProperty } from './mutateElements'
+import { changeElementProperty, mutateMeta } from './mutateElements'
 import { createMetaRepr, deleteMetaRepr } from './metaRepr'
+import Scene from '../../../packages/excalidraw/scene/Scene'
 
 /**
  * It's assumed that elements metas already copied properly by `duplicateAsInitialEventHandler`
  * @param newElements new (cloned/copied) elements
  */
-export const duplicateObjectiveEventHandler = (newElements: Mutable<ExcalidrawElement>[]) => {
+export const duplicateObjectiveEventHandler = (
+  newElements: Mutable<ExcalidrawElement>[],
+  opts?: {
+    addPointerWith?: ObjectiveMeta
+    newElementsMeta?: Partial<AnyObjectiveMeta>
+    scene: Scene
+  }
+) => {
   const extraNewEls: ExcalidrawElement[] = []
   const metas = getObjectiveMetas(newElements) as Mutable<ObjectiveMeta>[]
 
   metas.forEach((meta) => {
+    if (opts?.newElementsMeta) mutateMeta(meta, opts.newElementsMeta)
+
+    if (opts?.addPointerWith)
+      extraNewEls.push(
+        newPointerBeetween(
+          getObjectiveBasis(opts.addPointerWith),
+          getObjectiveBasis(meta),
+          new Map([]) as NonDeletedSceneElementsMap, // HACK we know for sure that those new els have no pointer between
+          { scene: opts?.scene }
+        )!
+      )
+
     if (isCameraMeta(meta)) {
-      if (meta.shotNumber) {
-        // ??? incrase shot number on copy/past ?
-        // Object.assign(meta, determineCameraMeta(elements, true))
-      }
       if (meta.nameRepr)
         extraNewEls.push(
-          ...createMetaRepr(meta, 'nameRepr', getCameraMetaReprStr(meta), newMetaReprElement)
+          ...createMetaRepr(
+            meta,
+            'nameRepr',
+            getCameraMetaReprStr(meta, {
+              name: opts?.newElementsMeta?.name,
+              shotNumber: opts?.newElementsMeta?.shotNumber,
+              shotVersion: opts?.newElementsMeta?.shotVersion,
+            }),
+            newMetaReprElement
+          )
         )
 
       meta.relatedImages = []

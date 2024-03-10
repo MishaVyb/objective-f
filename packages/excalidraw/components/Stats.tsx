@@ -21,6 +21,7 @@ import {
   getObjectiveSingleMeta,
 } from "../../../objective-app/objective/meta/selectors";
 import { BasisElementType } from "../../../objective-app/objective/elements/snapElements";
+import { isCameraMeta } from "../../../objective-app/objective/meta/types";
 
 export const Stats = (props: {
   appState: UIAppState;
@@ -70,6 +71,22 @@ export const Stats = (props: {
             <Code>{singleMeta.nameRepr} </Code>
           </td>
         </tr>
+        {isCameraMeta(singleMeta) && (
+          <>
+            <tr>
+              <td>{"shotNumber"}</td>
+              <td>
+                <Code>{singleMeta.shotNumber} </Code>
+              </td>
+            </tr>
+            <tr>
+              <td>{"shotVersion"}</td>
+              <td>
+                <Code>{singleMeta.shotVersion} </Code>
+              </td>
+            </tr>
+          </>
+        )}
       </>
     );
 
