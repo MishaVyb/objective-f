@@ -125,7 +125,7 @@ export const snapDraggedElementsLocation = (
   const singleObjectiveItem = metas.length === 1
   if (singleObjectiveItem) {
     const meta = metas[0]
-    const snap = getLocationSnap(meta, appState, scene, dragOffset)
+    const snap = getLocationSnap(meta as LocationMeta, appState, scene, dragOffset)
     if (snap) {
       return {
         snapOffset: getLocationSnapOffset(snap),

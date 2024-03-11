@@ -71,14 +71,14 @@ export interface ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> {
    * etc.
    *
    */
-  basisIndex: number
+  readonly basisIndex: number
 
-  libraryImg?: {
+  readonly libraryImg?: Readonly<{
     src: string
     title: string
     w: number
     h: number
-  }
+  }>
 
   //
   //
