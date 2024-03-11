@@ -10,6 +10,8 @@
 @import '@radix-ui/colors/green-dark.css';
 @import '@radix-ui/colors/red-dark.css';
 
+@import '@radix-ui/themes/styles.css';
+
 // HACK Override style of saved password field in google chrome
 input:-webkit-autofill {
   -webkit-box-shadow: 200px 200px 100px white inset;
@@ -35,6 +37,72 @@ a {
     background-color: var(--blue-a3);
   }
 }
+
+// Docs: https://docs.excalidraw.com/docs/@excalidraw/excalidraw/customizing-styles
+.excalidraw-app-overrides .excalidraw {
+  // // excalidraw original colors reference
+  // --color-selection: #6965db;
+  // --color-primary: #6965db;
+  // --color-primary-darker: #5b57d1;
+  // --color-primary-darkest: #4a47b1;
+  // --color-primary-lightest: #f4f4ff;
+  // --color-primary-light: #e3e2fe;
+  // --color-primary-light-darker: #d7d5ff;
+  // --color-primary-hover: #5753d0;
+
+  // --color-surface-high: hsl(244, 100%, 97%);
+  // --color-surface-mid: hsl(240 25% 96%);
+  // --color-surface-low: hsl(240 25% 94%);
+  // --color-surface-lowest: #ffffff;
+  // --color-on-surface: #1b1b1f;
+  // --color-brand-hover: #5753d0;
+  // --color-on-primary-container: #030064;
+  // --color-surface-primary-container: #e0dfff;
+  // --color-brand-active: #4440bf;
+  // --color-border-outline: #767680;
+  // --color-border-outline-variant: #c5c5d0;
+  // --color-surface-primary-container: #e0dfff;
+
+
+  // // accent colors reference
+  // --cyan-1: hsl(185, 60.0%, 98.7%);
+  // --cyan-2: hsl(185, 73.3%, 97.1%);
+  // --cyan-3: hsl(186, 70.2%, 94.4%);
+  // --cyan-4: hsl(186, 63.8%, 90.6%);
+  // --cyan-5: hsl(187, 58.3%, 85.4%);
+  // --cyan-6: hsl(188, 54.6%, 78.4%);
+  // --cyan-7: hsl(189, 53.7%, 68.7%);
+  // --cyan-8: hsl(189, 60.3%, 52.5%);
+  // --cyan-9: hsl(190, 95.0%, 39.0%);
+  // --cyan-10: hsl(191, 91.2%, 36.8%);
+  // --cyan-11: hsl(192, 85.0%, 31.0%);
+  // --cyan-12: hsl(192, 70.0%, 16.5%);
+
+  // // overrides
+  // --color-selection: var(--accent-10);
+  // --color-primary: var(--accent-10);
+  // --color-primary-darker:  var(--accent-11);
+  // --color-primary-darkest:  var(--accent-12);
+  // --color-primary-lightest:  var(--accent-2);
+  // --color-primary-light:  var(--accent-4);
+  // --color-primary-light-darker:  var(--accent-5);
+  // --color-primary-hover:  var(--accent-9);
+
+
+  // --color-surface-high: var(--accent-2);
+  // --color-surface-mid: var(--gray-2);
+  // --color-surface-low: var(--accent-3);
+  // //
+  // --color-on-surface:  var(--accent-12);
+  // --color-brand-hover:  var(--accent-11);
+  // --color-on-primary-container:  var(--accent-12);
+  // --color-surface-primary-container:  var(--accent-5);
+  // --color-brand-active:  var(--accent-9);
+  // --color-border-outline: #767680;
+  // --color-border-outline-variant: #c5c5d0;
+  // --color-surface-primary-container:  var(--accent-5);
+}
+
 
 .objective-plus-app {
   background-size: contain;

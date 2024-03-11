@@ -3,7 +3,6 @@ import { FC } from 'react'
 import { useExcalidrawSetAppState } from '../../../packages/excalidraw/components/App'
 import { useCameraImages } from '../meta/selectors'
 import { CameraMeta } from '../meta/types'
-import './../scss/cameraItem.scss'
 
 const ShotListSidebarCameraElement: FC<{
   camera: CameraMeta

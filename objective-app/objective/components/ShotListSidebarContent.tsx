@@ -2,7 +2,6 @@ import { FC } from 'react'
 
 import { useObjectiveCameras } from './ObjectiveInnerWrapper'
 import ShotListSidebarCameraElement from './ShotListSidebarCameraElement'
-import './../scss/cameraItem.scss'
 
 const ShotListSidebarContent: FC = () => {
   const cameras = useObjectiveCameras()

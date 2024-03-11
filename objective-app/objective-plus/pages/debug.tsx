@@ -1,8 +1,5 @@
-import { Button, Heading, Text, TextArea, TextField } from '@radix-ui/themes'
+import { TextArea, TextField } from '@radix-ui/themes'
 import { ObjectiveCard, RootBox } from '../components/layout'
-
-import '../scss/debug.scss'
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 
 const DebugPage = () => {
   return (
@@ -25,7 +22,7 @@ const DebugPage = () => {
               className='my-text-field' //
             >
               <TextField.Input
-                variant="soft"
+                variant='soft'
                 color={'gray'}
                 className='my-text-field' //
                 placeholder='Search the docs…'

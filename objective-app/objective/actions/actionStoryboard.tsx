@@ -12,8 +12,6 @@ import {
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
 import { newPointerBeetween } from '../elements/newElement'
-import '../scss/cameraItem.scss'
-import '../scss/popover.scss'
 import {
   getObjectiveBasis,
   getCameraMetas,
@@ -28,7 +26,6 @@ import {
   isDisplayed,
   isImageRelatedToCamera,
 } from '../meta/types'
-import './../scss/actionStoryboard.scss'
 import { deleteEventHandler } from '../elements/events'
 
 import { register } from './register'
@@ -310,7 +307,7 @@ export const actionStoryboard = register({
                 >
                   <CircleBackslashIcon />
                 </IconButton>
-                
+
                 <IconButton
                   size={'2'}
                   variant={'outline'}

@@ -1,8 +1,6 @@
 import clsx from 'clsx'
 import { ButtonHTMLAttributes, FC, ReactNode } from 'react'
 
-import './Button.scss'
-
 interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: ReactNode
 }

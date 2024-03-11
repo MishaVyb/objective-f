@@ -13,7 +13,6 @@ import ResetPasswordPage from '../pages/auth/reset-password-page/reset-password-
 import NotFoundPage from '../pages/errors/not-found-page'
 import HomePage from '../pages/home'
 import { fetchErrorCheck } from '../utils/objective-api'
-import './../scss/app.scss'
 import { ObjectiveHeader } from './header'
 import RouteDispatch from './route-dispatch'
 import DebugPage from '../pages/debug'
@@ -38,12 +37,12 @@ const ObjectivePlusApp: FC = () => {
     <Theme
       style={{ height: '100%' }} // height: '100%' is required for any element above Excalidraw
       className={clsx(
-        'excalidraw-app',
-        { 'is-collaborating': false }
+        'excalidraw-app', // ???
+        'excalidraw-app-overrides',
         // 'zoom-out' //
       )}
-      appearance='light'
-      accentColor='blue'
+      appearance={'light'}
+      accentColor={'violet'}
       radius={'small'}
       scaling={'110%'}
     >

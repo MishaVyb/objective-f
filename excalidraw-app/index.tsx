@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import ObjectivePlusWrapper from "../objective-app/objective-plus";
+import ObjectivePlusAppIndex from "../objective-app/objective-plus";
 // import { registerSW } from "virtual:pwa-register"; // VBRN CONFLICT install
 
 import "../excalidraw-app/sentry";
@@ -10,6 +10,6 @@ const root = createRoot(rootElement);
 // registerSW();// VBRN CONFLICT install
 root.render(
   <StrictMode>
-    <ObjectivePlusWrapper />
+    <ObjectivePlusAppIndex />
   </StrictMode>,
 );
