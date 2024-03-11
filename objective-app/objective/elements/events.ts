@@ -1,11 +1,9 @@
 import App from '../../../packages/excalidraw/components/App'
-import { newElementWith } from '../../../packages/excalidraw/element/mutateElement'
-import { isImageElement } from '../../../packages/excalidraw/element/typeChecks'
+import { mutateElement, newElementWith } from '../../../packages/excalidraw/element/mutateElement'
 import {
   ExcalidrawBindableElement,
   ExcalidrawElement,
   ExcalidrawEllipseElement,
-  ExcalidrawImageElement,
   NonDeletedExcalidrawElement,
   NonDeletedSceneElementsMap,
 } from '../../../packages/excalidraw/element/types'
@@ -19,12 +17,10 @@ import { Mutable } from '../../../packages/excalidraw/utility-types'
 import { newMetaReprElement, newPointerBeetween } from './newElement'
 import {
   getObjectiveBasis,
-  getCameraMetas,
   getObjectiveMetas,
   getObjectiveSingleMeta,
   getMetaByObjectiveId,
   getPointerIds,
-  getPointers,
 } from '../meta/selectors'
 import {
   AnyObjectiveMeta,
@@ -46,9 +42,10 @@ import { arrangeElements } from '../actions/zindex'
 import { Vector, getElementCenter } from './math'
 import { getDistance } from '../../../packages/excalidraw/gesture'
 import { actionCreatePointer, actionDeletePointer } from '../actions/actionMetaCommon'
-import { changeElementProperty, mutateMeta } from './mutateElements'
+import { mutateMeta } from './mutateElements'
 import { createMetaRepr, deleteMetaRepr } from './metaRepr'
 import Scene from '../../../packages/excalidraw/scene/Scene'
+import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
 
 /**
  * It's assumed that elements metas already copied properly by `duplicateAsInitialEventHandler`
@@ -134,7 +131,6 @@ export const deleteEventHandler = (
 
   // - Handle Objective
   const delitingMetas = getObjectiveMetas([...deletingElements], {
-    // extraPredicate: (meta) => [...deletingElements].some((el) => meta.elementIds.includes(el.id)),
     includingDelited: true,
   })
   elements = deleteObjectiveMetas(app, elements, delitingMetas)
@@ -148,24 +144,18 @@ export const deleteExcalidrawElements = (
   deletingElements: Set<ExcalidrawElement> | Array<ExcalidrawElement>
 ) => {
   deletingElements.forEach((target) => {
-    //
-    //
-    if (isImageElement(target)) {
-      const image = target
-      const otherCamerasRelatedToImage = getCameraMetas(elements, {
-        extraPredicate: (c) => c.relatedImages.includes(image.id),
-      })
-      otherCamerasRelatedToImage.forEach((camera) => {
-        const cameraBasis = getObjectiveBasis<ExcalidrawEllipseElement>(camera)
-        getPointers(app.scene.getNonDeletedElementsMap(), image, cameraBasis).forEach((pointer) => {
-          elements = changeElementProperty(elements, pointer, {
-            isDeleted: true,
-          })
-        })
-      })
-    }
-
-    // .... other handlers per Excalidraw type
+    // delete all pointers
+    const pointers = target.boundElements?.reduce((pointers, el) => {
+      if (el.type === 'arrow') {
+        const element = app.scene.getElement(el.id)
+        if (element) {
+          mutateElement(element, { isDeleted: true })
+          pointers.push(element)
+        }
+      }
+      return pointers
+    }, [] as ExcalidrawElement[])
+    if (pointers) fixBindingsAfterDeletion(elements, pointers)
   })
   return elements
 }
@@ -176,35 +166,13 @@ export const deleteObjectiveMetas = (
   delitingMetas: readonly Readonly<ObjectiveMeta>[]
 ) => {
   delitingMetas.forEach((target) => {
-    // [0] delete repr
-    deleteMetaRepr(app.scene, target, 'nameRepr')
-
     if (isKind(target, ObjectiveKinds.LABEL)) {
-      // is case of deleting repr container, we call for specific handler that implements all logic
+      // is case of deleting repr container itself
       const labelOfMeta = getMetaByObjectiveId(elements, target.labelOf)
       if (labelOfMeta) deleteMetaRepr(app.scene, labelOfMeta, 'nameRepr')
-    }
-
-    if (isCameraMeta(target)) {
-      //
-      // [1.1] delete storyboard
-      const camera = target
-      const otherImagesRelatedToCamera = elements.filter(
-        (element): element is ExcalidrawImageElement =>
-          element.type === 'image' && camera.relatedImages.includes(element.id)
-      )
-      otherImagesRelatedToCamera.forEach((image) => {
-        const cameraBasis = getObjectiveBasis<ExcalidrawEllipseElement>(camera)
-
-        // UNUSED... in case we handle deliting not whole Camera, but separate camera primitive
-        if (!cameraBasis) return
-
-        getPointers(app.scene.getNonDeletedElementsMap(), image, cameraBasis).forEach((pointer) => {
-          elements = changeElementProperty(elements, pointer, {
-            isDeleted: true,
-          })
-        })
-      })
+    } else {
+      // delete repr container (if meta has repr)
+      deleteMetaRepr(app.scene, target, 'nameRepr')
     }
 
     // .... other handlers per Objective kind

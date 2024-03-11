@@ -15,7 +15,7 @@ import {
   getLineFunc,
   getRectangleCoordinates,
 } from "../../../objective-app/objective/elements/math";
-import { Code } from "@radix-ui/themes";
+import { Code, Flex } from "@radix-ui/themes";
 import {
   getObjectiveBasis,
   getObjectiveSingleMeta,
@@ -86,6 +86,18 @@ export const Stats = (props: {
               </td>
             </tr>
           </>
+        )}
+        {basis && basis.boundElements?.length && (
+          <tr>
+            <td>{"basis boundElements"}</td>
+            <td>
+              <Flex direction={"column"}>
+                {basis.boundElements.map((el) => (
+                  <Code key={el.id}>{el.id}</Code>
+                ))}
+              </Flex>
+            </td>
+          </tr>
         )}
       </>
     );
