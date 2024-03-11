@@ -87,7 +87,6 @@ const RegisterPage: FC = () => {
               type='email'
               name='email'
               autoComplete={'username'}
-              radius={'large'}
               onChange={onFormChange}
             />
           </TextField.Root>
@@ -99,7 +98,6 @@ const RegisterPage: FC = () => {
               type={showPassword ? 'text' : 'password'}
               name='password'
               autoComplete={'current-password'}
-              radius={'large'}
               onChange={onFormChange}
               required
             />
@@ -121,7 +119,6 @@ const RegisterPage: FC = () => {
               placeholder='Username'
               type='text'
               name='username'
-              radius={'large'}
               onChange={onFormChange}
             />
           </TextField.Root>
@@ -132,7 +129,7 @@ const RegisterPage: FC = () => {
             onValueChange={(v) => onFieldChange('role', v)}
           >
             {/* @ts-ignore */}
-            <Select.Trigger radius={'large'} placeholder={'Select Role'} />
+            <Select.Trigger placeholder={'Select Role'} />
             <Select.Content>
               <Select.Group>
                 <Select.Label>Role</Select.Label>

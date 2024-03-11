@@ -30,7 +30,6 @@ const TopLeftUI: FC<{ children: ReactNode }> = ({ children }) => {
       <Flex gap={'2'}>
         <IconButton
           variant={'outline'}
-          radius={'large'}
           color={'gray'}
           highContrast
           onClick={() => navigate('/')}

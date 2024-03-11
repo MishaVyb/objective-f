@@ -149,7 +149,6 @@ export const actionInitStoryboard = register({
                     style={{
                       background: getObjectiveBasis(camera)!.backgroundColor + '40',
                     }}
-                    radius={'small'}
                     color={'gray'}
                   >
                     {getCameraMetaReprStr(camera, { name: '' })}
