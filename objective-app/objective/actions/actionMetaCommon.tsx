@@ -274,7 +274,7 @@ export const actionChangeMetaDescription = register({
         <Dialog.Root onOpenChange={(open) => !open && updateData(textValue)}>
           <Dialog.Trigger>
             <Button variant={'soft'} color={'gray'}>
-              <Pencil1Icon/>
+              <Pencil1Icon />
               {'Description'}
             </Button>
           </Dialog.Trigger>

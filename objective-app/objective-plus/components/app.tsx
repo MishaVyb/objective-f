@@ -16,6 +16,7 @@ import { fetchErrorCheck } from '../utils/objective-api'
 import './../scss/app.scss'
 import { ObjectiveHeader } from './header'
 import RouteDispatch from './route-dispatch'
+import DebugPage from '../pages/debug'
 
 const ScheckSentry: FC = () => {
   console.info('ScheckSentry: info log')
@@ -58,7 +59,8 @@ const ObjectivePlusApp: FC = () => {
         <Routes>
           <Route path='*' element={<NotFoundPage />} />
           <Route path='/about' element={<AboutPage />} />
-          <Route path='/check-sentry' element={<ScheckSentry />} />
+          <Route path='/error' element={<ScheckSentry />} />
+          <Route path='/debug' element={<DebugPage />} />
           <Route
             path='/'
             element={

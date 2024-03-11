@@ -1,0 +1,41 @@
+@import 'open-color/open-color';
+@import '../../../packages/excalidraw/css/variables.module';
+
+@import '@radix-ui/colors/gray.css';
+@import '@radix-ui/colors/blue.css';
+@import '@radix-ui/colors/green.css';
+@import '@radix-ui/colors/red.css';
+@import '@radix-ui/colors/gray-dark.css';
+@import '@radix-ui/colors/blue-dark.css';
+@import '@radix-ui/colors/green-dark.css';
+@import '@radix-ui/colors/red-dark.css';
+
+.debug-content {
+  // border: 1px dashed red;
+
+  button {
+    border: 3px solid blue;
+    background: white;
+  }
+
+  .my-button {
+    border: 3px solid yellow;
+    background: red !important;
+  }
+
+  .my-text-field {
+    // styles for <textfield />
+
+    border: 0px solid transparent !important;
+    --accent-a8: transparent !important;  // disable blue frame on :active
+    background-color: transparent !important;
+
+    // styles for <textaria />
+    box-shadow: inset 0 0 0 0px transparent !important; // disable gray frame (standby)
+    --accent-8: transparent !important; // disable blue frame on :active
+
+
+
+
+  }
+}
