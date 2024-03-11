@@ -26,6 +26,7 @@ import {
   selectIsPending,
   selectToggledProjectId,
 } from '../store/projects/reducer'
+import { ACCENT_COLOR } from '../constants'
 
 const ProjectNewItem: FC = () => {
   const dispatch = useDispatch()
@@ -187,7 +188,7 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
         className={clsx('toggled-item', { active: toggled })}
         onClick={onClick}
       >
-        <Text color={toggled ? 'blue' : 'gray'} ml='1' mr={'auto'}>
+        <Text color={toggled ? ACCENT_COLOR : 'gray'} ml='1' mr={'auto'}>
           {project.name}
         </Text>
       </div>

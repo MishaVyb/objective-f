@@ -4,6 +4,7 @@ import { FC, MouseEvent } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useDispatch } from '../../../hooks/redux'
 import { loadLogout } from '../../../store/auth/actions'
+import { ACCENT_COLOR } from '../../../constants'
 
 const ProfileNavbar: FC = () => {
   const dispatch = useDispatch()
@@ -17,7 +18,7 @@ const ProfileNavbar: FC = () => {
     <Flex direction={'column'} width={'max-content'} pt={'2'} pr={'2'}>
       <NavLink to='/profile' end>
         <PersonIcon />
-        <Text color={'blue'} size={'5'} ml={'2'}>
+        <Text color={ACCENT_COLOR} size={'5'} ml={'2'}>
           Your profile
         </Text>
       </NavLink>

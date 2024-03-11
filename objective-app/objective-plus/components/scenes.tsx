@@ -29,6 +29,7 @@ import {
   selectToggledProject,
 } from '../store/projects/reducer'
 import { useNavigate } from 'react-router-dom'
+import { ACCENT_COLOR } from '../constants'
 
 const SceneCard: FC<{ children: ReactNode; className?: string; onClick?: () => void }> = ({
   children,
@@ -88,7 +89,7 @@ const SceneNewItem: FC = () => {
       >
         <Text
           m='2'
-          color={'blue'}
+          color={ACCENT_COLOR}
           style={{ paddingRight: 20 }} // HACK: center
         >
           <PlusIcon /> New Scene
@@ -247,7 +248,7 @@ const ScenesList = () => {
       }}
     >
       <Heading
-        color={'blue'}
+        color={ACCENT_COLOR}
         weight={'light'} //
         ml={'5'}
         mb={'2'}

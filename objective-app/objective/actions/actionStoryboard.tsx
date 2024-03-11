@@ -30,11 +30,7 @@ import { deleteEventHandler } from '../elements/events'
 
 import { register } from './register'
 import { Badge, Button, Flex, IconButton, Popover, Text } from '@radix-ui/themes'
-import {
-  CameraIcon, CircleBackslashIcon,
-  EyeClosedIcon,
-  EyeOpenIcon
-} from '@radix-ui/react-icons'
+import { CameraIcon, CircleBackslashIcon, EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
 import { ImageIcon, TrashIcon } from '../../../packages/excalidraw/components/icons'
 import { changeElementMeta, changeElementProperty, mutateMeta } from '../elements/mutateElements'
 import { arrangeElements } from './zindex'
@@ -285,7 +281,13 @@ export const actionStoryboard = register({
         {images.length ? (
           images.map((image) => (
             <fieldset key={image.id}>
-              <img src={image.dataURL} alt='' />
+              <img
+                style={{
+                  width: '185px', // TODO inherit size from parent
+                }}
+                src={image.dataURL}
+                alt=''
+              />
 
               <Flex gap={'1'} pb={'3'}>
                 <IconButton
@@ -328,7 +330,6 @@ export const actionStoryboard = register({
                 >
                   {isDisplayed(image) ? <EyeOpenIcon /> : <EyeClosedIcon />}
                 </IconButton>
-
               </Flex>
             </fieldset>
           ))

@@ -24,6 +24,8 @@ export enum ENDPOINTS {
   ERROR = '/api/error',
 }
 
+export const ACCENT_COLOR = 'violet' as const
+
 // TODO configure it from process.env
 export const __DEBUG_API_FREEZE_MS = 250
 export const __DEBUG_ENSURE_THEME: Theme | null = 'light' //'dark'

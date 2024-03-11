@@ -23,12 +23,13 @@ import {
   selectProjects,
 } from '../../objective-plus/store/projects/reducer'
 import { Sidebar } from '../../../packages/excalidraw'
+import { ACCENT_COLOR } from '../../objective-plus/constants'
 
 const MySceneShareOptions = () => {
   const url = window.location.href
   return (
     <>
-      <Heading color={'blue'} size={'2'}>
+      <Heading color={ACCENT_COLOR} size={'2'}>
         Public scene.
       </Heading>
       <Text as={'p'} size={'1'}>
@@ -127,7 +128,7 @@ const OtherSceneShareOptions = () => {
 
   return (
     <>
-      <Heading color={'blue'} size={'2'}>
+      <Heading size={'2'}>
         Protected scene.
       </Heading>
       <Text as={'p'} size={'1'}>

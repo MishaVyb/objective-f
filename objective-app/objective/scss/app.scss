@@ -78,7 +78,7 @@
     // cursor: pointer; // ???
 
     &.toggled {
-      background-color: var(--blue-3);
+      background-color: var(--accent-3);
     }
 
     // click
@@ -87,10 +87,10 @@
     }
 
     &:hover {
-      background-color: var(--blue-3);
+      background-color: var(--accent-2);
 
       &.toggled {
-        background-color: var(--gray-3);
+        background-color: var(--accent-4);
       }
 
       // click

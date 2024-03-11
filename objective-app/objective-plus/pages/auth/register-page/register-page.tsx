@@ -27,6 +27,7 @@ import {
   selectAuthError,
   selectAuthIsPending,
 } from '../../../store/auth/reducer'
+import { ACCENT_COLOR } from '../../../constants'
 
 const RegisterPage: FC = () => {
   const [form, setForm] = useState({ password: '', ...initialState.user })
@@ -164,7 +165,7 @@ const RegisterPage: FC = () => {
 
           <Text mt={'5'} size={'1'} color={'gray'}>
             Already have an account?
-            <Link ml={'1'} color={'blue'} onClick={() => navigate('/login')}>
+            <Link ml={'1'} color={ACCENT_COLOR} onClick={() => navigate('/login')}>
               Sign Up
             </Link>
           </Text>

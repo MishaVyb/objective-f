@@ -7,6 +7,7 @@ import { selectAuthError, selectAuthIsPending } from '../../../store/auth/reduce
 import { EyeClosedIcon, EyeOpenIcon, SymbolIcon } from '@radix-ui/react-icons'
 import { useNavigate } from 'react-router-dom'
 import { ObjectiveCard, RootBox } from '../../../components/layout'
+import { ACCENT_COLOR } from '../../../constants'
 
 const LoginPage = () => {
   const [form, setForm] = useState({ email: '', password: '' })
@@ -95,13 +96,13 @@ const LoginPage = () => {
           </Flex>
           <Text mt={'5'} size={'1'} color={'gray'}>
             Not registered?
-            <Link ml={'1'} color={'blue'} onClick={() => navigate('/register')}>
+            <Link ml={'1'} color={ACCENT_COLOR} onClick={() => navigate('/register')}>
               Sign Up
             </Link>
           </Text>
           <Text size={'1'} color={'gray'}>
             Forgot password?
-            <Link ml={'1'} color={'blue'} onClick={() => navigate('/reset-password')}>
+            <Link ml={'1'} color={ACCENT_COLOR} onClick={() => navigate('/reset-password')}>
               Reset password
             </Link>
           </Text>
