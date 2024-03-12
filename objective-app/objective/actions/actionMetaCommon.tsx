@@ -60,6 +60,7 @@ export const actionDisplayMetaHeader = register({
       true,
       null
     )
+
     if (!metaKind) return <></> // different metas selected
 
     if (metaKind === ObjectiveKinds.CHARACTER || metaKind === ObjectiveKinds.LIGHT)
@@ -96,8 +97,6 @@ export const actionDisplayMetaHeader = register({
       )
     }
 
-    // all other Objective kinds
-    // NOTE: display name here, as we do not display meta name input
     const name = getFormValue(
       elements,
       appState,
@@ -105,6 +104,17 @@ export const actionDisplayMetaHeader = register({
       true,
       null
     )
+
+    if (metaKind === ObjectiveKinds.POINTER) {
+      return (
+        <Flex justify={'between'}>
+          <Kbd>{name || metaKind}</Kbd>
+        </Flex>
+      )
+    }
+
+    // all other Objective kinds
+    // NOTE: display name here, as we do not display meta name input
     return (
       <Flex justify={'between'}>
         <Kbd>{metaKind}</Kbd>

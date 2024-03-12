@@ -31,7 +31,11 @@ export enum ObjectiveKinds {
   LABEL = 'Label',
 }
 
-export type ObjectiveSubkinds = 'labelPointer' | 'storyboardPointer' | 'cameraMovementPointer'
+export type ObjectiveSubkinds =
+  | 'labelPointer'
+  | 'storyboardPointer'
+  | 'cameraMovementPointer'
+  | 'characterMovementPointer'
 
 export type TObjectiveKind = `${ObjectiveKinds}`
 
@@ -103,7 +107,11 @@ export type LabelMeta = ObjectiveMeta &
 export type PointerMeta = ObjectiveMeta &
   Readonly<{
     kind: ObjectiveKinds.POINTER
-    readonly subkind?: 'labelPointer' | 'storyboardPointer' | 'cameraMovementPointer'
+    subkind?:
+      | 'labelPointer'
+      | 'storyboardPointer'
+      | 'cameraMovementPointer'
+      | 'characterMovementPointer'
 
     // pointerOf: do not populate back ref as we take it from parent `element.boundElements`
     name: never

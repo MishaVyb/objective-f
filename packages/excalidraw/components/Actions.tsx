@@ -195,13 +195,29 @@ export const SelectedShapeActions = ({
     /** unknown and do nothing??? */
     strokeShape: isAllExcali,
 
-    roundness: isAllExcali,
+    // only for movement arrows
+    roundness:
+      isAllExcali ||
+      metas.every(
+        (m) =>
+          m.subkind === "cameraMovementPointer" ||
+          m.subkind === "characterMovementPointer",
+      ),
+    arrowheads:
+      isAllExcali ||
+      metas.every(
+        (m) =>
+          m.subkind === "cameraMovementPointer" ||
+          m.subkind === "characterMovementPointer",
+      ),
 
-    arrowheads: isAllExcali,
     textStyle:
       isAllExcali || (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle),
+
     opacity: isAllExcali || showOBJStyle || isObjAndExcali,
+
     layers: false, // TODO
+
     align:
       (metas.length === 0 || metas.length > 1) &&
       (isAllExcali || showOBJStyle || isObjAndExcali),

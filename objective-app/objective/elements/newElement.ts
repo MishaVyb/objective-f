@@ -35,7 +35,10 @@ const POINTER_COMMON = (): Partial<ExcalidrawArrowElement> => ({
 const CAMERA_MOVEMENT_POINTER = (
   ref: ExcalidrawBindableElement
 ): Partial<ExcalidrawArrowElement> => ({
-  customData: getInitialMeta(ObjectiveKinds.POINTER, { subkind: 'cameraMovementPointer' }),
+  customData: getInitialMeta(ObjectiveKinds.POINTER, {
+    subkind: 'cameraMovementPointer',
+    name: 'Camera Movement',
+  }),
   strokeColor: ref.backgroundColor,
   strokeWidth: 4,
   strokeStyle: 'solid',
