@@ -31,6 +31,8 @@ export enum ObjectiveKinds {
   LABEL = 'Label',
 }
 
+export type ObjectiveSubkinds = 'labelPointer' | 'storyboardPointer' | 'cameraMovementPointer'
+
 export type TObjectiveKind = `${ObjectiveKinds}`
 
 export type MaybeExcalidrawElement<T extends ExcalidrawElement = ExcalidrawElement> =
@@ -39,9 +41,10 @@ export type MaybeExcalidrawElement<T extends ExcalidrawElement = ExcalidrawEleme
   | null
 export type MaybeMeta<T extends ObjectiveMeta = ObjectiveMeta> = T | undefined | null
 
-export interface ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> {
+export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readonly<{
   /** Constant. Populated by lib from initial. */
-  readonly kind: Kind
+  kind: Kind
+  subkind?: ObjectiveSubkinds
 
   /** Aka Title / Label. Populated by User from `actionProps` panel. */
   name?: string
@@ -71,9 +74,9 @@ export interface ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> {
    * etc.
    *
    */
-  readonly basisIndex: number
+  basisIndex: number
 
-  readonly libraryImg?: Readonly<{
+  libraryImg?: Readonly<{
     src: string
     title: string
     w: number
@@ -84,34 +87,39 @@ export interface ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> {
   //
   /** HACK: as TS support for internal Excalidraw properties for IFrames. Objective do not use that. */
   generationData?: MagicCacheData
-}
+}>
 
-export interface LabelMeta extends ObjectiveMeta {
-  kind: ObjectiveKinds.LABEL
-  /** back ref main Objective meta id that has this meta as represention */
-  labelOf: ObjectiveMeta['id']
+export type LabelMeta = ObjectiveMeta &
+  Readonly<{
+    kind: ObjectiveKinds.LABEL
+    /** back ref main Objective meta id that has this meta as represention */
+    labelOf: ObjectiveMeta['id']
 
-  name: never
-  nameRepr: never
-  description: never
-}
+    name: never
+    nameRepr: never
+    description: never
+  }>
 
-export interface PointerMeta extends ObjectiveMeta {
-  kind: ObjectiveKinds.POINTER
-  // pointerOf: do not populate back ref as we take it from parent `element.boundElements`
-  name: never
-  nameRepr: never
-  description: never
-}
+export type PointerMeta = ObjectiveMeta &
+  Readonly<{
+    kind: ObjectiveKinds.POINTER
+    readonly subkind?: 'labelPointer' | 'storyboardPointer' | 'cameraMovementPointer'
+
+    // pointerOf: do not populate back ref as we take it from parent `element.boundElements`
+    name: never
+    nameRepr: never
+    description: never
+  }>
 
 /** It's always "arrow" ExcalidrawElement */
 export type PointerElement = ObjectiveElement<PointerMeta>
 
-export interface LocationMeta extends ObjectiveMeta {
-  kind: ObjectiveKinds.LOCATION
-}
+export type LocationMeta = ObjectiveMeta &
+  Readonly<{
+    kind: ObjectiveKinds.LOCATION
+  }>
 
-export interface CameraMeta extends ObjectiveMeta {
+export type CameraMeta = ObjectiveMeta & {
   kind: ObjectiveKinds.CAMERA
 
   isShot?: boolean // is camera in shot list
@@ -125,14 +133,16 @@ export interface CameraMeta extends ObjectiveMeta {
   relatedImages: readonly string[] // images id
 }
 
-export interface ShotCameraMeta extends CameraMeta {
+export type ShotCameraMeta = CameraMeta & {
   isShot: true
   shotNumber: number // Cam A / Cam B
   shotVersion: number // Cam A-1 / Cam A-2
 }
 
 // TODO https://www.typescriptlang.org/docs/handbook/2/types-from-types.html
-export type AnyObjectiveMeta = CameraMeta
+export type AnyObjectiveMeta = ObjectiveMeta &
+  Pick<LabelMeta, 'labelOf'> &
+  Pick<CameraMeta, 'isShot' | 'shotNumber' | 'shotVersion' | 'focalLength' | 'relatedImages'>
 
 export type CameraElement = ObjectiveElement<CameraMeta>
 export type ShotCameraElement = ObjectiveElement<ShotCameraMeta>

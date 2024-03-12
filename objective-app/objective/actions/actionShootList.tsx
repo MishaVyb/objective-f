@@ -183,6 +183,7 @@ export const actionChangeMetaCameraVersion = register({
           ...duplicateElements(elements, appState, app, {
             shift: { x: 150, y: 0 },
             addPointerWith: singleCamera,
+            addPointerSubkind: 'cameraMovementPointer',
             newElementsMeta: { shotVersion: newCameraShotVers },
           }),
           commitToHistory: true,
@@ -216,6 +217,7 @@ export const actionChangeMetaCameraVersion = register({
           ...duplicateElements(elements, appState, app, {
             shift: { x: -150, y: 0 },
             addPointerWith: singleCamera,
+            addPointerSubkind: 'cameraMovementPointer',
             newElementsMeta: { shotVersion: newCameraShotVers },
           }),
           commitToHistory: true,

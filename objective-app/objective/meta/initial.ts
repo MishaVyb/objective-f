@@ -2,12 +2,19 @@ import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { randomId } from '../../../packages/excalidraw/random'
 import { Mutable } from '../../../packages/excalidraw/utility-types'
 import { getMetaSimple } from './selectors'
-import { CameraMeta, ObjectiveKinds, ObjectiveMeta, isCameraMeta, isObjective } from './types'
+import {
+  AnyObjectiveMeta,
+  CameraMeta,
+  ObjectiveKinds,
+  ObjectiveMeta,
+  isCameraMeta,
+  isObjective,
+} from './types'
 
 /** getDefaultMeta */
 export const getInitialMeta = <T extends ObjectiveKinds>(
   kind: T,
-  overriddes = {}
+  overriddes: Omit<Partial<AnyObjectiveMeta>, 'kind'> = {}
 ): ObjectiveMeta<T> => ({
   kind: kind,
   id: '',

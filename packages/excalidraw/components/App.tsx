@@ -5704,11 +5704,11 @@ class App extends React.Component<AppProps, AppState> {
         c.relatedImages.some((id) => id === pendingImageElement.id),
       );
       relatedCameras.forEach((c) => {
-        const basis = getObjectiveBasis(c);
-        this.actionManager.executeAction(actionCreatePointer, "internal", [
-          basis,
-          pendingImageElement,
-        ]);
+        const basis = getObjectiveBasis<ExcalidrawBindableElement>(c);
+        this.actionManager.executeAction(actionCreatePointer, "internal", {
+          targets: [basis!, pendingImageElement as ExcalidrawBindableElement],
+          subkind: "storyboardPointer",
+        });
       });
       // VBRN
     } else if (this.state.activeTool.type === "freedraw") {

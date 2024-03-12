@@ -26,6 +26,7 @@ import {
   AnyObjectiveMeta,
   ObjectiveKinds,
   ObjectiveMeta,
+  PointerMeta,
   isCameraMeta,
   isKind,
 } from '../meta/types'
@@ -55,6 +56,7 @@ export const duplicateObjectiveEventHandler = (
   newElements: Mutable<ExcalidrawElement>[],
   opts?: {
     addPointerWith?: ObjectiveMeta
+    addPointerSubkind?: PointerMeta['subkind']
     newElementsMeta?: Partial<AnyObjectiveMeta>
     scene: Scene
   }
@@ -71,7 +73,7 @@ export const duplicateObjectiveEventHandler = (
           getObjectiveBasis(opts.addPointerWith),
           getObjectiveBasis(meta),
           new Map([]) as NonDeletedSceneElementsMap, // HACK we know for sure that those new els have no pointer between
-          { scene: opts?.scene }
+          { scene: opts?.scene, subkind: opts.addPointerSubkind }
         )!
       )
 
@@ -219,7 +221,10 @@ export const dragEventHandler = (
         const dist = getDistance([getElementCenter(container), basisCenter])
 
         if (dist > DRAG_META_LABEL_MAX_GAP) {
-          app.actionManager.executeAction(actionCreatePointer, 'internal', [container, basis])
+          app.actionManager.executeAction(actionCreatePointer, 'internal', {
+            targets: [container, basis],
+            subkind: 'labelPointer',
+          })
         } else {
           app.actionManager.executeAction(actionDeletePointer, 'internal', [container, basis])
         }

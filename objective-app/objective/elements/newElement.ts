@@ -4,6 +4,7 @@ import {
   updateBoundElements,
 } from '../../../packages/excalidraw/element/binding'
 import {
+  ExcalidrawArrowElement,
   ExcalidrawBindableElement,
   ExcalidrawElement,
   ExcalidrawRectangleElement,
@@ -11,33 +12,57 @@ import {
   NonDeletedSceneElementsMap,
 } from '../../../packages/excalidraw/element/types'
 import { getObjectiveBasis, getPointerIds } from '../meta/selectors'
-import { ObjectiveKinds, ObjectiveMeta } from '../meta/types'
+import { ObjectiveKinds, ObjectiveMeta, PointerMeta } from '../meta/types'
 import { getInitialMeta } from '../meta/initial'
 
 import { randomId } from '../../../packages/excalidraw/random'
 import { DEFAULT_FONT_SIZE } from '../../../packages/excalidraw/constants'
 import Scene from '../../../packages/excalidraw/scene/Scene'
 
-export const newMockPointer = () =>
-  newLinearElement({
-    customData: getInitialMeta(ObjectiveKinds.POINTER),
-    locked: true, // ??? lock for label but not for images...
-    //
-    type: 'arrow',
-    x: 1,
-    y: 1,
-    strokeColor: '#868e96',
-    fillStyle: 'hachure',
-    strokeWidth: 1,
-    strokeStyle: 'dotted',
-    points: [
-      [0, 0],
-      [100, 100],
-    ],
-    startArrowhead: null,
-    endArrowhead: null,
-    groupIds: [randomId()],
-  })
+const POINTER_COMMON = (): Partial<ExcalidrawArrowElement> => ({
+  // locked: true, // ??? lock for label but not for images...
+  type: 'arrow',
+  x: 1,
+  y: 1,
+  fillStyle: 'hachure',
+  points: [
+    [0, 0],
+    [100, 100],
+  ],
+  groupIds: [randomId()],
+})
+
+const CAMERA_MOVEMENT_POINTER = (
+  ref: ExcalidrawBindableElement
+): Partial<ExcalidrawArrowElement> => ({
+  customData: getInitialMeta(ObjectiveKinds.POINTER, { subkind: 'cameraMovementPointer' }),
+  strokeColor: ref.backgroundColor,
+  strokeWidth: 4,
+  strokeStyle: 'solid',
+  roundness: {
+    type: 2,
+  },
+  startArrowhead: 'triangle',
+  endArrowhead: 'triangle',
+})
+
+const LABEL_POINTER = (): Partial<ExcalidrawArrowElement> => ({
+  customData: getInitialMeta(ObjectiveKinds.POINTER, { subkind: 'labelPointer' }),
+  strokeColor: '#868e96',
+  strokeWidth: 1,
+  strokeStyle: 'dotted',
+  startArrowhead: null,
+  endArrowhead: null,
+})
+
+const STORYBOARD_POINTER = (): Partial<ExcalidrawArrowElement> => ({
+  customData: getInitialMeta(ObjectiveKinds.POINTER, { subkind: 'storyboardPointer' }),
+  strokeColor: '#868e96',
+  strokeWidth: 1,
+  strokeStyle: 'dotted',
+  startArrowhead: null,
+  endArrowhead: null,
+})
 
 /**
  * Elements are **MUTATING** insdie!
@@ -49,7 +74,7 @@ export const newPointerBeetween = (
   one: ExcalidrawBindableElement | undefined,
   another: ExcalidrawBindableElement | undefined,
   nonDeletedElements: NonDeletedSceneElementsMap,
-  opts?: { scene: Scene }
+  opts?: { scene?: Scene; subkind?: PointerMeta['subkind'] }
 ) => {
   if (!another || !one) return console.warn('Cannot get pointer for undefined element. ')
 
@@ -57,18 +82,28 @@ export const newPointerBeetween = (
     if (nonDeletedElements.get(pointer)) return // already has NON DELETED pointer
   }
 
-  const newPointer = newMockPointer()
+  let overrides: Partial<ExcalidrawArrowElement>
+  if (opts?.subkind === 'labelPointer') overrides = LABEL_POINTER()
+  else if (opts?.subkind === 'storyboardPointer') overrides = STORYBOARD_POINTER()
+  else if (opts?.subkind === 'cameraMovementPointer') overrides = CAMERA_MOVEMENT_POINTER(one)
+  else overrides = LABEL_POINTER()
+
+  const newPointer = newLinearElement({
+    ...POINTER_COMMON(),
+    ...overrides,
+  } as ExcalidrawArrowElement)
+
   bindLinearElement(newPointer, one, 'start')
   bindLinearElement(newPointer, another, 'end')
   updateBoundElements(another, {
     justCreatedBounds: [newPointer],
     justCreatedBoundsAreBoundTo: [another, one],
-    scene: opts?.scene
+    scene: opts?.scene,
   })
   updateBoundElements(one, {
     justCreatedBounds: [newPointer],
     justCreatedBoundsAreBoundTo: [another, one],
-    scene: opts?.scene
+    scene: opts?.scene,
   })
   return newPointer
 }

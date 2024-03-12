@@ -4,6 +4,7 @@ import { Vector } from "../../../objective-app/objective/elements/math";
 import {
   AnyObjectiveMeta,
   ObjectiveMeta,
+  PointerMeta,
 } from "../../../objective-app/objective/meta/types";
 import { ToolButton } from "../components/ToolButton";
 import { DuplicateIcon } from "../components/icons";
@@ -87,6 +88,7 @@ export const duplicateElements = (
   opts?: {
     shift: Vector;
     addPointerWith: ObjectiveMeta;
+    addPointerSubkind: PointerMeta["subkind"];
     newElementsMeta: Partial<AnyObjectiveMeta>;
   },
 ): Partial<ActionResult> => {
@@ -263,6 +265,7 @@ export const duplicateElements = (
     {
       scene: app.scene,
       addPointerWith: opts?.addPointerWith,
+      addPointerSubkind: opts?.addPointerSubkind,
       newElementsMeta: opts?.newElementsMeta,
     },
   );

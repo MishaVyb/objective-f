@@ -86,7 +86,8 @@ export const actionInitStoryboard = register({
         const newPointer = newPointerBeetween(
           image,
           cameraBasis,
-          app.scene.getNonDeletedElementsMap()
+          app.scene.getNonDeletedElementsMap(),
+          { subkind: 'storyboardPointer' }
         )
         if (newPointer) newEls.push(newPointer)
       }

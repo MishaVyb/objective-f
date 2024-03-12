@@ -24,6 +24,7 @@ import {
   ObjectiveElement,
   ObjectiveKinds,
   ObjectiveMeta,
+  PointerMeta,
   isCameraElement,
   isCameraMeta,
   isDisplayed,
@@ -329,9 +330,22 @@ export const actionChangeMetaDescription = register({
 export const actionCreatePointer = register({
   name: 'actionCreatePointer',
   trackEvent: false,
-  perform: (elements, appState, value, app) => {
-    const [a, b] = value
-    const pointer = newPointerBeetween(a, b, app.scene.getNonDeletedElementsMap())
+  perform: (
+    elements,
+    appState,
+    value: {
+      targets: [ExcalidrawBindableElement, ExcalidrawBindableElement]
+      subkind: PointerMeta['subkind']
+    },
+    app
+  ) => {
+    const [a, b] = value.targets
+    const pointer = newPointerBeetween(
+      a,
+      b,
+      app.scene.getNonDeletedElementsMap(), //
+      { subkind: value.subkind }
+    )
     return {
       elements: pointer ? arrangeElements(elements, [pointer]) : elements,
       commitToHistory: true,
@@ -352,9 +366,7 @@ export const actionDeletePointer = register({
     const idsToDelete = getPointerIds(a, b)
     if (!idsToDelete.size) return false
 
-    const elsMap = arrayToMap(elements)
-    const pointersToDelete = [...idsToDelete].map((id) => elsMap.get(id)!)
-
+    const pointersToDelete = [...idsToDelete].map((id) => app.scene.getElement(id)!)
     pointersToDelete.forEach((pointer) => mutateElement(pointer, { isDeleted: true }))
 
     // pop deleted pointer ids from `element.boundElements`

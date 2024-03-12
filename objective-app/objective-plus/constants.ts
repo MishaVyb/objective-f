@@ -30,7 +30,7 @@ export const ACCENT_COLOR = 'violet' as const
 export const __DEBUG_API_FREEZE_MS = 250
 export const __DEBUG_ENSURE_THEME: Theme | null = 'light' //'dark'
 
-export const __DEBUG_EDITOR = false
-// export const __DEBUG_EDITOR = true
+// export const __DEBUG_EDITOR = false
+export const __DEBUG_EDITOR = true
 
 export const __DEBUG_LOG_POINTER_CORDS = false
