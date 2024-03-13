@@ -33,8 +33,8 @@ import { Badge, Button, Flex, IconButton, Popover, Text } from '@radix-ui/themes
 import { CameraIcon, CircleBackslashIcon, EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
 import { ImageIcon, TrashIcon } from '../../../packages/excalidraw/components/icons'
 import { changeElementMeta, changeElementProperty, mutateMeta } from '../elements/mutateElements'
-import { arrangeElements } from './zindex'
-import { getCameraMetaReprStr } from './actionShootList'
+import { arrangeElements } from '../elements/zindex'
+import { getCameraMetaReprStr } from './actionCamera'
 
 export const actionInitStoryboard = register({
   name: 'actionInitStoryboard',

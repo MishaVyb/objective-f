@@ -1,4 +1,4 @@
-export { actionChangeMetaCameraShot } from './actionShootList'
+export { actionChangeMetaCameraShot } from './actionCamera'
 export { actionChangeMetaName } from './actionMetaCommon'
 export { actionInitStoryboard } from './actionStoryboard'
 export { actionFinalizeSelectionDrag as actionSnapLocation } from './actionOnDrag'

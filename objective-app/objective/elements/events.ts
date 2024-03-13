@@ -37,9 +37,9 @@ import {
 } from '../actions/actionOnDrag'
 
 import { snapDraggedElementsLocation } from './snapElements'
-import { getCameraMetaReprStr } from '../actions/actionShootList'
+import { getCameraMetaReprStr } from '../actions/actionCamera'
 import { AllExcalidrawElements } from '../../../packages/excalidraw/actions/types'
-import { arrangeElements } from '../actions/zindex'
+import { arrangeElements } from './zindex'
 
 import { Vector, getElementCenter } from './math'
 import { getDistance } from '../../../packages/excalidraw/gesture'

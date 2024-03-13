@@ -1,4 +1,4 @@
-import { arrangeElements } from "../../../objective-app/objective/actions/zindex";
+import { arrangeElements } from "../../../objective-app/objective/elements/zindex";
 import {
   DuplicateHandlerOpts,
   duplicateObjectiveEventHandler,

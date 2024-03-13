@@ -15,7 +15,7 @@ import { AppState } from "../types";
 import { Assert, SameType } from "../utility-types";
 import { randomInteger } from "../random";
 import { toBrandedType } from "../utils";
-import { arrangeElements } from "../../../objective-app/objective/actions/zindex";
+import { arrangeElements } from "../../../objective-app/objective/elements/zindex";
 
 type ElementIdKey =
   | InstanceType<typeof LinearElementEditor>["elementId"]

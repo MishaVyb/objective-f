@@ -425,7 +425,7 @@ import {
   duplicateObjectiveEventHandler,
   onPointerUpFromPointerDownEventHandler,
 } from "../../../objective-app/objective/elements/events";
-import { arrangeElements } from "../../../objective-app/objective/actions/zindex";
+import { arrangeElements } from "../../../objective-app/objective/elements/zindex";
 import {
   getCameraMetas,
   getObjectiveBasis,

@@ -30,8 +30,8 @@ import {
   isDisplayed,
   isObjective,
 } from '../meta/types'
-import { getCameraMetaReprStr, getCameraVersionStr } from './actionShootList'
-import { arrangeElements } from './zindex'
+import { getCameraMetaReprStr, getCameraVersionStr } from './actionCamera'
+import { arrangeElements } from '../elements/zindex'
 import { Button, Dialog, Flex, Kbd, TextArea } from '@radix-ui/themes'
 import { EyeClosedIcon, EyeOpenIcon, Pencil1Icon } from '@radix-ui/react-icons'
 import { getBoundTextElement } from '../../../packages/excalidraw/element/textElement'
