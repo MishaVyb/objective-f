@@ -184,6 +184,7 @@ export const actionChangeMetaCameraVersion = register({
             shift: { x: 150, y: 0 },
             addPointerWith: singleCamera,
             addPointerSubkind: 'cameraMovementPointer',
+            addPointerOverrides: {endArrowhead: 'triangle'},
             newElementsMeta: { shotVersion: newCameraShotVers },
           }),
           commitToHistory: true,
@@ -191,6 +192,7 @@ export const actionChangeMetaCameraVersion = register({
       case 'moveFrom':
         if (!singleCamera.shotVersion) {
           newCameraShotVers = 1
+          // FIXME
           // RECURSIVE CALL x2
           elements = actionChangeMetaCameraVersion.perform(
             elements,
@@ -218,6 +220,8 @@ export const actionChangeMetaCameraVersion = register({
             shift: { x: -150, y: 0 },
             addPointerWith: singleCamera,
             addPointerSubkind: 'cameraMovementPointer',
+            addPointerOverrides: {endArrowhead: 'triangle'},
+            addPointerReverseDirection: true,
             newElementsMeta: { shotVersion: newCameraShotVers },
           }),
           commitToHistory: true,

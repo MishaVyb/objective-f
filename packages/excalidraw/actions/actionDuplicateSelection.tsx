@@ -1,11 +1,9 @@
 import { arrangeElements } from "../../../objective-app/objective/actions/zindex";
-import { duplicateObjectiveEventHandler } from "../../../objective-app/objective/elements/events";
-import { Vector } from "../../../objective-app/objective/elements/math";
 import {
-  AnyObjectiveMeta,
-  ObjectiveMeta,
-  PointerMeta,
-} from "../../../objective-app/objective/meta/types";
+  DuplicateHandlerOpts,
+  duplicateObjectiveEventHandler,
+} from "../../../objective-app/objective/elements/events";
+import { Vector } from "../../../objective-app/objective/elements/math";
 import { ToolButton } from "../components/ToolButton";
 import { DuplicateIcon } from "../components/icons";
 import { duplicateElement, getNonDeletedElements } from "../element";
@@ -85,11 +83,8 @@ export const duplicateElements = (
   app: AppClassProperties,
 
   // VBRN
-  opts?: {
+  opts?: DuplicateHandlerOpts & {
     shift: Vector;
-    addPointerWith: ObjectiveMeta;
-    addPointerSubkind: PointerMeta["subkind"];
-    newElementsMeta: Partial<AnyObjectiveMeta>;
   },
 ): Partial<ActionResult> => {
   // ---------------------------------------------------------------------------
@@ -264,9 +259,12 @@ export const duplicateElements = (
     ),
     {
       scene: app.scene,
-      addPointerWith: opts?.addPointerWith,
-      addPointerSubkind: opts?.addPointerSubkind,
-      newElementsMeta: opts?.newElementsMeta,
+      //
+      // addPointerWith: opts?.addPointerWith,
+      // addPointerSubkind: opts?.addPointerSubkind,
+      // addPointerOverrides: opts?.addPointerOverrides,
+      // newElementsMeta: opts?.newElementsMeta,
+      ...opts,
     },
   );
   finalElements = arrangeElements(finalElements, extraNewElements);

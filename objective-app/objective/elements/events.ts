@@ -1,6 +1,7 @@
 import App from '../../../packages/excalidraw/components/App'
 import { mutateElement, newElementWith } from '../../../packages/excalidraw/element/mutateElement'
 import {
+  ExcalidrawArrowElement,
   ExcalidrawBindableElement,
   ExcalidrawElement,
   ExcalidrawEllipseElement,
@@ -48,16 +49,21 @@ import { createMetaRepr, deleteMetaRepr } from './metaRepr'
 import Scene from '../../../packages/excalidraw/scene/Scene'
 import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
 
+export type DuplicateHandlerOpts = {
+  addPointerWith?: ObjectiveMeta
+  addPointerSubkind?: PointerMeta['subkind']
+  addPointerOverrides?: Partial<ExcalidrawArrowElement>
+  addPointerReverseDirection?: boolean
+  newElementsMeta?: Partial<AnyObjectiveMeta>
+}
+
 /**
  * It's assumed that elements metas already copied properly by `duplicateAsInitialEventHandler`
  * @param newElements new (cloned/copied) elements
  */
 export const duplicateObjectiveEventHandler = (
   newElements: Mutable<ExcalidrawElement>[],
-  opts?: {
-    addPointerWith?: ObjectiveMeta
-    addPointerSubkind?: PointerMeta['subkind']
-    newElementsMeta?: Partial<AnyObjectiveMeta>
+  opts?: DuplicateHandlerOpts & {
     scene: Scene
   }
 ) => {
@@ -70,10 +76,21 @@ export const duplicateObjectiveEventHandler = (
     if (opts?.addPointerWith)
       extraNewEls.push(
         newPointerBeetween(
-          getObjectiveBasis(opts.addPointerWith),
-          getObjectiveBasis(meta),
-          new Map([]) as NonDeletedSceneElementsMap, // HACK we know for sure that those new els have no pointer between
-          { scene: opts?.scene, subkind: opts.addPointerSubkind }
+          opts?.addPointerReverseDirection
+            ? getObjectiveBasis(meta)
+            : getObjectiveBasis(opts.addPointerWith),
+          opts?.addPointerReverseDirection
+            ? getObjectiveBasis(opts.addPointerWith)
+            : getObjectiveBasis(meta),
+
+          // HACK we know for sure that those new els have no pointer between
+          new Map([]) as NonDeletedSceneElementsMap,
+
+          {
+            scene: opts?.scene,
+            subkind: opts.addPointerSubkind,
+            overrides: opts?.addPointerOverrides,
+          }
         )!
       )
 

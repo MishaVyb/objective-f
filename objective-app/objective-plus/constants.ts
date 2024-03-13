@@ -8,7 +8,7 @@ export enum SCENE_PERSISTENCE {
   AUTO_LOADING_INTERVAL_MS = LOCAL_DEV ? MINUTE * 2 : MINUTE * 10,
 }
 
-export const ROOT = '' as const
+export const ROOT = 'http://localhost:8000' as const
 export enum ENDPOINTS {
   // user & auth
   REGISTER = '/api/auth/register',

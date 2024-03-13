@@ -45,8 +45,8 @@ const CAMERA_MOVEMENT_POINTER = (
   roundness: {
     type: 2,
   },
-  startArrowhead: 'triangle',
-  endArrowhead: 'triangle',
+  startArrowhead: null,
+  endArrowhead: null,
 })
 
 const LABEL_POINTER = (): Partial<ExcalidrawArrowElement> => ({
@@ -77,7 +77,11 @@ export const newPointerBeetween = (
   one: ExcalidrawBindableElement | undefined,
   another: ExcalidrawBindableElement | undefined,
   nonDeletedElements: NonDeletedSceneElementsMap,
-  opts?: { scene?: Scene; subkind?: PointerMeta['subkind'] }
+  opts?: {
+    scene?: Scene
+    subkind?: PointerMeta['subkind']
+    overrides?: Partial<ExcalidrawArrowElement>
+  }
 ) => {
   if (!another || !one) return console.warn('Cannot get pointer for undefined element. ')
 
@@ -90,6 +94,8 @@ export const newPointerBeetween = (
   else if (opts?.subkind === 'storyboardPointer') overrides = STORYBOARD_POINTER()
   else if (opts?.subkind === 'cameraMovementPointer') overrides = CAMERA_MOVEMENT_POINTER(one)
   else overrides = LABEL_POINTER()
+
+  if (opts?.overrides) overrides = { ...overrides, ...opts.overrides }
 
   const newPointer = newLinearElement({
     ...POINTER_COMMON(),
