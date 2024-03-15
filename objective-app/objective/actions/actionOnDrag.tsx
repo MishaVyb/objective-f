@@ -11,8 +11,8 @@ import { LocationMeta, ObjectiveMeta, isLocationMeta } from '../meta/types'
 import { register } from './register'
 
 /** Internal action called at `onPointerUpFromPointerDownEventHandler` */
-export const actionFinalizeSelectionDrag = register({
-  name: 'actionFinalizeSelectionDrag',
+export const actionSnapLocation = register({
+  name: 'actionSnapLocation',
   trackEvent: { category: 'element' },
   perform: (elements, appState, formData, app: AppClassProperties) => {
     const selected = app.scene.getSelectedElements({

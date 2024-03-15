@@ -155,6 +155,10 @@ export const SelectedShapeActions = ({
     metaActionStoryboard:
       isAllObjective && isSingleMeta && metasSet.has(ObjectiveKinds.CAMERA),
 
+    // when character selected:
+    metaCharacterActions:
+      metasSet.size === 1 && metasSet.has(ObjectiveKinds.CHARACTER),
+
     // when image selected:
     metaInitStoryboard: isSingleImage,
 
@@ -255,6 +259,10 @@ export const SelectedShapeActions = ({
         renderAction("actionChangeMetaCameraShot")}
       {actionsToRender.metaCameraShot &&
         renderAction("actionChangeMetaCameraVersion")}
+
+      {actionsToRender.metaCharacterActions &&
+        renderAction("actionMoveCharacterToFrom")}
+
       {actionsToRender.metaActionStoryboard && renderAction("actionStoryboard")}
 
       {actionsToRender.metaDescription &&

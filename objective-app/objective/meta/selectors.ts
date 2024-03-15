@@ -144,7 +144,7 @@ export const getObjectiveSingleMeta = <TKind extends ObjectiveKinds>(
 }
 
 /** simple shortcut */
-export const getSelectedElements = (scene: Scene, appState: AppState) =>
+export const getSelectedSceneEls = (scene: Scene, appState: AppState) =>
   scene.getSelectedElements({ selectedElementIds: appState.selectedElementIds })
 
 export const getCameraMetas = (
@@ -167,7 +167,7 @@ export const getSelectedObjectiveMetas = <TMeta extends ObjectiveMeta>(
     objectivePredicate?: (el: MaybeExcalidrawElement) => el is ObjectiveElement
   }
 ): readonly Readonly<TMeta>[] =>
-  getObjectiveMetas<TMeta>(getSelectedElements(scene, appState), { ...opts })
+  getObjectiveMetas<TMeta>(getSelectedSceneEls(scene, appState), { ...opts })
 
 export const getSelectedCameraMetas = (
   scene: Scene,
@@ -176,7 +176,7 @@ export const getSelectedCameraMetas = (
     extraPredicate?: (meta: CameraMeta) => boolean
     includingDelited?: boolean
   }
-) => getCameraMetas(getSelectedElements(scene, appState), opts)
+) => getCameraMetas(getSelectedSceneEls(scene, appState), opts)
 
 export const getShotCameraMetas = (
   elements: readonly ExcalidrawElement[],

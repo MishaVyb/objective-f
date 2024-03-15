@@ -46,7 +46,24 @@ const CAMERA_MOVEMENT_POINTER = (
     type: 2,
   },
   startArrowhead: null,
-  endArrowhead: null,
+  endArrowhead: 'triangle',
+})
+
+const CHARACTER_MOVEMENT_POINTER = (
+  ref: ExcalidrawBindableElement
+): Partial<ExcalidrawArrowElement> => ({
+  customData: getInitialMeta(ObjectiveKinds.POINTER, {
+    subkind: 'characterMovementPointer',
+    name: 'Character Movement',
+  }),
+  strokeColor: ref.backgroundColor,
+  strokeWidth: 4,
+  strokeStyle: 'dashed',
+  roundness: {
+    type: 2,
+  },
+  startArrowhead: null,
+  endArrowhead: 'triangle_outline',
 })
 
 const LABEL_POINTER = (): Partial<ExcalidrawArrowElement> => ({
@@ -93,6 +110,7 @@ export const newPointerBeetween = (
   if (opts?.subkind === 'labelPointer') overrides = LABEL_POINTER()
   else if (opts?.subkind === 'storyboardPointer') overrides = STORYBOARD_POINTER()
   else if (opts?.subkind === 'cameraMovementPointer') overrides = CAMERA_MOVEMENT_POINTER(one)
+  else if (opts?.subkind === 'characterMovementPointer') overrides = CHARACTER_MOVEMENT_POINTER(one)
   else overrides = LABEL_POINTER()
 
   if (opts?.overrides) overrides = { ...overrides, ...opts.overrides }

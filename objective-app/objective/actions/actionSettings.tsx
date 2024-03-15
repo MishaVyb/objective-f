@@ -2,7 +2,7 @@ import { CODES, KEYS } from '../../../packages/excalidraw/keys'
 import { AppState } from '../../../packages/excalidraw/types'
 import { register } from './register'
 
-export const actionObjectiveSettings = register({
+export const actionSettings = register({
   name: 'toggleObjectiveSettings',
   viewMode: true,
   trackEvent: { category: 'menu', action: 'toggleObjectiveSettings' },

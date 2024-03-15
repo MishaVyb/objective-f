@@ -136,17 +136,29 @@ export type ActionName =
   | "createContainerFromText"
   | "wrapTextInContainer"
 
-  // VBRN actions:
+  // VBRN:
+  // common:
+  | "actionDisplayMetaHeader"
   | "actionChangeMetaName"
+
+  // cameras:
   | "actionChangeMetaDescription"
   | "actionChangeMetaCameraShot"
-  | "actionChangeMetaCameraVersion"
-  | "actionDisplayMetaHeader"
+  | "actionChangeMetaCameraVersion" // includes Move To/From
+
+  // characters:
+  | "actionMoveCharacterToFrom"
+
+  // images:
   | "actionInitStoryboard"
   | "actionStoryboard"
+
+  // settings:
   | "toggleObjectiveSettings"
   | "toggleGridSnapMode"
-  | "actionFinalizeSelectionDrag"
+
+  // internal:
+  | "actionSnapLocation"
   | "actionCreatePointer"
   | "actionDeletePointer";
 

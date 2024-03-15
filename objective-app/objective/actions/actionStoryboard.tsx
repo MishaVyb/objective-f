@@ -334,15 +334,27 @@ export const actionStoryboard = register({
             </fieldset>
           ))
         ) : (
-          <IconButton
+          <Button
             size={'2'}
+            style={{
+              // HACK fix not native Excalidraw icon inside Radix button
+              paddingLeft: 5,
+              gap: 0,
+            }}
             variant={'surface'}
             color={'gray'}
             onClick={() => onAddImageClick()}
             title={'Add image frame'}
           >
             <div className='ToolIcon__icon'>{ImageIcon}</div>
-          </IconButton>
+            <Text
+              style={{
+                paddingLeft: -10,
+              }}
+            >
+              {'Add'}
+            </Text>
+          </Button>
         )}
       </div>
     )

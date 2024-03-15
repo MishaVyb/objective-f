@@ -32,7 +32,7 @@ import {
   isKind,
 } from '../meta/types'
 import {
-  actionFinalizeSelectionDrag,
+  actionSnapLocation,
   performRotationLocationOnDragFinalize,
 } from '../actions/actionOnDrag'
 
@@ -280,7 +280,7 @@ export const onPointerUpFromPointerDownEventHandler = (
   pointerDownState: PointerDownState
 ) => {
   if (app.state.draggingElement?.type === 'selection')
-    app.actionManager.executeAction(actionFinalizeSelectionDrag)
+    app.actionManager.executeAction(actionSnapLocation)
 }
 
 /** mutate new elements. merge new elements with current scene elements, return all elements */
