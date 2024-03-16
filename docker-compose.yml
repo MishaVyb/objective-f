@@ -1,12 +1,12 @@
 version: "3.8"
 
 services:
-  excalidraw:
+  objective-frontend:
     build:
       context: .
       args:
         - NODE_ENV=development
-    container_name: excalidraw
+    container_name: objective-frontend
     ports:
       - "3000:80"
     restart: on-failure
