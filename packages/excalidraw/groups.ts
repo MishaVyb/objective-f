@@ -268,8 +268,18 @@ export const editGroupForSelectedElement = (
   };
 };
 
-export const isElementInGroup = (element: ExcalidrawElement, groupId: string) =>
-  element.groupIds.includes(groupId);
+export const isElementInGroup = (
+  element: ExcalidrawElement,
+  groupId: string,
+) => {
+  // VBRN
+  if (typeof element.groupIds === "undefined") {
+    console.warn("No element.groupIds: ", element);
+    return false;
+  }
+  // VBRN
+  return element.groupIds.includes(groupId);
+};
 
 export const getElementsInGroup = (
   elements: ElementsMapOrArray,
