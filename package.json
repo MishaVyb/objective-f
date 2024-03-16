@@ -85,6 +85,9 @@
     "vitest": "1.0.1",
     "vitest-canvas-mock": "0.3.2"
   },
+  "resolutions": {
+    "rollup": "npm:@rollup/wasm-node"
+  },
   "engines": {
     "node": "18.0.0 - 20.x.x"
   },
