@@ -97,8 +97,9 @@
     "build-node": "node ./scripts/build-node.js",
     "build": "yarn --cwd ./excalidraw-app build",
     "build:dev": "yarn --cwd ./excalidraw-app build:dev",
+    "build:staging": "yarn --cwd ./excalidraw-app build:staging",
     "build:prod": "yarn --cwd ./excalidraw-app build:prod",
-    
+
     "build:app": "yarn --cwd ./excalidraw-app build:app",
     "build:app:docker": "yarn --cwd ./excalidraw-app build:app:docker",
     "build:version": "node ./scripts/build-version.js",

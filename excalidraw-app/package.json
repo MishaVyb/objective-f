@@ -36,6 +36,7 @@
     "build": "vite build && yarn build:version",
     "build:dev": "vite build --mode development && yarn build:version",
     "build:prod": "vite build --mode production && yarn build:version",
+    "build:staging": "vite build --mode staging && yarn build:version",
 
     "build:app": "vite build",
     "build:app:docker": "vite build",
