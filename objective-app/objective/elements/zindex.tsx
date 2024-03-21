@@ -15,6 +15,7 @@ import {
   ExcalidrawTextContainer,
 } from '../../../packages/excalidraw/element/types'
 import { arrayToMap } from '../../../packages/excalidraw/utils'
+import { __DEBUG_DISABLE_ARRANGE } from '../../objective-plus/constants'
 import { getMetaSimple } from '../meta/selectors'
 import { ObjectiveKinds, isKindEl, isObjective, isWallElement } from '../meta/types'
 
@@ -23,6 +24,9 @@ import { ObjectiveKinds, isKindEl, isObjective, isWallElement } from '../meta/ty
 // and safe it here while reordering by default Objective rules
 //
 export const arrangeElements = (elements: ElementsMapOrArray, newEls: ElementsMapOrArray) => {
+  if (__DEBUG_DISABLE_ARRANGE)
+    return [...arrayToMap(elements).values(), ...arrayToMap(newEls).values()]
+
   // do not use scene here, as scene has initital elements that has no current Action mutation
   const elsMap = new Map([...arrayToMap(elements), ...arrayToMap(newEls)])
   const takenElements = new Set<string>([])

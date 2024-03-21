@@ -47,6 +47,7 @@ interface ImportMetaEnv {
   VITE_APP_OBJECTIVE_ENSURE_THEME: "light" | "dark" | "";
   VITE_APP_OBJECTIVE_FULL_EDITOR: string;
   VITE_APP_OBJECTIVE_LOG_POINTER_CORDS: string;
+  VITE_APP_OBJECTIVE_DISABLE_ARRANGE: string;
 }
 
 interface ImportMeta {

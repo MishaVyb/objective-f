@@ -31,5 +31,8 @@ export const __DEBUG_EDITOR = Boolean(import.meta.env.VITE_APP_OBJECTIVE_FULL_ED
 export const __DEBUG_LOG_POINTER_CORDS = Boolean(
   import.meta.env.VITE_APP_OBJECTIVE_LOG_POINTER_CORDS
 )
+export const __DEBUG_DISABLE_ARRANGE = Boolean(
+  import.meta.env.VITE_APP_OBJECTIVE_DISABLE_ARRANGE
+)
 
 export const APP_VERSION = getVersion()
