@@ -1,4 +1,5 @@
 import { Theme } from '../../packages/excalidraw/element/types'
+import { getVersion } from '../../packages/excalidraw/utils'
 
 export enum SCENE_PERSISTENCE {
   AUTO_SAVE_INTERVAL_MS = import.meta.env.DEV ? 1_000 * 2 : 1_000 * 10,
@@ -31,4 +32,4 @@ export const __DEBUG_LOG_POINTER_CORDS = Boolean(
   import.meta.env.VITE_APP_OBJECTIVE_LOG_POINTER_CORDS
 )
 
-console.log('Start objective app: ', import.meta.env)
+export const APP_VERSION = getVersion()
