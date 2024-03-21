@@ -378,12 +378,11 @@ export const Stats = (props: {
         >
           <Tabs.List size={"1"}>
             <Tabs.Trigger value="meta">Meta</Tabs.Trigger>
-
             <Tabs.Trigger value="default">XY</Tabs.Trigger>
             <Tabs.Trigger value="fullElementsInfo">Els</Tabs.Trigger>
             <Tabs.Trigger value="custom">Sys</Tabs.Trigger>
-            <Tabs.Trigger value="envObjective">Env</Tabs.Trigger>
-            <Tabs.Trigger value="envExcalidraw">Env Obj</Tabs.Trigger>
+            <Tabs.Trigger value="envObjective">Env Obj</Tabs.Trigger>
+            <Tabs.Trigger value="envExcalidraw">Env Exc</Tabs.Trigger>
           </Tabs.List>
 
           <Tabs.Content value="meta">{objectiveMetaInfo()}</Tabs.Content>
