@@ -157,8 +157,10 @@ export type ActionName =
   | "toggleObjectiveSettings"
   | "toggleGridSnapMode"
 
-  // internal:
+  // location
   | "actionSnapLocation"
+
+  // internal:
   | "actionCreatePointer"
   | "actionDeletePointer";
 

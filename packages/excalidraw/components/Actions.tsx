@@ -233,9 +233,12 @@ export const SelectedShapeActions = ({
       (showOBJStyle && !metasSet.has(ObjectiveKinds.LABEL)),
 
     duplicate: isAllExcali || isObjAndExcali || showOBJStyle,
+    flip: isAllExcali || isObjAndExcali || showOBJStyle,
     delete: isAllExcali || isObjAndExcali || showOBJStyle,
-    group: isAllExcali || isObjAndExcali || showOBJStyle,
-    hyperLink: isAllExcali || isObjAndExcali || showOBJStyle,
+    group: isAllExcali || isObjAndExcali || showOBJStyle, // TODO
+    ungroup: isAllExcali || isObjAndExcali || showOBJStyle, // TODO
+
+    hyperLink: isAllExcali, // only for Excalidraw els
   });
 
   let actionsToRender = getActionsToRender(showOBJStyle);
@@ -401,14 +404,20 @@ export const SelectedShapeActions = ({
         <fieldset>
           <legend>{t("labels.actions")}</legend>
           <div className="buttonList">
+            {actionsToRender.flip && renderAction("flipHorizontal")}
+            {actionsToRender.flip && renderAction("flipVertical")}
+
             {actionsToRender.duplicate &&
               !device.editor.isMobile &&
               renderAction("duplicateSelection")}
+
             {actionsToRender.delete &&
               !device.editor.isMobile &&
               renderAction("deleteSelectedElements")}
+
             {actionsToRender.group && renderAction("group")}
-            {actionsToRender.group && renderAction("ungroup")}
+            {actionsToRender.ungroup && renderAction("ungroup")}
+
             {actionsToRender.hyperLink &&
               showLinkIcon &&
               renderAction("hyperlink")}

@@ -18,6 +18,8 @@ import {
   unbindLinearElements,
 } from "../element/binding";
 import { updateFrameMembershipOfSelectedElements } from "../frame";
+import { ColumnSpacingIcon, RowSpacingIcon } from "@radix-ui/react-icons";
+import { IconButton } from "@radix-ui/themes";
 
 export const actionFlipHorizontal = register({
   name: "flipHorizontal",
@@ -38,6 +40,17 @@ export const actionFlipHorizontal = register({
       commitToHistory: true,
     };
   },
+  PanelComponent: ({ updateData }) => (
+    <IconButton
+      size={"2"}
+      variant={"soft"}
+      color={"gray"}
+      onClick={() => updateData()}
+      title={"Flip horizontal"}
+    >
+      <ColumnSpacingIcon />
+    </IconButton>
+  ),
   keyTest: (event) => event.shiftKey && event.code === CODES.H,
   contextItemLabel: "labels.flipHorizontal",
 });
@@ -61,6 +74,17 @@ export const actionFlipVertical = register({
       commitToHistory: true,
     };
   },
+  PanelComponent: ({ updateData }) => (
+    <IconButton
+      size={"2"}
+      variant={"soft"}
+      color={"gray"}
+      onClick={() => updateData()}
+      title={"Flip vertical"}
+    >
+      <RowSpacingIcon />
+    </IconButton>
+  ),
   keyTest: (event) =>
     event.shiftKey && event.code === CODES.V && !event[KEYS.CTRL_OR_CMD],
   contextItemLabel: "labels.flipVertical",
