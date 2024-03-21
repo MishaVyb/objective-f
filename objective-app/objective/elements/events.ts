@@ -34,7 +34,7 @@ import {
 import {
   actionSnapLocation,
   performRotationLocationOnDragFinalize,
-} from '../actions/actionOnDrag'
+} from '../actions/actionLocation'
 
 import { snapDraggedElementsLocation } from './snapElements'
 import { getCameraMetaReprStr } from '../actions/actionCamera'
