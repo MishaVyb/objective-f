@@ -44,6 +44,7 @@ const data = JSON.stringify(
   2,
 );
 
+console.info("Write version file: ", data);
 fs.writeFileSync(versionFile, data);
 
 // https://stackoverflow.com/a/14181136/8418
@@ -51,8 +52,10 @@ fs.readFile(indexFile, "utf8", (error, data) => {
   if (error) {
     return console.error(error);
   }
-  const result = data.replace(/{version}/g, getFullVersion());
+  const vers = getFullVersion();
+  const result = data.replace(/{version}/g, vers);
 
+  console.info("Write index file with version meta tag: ", vers);
   fs.writeFile(indexFile, result, "utf8", (error) => {
     if (error) {
       return console.error(error);

@@ -39,6 +39,14 @@ interface ImportMetaEnv {
 
   DEV: string;
   PROD: string;
+
+  // VBRN
+  VITE_APP_OBJECTIVE_HOST: string;
+
+  VITE_APP_OBJECTIVE_API_FREEZE_MS: string;
+  VITE_APP_OBJECTIVE_ENSURE_THEME: "light" | "dark" | "";
+  VITE_APP_OBJECTIVE_FULL_EDITOR: string;
+  VITE_APP_OBJECTIVE_LOG_POINTER_CORDS: string;
 }
 
 interface ImportMeta {

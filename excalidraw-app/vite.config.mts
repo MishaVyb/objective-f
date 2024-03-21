@@ -6,7 +6,7 @@ import { VitePWA } from "vite-plugin-pwa";
 import checker from "vite-plugin-checker";
 
 // To load .env.local variables
-const envVars = loadEnv("", `../`);
+export const envVars = loadEnv("", `../`);
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {

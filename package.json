@@ -95,10 +95,14 @@
   "prettier": "@excalidraw/prettier-config",
   "scripts": {
     "build-node": "node ./scripts/build-node.js",
-    "build:app:docker": "vite build",
-    "build:app": "vite build",
-    "build:version": "node ./scripts/build-version.js",
     "build": "yarn --cwd ./excalidraw-app build",
+    "build:dev": "yarn --cwd ./excalidraw-app build:dev",
+    "build:prod": "yarn --cwd ./excalidraw-app build:prod",
+    
+    "build:app": "yarn --cwd ./excalidraw-app build:app",
+    "build:app:docker": "yarn --cwd ./excalidraw-app build:app:docker",
+    "build:version": "node ./scripts/build-version.js",
+
     "fix:code": "yarn test:code --fix",
     "fix:other": "yarn prettier --write",
     "fix": "yarn fix:other && yarn fix:code",
@@ -106,10 +110,14 @@
     "locales-coverage:description": "node scripts/locales-coverage-description.js",
     "prepare": "husky install",
     "prettier": "prettier \"**/*.{css,scss,json,md,html,yml}\" --ignore-path=.eslintignore",
+
     "start": "yarn --cwd ./excalidraw-app start",
     "start:host": "yarn --cwd ./excalidraw-app start:host",
+    "start:production": "yarn --cwd ./excalidraw-app start:production",
+
     "start:force": "DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true GENERATE_SOURCEMAP=false yarn --cwd ./excalidraw-app start",
     "start:app:production": "npm run build && npx http-server build -a localhost -p 5001 -o",
+
     "test:all": "yarn test:typecheck && yarn test:code && yarn test:other && yarn test:app --watch=false",
     "test:app": "vitest",
     "test:code": "eslint --max-warnings=0 --ext .js,.ts,.tsx .",

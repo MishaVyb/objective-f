@@ -1,14 +1,11 @@
 import { Theme } from '../../packages/excalidraw/element/types'
 
-export const LOCAL_DEV = true
-export const MINUTE = 1000
-
 export enum SCENE_PERSISTENCE {
-  AUTO_SAVE_INTERVAL_MS = LOCAL_DEV ? MINUTE * 2 : MINUTE * 10,
-  AUTO_LOADING_INTERVAL_MS = LOCAL_DEV ? MINUTE * 2 : MINUTE * 10,
+  AUTO_SAVE_INTERVAL_MS = import.meta.env.DEV ? 1_000 * 2 : 1_000 * 10,
+  AUTO_LOADING_INTERVAL_MS = import.meta.env.DEV ? 1_000 * 2 : 1_000 * 10,
 }
 
-export const ROOT = 'http://localhost:8000' as const
+export const ROOT = import.meta.env.VITE_APP_OBJECTIVE_HOST
 export enum ENDPOINTS {
   // user & auth
   REGISTER = '/api/auth/register',
@@ -26,11 +23,12 @@ export enum ENDPOINTS {
 
 export const ACCENT_COLOR = 'violet' as const
 
-// TODO configure it from process.env
-export const __DEBUG_API_FREEZE_MS = 250
-export const __DEBUG_ENSURE_THEME: Theme | null = 'light' //'dark'
+export const __DEBUG_API_FREEZE_MS = Number(import.meta.env.VITE_APP_OBJECTIVE_API_FREEZE_MS || 0)
+export const __DEBUG_ENSURE_THEME: Theme | null =
+  import.meta.env.VITE_APP_OBJECTIVE_ENSURE_THEME || null
+export const __DEBUG_EDITOR = Boolean(import.meta.env.VITE_APP_OBJECTIVE_FULL_EDITOR)
+export const __DEBUG_LOG_POINTER_CORDS = Boolean(
+  import.meta.env.VITE_APP_OBJECTIVE_LOG_POINTER_CORDS
+)
 
-export const __DEBUG_EDITOR = false
-// export const __DEBUG_EDITOR = true
-
-export const __DEBUG_LOG_POINTER_CORDS = false
+console.log('Start objective app: ', import.meta.env)

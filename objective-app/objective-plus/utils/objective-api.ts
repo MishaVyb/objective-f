@@ -1,5 +1,5 @@
 import { BinaryFileData } from '../../../packages/excalidraw/types'
-import { __DEBUG_API_FREEZE_MS, ENDPOINTS, LOCAL_DEV, ROOT } from '../constants'
+import { ENDPOINTS, __DEBUG_API_FREEZE_MS, ROOT } from '../constants'
 import { IMakeLoginPayload, IUserCreatePayload, IUserUpdatePayload } from '../store/auth/actions'
 import { IAuthFull, ITokens, IUser } from '../store/auth/reducer'
 import {
@@ -37,7 +37,7 @@ export const checkResponse = async <T>(response: Response): Promise<T> => {
 export const getAuthHeader = (auth: ITokens) => ({ Authorization: `Bearer ${auth.access_token}` })
 
 export const fetchUser = async (auth: IAuthFull) => {
-  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.ME, {
     method: 'GET',
@@ -47,7 +47,7 @@ export const fetchUser = async (auth: IAuthFull) => {
 }
 
 export const fetchUpdateUser = async (body: IUserUpdatePayload, auth: ITokens) => {
-  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.ME, {
     method: 'PATCH',
@@ -58,7 +58,7 @@ export const fetchUpdateUser = async (body: IUserUpdatePayload, auth: ITokens) =
 }
 
 export const fetchRegister = async (body: IUserCreatePayload) => {
-  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.REGISTER, {
     method: 'POST',
@@ -69,7 +69,7 @@ export const fetchRegister = async (body: IUserCreatePayload) => {
 }
 
 export const fetchLogin = async (form: IMakeLoginPayload) => {
-  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
   const body = new FormData()
   body.append('username', form.email) // NOTE `email` is used as `username` on login
@@ -87,7 +87,7 @@ export const fetchLogin = async (form: IMakeLoginPayload) => {
 export const fetchLogout = async (auth: ITokens) => {
   if (!auth.access_token) return
 
-  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.LOGOUT, {
     method: 'POST',
@@ -99,7 +99,7 @@ export const fetchLogout = async (auth: ITokens) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const fetchProjects = async (query: TGetProjectsThunkArg, auth: IAuthFull) => {
-  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
   const urlParams = new URLSearchParams()
   if (query.is_deleted) urlParams.append('is_deleted', 'True')
@@ -112,7 +112,7 @@ export const fetchProjects = async (query: TGetProjectsThunkArg, auth: IAuthFull
 }
 
 export const fetchCreateProject = async (body: TCreateProjectPayload, auth: IAuthFull) => {
-  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.PROJECTS, {
     method: 'POST',
@@ -127,7 +127,7 @@ export const fetchUpdateProject = async (
   body: TCreateProjectPayload,
   auth: IAuthFull
 ) => {
-  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.PROJECTS + `/${id}`, {
     method: 'PATCH',
@@ -139,7 +139,7 @@ export const fetchUpdateProject = async (
 
 /** Mark for delete (a.k.a Archive) */
 export const fetchDeleteProject = async (id: IProject['id'], auth: IAuthFull) => {
-  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.PROJECTS + `/${id}`, {
     method: 'DELETE',
@@ -151,7 +151,7 @@ export const fetchDeleteProject = async (id: IProject['id'], auth: IAuthFull) =>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const fetchScene = async (id: ISceneFull['id'], auth: IAuthFull) => {
-  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.SCENES + `/${id}`, {
     method: 'GET',
@@ -161,7 +161,7 @@ export const fetchScene = async (id: ISceneFull['id'], auth: IAuthFull) => {
 }
 
 export const fetchScenes = async (query: TGetScenesThunkArg, auth: IAuthFull) => {
-  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
   const urlParams = new URLSearchParams()
   if (query.is_deleted) urlParams.append('is_deleted', 'True')
@@ -174,7 +174,7 @@ export const fetchScenes = async (query: TGetScenesThunkArg, auth: IAuthFull) =>
 }
 
 export const fetchCreateScene = async (body: TCreateScenePayload, auth: IAuthFull) => {
-  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.SCENES, {
     method: 'POST',
@@ -189,7 +189,7 @@ export const fetchUpdateScene = async (
   body: TUpdateScenePayload,
   auth: IAuthFull
 ) => {
-  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.SCENES + `/${id}`, {
     method: 'PATCH',
@@ -201,7 +201,7 @@ export const fetchUpdateScene = async (
 
 /** Mark for delete (a.k.a Archive) */
 export const fetchDeleteScene = async (id: ISceneFull['id'], auth: IAuthFull) => {
-  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.SCENES + `/${id}`, {
     method: 'DELETE',
@@ -217,7 +217,7 @@ export const fetchFile = async (
   fileId: BinaryFileData['id'],
   auth: IAuthFull
 ) => {
-  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.SCENES + `/${sceneId}/files/${fileId}`, {
     method: 'GET',
@@ -231,7 +231,7 @@ export const fetchCreateFile = async (
   file: BinaryFileData,
   auth: IAuthFull
 ) => {
-  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.SCENES + `/${sceneId}/files`, {
     method: 'POST',
@@ -244,7 +244,7 @@ export const fetchCreateFile = async (
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const fetchErrorCheck = async () => {
-  if (LOCAL_DEV) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.ERROR, {
     method: 'GET',
