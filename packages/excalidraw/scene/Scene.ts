@@ -267,6 +267,14 @@ class Scene {
         ? nextElements
         : Array.from(nextElements.values());
     const nextFrameLikes: ExcalidrawFrameLikeElement[] = [];
+
+    // TMP try to catch error
+    this.elements.forEach((maybeElement: any) => {
+      if ("type" in maybeElement) return;
+
+      console.error("Invalid element: ", maybeElement);
+    });
+
     this.elementsMap.clear();
     this.elements.forEach((element) => {
       if (isFrameLikeElement(element)) {
