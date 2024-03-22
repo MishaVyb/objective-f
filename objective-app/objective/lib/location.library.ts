@@ -20,32 +20,33 @@ const createObj = (
   clipboardObj: ElementsClipboard,
   name: string,
   baseIndex: number,
-  libraryImg?: ObjectiveMeta['libraryImg']
+  subkind: ObjectiveMeta['subkind'],
+  libraryImg: ObjectiveMeta['libraryImg']
 ): LibraryItem => {
   return createObjFromClipboard(
     clipboardObj,
     name,
     ObjectiveKinds.LOCATION,
     {},
-    { basisIndex: baseIndex, libraryImg }
+    { basisIndex: baseIndex, subkind, libraryImg }
   )
 }
 
 export const LIB_LOCATION: LibraryItems = [
-  createObj(window, 'Window', WINDOW_BASIS_INDEX, {
+  createObj(window, 'Window', WINDOW_BASIS_INDEX, 'window', {
     src: windowImage,
     w: 55,
     h: 27,
     title: 'Window',
   }),
-  createObj(doorClose, 'Door Close', DOOR_BASIS_INDEX, {
+  createObj(doorClose, 'Door Closed', DOOR_BASIS_INDEX, 'doorClosed', {
     src: doorCloseImage,
     w: 55,
     h: 27,
     title: 'Door',
   }),
   // createObj(doorHalfOpen, 'Door Half Open', DOOR_BASIS_INDEX),
-  createObj(doorOpen, 'Door Open', DOOR_BASIS_INDEX, {
+  createObj(doorOpen, 'Door Openned', DOOR_BASIS_INDEX, 'doorOpenned', {
     src: doorOpenImage,
     w: 55,
     h: 27,

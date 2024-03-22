@@ -32,10 +32,17 @@ export enum ObjectiveKinds {
 }
 
 export type ObjectiveSubkinds =
+  // pointer:
   | 'labelPointer'
   | 'storyboardPointer'
   | 'cameraMovementPointer'
   | 'characterMovementPointer'
+
+  // location:
+  // | 'wall' // TODO
+  | 'window'
+  | 'doorClosed'
+  | 'doorOpenned'
 
 export type TObjectiveKind = `${ObjectiveKinds}`
 
@@ -125,6 +132,7 @@ export type PointerElement = ObjectiveElement<PointerMeta>
 export type LocationMeta = ObjectiveMeta &
   Readonly<{
     kind: ObjectiveKinds.LOCATION
+    subkind: 'window' | 'doorClosed' | 'doorOpenned'
   }>
 
 export type CameraMeta = ObjectiveMeta & {

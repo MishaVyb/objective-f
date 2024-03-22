@@ -44,6 +44,7 @@ import {
   ObjectiveKinds,
   isAllElementsObjective,
 } from "../../../objective-app/objective/meta/types";
+import { isUngroupDissalawed } from "../../../objective-app/objective/elements/groups";
 import { objectEntries } from "../../../objective-app/objective/meta/utils";
 import { Button, Separator } from "@radix-ui/themes";
 import { __DEBUG_EDITOR } from "../../../objective-app/objective-plus/constants";
@@ -121,8 +122,11 @@ export const SelectedShapeActions = ({
   const metas = getObjectiveMetas(targetElements);
   const metasSet = new Set(metas.map((m) => m.kind));
 
-  const isSingleMeta = metas.length === 1;
-  const isSingleMetaKind = metasSet.size === 1;
+  // many metas, but all metas the same kind
+  const singleMetaKind = metasSet.size === 1 ? metas[0].kind : null;
+
+  // strict only one meta
+  const singleMeta = metas.length === 1 ? metas[0] : null;
 
   const isAnyObjective = !!metas.length;
   const isAllExcali = !isAnyObjective || __DEBUG_EDITOR;
@@ -131,33 +135,37 @@ export const SelectedShapeActions = ({
   const isSingleImage =
     targetElements.length === 1 && isInitializedImageElement(targetElements[0]);
 
+  const disallowUngroup = isUngroupDissalawed(metas, appState);
+
   const getActionsToRender = (showOBJStyle: boolean) => ({
     // Objective
     // common:
     metaHeader: isAllObjective,
     metaName:
       isAllObjective &&
-      isSingleMetaKind &&
+      singleMetaKind &&
       (metasSet.has(ObjectiveKinds.CAMERA) ||
         metasSet.has(ObjectiveKinds.CHARACTER) ||
         metasSet.has(ObjectiveKinds.LIGHT)),
 
     metaDescription:
-      isSingleMeta &&
+      isAllObjective &&
+      singleMeta &&
       (metasSet.has(ObjectiveKinds.CAMERA) ||
         metasSet.has(ObjectiveKinds.CHARACTER) ||
         metasSet.has(ObjectiveKinds.LIGHT)),
 
     buttonToShowOrHideExcalidrawStyle: isAllObjective,
 
-    // when camera selected:
-    metaCameraShot: isAllObjective && metasSet.has(ObjectiveKinds.CAMERA),
+    // when many cameras selected:
+    metaCameraShot: isAllObjective && singleMetaKind === ObjectiveKinds.CAMERA,
+
+    // when only one camera selected:
     metaActionStoryboard:
-      isAllObjective && isSingleMeta && metasSet.has(ObjectiveKinds.CAMERA),
+      isAllObjective && singleMeta && singleMetaKind === ObjectiveKinds.CAMERA,
 
     // when character selected:
-    metaCharacterActions:
-      metasSet.size === 1 && metasSet.has(ObjectiveKinds.CHARACTER),
+    metaCharacterActions: singleMetaKind === ObjectiveKinds.CHARACTER,
 
     // when image selected:
     metaInitStoryboard: isSingleImage,
@@ -233,10 +241,16 @@ export const SelectedShapeActions = ({
       (showOBJStyle && !metasSet.has(ObjectiveKinds.LABEL)),
 
     duplicate: isAllExcali || isObjAndExcali || showOBJStyle,
-    flip: isAllExcali || isObjAndExcali || showOBJStyle,
+
+    flip:
+      singleMeta &&
+      (singleMeta.subkind === "doorOpenned" ||
+        singleMeta.subkind === "doorClosed" ||
+        singleMeta.kind === ObjectiveKinds.LIGHT),
+
     delete: isAllExcali || isObjAndExcali || showOBJStyle,
-    group: isAllExcali || isObjAndExcali || showOBJStyle, // TODO
-    ungroup: isAllExcali || isObjAndExcali || showOBJStyle, // TODO
+    group: isAllExcali || isObjAndExcali || showOBJStyle,
+    ungroup: isAllExcali || isObjAndExcali || showOBJStyle,
 
     hyperLink: isAllExcali, // only for Excalidraw els
   });

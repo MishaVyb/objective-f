@@ -27,6 +27,8 @@ import {
   removeElementsFromFrame,
   replaceAllElementsInFrame,
 } from "../frame";
+import { isUngroupDissalawed } from "../../../objective-app/objective/elements/groups";
+import { getSelectedObjectiveMetas } from "../../../objective-app/objective/meta/selectors";
 
 const allElementsInSameGroup = (elements: readonly ExcalidrawElement[]) => {
   if (elements.length >= 2) {
@@ -175,10 +177,15 @@ export const actionGroup = register({
   ),
 });
 
+//@ts-ignore
 export const actionUngroup = register({
   name: "ungroup",
   trackEvent: { category: "element" },
   perform: (elements, appState, _, app) => {
+    // in case of activation by KEY predicate function does not called
+    if (!actionUngroup.predicate(elements, appState, app.props, app))
+      return false;
+
     const groupIds = getSelectedGroupIds(appState);
     if (groupIds.length === 0) {
       return { appState, elements, commitToHistory: false };
@@ -257,12 +264,22 @@ export const actionUngroup = register({
     event[KEYS.CTRL_OR_CMD] &&
     event.key === KEYS.G.toUpperCase(),
   contextItemLabel: "labels.ungroup",
-  predicate: (elements, appState) => getSelectedGroupIds(appState).length > 0,
 
-  PanelComponent: ({ elements, appState, updateData }) => (
+  predicate: (elements, appState, _, app) => {
+    // VBRN
+    const dissalowed = isUngroupDissalawed(
+      getSelectedObjectiveMetas(app.scene, appState),
+      appState,
+    );
+    if (dissalowed) return false;
+
+    return getSelectedGroupIds(appState).length > 0;
+  },
+
+  PanelComponent: ({ elements, appState, updateData, app }) => (
     <ToolButton
       type="button"
-      hidden={getSelectedGroupIds(appState).length === 0}
+      hidden={!actionUngroup.predicate(elements, appState, app.props, app)}
       icon={<UngroupIcon theme={appState.theme} />}
       onClick={() => updateData(null)}
       title={`${t("labels.ungroup")} — ${getShortcutKey("CtrlOrCmd+Shift+G")}`}

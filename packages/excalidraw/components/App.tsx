@@ -416,6 +416,7 @@ import {
   ObjectiveKinds,
   ObjectiveMeta,
   isKindEl,
+  isObjective,
   isWallTool,
 } from "../../../objective-app/objective/meta/types";
 import { getInitialMeta } from "../../../objective-app/objective/meta/initial";
@@ -432,6 +433,7 @@ import {
 } from "../../../objective-app/objective/meta/selectors";
 import { actionCreatePointer } from "../../../objective-app/objective/actions/actionMetaCommon";
 import { __DEBUG_LOG_POINTER_CORDS } from "../../../objective-app/objective-plus/constants";
+import { isGroupEditingDissalawed } from "../../../objective-app/objective/elements/groups";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -4679,7 +4681,11 @@ class App extends React.Component<AppProps, AppState> {
         hitElement &&
         getSelectedGroupIdForElement(hitElement, this.state.selectedGroupIds);
 
-      if (selectedGroupId) {
+      const disallowGroupEditing = // VBRN
+        selectedGroupId &&
+        isGroupEditingDissalawed(hitElement, selectedGroupId);
+
+      if (selectedGroupId && !disallowGroupEditing) {
         this.setState((prevState) => ({
           ...prevState,
           ...selectGroupsForSelectedElements(
@@ -4716,6 +4722,8 @@ class App extends React.Component<AppProps, AppState> {
 
       if (container) {
         if (isKindEl(container, ObjectiveKinds.LABEL)) return; // VBRN disable edit label text at canvas
+        if (isObjective(container)) return; // VBRN disable adding text insdie objective el
+
         if (
           hasBoundTextElement(container) ||
           !isTransparent(container.backgroundColor) ||
@@ -9374,8 +9382,10 @@ class App extends React.Component<AppProps, AppState> {
     // -------------------------------------------------------------------------
 
     if (type === "canvas") {
+
+      // VBRN
       const extraItems = this.objectiveProps.isMyScene
-        ? [actionToggleViewMode]
+        ? [actionToggleViewMode] //
         : [];
 
       if (this.state.viewModeEnabled) {
@@ -9384,7 +9394,6 @@ class App extends React.Component<AppProps, AppState> {
           actionToggleGridMode,
           actionToggleGridSnapMode,
           actionToggleZenMode,
-          // actionToggleViewMode,  // VBRN disable
           // actionToggleStats, // VBRN disable
           ...extraItems,
         ];
@@ -9404,7 +9413,6 @@ class App extends React.Component<AppProps, AppState> {
         actionToggleGridSnapMode,
         actionToggleObjectsSnapMode,
         actionToggleZenMode,
-        // actionToggleViewMode,  // VBRN disable
         // actionToggleStats, // VBRN disable
         ...extraItems,
       ];
