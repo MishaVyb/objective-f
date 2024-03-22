@@ -15,6 +15,7 @@ import {
   getObjectiveSingleMeta,
   getPointerIds,
   getPointers,
+  getSelectedObjectiveMetas,
   getSelectedSceneEls,
 } from '../meta/selectors'
 
@@ -32,8 +33,8 @@ import {
 } from '../meta/types'
 import { getCameraMetaReprStr, getCameraVersionStr } from './actionCamera'
 import { arrangeElements } from '../elements/zindex'
-import { Button, Dialog, Flex, Kbd, TextArea } from '@radix-ui/themes'
-import { EyeClosedIcon, EyeOpenIcon, Pencil1Icon } from '@radix-ui/react-icons'
+import { Button, Dialog, Flex, IconButton, Kbd, TextArea } from '@radix-ui/themes'
+import { EyeClosedIcon, EyeOpenIcon, Pencil1Icon, TransformIcon } from '@radix-ui/react-icons'
 import { getBoundTextElement } from '../../../packages/excalidraw/element/textElement'
 import { mutateElement } from '../../../packages/excalidraw'
 import {
@@ -44,7 +45,10 @@ import {
 import { useState } from 'react'
 import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
 import { handleMetaRepresentation } from '../elements/metaRepr'
-import { mutateElementsMeta } from '../elements/mutateElements'
+import { changeElementMeta, mutateElementsMeta, mutateMeta } from '../elements/mutateElements'
+import { ACCENT_COLOR } from '../../objective-plus/constants'
+import clsx from 'clsx'
+import { isElementsScalable } from '../elements/resizeElements'
 
 export const actionDisplayMetaHeader = register({
   name: 'actionDisplayMetaHeader',
@@ -333,6 +337,31 @@ export const actionChangeMetaDescription = register({
           </Dialog.Content>
         </Dialog.Root>
       </div>
+    )
+  },
+})
+
+export const actionToggleScalable = register({
+  name: 'actionToggleScalable',
+  trackEvent: false,
+  perform: (elements, appState, isScalable, app) => {
+    const metas = getSelectedObjectiveMetas(app.scene, appState)
+    metas.forEach((m) => mutateMeta(m, { disableResize: !isScalable }))
+    return { elements: elements, commitToHistory: true }
+  },
+
+  PanelComponent: ({ elements, appState, updateData, app }: PanelComponentProps) => {
+    const isScalable = isElementsScalable(getSelectedSceneEls(app.scene, appState))
+    return (
+      <IconButton
+        size={'2'}
+        variant={'soft'}
+        className={clsx({ 'objective-togled-button': isScalable })}
+        title={'Scalable'}
+        onClick={() => updateData(!isScalable)} //
+      >
+        <TransformIcon />
+      </IconButton>
     )
   },
 })

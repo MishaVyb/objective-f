@@ -140,6 +140,7 @@ export type ActionName =
   // common:
   | "actionDisplayMetaHeader"
   | "actionChangeMetaName"
+  | "actionToggleScalable"
 
   // cameras:
   | "actionChangeMetaDescription"

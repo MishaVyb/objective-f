@@ -19,39 +19,44 @@ const DOOR_BASIS_INDEX = 1 // dashed line
 const createObj = (
   clipboardObj: ElementsClipboard,
   name: string,
-  baseIndex: number,
-  subkind: ObjectiveMeta['subkind'],
-  libraryImg: ObjectiveMeta['libraryImg']
+  metaOverrides: Omit<Partial<ObjectiveMeta>, 'kind' | 'name'>
 ): LibraryItem => {
-  return createObjFromClipboard(
-    clipboardObj,
-    name,
-    ObjectiveKinds.LOCATION,
-    {},
-    { basisIndex: baseIndex, subkind, libraryImg }
-  )
+  return createObjFromClipboard(clipboardObj, name, ObjectiveKinds.LOCATION, {}, metaOverrides)
 }
 
 export const LIB_LOCATION: LibraryItems = [
-  createObj(window, 'Window', WINDOW_BASIS_INDEX, 'window', {
-    src: windowImage,
-    w: 55,
-    h: 27,
-    title: 'Window',
+  createObj(window, 'Window', {
+    basisIndex: WINDOW_BASIS_INDEX,
+    subkind: 'window',
+    disableResize: false,
+    libraryImg: {
+      src: windowImage,
+      w: 55,
+      h: 27,
+      title: 'Window',
+    },
   }),
-  createObj(doorClose, 'Door Closed', DOOR_BASIS_INDEX, 'doorClosed', {
-    src: doorCloseImage,
-    w: 55,
-    h: 27,
-    title: 'Door',
+  createObj(doorClose, 'Door Closed', {
+    basisIndex: DOOR_BASIS_INDEX,
+    subkind: 'doorClosed',
+    libraryImg: {
+      src: doorCloseImage,
+      w: 55,
+      h: 27,
+      title: 'Door',
+    },
+  }),
+  createObj(doorOpen, 'Door Openned', {
+    basisIndex: DOOR_BASIS_INDEX,
+    subkind: 'doorOpenned',
+    libraryImg: {
+      src: doorOpenImage,
+      w: 55,
+      h: 27,
+      title: 'Door',
+    },
   }),
   // createObj(doorHalfOpen, 'Door Half Open', DOOR_BASIS_INDEX),
-  createObj(doorOpen, 'Door Openned', DOOR_BASIS_INDEX, 'doorOpenned', {
-    src: doorOpenImage,
-    w: 55,
-    h: 27,
-    title: 'Door',
-  }),
 ]
 
 export const WALL_IMAGE: ObjectiveMeta['libraryImg'] = {

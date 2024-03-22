@@ -11,7 +11,11 @@ import {
   isObjective,
 } from './types'
 
-/** getDefaultMeta */
+/**
+ * NOTE: dont forget apply all defaults here and at duplicateMeta function bellow
+ *
+ * @return default meta with overrides
+ * */
 export const getInitialMeta = <T extends ObjectiveKinds>(
   kind: T,
   overriddes: Omit<Partial<AnyObjectiveMeta>, 'kind'> = {}
@@ -23,6 +27,7 @@ export const getInitialMeta = <T extends ObjectiveKinds>(
   name: undefined,
   nameRepr: undefined,
   basisIndex: 0,
+  disableResize: true,
   ...overriddes,
 })
 
@@ -53,6 +58,7 @@ export const duplicateMeta = (newElement: Mutable<ExcalidrawElement>) => {
       getInitialMeta(ObjectiveKinds.CAMERA, {
         name: weekMeta.name,
         description: weekMeta.description,
+        disableResize: weekMeta.disableResize,
 
         // HACK
         // pass here TMP id in order to tell `duplicateObjectiveEventHandler` hat Object has nameRep.
@@ -74,8 +80,10 @@ export const duplicateMeta = (newElement: Mutable<ExcalidrawElement>) => {
       getInitialMeta(weekMeta.kind, {
         name: weekMeta.name,
         description: weekMeta.description,
+        disableResize: weekMeta.disableResize,
 
-        nameRepr: weekMeta.nameRepr ? randomId() : undefined, // HACK
+        // HACK
+        nameRepr: weekMeta.nameRepr ? randomId() : undefined,
       })
     )
   }

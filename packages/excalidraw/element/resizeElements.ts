@@ -56,6 +56,7 @@ import {
   getBoundTextMaxHeight,
 } from "./textElement";
 import { LinearElementEditor } from "./linearElementEditor";
+import { isElementsScalable } from "../../../objective-app/objective/elements/resizeElements";
 
 export const normalizeAngle = (angle: number): number => {
   if (angle < 0) {
@@ -135,10 +136,11 @@ export const transformElements = (
       );
       return true;
     } else if (
-      transformHandleType === "nw" ||
-      transformHandleType === "ne" ||
-      transformHandleType === "sw" ||
-      transformHandleType === "se"
+      isElementsScalable(selectedElements) &&
+      (transformHandleType === "nw" ||
+        transformHandleType === "ne" ||
+        transformHandleType === "sw" ||
+        transformHandleType === "se")
     ) {
       resizeMultipleElements(
         originalElements,

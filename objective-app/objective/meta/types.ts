@@ -73,7 +73,7 @@ export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readon
    */
   elementIds: readonly ObjectiveElement['id'][]
   /** Excalidraw primetime elements. Populated by `getMetas` */
-  elements: readonly ObjectiveElement[]
+  elements: readonly ExcalidrawElement[]
 
   /** base element index at elements Array
    *
@@ -86,6 +86,8 @@ export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readon
    *
    */
   basisIndex: number
+
+  disableResize: boolean;
 
   libraryImg?: Readonly<{
     src: string
