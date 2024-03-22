@@ -113,10 +113,15 @@ const ObjectiveOuterWrapper: FC<{
     // empty list (but scene actually may has elements)
     //
     // and it also prevents scene updateing with no elements, if any app error occurs
-    // and to ensure that schene has no elements for real (at server side), dispatch load action for one more time
     //
     if (!els.length) {
-      loadingScene(loadSceneContinuos({ id: sceneId! }), { updateAppState: true })
+      // if in some bad scenarios initial loading fails (no elemnets have been uploaded),
+      // we want ensure that scene has no elements for real (at server side),
+      // so dispatch load action for one more time
+      //
+      // UNUSED ???
+      // loadingScene(loadSceneContinuos({ id: sceneId! }), { updateAppState: true })
+
       return
     }
 
