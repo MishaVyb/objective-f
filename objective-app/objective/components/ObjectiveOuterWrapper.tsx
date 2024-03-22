@@ -77,7 +77,7 @@ const ObjectiveOuterWrapper: FC<{
           const localFileIds = new Set(objectValues(localFiles).map((f) => f.id))
           const imageElementsWithFileNotInLocalFileIds = serializedElements
             .filter(isImageElement)
-            .filter((e) => e.fileId && !localFileIds.has(e.fileId))
+            .filter((e) => !e.isDeleted && e.fileId && !localFileIds.has(e.fileId))
 
           // scene has been load from server, but we need a little bit more for Excalidraw internal work
           setTimeout(() => {
@@ -106,7 +106,7 @@ const ObjectiveOuterWrapper: FC<{
   /** saving... */
   const updatingScene = useCallback(() => {
     if (!excalidrawApi) return
-    const els = excalidrawApi.getSceneElementsIncludingDeleted()
+    const els = excalidrawApi.getSceneElements() // save on backend only not deleted elements
 
     // HACK
     // edge case, when we exiting from scene, Excalidraw api release elements store and return
