@@ -44,7 +44,6 @@ import {
   ObjectiveKinds,
   isAllElementsObjective,
 } from "../../../objective-app/objective/meta/types";
-import { isUngroupDissalawed } from "../../../objective-app/objective/elements/groups";
 import { objectEntries } from "../../../objective-app/objective/meta/utils";
 import { Button, Separator } from "@radix-ui/themes";
 import { __DEBUG_EDITOR } from "../../../objective-app/objective-plus/constants";
@@ -134,8 +133,6 @@ export const SelectedShapeActions = ({
 
   const isSingleImage =
     targetElements.length === 1 && isInitializedImageElement(targetElements[0]);
-
-  const disallowUngroup = isUngroupDissalawed(metas, appState);
 
   const getActionsToRender = (showOBJStyle: boolean) => ({
     // Objective
