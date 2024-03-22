@@ -34,5 +34,8 @@ export const __DEBUG_LOG_POINTER_CORDS = Boolean(
 export const __DEBUG_DISABLE_ARRANGE = Boolean(
   import.meta.env.VITE_APP_OBJECTIVE_DISABLE_ARRANGE
 )
+export const __DEBUG_DISABLE_APPLY_DEFAULTS = Boolean(
+  import.meta.env.VITE_APP_OBJECTIVE_DISABLE_APPLY_DEFAULTS
+)
 
 export const APP_VERSION = getVersion()

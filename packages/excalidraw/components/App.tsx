@@ -432,7 +432,10 @@ import {
   getObjectiveBasis,
 } from "../../../objective-app/objective/meta/selectors";
 import { actionCreatePointer } from "../../../objective-app/objective/actions/actionMetaCommon";
-import { __DEBUG_LOG_POINTER_CORDS } from "../../../objective-app/objective-plus/constants";
+import {
+  __DEBUG_DISABLE_APPLY_DEFAULTS,
+  __DEBUG_LOG_POINTER_CORDS,
+} from "../../../objective-app/objective-plus/constants";
 import { isGroupEditingDissalawed } from "../../../objective-app/objective/elements/groups";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
@@ -4122,7 +4125,7 @@ class App extends React.Component<AppProps, AppState> {
     if (!isLinearElementType(nextActiveTool.type)) {
       this.setState({ suggestedBindings: [] });
     }
-    if (isWallTool(nextActiveTool)) {
+    if (isWallTool(nextActiveTool) && !__DEBUG_DISABLE_APPLY_DEFAULTS) {
       // VBRN for Wall always apply defaults
       this.setState({
         currentItemStrokeColor: COLOR_PALETTE.black,
@@ -4135,7 +4138,7 @@ class App extends React.Component<AppProps, AppState> {
         currentItemOpacity: 100,
       });
     }
-    if (nextActiveTool.type === "image") {
+    if (nextActiveTool.type === "image" && !__DEBUG_DISABLE_APPLY_DEFAULTS) {
       // VBRN for Image always apply defaults
       this.setState({
         // currentItemRoundness: "sharp", // We decided do not apply that default...
@@ -9382,7 +9385,6 @@ class App extends React.Component<AppProps, AppState> {
     // -------------------------------------------------------------------------
 
     if (type === "canvas") {
-
       // VBRN
       const extraItems = this.objectiveProps.isMyScene
         ? [actionToggleViewMode] //
