@@ -1,6 +1,6 @@
 import { getFormValue } from '../../../packages/excalidraw/actions/actionProperties'
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
-import { KEYS } from '../../../packages/excalidraw/keys'
+import { CODES, KEYS } from '../../../packages/excalidraw/keys'
 import { arrayToMap, focusNearestParent } from '../../../packages/excalidraw/utils'
 import { TextField } from '../UI/TextField'
 import {
@@ -30,6 +30,7 @@ import {
   isCameraMeta,
   isDisplayed,
   isObjective,
+  isPure,
 } from '../meta/types'
 import { getCameraMetaReprStr, getCameraVersionStr } from './actionCamera'
 import { arrangeElements } from '../elements/zindex'
@@ -344,9 +345,18 @@ export const actionChangeMetaDescription = register({
 export const actionToggleScalable = register({
   name: 'actionToggleScalable',
   trackEvent: false,
-  perform: (elements, appState, isScalable, app) => {
+  contextItemLabel: 'Scaleable',
+  checked: (appState, app) => isElementsScalable(getSelectedSceneEls(app.scene, appState)),
+  predicate(elements, appState, appProps, app) {
+    // for any objective except pure obj elements
+    // (does not support disableScaleable flag for pure elements)
     const metas = getSelectedObjectiveMetas(app.scene, appState)
-    metas.forEach((m) => mutateMeta(m, { disableResize: !isScalable }))
+    return !!metas.length && !metas.every(isPure)
+  },
+  perform: (elements, appState, _, app) => {
+    const isScalable = isElementsScalable(getSelectedSceneEls(app.scene, appState))
+    const metas = getSelectedObjectiveMetas(app.scene, appState)
+    metas.forEach((m) => mutateMeta(m, { disableResize: isScalable }))
     return { elements: elements, commitToHistory: true }
   },
 
@@ -356,14 +366,15 @@ export const actionToggleScalable = register({
       <IconButton
         size={'2'}
         variant={'soft'}
-        className={clsx({ 'objective-togled-button': isScalable })}
+        className={clsx('objective-toggled-icon-button', { active: isScalable })}
         title={'Scalable'}
-        onClick={() => updateData(!isScalable)} //
+        onClick={() => updateData()} //
       >
         <TransformIcon />
       </IconButton>
     )
   },
+  keyTest: (event) => event.altKey && event.code === CODES.T,
 })
 
 export const actionCreatePointer = register({

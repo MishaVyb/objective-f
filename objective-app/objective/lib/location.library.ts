@@ -36,7 +36,7 @@ export const LIB_LOCATION: LibraryItems = [
       title: 'Window',
     },
   }),
-  createObj(doorClose, 'Door Closed', {
+  createObj(doorClose, 'Closed Door', {
     basisIndex: DOOR_BASIS_INDEX,
     subkind: 'doorClosed',
     libraryImg: {
@@ -46,9 +46,9 @@ export const LIB_LOCATION: LibraryItems = [
       title: 'Door',
     },
   }),
-  createObj(doorOpen, 'Door Openned', {
+  createObj(doorOpen, 'Open Door', {
     basisIndex: DOOR_BASIS_INDEX,
-    subkind: 'doorOpenned',
+    subkind: 'doorOpen',
     libraryImg: {
       src: doorOpenImage,
       w: 55,

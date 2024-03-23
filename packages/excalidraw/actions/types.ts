@@ -198,7 +198,7 @@ export interface Action {
     appProps: ExcalidrawProps,
     app: AppClassProperties,
   ) => boolean;
-  checked?: (appState: Readonly<AppState>) => boolean;
+  checked?: (appState: Readonly<AppState>, app: AppClassProperties) => boolean;
   trackEvent:
     | false
     | {

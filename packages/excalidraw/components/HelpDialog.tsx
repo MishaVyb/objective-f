@@ -267,6 +267,10 @@ export const HelpDialog = ({ onClose }: { onClose?: () => void }) => {
               shortcuts={[getShortcutKey("CtrlOrCmd+'")]}
             />
             <Shortcut
+              label={"Snap to grid"}
+              shortcuts={[getShortcutKey("Alt+G")]}
+            />
+            <Shortcut
               label={t("labels.viewMode")}
               shortcuts={[getShortcutKey("Alt+R")]}
             />
@@ -346,6 +350,10 @@ export const HelpDialog = ({ onClose }: { onClose?: () => void }) => {
             <Shortcut
               label={t("labels.pasteStyles")}
               shortcuts={[getShortcutKey("CtrlOrCmd+Alt+V")]}
+            />
+            <Shortcut
+              label={"Toggle scaleable"}
+              shortcuts={[getShortcutKey("Alt+T")]}
             />
             <Shortcut
               label={t("labels.sendToBack")}

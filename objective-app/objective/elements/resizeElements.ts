@@ -1,8 +1,13 @@
 import { NonDeletedExcalidrawElement } from '../../../packages/excalidraw/element/types'
-import { getMetaSimple } from '../meta/selectors'
-import { isObjective } from '../meta/types'
+import { getObjectiveMetas } from '../meta/selectors'
+import { ObjectiveMeta, isPure } from '../meta/types'
+
+// pure elements doesn't support disabling resize
+export const isResizeDisabled = (meta: ObjectiveMeta) => !isPure(meta) && meta.disableResize
 
 export const isElementsScalable = (selectedEls: readonly NonDeletedExcalidrawElement[]) => {
-  // all element are not scalable if at least one element has disableResize flag
-  return !selectedEls.some((el) => isObjective(el) && getMetaSimple(el).disableResize)
+  const metas = getObjectiveMetas(selectedEls)
+
+  // all element are not scalable if at least one meta has disableResize flag
+  return !metas.some(isResizeDisabled)
 }

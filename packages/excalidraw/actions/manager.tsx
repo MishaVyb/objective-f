@@ -144,7 +144,10 @@ export class ActionManager {
       "PanelComponent" in this.actions[name] &&
       (name in canvasActions
         ? canvasActions[name as keyof typeof canvasActions]
-        : true)
+        : true) &&
+      //
+      // VBRN
+      this.isActionEnabled(this.actions[name])
     ) {
       const action = this.actions[name];
       const PanelComponent = action.PanelComponent!;

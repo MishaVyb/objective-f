@@ -1,7 +1,7 @@
 import { ElementsClipboard } from '../../../packages/excalidraw/clipboard'
 import { COLOR_PALETTE } from '../../../packages/excalidraw/colors'
 import { LibraryItem, LibraryItems } from '../../../packages/excalidraw/types'
-import { ObjectiveKinds } from '../meta/types'
+import { ObjectiveKinds, ObjectiveMeta } from '../meta/types'
 import { createObjFromClipboard } from './helpers'
 import bath from './set/bath'
 import chair from './set/chair'
@@ -19,9 +19,14 @@ import wardrobe from './set/wardrobe'
 
 const BG_COLOR = COLOR_PALETTE.gray[1]
 
-const createObj = (clipboardObj: ElementsClipboard, name: string): LibraryItem => {
+const createObj = (
+  clipboardObj: ElementsClipboard,
+  name: string,
+  metaOverrides: Omit<Partial<ObjectiveMeta>, 'kind' | 'name'> = {}
+): LibraryItem => {
   return createObjFromClipboard(clipboardObj, name, ObjectiveKinds.SET, {
     backgroundColor: BG_COLOR,
+    ...metaOverrides,
   })
 }
 

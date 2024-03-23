@@ -431,7 +431,10 @@ import {
   getCameraMetas,
   getObjectiveBasis,
 } from "../../../objective-app/objective/meta/selectors";
-import { actionCreatePointer } from "../../../objective-app/objective/actions/actionMetaCommon";
+import {
+  actionCreatePointer,
+  actionToggleScalable,
+} from "../../../objective-app/objective/actions/actionMetaCommon";
 import {
   __DEBUG_DISABLE_APPLY_DEFAULTS,
   __DEBUG_LOG_POINTER_CORDS,
@@ -9440,6 +9443,7 @@ class App extends React.Component<AppProps, AppState> {
       CONTEXT_MENU_SEPARATOR,
       actionCopyStyles,
       actionPasteStyles,
+      actionToggleScalable, // VBRN
       CONTEXT_MENU_SEPARATOR,
       actionGroup,
       actionUnbindText,

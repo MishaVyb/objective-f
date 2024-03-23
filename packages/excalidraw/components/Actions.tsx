@@ -241,16 +241,11 @@ export const SelectedShapeActions = ({
 
     flip:
       singleMeta &&
-      (singleMeta.subkind === "doorOpenned" ||
+      (singleMeta.subkind === "doorOpen" ||
         singleMeta.subkind === "doorClosed" ||
         singleMeta.kind === ObjectiveKinds.LIGHT),
 
-    scaleable:
-      isAnyObjective &&
-      //
-      // does not support disableScaleable flag for pure elements
-      !metas.every((m) => m.elements.length === 1),
-
+    scaleable: isAnyObjective,
     delete: isAllExcali || isObjAndExcali || showOBJStyle,
     group: isAllExcali || isObjAndExcali || showOBJStyle,
     ungroup: isAllExcali || isObjAndExcali || showOBJStyle,

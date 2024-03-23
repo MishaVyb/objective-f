@@ -42,7 +42,7 @@ export type ObjectiveSubkinds =
   // | 'wall' // TODO
   | 'window'
   | 'doorClosed'
-  | 'doorOpenned'
+  | 'doorOpen'
 
 export type TObjectiveKind = `${ObjectiveKinds}`
 
@@ -87,7 +87,7 @@ export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readon
    */
   basisIndex: number
 
-  disableResize: boolean;
+  disableResize: boolean
 
   libraryImg?: Readonly<{
     src: string
@@ -134,7 +134,7 @@ export type PointerElement = ObjectiveElement<PointerMeta>
 export type LocationMeta = ObjectiveMeta &
   Readonly<{
     kind: ObjectiveKinds.LOCATION
-    subkind: 'window' | 'doorClosed' | 'doorOpenned'
+    subkind: 'window' | 'doorClosed' | 'doorOpen'
   }>
 
 export type CameraMeta = ObjectiveMeta & {
@@ -192,6 +192,9 @@ export type ObjectiveElement<TMeta extends ObjectiveMeta = ObjectiveMeta> = Read
 export const isMeta = (meta: MaybeMeta): meta is ObjectiveMeta => !!meta?.kind
 export const isObjective = (el: MaybeExcalidrawElement): el is ObjectiveElement =>
   isMeta(el?.customData)
+
+/** is meta pure objective item that contains only ONE excalidraw element */
+export const isPure = (m: ObjectiveMeta) => m.elements.length === 1
 
 /** generic type guard function */
 export const isKind = <T extends ObjectiveKinds>(

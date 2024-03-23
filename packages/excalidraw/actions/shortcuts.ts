@@ -15,6 +15,7 @@ export type ShortcutName =
       | "paste"
       | "copyStyles"
       | "pasteStyles"
+      | "actionToggleScalable" // VBRN
       | "selectAll"
       | "deleteSelectedElements"
       | "duplicateSelection"
@@ -27,7 +28,7 @@ export type ShortcutName =
       | "group"
       | "ungroup"
       | "gridMode"
-      | "toggleGridSnapMode"
+      | "toggleGridSnapMode" // VBRN
       | "zenMode"
       | "objectsSnapMode"
       | "stats"
@@ -52,6 +53,7 @@ const shortcutMap: Record<ShortcutName, string[]> = {
   paste: [getShortcutKey("CtrlOrCmd+V")],
   copyStyles: [getShortcutKey("CtrlOrCmd+Alt+C")],
   pasteStyles: [getShortcutKey("CtrlOrCmd+Alt+V")],
+  actionToggleScalable: [getShortcutKey("Alt+T")], // VBRN
   selectAll: [getShortcutKey("CtrlOrCmd+A")],
   deleteSelectedElements: [getShortcutKey("Delete")],
   duplicateSelection: [
@@ -75,7 +77,7 @@ const shortcutMap: Record<ShortcutName, string[]> = {
   group: [getShortcutKey("CtrlOrCmd+G")],
   ungroup: [getShortcutKey("CtrlOrCmd+Shift+G")],
   gridMode: [getShortcutKey("CtrlOrCmd+'")],
-  toggleGridSnapMode: [getShortcutKey("Alt+G")],
+  toggleGridSnapMode: [getShortcutKey("Alt+G")], // VBRN
   zenMode: [getShortcutKey("Alt+Z")],
   objectsSnapMode: [getShortcutKey("Alt+S")],
   stats: [getShortcutKey("Alt+/")],

@@ -13,7 +13,7 @@
 
 .objective-toggled-icon-button {
   &.active {
-    background-color: var(--color-surface-primary-container);
+    background-color: var(--color-surface-primary-container) !important;
   }
 }
 
@@ -99,8 +99,4 @@
       }
     }
   }
-}
-
-.objective-togled-button {
-  background-color: var(--accent-5) !important;
 }

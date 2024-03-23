@@ -43,43 +43,40 @@ export const ObjectiveFooter = React.memo(() => {
           </Code>
         )}
         {appState.gridSize && (
-          <Tooltip
-            content={`Snap to grid — ${getShortcutFromShortcutName(actionToggleGridSnapMode.name)}`}
-          >
-            <IconButton
-              variant={'outline'}
-              className={clsx(
-                'objective-toggled-icon-button',
-                { active: appState.gridSnappingEnabled } //
-              )}
-              color={'gray'}
-              onClick={() =>
-                setAppState(
-                  { ...appState, gridSnappingEnabled: !appState.gridSnappingEnabled } //
-                )
-              }
-            >
-              <LinkBreak2Icon />
-            </IconButton>
-          </Tooltip>
-        )}
-        <Tooltip content={`Show grid — ${getShortcutFromShortcutName(actionToggleGridMode.name)}`}>
           <IconButton
+            title={`Snap to grid — ${getShortcutFromShortcutName(actionToggleGridSnapMode.name)}`}
             variant={'outline'}
             className={clsx(
               'objective-toggled-icon-button',
-              { active: appState.gridSize } //
+              { active: appState.gridSnappingEnabled } //
             )}
             color={'gray'}
             onClick={() =>
               setAppState(
-                { ...appState, gridSize: appState.gridSize ? null : appState.gridSizeConfig } //
+                { ...appState, gridSnappingEnabled: !appState.gridSnappingEnabled } //
               )
             }
           >
-            <GridIcon />
+            <LinkBreak2Icon />
           </IconButton>
-        </Tooltip>
+        )}
+
+        <IconButton
+          title={`Show grid — ${getShortcutFromShortcutName(actionToggleGridMode.name)}`}
+          variant={'outline'}
+          className={clsx(
+            'objective-toggled-icon-button',
+            { active: appState.gridSize } //
+          )}
+          color={'gray'}
+          onClick={() =>
+            setAppState(
+              { ...appState, gridSize: appState.gridSize ? null : appState.gridSizeConfig } //
+            )
+          }
+        >
+          <GridIcon />
+        </IconButton>
       </Flex>
 
       <div className='undo-redo-buttons'>
