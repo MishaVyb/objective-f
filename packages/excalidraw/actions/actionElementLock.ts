@@ -1,3 +1,5 @@
+import { getObjectiveMetas } from "../../../objective-app/objective/meta/selectors";
+import { isHiddenObjective } from "../../../objective-app/objective/meta/types";
 import { newElementWith } from "../element/mutateElement";
 import { isFrameLikeElement } from "../element/typeChecks";
 import { ExcalidrawElement } from "../element/types";
@@ -52,7 +54,19 @@ export const actionToggleElementLock = register({
       selectedElementIds: appState.selectedElementIds,
       includeBoundTextElement: false,
     });
-    if (selected.length === 1 && !isFrameLikeElement(selected[0])) {
+
+    // VBRN
+    const metas = getObjectiveMetas(selected);
+    const isSingleMetaSelected =
+      metas.length === 1 &&
+      selected.every((selectedEl) =>
+        metas[0].elements.find((e) => e.id === selectedEl.id),
+      );
+
+    if (
+      (selected.length === 1 || isSingleMetaSelected) &&
+      !isFrameLikeElement(selected[0])
+    ) {
       return selected[0].locked
         ? "labels.elementLock.unlock"
         : "labels.elementLock.lock";
@@ -80,14 +94,18 @@ export const actionUnlockAllElements = register({
   trackEvent: { category: "canvas" },
   viewMode: false,
   predicate: (elements) => {
-    return elements.some((element) => element.locked);
+    return elements.some(
+      (element) => !isHiddenObjective(element) && element.locked,
+    );
   },
   perform: (elements, appState) => {
-    const lockedElements = elements.filter((el) => el.locked);
+    const lockedElements = elements.filter(
+      (el) => !isHiddenObjective(el) && el.locked,
+    );
 
     return {
       elements: elements.map((element) => {
-        if (element.locked) {
+        if (!isHiddenObjective(element) && element.locked) {
           return newElementWith(element, { locked: false });
         }
         return element;

@@ -1,10 +1,11 @@
 import { getFormValue } from '../../../packages/excalidraw/actions/actionProperties'
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
 import { CODES, KEYS } from '../../../packages/excalidraw/keys'
-import { arrayToMap, focusNearestParent } from '../../../packages/excalidraw/utils'
+import { focusNearestParent } from '../../../packages/excalidraw/utils'
 import { TextField } from '../UI/TextField'
 import {
   META_REPR_CONTAINER_INITIAL,
+  POINTER_COMMON,
   newMetaReprElement,
   newPointerBeetween,
 } from '../elements/newElement'
@@ -46,8 +47,7 @@ import {
 import { useState } from 'react'
 import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
 import { handleMetaRepresentation } from '../elements/metaRepr'
-import { changeElementMeta, mutateElementsMeta, mutateMeta } from '../elements/mutateElements'
-import { ACCENT_COLOR } from '../../objective-plus/constants'
+import { mutateElementsMeta, mutateMeta } from '../elements/mutateElements'
 import clsx from 'clsx'
 import { isElementsScalable } from '../elements/resizeElements'
 
@@ -180,13 +180,15 @@ export const actionChangeMetaName = register({
         }
 
         mutateElement(container, {
-          opacity: action.type === 'showRepr' ? META_REPR_CONTAINER_INITIAL.opacity : 0,
+          opacity: action.type === 'showRepr' ? META_REPR_CONTAINER_INITIAL().opacity : 0,
+          locked: action.type === 'showRepr' ? META_REPR_CONTAINER_INITIAL().locked : true,
         })
 
         const basis = getObjectiveBasis<ExcalidrawBindableElement>(meta)
         getPointers(elsMap, container, basis).map((pointer) =>
           mutateElement(pointer, {
-            opacity: action.type === 'showRepr' ? META_REPR_CONTAINER_INITIAL.opacity : 0,
+            opacity: action.type === 'showRepr' ? POINTER_COMMON().opacity : 0,
+            locked: action.type === 'showRepr' ? POINTER_COMMON().locked : true,
           })
         )
 

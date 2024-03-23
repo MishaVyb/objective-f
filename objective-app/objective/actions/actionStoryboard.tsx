@@ -11,7 +11,7 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
-import { newPointerBeetween } from '../elements/newElement'
+import { POINTER_COMMON, newPointerBeetween } from '../elements/newElement'
 import {
   getObjectiveBasis,
   getCameraMetas,
@@ -205,7 +205,7 @@ export const actionStoryboard = register({
         // [1] change display for pointer
         if (pointer)
           elements = changeElementProperty(elements, pointer, {
-            opacity: isDisplayed(image) ? 0 : 100,
+            opacity: isDisplayed(image) ? 0 : POINTER_COMMON().opacity,
             locked: isDisplayed(image),
           })
         // [2] change display for image
@@ -221,7 +221,7 @@ export const actionStoryboard = register({
 
           if (pointer)
             elements = changeElementProperty(elements, pointer, {
-              opacity: isDisplayed(image) ? 0 : 100,
+              opacity: isDisplayed(image) ? 0 : POINTER_COMMON().opacity,
               locked: isDisplayed(image),
             })
         })

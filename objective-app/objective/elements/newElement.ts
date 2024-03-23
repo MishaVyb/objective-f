@@ -19,7 +19,7 @@ import { randomId } from '../../../packages/excalidraw/random'
 import { DEFAULT_FONT_SIZE } from '../../../packages/excalidraw/constants'
 import Scene from '../../../packages/excalidraw/scene/Scene'
 
-const POINTER_COMMON = (): Partial<ExcalidrawArrowElement> => ({
+export const POINTER_COMMON = (): Partial<ExcalidrawArrowElement> => ({
   // locked: true, // ??? lock for label but not for images...
   type: 'arrow',
   x: 1,
@@ -30,6 +30,7 @@ const POINTER_COMMON = (): Partial<ExcalidrawArrowElement> => ({
     [100, 100],
   ],
   groupIds: [randomId()],
+  opacity: 100,
 })
 
 const CAMERA_MOVEMENT_POINTER = (
@@ -135,7 +136,7 @@ export const newPointerBeetween = (
   return newPointer
 }
 
-export const META_REPR_CONTAINER_INITIAL: Partial<ExcalidrawElement> = {
+export const META_REPR_CONTAINER_INITIAL = (): Partial<ExcalidrawElement> => ({
   type: 'rectangle',
   fillStyle: 'solid',
   strokeWidth: 1,
@@ -146,7 +147,7 @@ export const META_REPR_CONTAINER_INITIAL: Partial<ExcalidrawElement> = {
 
   roundness: null,
   locked: false, // so user can move it easily, but we prevent it from multiply selection
-}
+})
 
 export const newMetaReprElement = (meta: ObjectiveMeta, initialValue: string | undefined) => {
   const basis = getObjectiveBasis(meta)
@@ -162,7 +163,7 @@ export const newMetaReprElement = (meta: ObjectiveMeta, initialValue: string | u
     y: basis!.y + basis!.height + gap,
     backgroundColor: basis!.backgroundColor,
     groupIds: [randomId()],
-    ...META_REPR_CONTAINER_INITIAL,
+    ...META_REPR_CONTAINER_INITIAL(),
   })
 
   // All other props generated dynamically inside

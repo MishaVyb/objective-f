@@ -277,9 +277,14 @@ export const isPointerMeta = (meta: MaybeMeta): meta is PointerMeta =>
 export const isPointerElement = (el: MaybeExcalidrawElement): el is PointerElement =>
   isPointerMeta(el?.customData)
 
+export const isDisplayed = (el: ExcalidrawElement) => (el.opacity > 5 ? true : false)
+
+export const isHiddenObjective = (el: ExcalidrawElement) =>
+  //isObjective(el) && // FIXME storyboard image are not marked as Objective, so skip that condition
+  el.opacity === 0 && el.locked
+
 // ---------------------------------------------------------------------- helper functions
 
-export const isDisplayed = (el: ExcalidrawElement) => (el.opacity > 5 ? true : false)
 export const ensureArray = (els: ElementsMapOrArray) => ('values' in els ? [...els.values()] : els)
 
 //--------------------- TS tests ------------------------ //

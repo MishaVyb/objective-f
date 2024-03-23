@@ -415,6 +415,7 @@ import { textWysiwyg } from "../element/textWysiwyg";
 import {
   ObjectiveKinds,
   ObjectiveMeta,
+  isHiddenObjective,
   isKindEl,
   isObjective,
   isWallTool,
@@ -4451,14 +4452,13 @@ class App extends React.Component<AppProps, AppState> {
     const elements =
       includeBoundTextElement && includeLockedElements
         ? this.scene.getNonDeletedElements()
-        : this.scene
-            .getNonDeletedElements()
-            .filter(
-              (element) =>
-                (includeLockedElements || !element.locked) &&
-                (includeBoundTextElement ||
-                  !(isTextElement(element) && element.containerId)),
-            );
+        : this.scene.getNonDeletedElements().filter(
+            (element) =>
+              !isHiddenObjective(element) && // VBRN
+              (includeLockedElements || !element.locked) &&
+              (includeBoundTextElement ||
+                !(isTextElement(element) && element.containerId)),
+          );
 
     return getElementsAtPosition(elements, (element) =>
       hitTest(
