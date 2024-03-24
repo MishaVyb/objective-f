@@ -35,6 +35,7 @@ import { ImageIcon, TrashIcon } from '../../../packages/excalidraw/components/ic
 import { changeElementMeta, changeElementProperty, mutateMeta } from '../elements/mutateElements'
 import { arrangeElements } from '../elements/zindex'
 import { getCameraMetaReprStr } from './actionCamera'
+import { CameraBadge } from '../components/ShotListSidebarContent'
 
 export const actionInitStoryboard = register({
   name: 'actionInitStoryboard',
@@ -141,12 +142,7 @@ export const actionInitStoryboard = register({
                 onClick={() => onClick(camera)}
               >
                 <Flex m={'2'} style={{ width: '100%' }}>
-                  <Badge
-                    style={{ background: getObjectiveBasis(camera)!.backgroundColor + '40' }}
-                    color={'gray'}
-                  >
-                    {getCameraMetaReprStr(camera, { name: '' })}
-                  </Badge>
+                  <CameraBadge camera={camera} />
                   <Text className='objective-camera-label' ml={'2'} size={'1'}>
                     {camera.name}
                   </Text>

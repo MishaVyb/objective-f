@@ -99,6 +99,20 @@
       }
     }
   }
+
+  // the same but no click scale animation
+  .toggled-item-soft {
+    &.toggled {
+      background-color: var(--accent-3);
+    }
+    &:hover {
+      background-color: var(--accent-2);
+
+      &.toggled {
+        background-color: var(--accent-4);
+      }
+    }
+  }
 }
 
 .objective-camera-label {
