@@ -213,23 +213,27 @@ export const dragEventHandler = (
 ): Set<NonDeletedExcalidrawElement> => {
   const allSceneMetas = getObjectiveMetas(app.scene.getElementsMapIncludingDeleted())
 
+  // ORIGINAL ELEMENTS STATE // UNUSED
+
   // NOTE: be aware of using/mutating `selectedElements` directly, as Excalidraw may call for event
   // handler twice per 'one moment' and mutateElement will be called several times... but if we refer
   // to original elements, we have deal with original-not-mutated elements and prevent this unexpected
   // behavior
-  const originalSelectedElements = selectedElements.map(
-    (e) => pointerDownState.originalElements.get(e.id) || e
-  )
-  // elements state before drag had started
-  // const metasOrig = getObjectiveMetas(originalSelectedElements)
 
-  // current elements state
+  // const originalSelectedElements = selectedElements.map(
+  //   (e) => pointerDownState.originalElements.get(e.id) || e
+  // )
+
+  // metas form elements with state before drag had started:
+  // const metasOriginal = getObjectiveMetas(originalSelectedElements)
+
+  // CURRENT ELEMENTS STATE
   const metasCurrent = getObjectiveMetas(selectedElements)
 
   metasCurrent.forEach((meta) => {
     if (isKind(meta, ObjectiveKinds.LABEL)) {
       const containerMeta = meta
-      const container = containerMeta.elements[0]
+      const container = containerMeta.elements[0] as ExcalidrawBindableElement
 
       const cameraMeta = allSceneMetas.find((meta) => meta.nameRepr === container.id)
       const basis = getObjectiveBasis<ExcalidrawEllipseElement>(cameraMeta)

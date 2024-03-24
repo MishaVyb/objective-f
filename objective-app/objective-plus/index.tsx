@@ -10,9 +10,6 @@ import './scss/app.scss' // objective-plus
 import './../objective/scss/app.scss'
 // app.scss Excalidraw styles imported at packages/excalidraw/index.tsx
 
-// LEGACY
-import './../objective/scss/cameraItem.scss'
-
 // TMP
 import './scss/debug.scss'
 

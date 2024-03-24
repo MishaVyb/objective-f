@@ -63,9 +63,8 @@ a {
   // --color-border-outline-variant: #c5c5d0;
   // --color-surface-primary-container: #e0dfff;
 
-
   // Radix-UI Theme -- accent colors reference
-  --cyan-1: hsl(185, 60.0%, 98.7%);
+  --cyan-1: hsl(185, 60%, 98.7%);
   --cyan-2: hsl(185, 73.3%, 97.1%);
   --cyan-3: hsl(186, 70.2%, 94.4%);
   --cyan-4: hsl(186, 63.8%, 90.6%);
@@ -73,10 +72,10 @@ a {
   --cyan-6: hsl(188, 54.6%, 78.4%);
   --cyan-7: hsl(189, 53.7%, 68.7%);
   --cyan-8: hsl(189, 60.3%, 52.5%);
-  --cyan-9: hsl(190, 95.0%, 39.0%);
+  --cyan-9: hsl(190, 95%, 39%);
   --cyan-10: hsl(191, 91.2%, 36.8%);
-  --cyan-11: hsl(192, 85.0%, 31.0%);
-  --cyan-12: hsl(192, 70.0%, 16.5%);
+  --cyan-11: hsl(192, 85%, 31%);
+  --cyan-12: hsl(192, 70%, 16.5%);
 
   // // overrides
   // --color-selection: var(--accent-10);
@@ -87,7 +86,6 @@ a {
   // --color-primary-light:  var(--accent-4);
   // --color-primary-light-darker:  var(--accent-5);
   // --color-primary-hover:  var(--accent-9);
-
 
   // --color-surface-high: var(--accent-2);
   // --color-surface-mid: var(--gray-2);
@@ -102,7 +100,6 @@ a {
   // --color-border-outline-variant: #c5c5d0;
   // --color-surface-primary-container:  var(--accent-5);
 }
-
 
 .objective-plus-app {
   background-size: contain;
@@ -159,20 +156,18 @@ a {
     border: 1px solid var(--red-9);
   }
 
-  .toggled-item {
+  .projects-toggled-item {
     // cursor: pointer; // ???
 
-    // toggled
-    &.active {
-      background-color: var(--accent-3);
+    &.toggled {
+      background-color: var(--accent-3) !important;
     }
 
     &:hover {
-      background-color: var(--accent-3);
+      background-color: var(--accent-3) !important;
 
-      // toggled
-      &.active {
-        background-color: var(--gray-3);
+      &.toggled {
+        background-color: var(--gray-3) !important;
       }
     }
   }

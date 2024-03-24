@@ -140,31 +140,14 @@ export const actionInitStoryboard = register({
                 className={clsx('toggled-item', { toggled: isImageRelatedToCamera(camera, image) })}
                 onClick={() => onClick(camera)}
               >
-                <Flex
-                  m={'2'}
-                  style={{
-                    width: '100%',
-                  }}
-                >
+                <Flex m={'2'} style={{ width: '100%' }}>
                   <Badge
-                    style={{
-                      background: getObjectiveBasis(camera)!.backgroundColor + '40',
-                    }}
+                    style={{ background: getObjectiveBasis(camera)!.backgroundColor + '40' }}
                     color={'gray'}
                   >
                     {getCameraMetaReprStr(camera, { name: '' })}
                   </Badge>
-                  <Text
-                    ml={'2'}
-                    style={{
-                      maxWidth: 150,
-                      overflow: 'hidden',
-                      whiteSpace: 'nowrap',
-                      textOverflow: 'ellipsis',
-                    }}
-                    weight={'bold'}
-                    size={'1'}
-                  >
+                  <Text className='objective-camera-label' ml={'2'} size={'1'}>
                     {camera.name}
                   </Text>
                 </Flex>

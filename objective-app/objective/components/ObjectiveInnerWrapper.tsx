@@ -59,7 +59,7 @@ const ObjectiveInnerWrapper: FC<{ children: ReactNode }> = ({ children }) => {
    */
   const [cameras, setCameras] = useState<readonly CameraMeta[]>([])
   useEffect(() => {
-    const currentCameras = getCameraMetas(elements)
+    const currentCameras = getCameraMetas(elements, { sort: true })
     if (!isEqual(cameras, currentCameras)) setCameras(currentCameras)
   }, [elements, cameras])
 

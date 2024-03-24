@@ -10,6 +10,7 @@
   ],
   "dependencies": {
     "@excalidraw/random-username": "1.0.0",
+    "@radix-ui/react-collapsible": "1.0.3",
     "@radix-ui/react-icons": "1.3.0",
     "@radix-ui/react-popover": "1.0.3",
     "@radix-ui/react-tabs": "1.0.2",
@@ -99,11 +100,9 @@
     "build:dev": "yarn --cwd ./excalidraw-app build:dev",
     "build:staging": "yarn --cwd ./excalidraw-app build:staging",
     "build:prod": "yarn --cwd ./excalidraw-app build:prod",
-
     "build:app": "yarn --cwd ./excalidraw-app build:app",
     "build:app:docker": "yarn --cwd ./excalidraw-app build:app:docker",
     "build:version": "node ./scripts/build-version.js",
-
     "fix:code": "yarn test:code --fix",
     "fix:other": "yarn prettier --write",
     "fix": "yarn fix:other && yarn fix:code",
@@ -111,14 +110,11 @@
     "locales-coverage:description": "node scripts/locales-coverage-description.js",
     "prepare": "husky install",
     "prettier": "prettier \"**/*.{css,scss,json,md,html,yml}\" --ignore-path=.eslintignore",
-
     "start": "yarn --cwd ./excalidraw-app start",
     "start:host": "yarn --cwd ./excalidraw-app start:host",
     "start:production": "yarn --cwd ./excalidraw-app start:production",
-
     "start:force": "DISABLE_ESLINT_PLUGIN=true TSC_COMPILE_ON_ERROR=true GENERATE_SOURCEMAP=false yarn --cwd ./excalidraw-app start",
     "start:app:production": "npm run build && npx http-server build -a localhost -p 5001 -o",
-
     "test:all": "yarn test:typecheck && yarn test:code && yarn test:other && yarn test:app --watch=false",
     "test:app": "vitest",
     "test:code": "eslint --max-warnings=0 --ext .js,.ts,.tsx .",

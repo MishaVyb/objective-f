@@ -152,17 +152,26 @@ export const getCameraMetas = (
   opts?: {
     extraPredicate?: (meta: CameraMeta) => boolean
     includingDelited?: boolean
+    sort?: boolean
   }
-) =>
-  getObjectiveMetas<CameraMeta>(elements, {
+) => {
+  const cameras = getObjectiveMetas<CameraMeta>(elements, {
     ...opts,
     objectivePredicate: isCameraElement,
-  }).toSorted((a, b) => {
-    const orderByNumber = (a.shotNumber || 0) - (b.shotNumber || 0)
-    if (orderByNumber !== 0) return orderByNumber
-    const orderByVersion = (a.shotVersion || 0) - (b.shotVersion || 0)
-    return orderByVersion
   })
+
+  if (opts?.sort) {
+    const sorted = [...cameras]
+    return sorted!.sort((a, b) => {
+      const orderByNumber = (a.shotNumber || 0) - (b.shotNumber || 0)
+      if (orderByNumber !== 0) return orderByNumber
+      const orderByVersion = (a.shotVersion || 0) - (b.shotVersion || 0)
+      return orderByVersion
+    })
+  }
+
+  return cameras
+}
 
 export const getSelectedObjectiveMetas = <TMeta extends ObjectiveMeta>(
   scene: Scene,

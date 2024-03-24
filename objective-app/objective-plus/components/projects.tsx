@@ -185,7 +185,7 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
         style={{
           width: '80%', // leave some space for options button
         }}
-        className={clsx('toggled-item', { active: toggled })}
+        className={clsx('projects-toggled-item', { toggled: toggled })}
         onClick={onClick}
       >
         <Text color={toggled ? ACCENT_COLOR : 'gray'} ml='1' mr={'auto'}>

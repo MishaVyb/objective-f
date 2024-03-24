@@ -348,7 +348,7 @@ export const actionToggleScalable = register({
   name: 'actionToggleScalable',
   trackEvent: false,
   contextItemLabel: 'Scaleable',
-  checked: (appState, app) => isElementsScalable(getSelectedSceneEls(app.scene, appState)),
+  checked: (appState, app) => isElementsScalable(getSelectedSceneEls(app!.scene, appState)),
   predicate(elements, appState, appProps, app) {
     // for any objective except pure obj elements
     // (does not support disableScaleable flag for pure elements)

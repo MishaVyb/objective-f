@@ -383,13 +383,13 @@ export const determineCameraMeta = (elements: readonly ExcalidrawElement[], isSh
     return {
       isShot: true,
       shotNumber: Math.max(...allCameras.map((c) => c.shotNumber || 0)) + 1,
-      shotVersion: undefined, // not implemented yet
+      shotVersion: undefined,
     }
   }
 
   return {
     isShot: false,
     shotNumber: undefined,
-    shotVersion: undefined, // not implemented yet
+    shotVersion: undefined,
   }
 }
