@@ -46,7 +46,7 @@ export const newMetaWith = <TMeta extends ObjectiveMeta>(
     },
   })
 
-const mutateElementMeta = <TMeta extends ObjectiveMeta>(
+export const mutateElementMeta = <TMeta extends ObjectiveMeta>(
   el: ObjectiveElement<TMeta>,
   newMeta: TNewMetaAttrs<TMeta>
 ) => {
@@ -67,7 +67,7 @@ const mutateElementMeta = <TMeta extends ObjectiveMeta>(
  * @requires selected elements should be only Objective elements
  * @returns selected elements
  */
-export const mutateElementsMeta = <TMeta extends ObjectiveMeta>(
+export const mutateSelectedElsMeta = <TMeta extends ObjectiveMeta>(
   app: AppClassProperties,
   newMeta: TNewMetaAttrs<TMeta>
 ) =>

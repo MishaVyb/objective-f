@@ -80,6 +80,9 @@
     &.toggled {
       background-color: var(--accent-3);
     }
+    &.border {
+      border: 1px dashed var(--accent-3);
+    }
 
     // click
     &:active {
@@ -89,8 +92,12 @@
     &:hover {
       background-color: var(--accent-2);
 
+
       &.toggled {
         background-color: var(--accent-4);
+      }
+      &.border {
+        border: 1px dashed var(--accent-3);
       }
 
       // click
@@ -105,8 +112,14 @@
     &.toggled {
       background-color: var(--accent-3);
     }
+    &.border {
+      border: 1px dashed var(--accent-3);
+    }
     &:hover {
       background-color: var(--accent-2);
+      &.border {
+        border: 1px dashed var(--accent-5);
+      }
 
       &.toggled {
         background-color: var(--accent-4);

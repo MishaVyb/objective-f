@@ -47,7 +47,7 @@ import {
 import { useState } from 'react'
 import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
 import { handleMetaRepresentation } from '../elements/metaRepr'
-import { mutateElementsMeta, mutateMeta } from '../elements/mutateElements'
+import { mutateSelectedElsMeta, mutateMeta } from '../elements/mutateElements'
 import clsx from 'clsx'
 import { isElementsScalable } from '../elements/resizeElements'
 
@@ -211,7 +211,7 @@ export const actionChangeMetaName = register({
       )
 
       // [2-2] change name in meta
-      mutateElementsMeta(app, { name: action.newTextValue })
+      mutateSelectedElsMeta(app, { name: action.newTextValue })
     }
 
     return {
@@ -271,7 +271,7 @@ export const actionChangeMetaDescription = register({
   name: 'actionChangeMetaDescription',
   trackEvent: false,
   perform: (elements, appState, newTextValue: string, app: AppClassProperties) => {
-    mutateElementsMeta(app, { description: newTextValue })
+    mutateSelectedElsMeta(app, { description: newTextValue })
     return {
       elements: elements,
       commitToHistory: !!newTextValue,

@@ -18,7 +18,7 @@ import { register } from './register'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
 import { Button, Flex, IconButton } from '@radix-ui/themes'
 import { handleMetaRepresentation } from '../elements/metaRepr'
-import { mutateElementsMeta } from '../elements/mutateElements'
+import { mutateSelectedElsMeta } from '../elements/mutateElements'
 import { duplicateElements } from '../../../packages/excalidraw/actions/actionDuplicateSelection'
 
 type TChangeShotActionValue = 'init' | 'remove' | 'incraseShotNumber' | 'decraseShotNumber'
@@ -37,7 +37,7 @@ export const actionChangeMetaCameraShot = register({
       case 'remove':
         // [1] change meta
         newCameraShootProps = determineCameraMeta(elements, isShot)
-        mutateElementsMeta<CameraMeta>(app, newCameraShootProps)
+        mutateSelectedElsMeta<CameraMeta>(app, newCameraShootProps)
 
         // [2] create/remove shotNumber repr
         newEls = handleMetaRepresentation(
@@ -61,7 +61,7 @@ export const actionChangeMetaCameraShot = register({
           },
           newMetaReprElement
         )
-        mutateElementsMeta(app, (c: CameraMeta) => ({
+        mutateSelectedElsMeta(app, (c: CameraMeta) => ({
           shotNumber: getCameraShotNumberUpdate(c, 1),
         }))
         break
@@ -73,7 +73,7 @@ export const actionChangeMetaCameraShot = register({
           (c: CameraMeta) => getCameraMetaReprStr(c, { shotNumberUpdate: -1 }),
           newMetaReprElement
         )
-        mutateElementsMeta(app, (c: CameraMeta) => ({
+        mutateSelectedElsMeta(app, (c: CameraMeta) => ({
           shotNumber: getCameraShotNumberUpdate(c, -1),
         }))
         break
@@ -235,7 +235,7 @@ export const actionChangeMetaCameraVersion = register({
           (c: CameraMeta) => getCameraMetaReprStr(c, { shotVersionUpdate: 1 }),
           newMetaReprElement
         )
-        mutateElementsMeta(app, (c: CameraMeta) => ({
+        mutateSelectedElsMeta(app, (c: CameraMeta) => ({
           shotVersion: getCameraShotVersionUpdate(c, 1),
         }))
         break
@@ -247,7 +247,7 @@ export const actionChangeMetaCameraVersion = register({
           (c: CameraMeta) => getCameraMetaReprStr(c, { shotVersionUpdate: -1 }),
           newMetaReprElement
         )
-        mutateElementsMeta(app, (c: CameraMeta) => ({
+        mutateSelectedElsMeta(app, (c: CameraMeta) => ({
           shotVersion: getCameraShotVersionUpdate(c, -1),
         }))
         break

@@ -133,6 +133,8 @@ export const actionInitStoryboard = register({
             className={'objective-cameras-list'}
             style={{
               minHeight: 150,
+              maxHeight: 430,
+              overflowY: 'scroll',
             }}
           >
             {cameras.map((camera, index) => (

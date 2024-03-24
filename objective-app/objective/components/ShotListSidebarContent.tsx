@@ -7,18 +7,19 @@ import {
   useExcalidrawSetAppState,
 } from '../../../packages/excalidraw/components/App'
 import { getObjectiveBasis, getSelectedCameraMetas, useCameraImages } from '../meta/selectors'
-import { CameraMeta } from '../meta/types'
+import { CameraElement, CameraMeta } from '../meta/types'
 import * as Collapsible from '@radix-ui/react-collapsible'
-import { CaretDownIcon, CaretRightIcon } from '@radix-ui/react-icons'
+import { CaretDownIcon, CaretRightIcon, PlusIcon } from '@radix-ui/react-icons'
 
 import React from 'react'
-import { Badge, Flex, IconButton, Separator, Text, badgePropDefs } from '@radix-ui/themes'
-import { getCameraMetaReprStr } from '../actions/actionCamera'
+import { Badge, Flex, IconButton, Separator, Text } from '@radix-ui/themes'
+import { actionChangeMetaCameraShot, getCameraMetaReprStr } from '../actions/actionCamera'
 import clsx from 'clsx'
-import { COLOR_PALETTE, ColorPickerColor } from '../../../packages/excalidraw/colors'
-import { objectEntries } from '../utils/types'
 import { HEX_TO_COLOR, TBadgeProps, isRadixColor } from '../UI/colors'
 import { groupBy } from '../utils/helpers'
+import { distributeLibraryItemsOnSquareGrid } from '../../../packages/excalidraw/data/library'
+import { LIB_CAMERAS } from '../lib/cameras.library'
+import { mutateElementMeta, mutateMeta, mutateSelectedElsMeta } from '../elements/mutateElements'
 
 const ShotListSidebarContent: FC = () => {
   const app = useApp()
@@ -30,7 +31,13 @@ const ShotListSidebarContent: FC = () => {
 
   // TODO ??? add internal meta.cameraKey attribute to handle cameras manual ordering
   return (
-    <Flex className={'objective-cameras-list'} direction={'column'} gap={'1'} m={'1'}>
+    <Flex
+      className={'objective-cameras-list'}
+      direction={'column'}
+      gap={'1'}
+      m={'1'}
+      style={{ height: '100%', overflowY: 'scroll' }}
+    >
       {[...groupCameras.entries()].map(([key, cameras], i) => {
         return (
           <div key={key}>
@@ -45,6 +52,7 @@ const ShotListSidebarContent: FC = () => {
           </div>
         )
       })}
+      <AddCameraButton />
     </Flex>
   )
 }
@@ -72,14 +80,55 @@ export const CameraBadge: FC<{ camera: CameraMeta } & TBadgeProps> = (props) => 
   )
 }
 
+const AddCameraButton = () => {
+  const app = useApp()
+  const onClick = () => {
+    // TODO use las user choses via
+    // - appState.currentCameraColor...
+    // - appState.currentCameraFormat / ratio
+    const els = distributeLibraryItemsOnSquareGrid([LIB_CAMERAS[0]]) as CameraElement[]
+    app.onInsertElements(els)
+
+    setTimeout(
+      () => app.actionManager.executeAction(actionChangeMetaCameraShot, 'internal', 'init'),
+      0
+    )
+  }
+
+  return (
+    <Flex
+      className={clsx('toggled-item', { border: true })}
+      align={'baseline'}
+      justify={'center'}
+      style={{
+        marginTop: 'auto',
+        marginBottom: 10,
+      }}
+      onClick={() => onClick()}
+    >
+      <PlusIcon />
+      <Text
+        className='objective-camera-label'
+        size={'2'}
+        ml={'1'}
+        mt={'3'}
+        mb={'3'}
+        color={'gray'}
+        align={'center'}
+      >
+        {'Add'}
+      </Text>
+    </Flex>
+  )
+}
+
 const ShotListSidebarCameraElement: FC<{ camera: CameraMeta; isSelected: boolean }> = (props) => {
   const [open, setOpen] = React.useState(false)
 
   const setAppState = useExcalidrawSetAppState()
-
   const images = useCameraImages(props.camera)
 
-  const onClick = () => {
+  const selectCamera = () => {
     if (!open) setOpen(true)
     setAppState({
       selectedElementIds: Object.fromEntries(props.camera.elementIds.map((id) => [id, true])),
@@ -93,7 +142,7 @@ const ShotListSidebarCameraElement: FC<{ camera: CameraMeta; isSelected: boolean
       <Flex
         className={clsx('toggled-item-soft', { toggled: props.isSelected })}
         align={'baseline'}
-        onClick={() => onClick()}
+        onClick={() => selectCamera()}
       >
         <CameraBadge camera={props.camera} m={'2'} />
         <Text className='objective-camera-label' size={'2'}>
@@ -119,7 +168,14 @@ const ShotListSidebarCameraElement: FC<{ camera: CameraMeta; isSelected: boolean
       </Flex>
 
       <Collapsible.Content>
-        <Text>CONTENT</Text>
+        <Flex direction={'column'}>
+          {/* TODO camera format && focal len && aspect ratio */}
+          {/* TODO images */}
+          {images.map((image) => (
+            <img key={image.id} src={image.dataURL} alt='' />
+          ))}
+          {/* TODO desc */}
+        </Flex>
       </Collapsible.Content>
     </Collapsible.Root>
   )
