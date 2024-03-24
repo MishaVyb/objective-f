@@ -16,7 +16,7 @@ import { Badge, Flex, IconButton, Separator, Text, badgePropDefs } from '@radix-
 import { getCameraMetaReprStr } from '../actions/actionCamera'
 import clsx from 'clsx'
 import { COLOR_PALETTE, ColorPickerColor } from '../../../packages/excalidraw/colors'
-import { objectEntries } from '../meta/utils'
+import { objectEntries } from '../utils/types'
 import { HEX_TO_COLOR, TBadgeProps, isRadixColor } from '../UI/colors'
 import { groupBy } from '../utils/helpers'
 

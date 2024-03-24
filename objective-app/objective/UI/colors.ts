@@ -1,6 +1,6 @@
 import { Badge, badgePropDefs } from '@radix-ui/themes'
 import { COLOR_PALETTE, ColorPickerColor } from '../../../packages/excalidraw/colors'
-import { objectEntries } from '../meta/utils'
+import { objectEntries } from '../utils/types'
 
 export type TBadgeProps = Parameters<typeof Badge>[0]
 export type TRadixColor = TBadgeProps['color']

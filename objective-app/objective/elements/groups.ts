@@ -2,7 +2,7 @@ import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { AppState } from '../../../packages/excalidraw/types'
 import { getObjectiveId } from '../meta/selectors'
 import { ObjectiveMeta, isObjective } from '../meta/types'
-import { objectKeys } from '../meta/utils'
+import { objectKeys } from '../utils/types'
 
 export const isUngroupDissalawed = (
   metas: readonly ObjectiveMeta[],

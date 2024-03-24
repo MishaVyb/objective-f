@@ -21,7 +21,7 @@ import { deepCopyElement } from '../../../packages/excalidraw/element/newElement
 import { isImageElement } from '../../../packages/excalidraw/element/typeChecks'
 import { Collaborator, ExcalidrawImperativeAPI, SocketId } from '../../../packages/excalidraw/types'
 import { OBJECTIVE_LIB as OBJECTIVE_LIB_ITEMS } from '../lib'
-import { objectValues } from '../meta/utils'
+import { objectValues } from '../utils/types'
 
 import { DEFAULT_GRID_MODE, getGridMode } from './ObjectiveSettingsDialog'
 

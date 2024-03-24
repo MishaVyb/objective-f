@@ -22,7 +22,7 @@ import {
 } from "../../../objective-app/objective/meta/selectors";
 import { BasisElementType } from "../../../objective-app/objective/elements/snapElements";
 import { isCameraMeta } from "../../../objective-app/objective/meta/types";
-import { objectEntries } from "../../../objective-app/objective/meta/utils";
+import { objectEntries } from "../../../objective-app/objective/utils/types";
 
 export const Stats = (props: {
   appState: UIAppState;

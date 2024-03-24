@@ -12,7 +12,7 @@ import {
 } from '@radix-ui/themes'
 import { ChangeEvent, FC, FormEvent, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { objectKeys } from '../../../../objective/meta/utils'
+import { objectKeys } from '../../../../objective/utils/types'
 import { ObjectiveCard, RootBox } from '../../../components/layout'
 import { useDispatch, useSelector } from '../../../hooks/redux'
 import {

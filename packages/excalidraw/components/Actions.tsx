@@ -44,7 +44,7 @@ import {
   ObjectiveKinds,
   isAllElementsObjective,
 } from "../../../objective-app/objective/meta/types";
-import { objectEntries } from "../../../objective-app/objective/meta/utils";
+import { objectEntries } from "../../../objective-app/objective/utils/types";
 import { Button, Separator } from "@radix-ui/themes";
 import { __DEBUG_EDITOR } from "../../../objective-app/objective-plus/constants";
 import { getObjectiveMetas } from "../../../objective-app/objective/meta/selectors";
