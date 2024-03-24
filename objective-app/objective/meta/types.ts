@@ -283,6 +283,10 @@ export const isHiddenObjective = (el: ExcalidrawElement) =>
   //isObjective(el) && // FIXME storyboard image are not marked as Objective, so skip that condition
   el.opacity === 0 && el.locked
 
+export const isNotSelectableOnGroupSelection = (el: ExcalidrawElement) =>
+  // || isWallElement(el) // ???
+  isKindEl(el, ObjectiveKinds.LABEL) || isKindEl(el, ObjectiveKinds.POINTER)
+
 // ---------------------------------------------------------------------- helper functions
 
 export const ensureArray = (els: ElementsMapOrArray) => ('values' in els ? [...els.values()] : els)

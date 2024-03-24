@@ -1,8 +1,7 @@
 import {
   MaybeMeta,
-  ObjectiveKinds,
-  isKindEl,
   isMeta,
+  isNotSelectableOnGroupSelection,
 } from "../../../objective-app/objective/meta/types";
 
 import { getElementAbsoluteCoords, getElementBounds } from "../element";
@@ -83,7 +82,7 @@ export const getElementsWithinSelection = (
 
   // VBRN filter out labels
   elementsInSelection = elementsInSelection.filter(
-    (e) => !isKindEl(e, ObjectiveKinds.LABEL),
+    (e) => !isNotSelectableOnGroupSelection(e),
   );
 
   elementsInSelection = excludeElementsInFrames
