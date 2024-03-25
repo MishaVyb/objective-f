@@ -19,7 +19,6 @@ import { HEX_TO_COLOR, TBadgeProps, isRadixColor } from '../UI/colors'
 import { groupBy } from '../utils/helpers'
 import { distributeLibraryItemsOnSquareGrid } from '../../../packages/excalidraw/data/library'
 import { LIB_CAMERAS } from '../lib/cameras.library'
-import { mutateElementMeta, mutateMeta, mutateSelectedElsMeta } from '../elements/mutateElements'
 
 const ShotListSidebarContent: FC = () => {
   const app = useApp()
@@ -38,6 +37,12 @@ const ShotListSidebarContent: FC = () => {
       m={'1'}
       style={{ height: '100%', overflowY: 'scroll' }}
     >
+      {/* TODO CONTROLS
+        -- select All Cameras
+        -- collapse all collapsible
+        -- re-order ???
+
+      */}
       {[...groupCameras.entries()].map(([key, cameras], i) => {
         return (
           <div key={key}>
