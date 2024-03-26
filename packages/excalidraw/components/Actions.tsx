@@ -127,9 +127,9 @@ export const SelectedShapeActions = ({
   // strict only one meta
   const singleMeta = metas.length === 1 ? metas[0] : null;
 
-  const isAnyObjective = !!metas.length;
-  const isAllExcali = !isAnyObjective || __DEBUG_EDITOR;
-  const isObjAndExcali = !isAllObjective && isAnyObjective;
+  const isSomeObjective = !!metas.length;
+  const isOnlyExcali = !isSomeObjective || __DEBUG_EDITOR;
+  const isObjAndExcali = !isAllObjective && isSomeObjective;
 
   const isSingleImage =
     targetElements.length === 1 && isInitializedImageElement(targetElements[0]);
@@ -169,51 +169,52 @@ export const SelectedShapeActions = ({
 
     // Excalidraw
     strokeColor:
-      isAllExcali ||
+      isOnlyExcali ||
       (metasSet.has(ObjectiveKinds.LOCATION) && showOBJStyle) ||
       (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
 
-    bgColor: isAllExcali || showOBJStyle,
+    bgColor: isOnlyExcali || showOBJStyle,
     bgStyle:
-      isAllExcali || (showOBJStyle && !metasSet.has(ObjectiveKinds.LABEL)),
+      isOnlyExcali || (showOBJStyle && !metasSet.has(ObjectiveKinds.LABEL)),
 
     strokeWidth:
-      isAllExcali ||
+      isOnlyExcali ||
       // (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle) ||
       (metasSet.has(ObjectiveKinds.LOCATION) && showOBJStyle) ||
       (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
 
     /** solid / dashed / dottee */
     strokeStyle:
-      isAllExcali ||
+      isOnlyExcali ||
       // (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle) ||
       (metasSet.has(ObjectiveKinds.LOCATION) && showOBJStyle) ||
       (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
 
     /** only(!) for pure excalidraw figures */
     strokeSloppiness:
-      !isAnyObjective &&
-      !!targetElements.length &&
-      targetElements.every(
-        (e) =>
-          e.type === "rectangle" ||
-          e.type === "diamond" ||
-          e.type === "ellipse",
-      ),
+      __DEBUG_EDITOR ||
+      (!isSomeObjective &&
+        !!targetElements.length &&
+        targetElements.every(
+          (e) =>
+            e.type === "rectangle" ||
+            e.type === "diamond" ||
+            e.type === "ellipse",
+        )),
 
     /** unknown and do nothing??? */
-    strokeShape: isAllExcali,
+    strokeShape: isOnlyExcali,
 
     // only for movement arrows
     roundness:
-      isAllExcali ||
+      isOnlyExcali ||
       metas.every(
         (m) =>
           m.subkind === "cameraMovementPointer" ||
           m.subkind === "characterMovementPointer",
       ),
     arrowheads:
-      isAllExcali ||
+      isOnlyExcali ||
       metas.every(
         (m) =>
           m.subkind === "cameraMovementPointer" ||
@@ -221,23 +222,23 @@ export const SelectedShapeActions = ({
       ),
 
     textStyle:
-      isAllExcali || (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle),
+      isOnlyExcali || (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle),
 
-    opacity: isAllExcali || showOBJStyle || isObjAndExcali,
+    opacity: isOnlyExcali || showOBJStyle || isObjAndExcali,
 
     layers: false, // TODO
 
     align:
       (metas.length === 0 || metas.length > 1) &&
-      (isAllExcali || showOBJStyle || isObjAndExcali),
+      (isOnlyExcali || showOBJStyle || isObjAndExcali),
 
     /** duplicate group un-group hyper Link */
     actionsAll:
-      isAllExcali ||
+      isOnlyExcali ||
       isObjAndExcali ||
       (showOBJStyle && !metasSet.has(ObjectiveKinds.LABEL)),
 
-    duplicate: isAllExcali || isObjAndExcali || showOBJStyle,
+    duplicate: isOnlyExcali || isObjAndExcali || showOBJStyle,
 
     flip:
       singleMeta &&
@@ -245,12 +246,12 @@ export const SelectedShapeActions = ({
         singleMeta.subkind === "doorClosed" ||
         singleMeta.kind === ObjectiveKinds.LIGHT),
 
-    scaleable: isAnyObjective,
-    delete: isAllExcali || isObjAndExcali || showOBJStyle,
-    group: isAllExcali || isObjAndExcali || showOBJStyle,
-    ungroup: isAllExcali || isObjAndExcali || showOBJStyle,
+    scaleable: isSomeObjective,
+    delete: isOnlyExcali || isObjAndExcali || showOBJStyle,
+    group: isOnlyExcali || isObjAndExcali || showOBJStyle,
+    ungroup: isOnlyExcali || isObjAndExcali || showOBJStyle,
 
-    hyperLink: isAllExcali, // only for Excalidraw els
+    hyperLink: isOnlyExcali, // only for Excalidraw els
   });
 
   let actionsToRender = getActionsToRender(showOBJStyle);
