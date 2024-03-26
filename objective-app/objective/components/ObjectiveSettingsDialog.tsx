@@ -6,13 +6,22 @@ import {
 } from '../../../packages/excalidraw/components/App'
 import { AppState } from '../../../packages/excalidraw/types'
 import { numberToStr } from '../elements/math'
+import { __DEBUG_EDITOR } from '../../objective-plus/constants'
 
 type Mode = {
   size: number
   freq: number
 }
 
+const DEBUG_MODES = __DEBUG_EDITOR
+  ? [
+      { size: 2, freq: 50 },
+      { size: 5, freq: 20 },
+    ]
+  : []
+
 const MODES: Mode[] = [
+  ...DEBUG_MODES,
   // 0.5m
   { size: 10, freq: 5 }, // 0
   { size: 25, freq: 2 }, // 1
@@ -25,13 +34,7 @@ const MODES: Mode[] = [
   { size: 50, freq: 4 }, // 6
 ]
 
-export const DEFAULT_GRID_MODE = MODES[3]
-
-const ScaleVerboseMap = {
-  50: '0.5m',
-  100: '1.0m',
-  200: '2.0m',
-}
+export const DEFAULT_GRID_MODE: Mode = { size: 25, freq: 4 }
 
 export const getGridMode = (appState: AppState) => {
   const { gridSizeConfig, gridBoldLineFrequency } = appState
@@ -83,24 +86,28 @@ export const ObjectiveSettingsDialog = ({ onClose }: { onClose?: () => void }) =
             list='tickmarks'
           />
           {/* TODO REFACTOR RANGE OPTIONS VALUES */}
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <label className='control-label'>0.5m</label>
-            <label className='control-label'></label>
-            <label className='control-label'>1m</label>
-            <label className='control-label'></label>
-            <label className='control-label'></label>
-            <label className='control-label'>2m</label>
-            <label className='control-label'></label>
-          </div>
-          <datalist id='tickmarks'>
-            <option value='0'></option>
-            <option value='1'></option>
-            <option value='2'></option>
-            <option value='3'></option>
-            <option value='4'></option>
-            <option value='5'></option>
-            <option value='6'></option>
-          </datalist>
+          {!DEBUG_MODES && (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <label className='control-label'>0.5m</label>
+                <label className='control-label'></label>
+                <label className='control-label'>1m</label>
+                <label className='control-label'></label>
+                <label className='control-label'></label>
+                <label className='control-label'>2m</label>
+                <label className='control-label'></label>
+              </div>
+              <datalist id='tickmarks'>
+                <option value='0'></option>
+                <option value='1'></option>
+                <option value='2'></option>
+                <option value='3'></option>
+                <option value='4'></option>
+                <option value='5'></option>
+                <option value='6'></option>
+              </datalist>
+            </>
+          )}
         </label>
       </div>
     </Dialog>

@@ -96,6 +96,7 @@ import {
 import { hasStrokeColor } from "../scene/comparisons";
 import { arrayToMap, getShortcutKey } from "../utils";
 import { register } from "./register";
+import { __DEBUG_EDITOR } from "../../../objective-app/objective-plus/constants";
 
 const FONT_SIZE_RELATIVE_INCREASE_STEP = 0.1;
 
@@ -420,43 +421,74 @@ export const actionChangeStrokeWidth = register({
       commitToHistory: true,
     };
   },
-  PanelComponent: ({ elements, appState, updateData }) => (
-    <fieldset>
-      <legend>{t("labels.strokeWidth")}</legend>
-      <ButtonIconSelect
-        group="stroke-width"
-        options={[
+  PanelComponent: ({ elements, appState, updateData }) => {
+    const extraOptions = __DEBUG_EDITOR
+      ? [
           {
-            value: STROKE_WIDTH.thin,
-            text: t("labels.thin"),
+            value: 0.2,
+            text: "very-thin: 0.2",
             icon: StrokeWidthBaseIcon,
             testId: "strokeWidth-thin",
           },
           {
-            value: STROKE_WIDTH.bold,
-            text: t("labels.bold"),
-            icon: StrokeWidthBoldIcon,
-            testId: "strokeWidth-bold",
+            value: 0.4,
+            text: "very-thin: 0.4",
+            icon: StrokeWidthBaseIcon,
+            testId: "strokeWidth-thin",
           },
           {
-            value: STROKE_WIDTH.extraBold,
-            text: t("labels.extraBold"),
-            icon: StrokeWidthExtraBoldIcon,
-            testId: "strokeWidth-extraBold",
+            value: 0.6,
+            text: "very-thin: 0.6",
+            icon: StrokeWidthBaseIcon,
+            testId: "strokeWidth-thin",
           },
-        ]}
-        value={getFormValue(
-          elements,
-          appState,
-          (element) => element.strokeWidth,
-          (element) => element.hasOwnProperty("strokeWidth"),
-          (hasSelection) =>
-            hasSelection ? null : appState.currentItemStrokeWidth,
-        )}
-        onChange={(value) => updateData(value)}
-      />
-    </fieldset>
-  ),
+          {
+            value: 0.8,
+            text: "very-thin: 0.8",
+            icon: StrokeWidthBaseIcon,
+            testId: "strokeWidth-thin",
+          },
+        ]
+      : [];
+    return (
+      <fieldset>
+        <legend>{t("labels.strokeWidth")}</legend>
+        <ButtonIconSelect
+          group="stroke-width"
+          options={[
+            ...extraOptions,
+            {
+              value: STROKE_WIDTH.thin,
+              text: t("labels.thin"),
+              icon: StrokeWidthBaseIcon,
+              testId: "strokeWidth-thin",
+            },
+            {
+              value: STROKE_WIDTH.bold,
+              text: t("labels.bold"),
+              icon: StrokeWidthBoldIcon,
+              testId: "strokeWidth-bold",
+            },
+            {
+              value: STROKE_WIDTH.extraBold,
+              text: t("labels.extraBold"),
+              icon: StrokeWidthExtraBoldIcon,
+              testId: "strokeWidth-extraBold",
+            },
+          ]}
+          value={getFormValue(
+            elements,
+            appState,
+            (element) => element.strokeWidth,
+            (element) => element.hasOwnProperty("strokeWidth"),
+            (hasSelection) =>
+              hasSelection ? null : appState.currentItemStrokeWidth,
+          )}
+          onChange={(value) => updateData(value)}
+        />
+      </fieldset>
+    );
+  },
 });
 
 export const actionChangeSloppiness = register({
