@@ -156,6 +156,8 @@ export const SelectedShapeActions = ({
 
     // when many cameras selected:
     metaCameraShot: isAllObjective && singleMetaKind === ObjectiveKinds.CAMERA,
+    metaCameraDetails:
+      isAllObjective && singleMetaKind === ObjectiveKinds.CAMERA,
 
     // when only one camera selected:
     metaActionStoryboard:
@@ -271,10 +273,13 @@ export const SelectedShapeActions = ({
     <div className="panelColumn">
       {actionsToRender.metaHeader && renderAction("actionDisplayMetaHeader")}
       {actionsToRender.metaName && renderAction("actionChangeMetaName")}
+
       {actionsToRender.metaCameraShot &&
         renderAction("actionChangeMetaCameraShot")}
       {actionsToRender.metaCameraShot &&
         renderAction("actionChangeMetaCameraVersion")}
+      {actionsToRender.metaCameraDetails &&
+        renderAction("actionChangeCameraDetails")}
 
       {actionsToRender.metaCharacterActions &&
         renderAction("actionMoveCharacterToFrom")}

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-
+import isDeepEqual from 'lodash/isEqual'
 import { useApp, useExcalidrawElements } from '../../../packages/excalidraw/components/App'
 import {
   ElementsMap,
@@ -10,7 +10,7 @@ import {
   NonDeletedExcalidrawElement,
 } from '../../../packages/excalidraw/element/types'
 import Scene from '../../../packages/excalidraw/scene/Scene'
-import { AppState } from '../../../packages/excalidraw/types'
+import { AppState, Primitive } from '../../../packages/excalidraw/types'
 import { useExcalidrawFiles } from '../components/ObjectiveInnerWrapper'
 import {
   CameraMeta,
@@ -39,18 +39,19 @@ export const getMetaSimple = <TMeta extends ObjectiveMeta>(
 ): Readonly<TMeta> => el.customData
 
 /**
- * Get *COPY* of element's meta (customData) with current Objective id.
+ * Get *COPY* of element's meta (customData) with current Objective id and Objective basis.
  * @param el
  * @returns Objective's meta
  */
 export const getMeta = <TMeta extends ObjectiveMeta>(
   el: ObjectiveElement<TMeta>,
   elementIds: readonly string[] = [],
-  elements: readonly ExcalidrawElement[] = []
+  elements: readonly ExcalidrawElement[] = [],
+  basis: ObjectiveMeta['basis'] | undefined = undefined
 ): TMeta => {
   // WARNING
   // DeepCopy here?
-  return { ...el.customData, id: getObjectiveId(el), elementIds, elements }
+  return { ...el.customData, id: getObjectiveId(el), elementIds, elements, basis }
 }
 
 /**
@@ -120,9 +121,15 @@ export const getObjectiveMetas = <TMeta extends ObjectiveMeta>(
       elementsByGroups.set(objectiveId, [e])
       return true
     })
-    .map((e) =>
-      getMeta(e, idsByGroup.get(getObjectiveId(e)), elementsByGroups.get(getObjectiveId(e)))
-    )
+    .map((e): TMeta => {
+      const weekMeta = getMetaSimple(e)
+      const els = elementsByGroups.get(getObjectiveId(e))
+      const ids = idsByGroup.get(getObjectiveId(e))
+
+      // NOTE: new API for accessing basis, replacement for `getObjectdiveBasis`
+      const basis = els && els[weekMeta.basisIndex || 0] // TODO basis validation ???
+      return getMeta(e, ids, els, basis)
+    })
     .filter((meta) => extraPredicate(meta))
 }
 /**
@@ -141,6 +148,35 @@ export const getObjectiveSingleMeta = <TKind extends ObjectiveKinds>(
   const metas = getObjectiveMetas(elements, opts)
   if (metas.length === 1) return metas[0]
   return null
+}
+
+/** Objective version for Excalidraw `getFormValue` */
+export const getMetasCommonValue = <
+  TResult extends Primitive | Record<string, any>,
+  TMeta extends ObjectiveMeta = ObjectiveMeta
+>(
+  metas: readonly TMeta[],
+  getAttr: keyof TMeta | ((meta: TMeta) => TResult | undefined),
+  defaultValue?: TResult
+): TResult | undefined => {
+  const getAttrFunction =
+    //@ts-ignore
+    typeof getAttr === 'function' ? getAttr : (m: TMeta): TResult => m[getAttr]
+
+  let result: TResult | undefined
+  for (const m of metas) {
+    let current = getAttrFunction(m)
+    if (current === undefined && defaultValue !== undefined) current = defaultValue
+
+    if (current !== undefined) {
+      if (result === undefined) result = current // first value found
+      else if (!isDeepEqual(result, current)) return undefined // different values found
+      else {
+        // the same value found: continue
+      }
+    }
+  }
+  return result
 }
 
 /** simple shortcut */
@@ -208,10 +244,10 @@ export const getShotCameraMetas = (
     objectivePredicate: isShotCameraElement,
   })
 
+/** @deprecated use `meta.basis` */
 export const getObjectiveBasis = <T extends ExcalidrawElement>(
   meta: ObjectiveMeta | undefined | null
 ): T | undefined =>
-  // TODO basis validation
   (meta?.elements?.length && (meta.elements[meta.basisIndex || 0] as T)) || undefined
 
 /**

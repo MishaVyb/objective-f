@@ -9,6 +9,7 @@ import {
   InitializedExcalidrawImageElement,
 } from '../../../packages/excalidraw/element/types'
 import { ActiveTool, BinaryFileData } from '../../../packages/excalidraw/types'
+import { Vector } from '../elements/math'
 
 export enum ObjectiveKinds {
   CAMERA = 'Camera',
@@ -37,6 +38,7 @@ export type ObjectiveSubkinds =
   | 'storyboardPointer'
   | 'cameraMovementPointer'
   | 'characterMovementPointer'
+  | 'cameraLensAngle'
 
   // location:
   // | 'wall' // TODO
@@ -53,48 +55,43 @@ export type MaybeExcalidrawElement<T extends ExcalidrawElement = ExcalidrawEleme
 export type MaybeMeta<T extends ObjectiveMeta = ObjectiveMeta> = T | undefined | null
 
 export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readonly<{
-  /** Constant. Populated by lib from initial. */
+  //
+  // CONSTANT FIELDS
+
   kind: Kind
   subkind?: ObjectiveSubkinds
-
-  /** Aka Title / Label. Populated by User from `actionProps` panel. */
-  name?: string
-  /** Relation to Meta representation `rectangle.id` that nested Text has as `containderId`*/
-  nameRepr?: ExcalidrawElement['id']
-
-  /** long object description */
-  description?: string
-
-  /** Excalidraw group id for all primitives of this Objective element. Populated by `getMetas`. */
-  id: GroupId
-  /**
-   * @deprecated use `elements`
-   * Excalidraw primetime element ids. Populated by `getMetas`
-   */
-  elementIds: readonly ObjectiveElement['id'][]
-  /** Excalidraw primetime elements. Populated by `getMetas` */
-  elements: readonly ObjectiveElement[]
-
-  /** base element index at elements Array
-   *
-   * basis could be used as main Excalidraw primitive element inside Objective object (elements group)
-   * it could be used for
-   * - binding arrows to it
-   * - getting commont bounds
-   * - rotation center
-   * etc.
-   *
-   */
   basisIndex: number
-
-  disableResize: boolean
-
   libraryImg?: Readonly<{
     src: string
     title: string
     w: number
     h: number
   }>
+
+  // CHANGEABLE BY USEAR'S ACTIONS FIELDS
+
+  /** Aka Title / Label. Populated by User from `actionProps` panel. */
+  name?: string
+  /** Relation to Meta representation `rectangle.id` that nested Text has as `containderId`*/
+  nameRepr?: ExcalidrawElement['id']
+  /** long object description */
+  description?: string
+  /** opposite to scaleable flag */
+  disableResize: boolean
+
+  // AUTO POPULATED FIELDS:
+
+  /** Excalidraw group id for all primitives of this Objective element. Populated by `getMetas`. */
+  id: GroupId
+  /**
+   * @deprecated use `elements`
+   * Excalidraw primitive element ids. Populated by `getMetas`
+   */
+  elementIds: readonly ObjectiveElement['id'][]
+  /** Excalidraw primitive elements. Populated by `getMetas` */
+  elements: readonly ObjectiveElement[]
+  /** Excalidraw primitive element. Populated by `getMetas` regarding to `basisIndex` */
+  basis: ExcalidrawElement | undefined
 
   //
   //
@@ -121,6 +118,7 @@ export type PointerMeta = ObjectiveMeta &
       | 'storyboardPointer'
       | 'cameraMovementPointer'
       | 'characterMovementPointer'
+      | 'cameraLensAngle'
 
     // pointerOf: do not populate back ref as we take it from parent `element.boundElements`
     name: never
@@ -143,12 +141,22 @@ export type CameraMeta = ObjectiveMeta & {
   isShot?: boolean // is camera in shot list
   shotNumber?: number // Cam 1 / Cam 2
   shotVersion?: number // Cam 1-A / Cam 1-B
-  focalLength?: number
+  focalLength?: number // mm
+  focusDistance?: number // cm
+  cameraFormat?: CameraFormat // width (mm)
+  aspectRation?: number // w/h
 
   /**
    * Storyboard images. Source `ExcalidrawImage.id` (not `fileId`).
    */
   relatedImages: readonly string[] // images id
+}
+
+export type CameraFormat = {
+  title: string
+  description: string
+  demensions: Vector
+  isDefault?: boolean
 }
 
 export type ShotCameraMeta = CameraMeta & {

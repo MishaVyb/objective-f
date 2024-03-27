@@ -1,4 +1,9 @@
-import { newElement, newLinearElement, newTextElement } from '../../../packages/excalidraw/element'
+import {
+  getElementAbsoluteCoords,
+  newElement,
+  newLinearElement,
+  newTextElement,
+} from '../../../packages/excalidraw/element'
 import {
   bindLinearElement,
   updateBoundElements,
@@ -12,12 +17,17 @@ import {
   NonDeletedSceneElementsMap,
 } from '../../../packages/excalidraw/element/types'
 import { getObjectiveBasis, getPointerIds } from '../meta/selectors'
-import { ObjectiveKinds, ObjectiveMeta, PointerMeta } from '../meta/types'
+import { CameraMeta, ObjectiveKinds, ObjectiveMeta, PointerMeta } from '../meta/types'
 import { getInitialMeta } from '../meta/initial'
 
 import { randomId } from '../../../packages/excalidraw/random'
 import { DEFAULT_FONT_SIZE } from '../../../packages/excalidraw/constants'
 import Scene from '../../../packages/excalidraw/scene/Scene'
+import { Vector, ensurePoint, getElementCenter } from './math'
+import { rotate } from '../../../packages/excalidraw/math'
+import { normalizeAngle } from '../../../packages/excalidraw/element/resizeElements'
+import { mutateElement } from '../../../packages/excalidraw'
+import { DEFAULT_FOCUS_DISTANCE, getCameraLensAngle } from '../actions/actionCamera'
 
 export const POINTER_COMMON = (): Partial<ExcalidrawArrowElement> => ({
   // locked: true, // ??? lock for label but not for images...
@@ -85,6 +95,14 @@ const STORYBOARD_POINTER = (): Partial<ExcalidrawArrowElement> => ({
   endArrowhead: null,
 })
 
+const CAMERA_LENS_ANGLE_LINE = (): Partial<ExcalidrawArrowElement> => ({
+  customData: getInitialMeta(ObjectiveKinds.POINTER, { subkind: 'cameraLensAngle' }),
+  strokeWidth: 1,
+  strokeStyle: 'dashed',
+  startArrowhead: null,
+  endArrowhead: null,
+})
+
 /**
  * Elements are **MUTATING** insdie!
  * @param one arrow start
@@ -134,6 +152,64 @@ export const newPointerBeetween = (
     scene: opts?.scene,
   })
   return newPointer
+}
+
+export const getCameraLensAngleElements = (
+  camera: CameraMeta,
+  opts?: { overrides?: Partial<ExcalidrawArrowElement> }
+) => {
+  const { basis, focalLength } = camera
+  if (!focalLength || !basis) return []
+
+  const distance = camera.focusDistance || DEFAULT_FOCUS_DISTANCE
+  const focalAngle = getCameraLensAngle(camera)!
+  const basisCenter = getElementCenter(basis)
+  const overrides = {
+    ...CAMERA_LENS_ANGLE_LINE(),
+    ...(opts?.overrides || {}),
+    strokeColor: basis.backgroundColor,
+  }
+
+  return [
+    getCameraLensAngleSide(basis.angle, basisCenter, -focalAngle / 2, distance, overrides),
+    getCameraLensAngleSide(basis.angle, basisCenter, focalAngle / 2, distance, overrides),
+  ]
+}
+
+export const getCameraLensAngleSide = (
+  basisAngle: number,
+  basisCenter: Vector,
+  shiftAngle: number,
+  distance: number,
+  overrides: Partial<ExcalidrawArrowElement>
+) => {
+  const lineStart = { x: 10, y: 0 }
+  const lineEnd = { x: distance, y: 0 }
+
+  const element = newLinearElement({
+    type: 'line',
+    ...overrides,
+    //
+    x: basisCenter.x,
+    y: basisCenter.y,
+    points: [ensurePoint(lineStart), ensurePoint(lineEnd)],
+  } as ExcalidrawArrowElement)
+
+  const targetAngle = basisAngle + shiftAngle
+  const [x1, y1, x2, y2] = getElementAbsoluteCoords(element)
+  const cx = (x1 + x2) / 2
+  const cy = (y1 + y2) / 2
+  const [rotatedCX, rotatedCY] = rotate(cx, cy, basisCenter.x, basisCenter.y, targetAngle)
+  mutateElement(
+    element,
+    {
+      x: element.x + (rotatedCX - cx),
+      y: element.y + (rotatedCY - cy),
+      angle: normalizeAngle(targetAngle),
+    },
+    false
+  )
+  return element
 }
 
 export const META_REPR_CONTAINER_INITIAL = (): Partial<ExcalidrawElement> => ({

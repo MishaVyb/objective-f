@@ -15,7 +15,7 @@ import React from 'react'
 import { Badge, Flex, IconButton, Separator, Text } from '@radix-ui/themes'
 import { actionChangeMetaCameraShot, getCameraMetaReprStr } from '../actions/actionCamera'
 import clsx from 'clsx'
-import { HEX_TO_COLOR, TBadgeProps, isRadixColor } from '../UI/colors'
+import { TBadgeProps, getRadixColor } from '../UI/colors'
 import { groupBy } from '../utils/helpers'
 import { distributeLibraryItemsOnSquareGrid } from '../../../packages/excalidraw/data/library'
 import { LIB_CAMERAS } from '../lib/cameras.library'
@@ -24,7 +24,7 @@ const ShotListSidebarContent: FC = () => {
   const app = useApp()
   const appState = useExcalidrawAppState()
   const cameras = useObjectiveCameras().filter((c) => c.isShot)
-  const groupCameras = groupBy(cameras, 'shotNumber')
+  const groupCameras = [...groupBy(cameras, 'shotNumber').entries()]
   const selectedCameras = getSelectedCameraMetas(app.scene, appState)
   const selectedCamera = selectedCameras.length === 1 ? selectedCameras[0] : null
 
@@ -43,7 +43,7 @@ const ShotListSidebarContent: FC = () => {
         -- re-order ???
 
       */}
-      {[...groupCameras.entries()].map(([key, cameras], i) => {
+      {groupCameras.map(([key, cameras], i) => {
         return (
           <div key={key}>
             {cameras.map((camera, i) => (
@@ -53,23 +53,28 @@ const ShotListSidebarContent: FC = () => {
                 isSelected={camera.id === selectedCamera?.id}
               />
             ))}
-            <Separator size={'4'} />
+            {i === groupCameras.length - 1 ? null : <Separator size={'4'} />}
           </div>
         )
       })}
-      <AddCameraButton />
+      <AddCameraButton
+        style={{
+          marginTop: cameras.length ? 'auto' : 10,
+          marginBottom: 10,
+        }}
+      />
     </Flex>
   )
 }
 
 export const CameraBadge: FC<{ camera: CameraMeta } & TBadgeProps> = (props) => {
   const basis = getObjectiveBasis(props.camera)!
-  const color = HEX_TO_COLOR.get(basis.backgroundColor)
+  const color = getRadixColor(props.camera)
 
   // HACK name: '' as we render name at separate component
   const cameraNumberAndVer = getCameraMetaReprStr(props.camera, { name: '' })
 
-  if (color && isRadixColor(color))
+  if (color)
     return (
       <Badge color={color} {...props}>
         {cameraNumberAndVer}
@@ -85,7 +90,7 @@ export const CameraBadge: FC<{ camera: CameraMeta } & TBadgeProps> = (props) => 
   )
 }
 
-const AddCameraButton = () => {
+const AddCameraButton: FC<{ style: any }> = ({ style }) => {
   const app = useApp()
   const onClick = () => {
     // TODO use las user choses via
@@ -105,10 +110,7 @@ const AddCameraButton = () => {
       className={clsx('toggled-item', { border: true })}
       align={'baseline'}
       justify={'center'}
-      style={{
-        marginTop: 'auto',
-        marginBottom: 10,
-      }}
+      style={style}
       onClick={() => onClick()}
     >
       <PlusIcon />

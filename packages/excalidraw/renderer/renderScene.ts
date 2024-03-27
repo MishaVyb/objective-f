@@ -86,6 +86,7 @@ import {
   getTargetFrame,
   isElementInFrame,
 } from "../frame";
+import { renderObjectiveScene } from "../../../objective-app/objective/elements/renderScene";
 
 const strokeRectWithRotation = (
   context: CanvasRenderingContext2D,
@@ -1010,6 +1011,20 @@ const _renderStaticScene = ({
         console.error(error);
       }
     });
+
+  renderObjectiveScene(
+    {
+      canvas,
+      rc,
+      elementsMap,
+      allElementsMap,
+      visibleElements,
+      scale,
+      appState,
+      renderConfig,
+    },
+    context,
+  );
 
   // render embeddables on top
   visibleElements

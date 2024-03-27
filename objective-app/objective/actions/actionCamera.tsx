@@ -11,15 +11,24 @@ import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
 import { newMetaReprElement } from '../elements/newElement'
-import { getCameraMetas, getObjectiveSingleMeta, getSelectedCameraMetas } from '../meta/selectors'
-import { CameraMeta, isAllElementsCameras, isCameraElement } from '../meta/types'
+
+import {
+  getCameraMetas,
+  getMetasCommonValue,
+  getObjectiveSingleMeta,
+  getSelectedCameraMetas,
+} from '../meta/selectors'
+import { CameraFormat, CameraMeta, isAllElementsCameras, isCameraElement } from '../meta/types'
 
 import { register } from './register'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
-import { Button, Flex, IconButton } from '@radix-ui/themes'
+import { Button, Code, Flex, IconButton } from '@radix-ui/themes'
 import { handleMetaRepresentation } from '../elements/metaRepr'
 import { mutateSelectedElsMeta } from '../elements/mutateElements'
 import { duplicateElements } from '../../../packages/excalidraw/actions/actionDuplicateSelection'
+import { numberToStr, radianToDegrees } from '../elements/math'
+import { getRadixColor } from '../UI/colors'
+import { EasyInput } from '../UI/easyInput'
 
 type TChangeShotActionValue = 'init' | 'remove' | 'incraseShotNumber' | 'decraseShotNumber'
 
@@ -184,7 +193,7 @@ export const actionChangeMetaCameraVersion = register({
             shift: { x: 150, y: 0 },
             addPointerWith: singleCamera,
             addPointerSubkind: 'cameraMovementPointer',
-            addPointerOverrides: {endArrowhead: 'triangle'},
+            addPointerOverrides: { endArrowhead: 'triangle' },
             newElementsMeta: { shotVersion: newCameraShotVers },
           }),
           commitToHistory: true,
@@ -220,7 +229,7 @@ export const actionChangeMetaCameraVersion = register({
             shift: { x: -150, y: 0 },
             addPointerWith: singleCamera,
             addPointerSubkind: 'cameraMovementPointer',
-            addPointerOverrides: {endArrowhead: 'triangle'},
+            addPointerOverrides: { endArrowhead: 'triangle' },
             addPointerReverseDirection: true,
             newElementsMeta: { shotVersion: newCameraShotVers },
           }),
@@ -327,6 +336,148 @@ export const actionChangeMetaCameraVersion = register({
             </Flex>
           ) : null}
         </Flex>
+      </fieldset>
+    )
+  },
+})
+
+/** https://en.wikipedia.org/wiki/Image_sensor_format */
+export const CAMERA_FORMATS: readonly CameraFormat[] = [
+  {
+    title: 'Super 8',
+    description: 'Super 8 mm film frame',
+    demensions: { x: 5.79, y: 4.01 },
+  },
+  {
+    title: 'Super 16',
+    description: 'Super 16 mm film frame',
+    demensions: { x: 12.52, y: 7.41 },
+  },
+  {
+    title: 'Micro Four Thirds',
+    description: 'Micro Four Thirds ("4/3")',
+    demensions: { x: 17.3, y: 13 },
+  },
+  {
+    title: 'Super 35mm',
+    description: 'Super 35mm film 4 perf',
+    demensions: { x: 24.89, y: 18.66 },
+    isDefault: true,
+  },
+  {
+    title: 'Full Frame 35mm',
+    description: '35 mm film',
+    demensions: { x: 36, y: 24 },
+  },
+  {
+    title: 'Standard 65/70',
+    description: '65/70 mm film frame',
+    demensions: { x: 52.48, y: 23.01 },
+  },
+]
+
+export const DEFAULT_CAMERA_FORMAT = CAMERA_FORMATS.find((f) => f.isDefault)!
+export const DEFAULT_FOCAL_LENGTH = 35 // mm
+export const DEFAULT_FOCUS_DISTANCE = 300 // cm
+
+export const getCameraLensAngle = (c: CameraMeta) =>
+  // AOV = 2arctan(d/2f)
+  c.focalLength
+    ? Math.atan((c.cameraFormat || DEFAULT_CAMERA_FORMAT)?.demensions.x / (2 * c.focalLength)) * 2
+    : undefined
+
+export const getCameraLensAngleDeg = (c: CameraMeta) =>
+  radianToDegrees(getCameraLensAngle(c), { round: true })
+
+
+type TChangeDetailsAction = {
+  newFocalLength?: number
+  newFocusDistance?: number
+}
+
+export const actionChangeCameraDetails = register({
+  name: 'actionChangeCameraDetails',
+  trackEvent: false,
+  perform: (elements, appState, action: TChangeDetailsAction, app) => {
+    if (action.newFocalLength)
+      mutateSelectedElsMeta<CameraMeta>(app, { focalLength: action.newFocalLength })
+    if (action.newFocusDistance)
+      mutateSelectedElsMeta<CameraMeta>(app, { focusDistance: action.newFocusDistance })
+
+    return {
+      elements: elements,
+      commitToHistory: true,
+    }
+  },
+
+  PanelComponent: ({
+    elements,
+    appState,
+    updateData,
+    appProps,
+    app,
+  }: PanelComponentProps<TChangeDetailsAction>) => {
+    const metas = getSelectedCameraMetas(app.scene, appState)
+    const focalLen = getMetasCommonValue<number, CameraMeta>(metas, 'focalLength')
+    const focusDistance = getMetasCommonValue<number, CameraMeta>(metas, 'focusDistance')
+    const angle = getMetasCommonValue(metas, (m) => getCameraLensAngleDeg(m))
+    const color = getMetasCommonValue(metas, (m) => getRadixColor(m)) || 'gray'
+    const format = getMetasCommonValue(metas, 'cameraFormat', DEFAULT_CAMERA_FORMAT)
+
+    return (
+      <fieldset>
+        <label className='control-label'>
+          <Flex align={'baseline'} justify={'between'} gap={'1'}>
+            {'Focal length'}
+            {focalLen ? (
+              <>
+                <Code
+                  title={`Regarding ${format?.title} format`}
+                  style={{ marginLeft: 'auto' }}
+                  size={'1'}
+                  weight={'bold'}
+                  color={color}
+                >{`${focalLen}mm`}</Code>
+                <Code
+                  title={'Horizontal angle'}
+                  size={'1'}
+                  color={'gray'}
+                  variant={'ghost'}
+                  weight={'light'} //
+                >{`${angle}˚`}</Code>
+              </>
+            ) : null}
+          </Flex>
+          <EasyInput
+            min={5}
+            max={200}
+            powerCof={1.15}
+            onChange={(v) => updateData({ newFocalLength: v })}
+            value={focalLen !== undefined ? focalLen : DEFAULT_FOCAL_LENGTH}
+          />
+          <Flex align={'baseline'} justify={'between'} gap={'1'}>
+            {'Focus distance'}
+            {focusDistance ? (
+              <>
+                <Code
+                  title={`Distance`}
+                  style={{ marginLeft: 'auto' }}
+                  size={'1'}
+                  weight={'bold'}
+                  color={color}
+                >
+                  {numberToStr(focusDistance / 100, { unit: 'm' })}
+                </Code>
+              </>
+            ) : null}
+          </Flex>
+          <EasyInput
+            min={0}
+            max={1600}
+            onChange={(v) => updateData({ newFocusDistance: v })}
+            value={focusDistance !== undefined ? focusDistance : DEFAULT_FOCUS_DISTANCE}
+          />
+        </label>
       </fieldset>
     )
   },

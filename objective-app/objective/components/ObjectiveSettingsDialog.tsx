@@ -13,6 +13,8 @@ type Mode = {
   freq: number
 }
 
+export const DEFAULT_GRID_MODE: Mode = { size: 25, freq: 4 }
+
 const DEBUG_MODES = __DEBUG_EDITOR
   ? [
       { size: 2, freq: 50 },
@@ -23,18 +25,16 @@ const DEBUG_MODES = __DEBUG_EDITOR
 const MODES: Mode[] = [
   ...DEBUG_MODES,
   // 0.5m
-  { size: 10, freq: 5 }, // 0
-  { size: 25, freq: 2 }, // 1
+  { size: 10, freq: 5 },
+  { size: 25, freq: 2 },
   // 1m
-  { size: 20, freq: 5 }, // 2
-  { size: 25, freq: 4 }, // 3  -- DEFAULT
-  { size: 50, freq: 2 }, // 4
+  { size: 20, freq: 5 },
+  DEFAULT_GRID_MODE,
+  { size: 50, freq: 2 },
   // 2m
-  { size: 20, freq: 10 }, // 5
-  { size: 50, freq: 4 }, // 6
+  { size: 20, freq: 10 },
+  { size: 50, freq: 4 },
 ]
-
-export const DEFAULT_GRID_MODE: Mode = { size: 25, freq: 4 }
 
 export const getGridMode = (appState: AppState) => {
   const { gridSizeConfig, gridBoldLineFrequency } = appState

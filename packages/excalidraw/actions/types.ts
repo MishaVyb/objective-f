@@ -146,6 +146,7 @@ export type ActionName =
   | "actionChangeMetaDescription"
   | "actionChangeMetaCameraShot"
   | "actionChangeMetaCameraVersion" // includes Move To/From
+  | "actionChangeCameraDetails"
 
   // characters:
   | "actionMoveCharacterToFrom"

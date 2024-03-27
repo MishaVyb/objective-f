@@ -26,13 +26,20 @@ export const ensurePoint = (arg: PointType): Point => ('length' in arg ? arg : [
 
 export const between = (min: number, value: number, max: number) => min <= value && value <= max
 
+export const radianToDegrees = (v: number | undefined, opts?: { round: boolean }) => {
+  if (v === undefined) return undefined
+  const res = (v * 180) / Math.PI
+  if (opts?.round) return Math.round(res)
+  return res
+}
+
 export const getAngRad = (a: PointType, b: PointType) => {
   a = ensureVector(a)
   b = ensureVector(b)
   return normalizeAngle(Math.atan2(b.y - a.y, b.x - a.x))
 }
 
-export const getAngDeg = (a: PointType, b: PointType) => (getAngRad(a, b) * 180) / Math.PI
+export const getAngDeg = (a: PointType, b: PointType) => radianToDegrees(getAngRad(a, b) * 180)
 
 export const MathRound = (x: number, decimalPlaces = 6) => {
   return Math.round(x * 10 ** decimalPlaces) / 10 ** decimalPlaces
@@ -125,7 +132,12 @@ export const getBasisPoints = (
     const bMiddle = rotate(b.x, b.y, c.x, c.y, angCorrection)
     return [ensureVector(aMiddle), ensureVector(bMiddle)]
   }
-  return [{x: -1, y: -1}, {x: -1, y: -1}] // TODO other types
+
+  // TODO other types
+  return [
+    { x: -1, y: -1 },
+    { x: -1, y: -1 },
+  ]
 }
 
 /** get `left-top` and `right-bottom` points with rectangle rotation(!) */
