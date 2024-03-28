@@ -28,7 +28,7 @@ import { mutateSelectedElsMeta } from '../elements/mutateElements'
 import { duplicateElements } from '../../../packages/excalidraw/actions/actionDuplicateSelection'
 import { numberToStr, radianToDegrees } from '../elements/math'
 import { getRadixColor } from '../UI/colors'
-import { EasyInput } from '../UI/easyInput'
+import { EasyInput } from '../UI/InputEasyIn'
 
 type TChangeShotActionValue = 'init' | 'remove' | 'incraseShotNumber' | 'decraseShotNumber'
 
@@ -388,7 +388,6 @@ export const getCameraLensAngle = (c: CameraMeta) =>
 
 export const getCameraLensAngleDeg = (c: CameraMeta) =>
   radianToDegrees(getCameraLensAngle(c), { round: true })
-
 
 type TChangeDetailsAction = {
   newFocalLength?: number

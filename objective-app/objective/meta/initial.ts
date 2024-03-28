@@ -24,6 +24,7 @@ export const getInitialMeta = <T extends ObjectiveKinds>(
   id: '',
   elementIds: [],
   elements: [],
+  basis: undefined,
   name: undefined,
   nameRepr: undefined,
   basisIndex: 0,
@@ -69,6 +70,10 @@ export const duplicateMeta = (newElement: Mutable<ExcalidrawElement>) => {
         shotNumber: weekMeta.shotNumber, // do not incrase shot number atomatecly, user will do it by himself
         shotVersion: weekMeta.shotVersion,
         focalLength: weekMeta.focalLength,
+        focusDistance: weekMeta.focusDistance,
+        cameraFormat: weekMeta.cameraFormat,
+        aspectRatio: weekMeta.aspectRatio,
+
 
         // initial values
         relatedImages: [],

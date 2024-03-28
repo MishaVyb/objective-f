@@ -21,7 +21,6 @@ import {
   getObjectiveSingleMeta,
 } from "../../../objective-app/objective/meta/selectors";
 import { BasisElementType } from "../../../objective-app/objective/elements/snapElements";
-import { isCameraMeta } from "../../../objective-app/objective/meta/types";
 import { objectEntries } from "../../../objective-app/objective/utils/types";
 
 export const Stats = (props: {
@@ -177,7 +176,7 @@ export const Stats = (props: {
             selectedElement,
             currentPoint,
           );
-          const ang = getAngDeg(absStart, absEnd);
+          const ang = getAngDeg(absStart, absEnd)!;
           const func = getLineFunc(absStart, absEnd);
           const funcStr = ` | func y = ${func.slope} * x + ${func.intercept}`;
 
@@ -204,7 +203,7 @@ export const Stats = (props: {
         {selectedElement.points.map((currentPoint, i, points) => {
           if (i === 0) return <tr key={i}></tr>;
           const prevPoint = points[i - 1];
-          const ang = getAngDeg(prevPoint, currentPoint);
+          const ang = getAngDeg(prevPoint, currentPoint)!;
           return (
             <tr key={i}>
               <td>

@@ -144,7 +144,7 @@ export type CameraMeta = ObjectiveMeta & {
   focalLength?: number // mm
   focusDistance?: number // cm
   cameraFormat?: CameraFormat // width (mm)
-  aspectRation?: number // w/h
+  aspectRatio?: number // w/h
 
   /**
    * Storyboard images. Source `ExcalidrawImage.id` (not `fileId`).
@@ -168,7 +168,17 @@ export type ShotCameraMeta = CameraMeta & {
 // TODO https://www.typescriptlang.org/docs/handbook/2/types-from-types.html
 export type AnyObjectiveMeta = ObjectiveMeta &
   Pick<LabelMeta, 'labelOf'> &
-  Pick<CameraMeta, 'isShot' | 'shotNumber' | 'shotVersion' | 'focalLength' | 'relatedImages'>
+  Pick<
+    CameraMeta,
+    | 'isShot'
+    | 'shotNumber'
+    | 'shotVersion'
+    | 'focalLength'
+    | 'focusDistance'
+    | 'cameraFormat'
+    | 'aspectRatio'
+    | 'relatedImages'
+  >
 
 export type CameraElement = ObjectiveElement<CameraMeta>
 export type ShotCameraElement = ObjectiveElement<ShotCameraMeta>
