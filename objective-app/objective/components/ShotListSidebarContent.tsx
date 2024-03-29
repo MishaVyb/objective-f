@@ -248,8 +248,9 @@ const ShotListSidebarCameraElement: FC<{ camera: CameraMeta; isSelected: boolean
           {images.map((image) => (
             <img style={{ marginBottom: 5 }} key={image.id} src={image.dataURL} alt='' />
           ))}
-          {/* TODO desc */}
-          <Text title={'Description'}>{camera.description}</Text>
+          <Text title={'Description'} style={{ whiteSpace: 'pre-wrap' }}>
+            {camera.description}
+          </Text>
         </Flex>
       </Collapsible.Content>
     </Collapsible.Root>

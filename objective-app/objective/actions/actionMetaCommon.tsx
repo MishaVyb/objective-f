@@ -44,7 +44,7 @@ import {
   ExcalidrawElement,
   ExcalidrawRectangleElement,
 } from '../../../packages/excalidraw/element/types'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
 import { handleMetaRepresentation } from '../elements/metaRepr'
 import { mutateSelectedElsMeta, mutateMeta } from '../elements/mutateElements'
@@ -283,6 +283,10 @@ export const actionChangeMetaDescription = register({
       app.scene.getSelectedElements({ selectedElementIds: appState.selectedElementIds })
     )
     const [textValue, setTextValue] = useState(singleMeta?.description || '')
+
+    useEffect(() => {
+      setTextValue(singleMeta?.description || '')
+    }, [singleMeta?.id])
 
     if (!singleMeta) return <></>
 
