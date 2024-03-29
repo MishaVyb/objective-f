@@ -380,6 +380,7 @@ export const DEFAULT_CAMERA_FORMAT = CAMERA_FORMATS.find((f) => f.isDefault)!
 export const DEFAULT_FOCAL_LENGTH = 35 // mm
 export const DEFAULT_FOCUS_DISTANCE = 300 // cm
 
+/** radian */
 export const getCameraLensAngle = (c: CameraMeta) =>
   // AOV = 2arctan(d/2f)
   c.focalLength

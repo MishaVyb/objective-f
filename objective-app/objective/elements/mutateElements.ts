@@ -21,6 +21,7 @@ import {
   isElementRelatedToMeta,
   isElementTarget,
 } from '../meta/types'
+import { Vector } from './math'
 
 /**
  * New propertries generic type. Where `T` is `ObjectiveMeta` or `ExcalidrawElement`.
@@ -148,6 +149,25 @@ export const changeElementProperty = <TElement extends ExcalidrawElement>(
   ),
   ...newElements,
 ]
+
+export const rotateElementOnAngle = <T extends ExcalidrawElement>(
+  element: T,
+  rotatePoint: Vector,
+  rotateAngle: number // radian
+) => {
+  const [x1, y1, x2, y2, cx, cy] = getElementAbsoluteCoords(element)
+  const [rotatedCX, rotatedCY] = rotate(cx, cy, rotatePoint.x, rotatePoint.y, rotateAngle)
+  mutateElement<ExcalidrawElement>(
+    element,
+    {
+      x: element.x + (rotatedCX - cx),
+      y: element.y + (rotatedCY - cy),
+      angle: normalizeAngle(rotateAngle),
+    },
+    false
+  )
+  return element
+}
 
 export const rotateMultipleElementsOnAngle = (
   originalElements: PointerDownState['originalElements'],

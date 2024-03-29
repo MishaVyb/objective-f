@@ -173,6 +173,7 @@ export const isTargetInsideLineArea = (
   return (XCond || XCondRev) && (YCond || YCondRev)
 }
 
+
 //----------------------------- unused for now, but could be used later ---------------------------//
 
 export type Func = {
