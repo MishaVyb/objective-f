@@ -9,16 +9,29 @@ import {
 import { getObjectiveBasis, getSelectedCameraMetas, useCameraImages } from '../meta/selectors'
 import { CameraElement, CameraMeta } from '../meta/types'
 import * as Collapsible from '@radix-ui/react-collapsible'
-import { CaretDownIcon, CaretRightIcon, PlusIcon } from '@radix-ui/react-icons'
+import {
+  AngleIcon,
+  CaretDownIcon,
+  CaretRightIcon,
+  CropIcon,
+  MarginIcon,
+  PlusIcon,
+  WidthIcon,
+} from '@radix-ui/react-icons'
 
 import React from 'react'
-import { Badge, Flex, IconButton, Separator, Text } from '@radix-ui/themes'
-import { actionChangeMetaCameraShot, getCameraMetaReprStr } from '../actions/actionCamera'
+import { Badge, Code, Flex, IconButton, Separator, Text } from '@radix-ui/themes'
+import {
+  actionChangeMetaCameraShot,
+  getCameraMetaReprStr,
+  getFormatDemensionStr,
+} from '../actions/actionCamera'
 import clsx from 'clsx'
 import { TBadgeProps, getRadixColor } from '../UI/colors'
 import { groupBy } from '../utils/helpers'
 import { distributeLibraryItemsOnSquareGrid } from '../../../packages/excalidraw/data/library'
 import { LIB_CAMERAS } from '../lib/cameras.library'
+import { numberToStr } from '../elements/math'
 
 const ShotListSidebarContent: FC = () => {
   const app = useApp()
@@ -131,57 +144,112 @@ const AddCameraButton: FC<{ style: any }> = ({ style }) => {
 
 const ShotListSidebarCameraElement: FC<{ camera: CameraMeta; isSelected: boolean }> = (props) => {
   const [open, setOpen] = React.useState(false)
+  const { camera } = props
 
   const setAppState = useExcalidrawSetAppState()
-  const images = useCameraImages(props.camera)
+  const images = useCameraImages(camera)
+  const hasCollapseableProperties =
+    images.length || camera.focusDistance || camera.aspectRatio || camera.description
+  const realOpen = !!hasCollapseableProperties && open
+  const formatStr = camera.cameraFormat && getFormatDemensionStr(camera.cameraFormat)
 
   const selectCamera = () => {
     if (!open) setOpen(true)
     setAppState({
-      selectedElementIds: Object.fromEntries(props.camera.elementIds.map((id) => [id, true])),
-      selectedGroupIds: { [props.camera.id]: true },
+      selectedElementIds: Object.fromEntries(camera.elementIds.map((id) => [id, true])),
+      selectedGroupIds: { [camera.id]: true },
       editingGroupId: null,
     })
   }
 
   return (
-    <Collapsible.Root className='CollapsibleRoot' open={open} onOpenChange={setOpen}>
+    <Collapsible.Root className='CollapsibleRoot' open={realOpen} onOpenChange={setOpen}>
       <Flex
         className={clsx('toggled-item-soft', { toggled: props.isSelected })}
-        align={'baseline'}
+        align={'center'}
         onClick={() => selectCamera()}
       >
-        <CameraBadge camera={props.camera} m={'2'} />
+        <CameraBadge camera={camera} m={'2'} />
+
         <Text className='objective-camera-label' size={'2'}>
-          {props.camera.name}
+          {camera.name}
         </Text>
 
-        <Collapsible.Trigger
-          asChild
-          onClick={(e) => {
-            e.stopPropagation()
-          }}
-        >
-          <IconButton
-            style={{ marginLeft: 'auto', marginRight: 10 }}
-            variant={'outline'}
-            color={'gray'}
-            size={'1'}
-            mt={'2'}
-          >
-            {open ? <CaretDownIcon /> : <CaretRightIcon />}
-          </IconButton>
-        </Collapsible.Trigger>
+        <Flex style={{ marginLeft: 'auto', marginRight: 10 }} align={'center'}>
+          {!realOpen && camera.focalLength && (
+            <Code color={'gray'} size={'1'} mr={hasCollapseableProperties ? '3' : '5'}>
+              {camera.focalLength}
+              {'mm'}
+            </Code>
+          )}
+          {hasCollapseableProperties && (
+            <Collapsible.Trigger
+              asChild
+              onClick={(e) => {
+                e.stopPropagation()
+              }}
+            >
+              <IconButton variant={'ghost'} color={'gray'} size={'2'}>
+                {realOpen ? <CaretDownIcon /> : <CaretRightIcon />}
+              </IconButton>
+            </Collapsible.Trigger>
+          )}
+        </Flex>
       </Flex>
 
       <Collapsible.Content>
-        <Flex direction={'column'}>
-          {/* TODO camera format && focal len && aspect ratio */}
-          {/* TODO images */}
+        <Flex direction={'column'} ml={'2'} mr={'2'} mt={'1'} height={'max-content'}>
+          <Flex gap={'1'} justify={'start'}>
+            {camera.cameraFormat && (
+              <Flex
+                title={`${camera.cameraFormat.description} — ${formatStr!.x} x ${formatStr!.y}`}
+                align={'center'}
+                gap={'1'}
+              >
+                <MarginIcon />
+                <Text color={'gray'} size={'1'}>
+                  {camera.cameraFormat.title}
+                </Text>
+              </Flex>
+            )}
+            {camera.cameraFormat && camera.aspectRatio && (
+              <Separator orientation={'vertical'} m={'2'} />
+            )}
+            {camera.aspectRatio && (
+              <Flex title={'Aspect ratio'} align={'center'} gap={'1'}>
+                <CropIcon />
+                <Text color={'gray'} size={'1'}>
+                  {numberToStr(camera.aspectRatio)}
+                </Text>
+              </Flex>
+            )}
+          </Flex>
+          <Flex gap={'1'} justify={'start'}>
+            {camera.focalLength && (
+              <Flex title={'Focal length'} align={'center'} gap={'1'}>
+                <AngleIcon />
+                <Text color={'gray'} size={'1'}>
+                  {numberToStr(camera.focalLength, { unit: 'mm' })}
+                </Text>
+              </Flex>
+            )}
+            {camera.focalLength && camera.focusDistance && (
+              <Separator orientation={'vertical'} m={'2'} />
+            )}
+            {camera.focusDistance && (
+              <Flex title={'Focus line distance'} align={'center'} gap={'1'}>
+                <WidthIcon />
+                <Text color={'gray'} size={'1'}>
+                  {numberToStr(camera.focusDistance, { unit: 'm' })}
+                </Text>
+              </Flex>
+            )}
+          </Flex>
           {images.map((image) => (
-            <img key={image.id} src={image.dataURL} alt='' />
+            <img style={{ marginBottom: 5 }} key={image.id} src={image.dataURL} alt='' />
           ))}
           {/* TODO desc */}
+          <Text title={'Description'}>{camera.description}</Text>
         </Flex>
       </Collapsible.Content>
     </Collapsible.Root>

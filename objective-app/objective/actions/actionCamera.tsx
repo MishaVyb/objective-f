@@ -1,11 +1,13 @@
 import {
   CameraIcon,
-  CircleBackslashIcon, EnterIcon,
+  CircleBackslashIcon,
+  Cross1Icon,
+  EnterIcon,
   ExitIcon,
   EyeClosedIcon,
   EyeOpenIcon,
   MinusIcon,
-  PlusIcon
+  PlusIcon,
 } from '@radix-ui/react-icons'
 import { getFormValue } from '../../../packages/excalidraw/actions/actionProperties'
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
@@ -361,13 +363,13 @@ export const CAMERA_FORMATS: readonly CameraFormat[] = [
     demensions: { x: 17.3, y: 13 },
   },
   {
-    title: 'Super 35mm',
+    title: 'Super 35',
     description: 'Super 35mm film 4 perf',
     demensions: { x: 24.89, y: 18.66 },
     isDefault: true,
   },
   {
-    title: 'Full Frame 35mm',
+    title: 'Full Frame',
     description: '35 mm film',
     demensions: { x: 36, y: 24 },
   },
@@ -377,6 +379,10 @@ export const CAMERA_FORMATS: readonly CameraFormat[] = [
     demensions: { x: 52.48, y: 23.01 },
   },
 ]
+export const getFormatDemensionStr = (f: CameraFormat) => ({
+  x: numberToStr(f.demensions.x, { roundVal: [2, 1, 0], hideDecimalVal: false }),
+  y: numberToStr(f.demensions.y, { roundVal: [2, 1, 0], hideDecimalVal: false }),
+})
 
 export const CAMERA_ASPECT_RATIOS = [
   2.39,
@@ -404,18 +410,33 @@ export const getCameraLensAngle = (c: CameraMeta) =>
 export const getCameraLensAngleDeg = (c: CameraMeta) =>
   radianToDegrees(getCameraLensAngle(c), { round: true })
 
-type TChangeDetailsAction = {
-  newFocalLength?: number
-  newFocusDistance?: number
-  newCameraFormat?: string // title
-  newAspectRatio?: string
-  lensAngleRepr?: boolean
-}
+type TChangeDetailsAction =
+  | {
+      newFocalLength?: number
+      newFocusDistance?: number
+      newCameraFormat?: string // title
+      newAspectRatio?: string
+      lensAngleRepr?: boolean
+    }
+  | 'discard'
 
 export const actionChangeCameraDetails = register({
   name: 'actionChangeCameraDetails',
   trackEvent: false,
   perform: (elements, appState, action: TChangeDetailsAction, app) => {
+    if (action === 'discard') {
+      mutateSelectedElsMeta<CameraMeta>(app, {
+        focalLength: undefined,
+        focusDistance: undefined,
+        cameraFormat: undefined,
+        aspectRatio: undefined,
+        lensAngleRepr: undefined,
+      })
+      return {
+        elements: elements,
+        commitToHistory: true,
+      }
+    }
     if (action.newFocalLength)
       mutateSelectedElsMeta<CameraMeta>(app, { focalLength: action.newFocalLength })
     if (action.newFocusDistance)
@@ -488,6 +509,7 @@ export const actionChangeCameraDetails = register({
                   {CAMERA_FORMATS.map((f) => (
                     <Flex justify={'between'} align={'baseline'}>
                       <Select.Item
+                        title={f.description}
                         key={f.title}
                         value={f.title}
                         className={'objective-select-item'}
@@ -495,19 +517,9 @@ export const actionChangeCameraDetails = register({
                         {f.title}{' '}
                       </Select.Item>
                       <Text color={'gray'} size={'1'} weight={'light'}>
-                        <Code size={'1'}>
-                          {numberToStr(f.demensions.x, {
-                            roundVal: [2, 1, 0],
-                            hideDecimalVal: false,
-                          })}
-                        </Code>
+                        <Code size={'1'}>{getFormatDemensionStr(f).x}</Code>
                         {'x'}
-                        <Code size={'1'}>
-                          {numberToStr(f.demensions.y, {
-                            roundVal: [2, 1, 0],
-                            hideDecimalVal: false,
-                          })}
-                        </Code>
+                        <Code size={'1'}>{getFormatDemensionStr(f).y}</Code>
                       </Text>
                     </Flex>
                   ))}
@@ -530,7 +542,9 @@ export const actionChangeCameraDetails = register({
                 // @ts-ignore
                 placeholder={'Aspect Ratio'}
                 variant='ghost'
-                style={{ maxWidth: format ? 70 : 150 }} // TMP use Flex shrink / grow
+                style={{ maxWidth: (format?.title.length || 0) < 15 ? 150 : 50 }} // TMP use Flex shrink / grow
+                ml={'3'}
+                mr={'2'}
               />
               <Select.Content>
                 <Select.Group>
@@ -552,26 +566,26 @@ export const actionChangeCameraDetails = register({
               </Select.Content>
             </Select.Root>
 
-            <IconButton
-              size={'1'}
-              variant={'ghost'}
-              color={'gray'}
-              onClick={onEyeButtonClick}
-              title={lensAngleRepr ? 'Hide lens angle' : 'Show lens angle'}
-            >
-              {lensAngleRepr ? <EyeOpenIcon /> : <EyeClosedIcon />}
-            </IconButton>
-
-            {/* TODO DISABLE BUTTON */}
-            {/* <IconButton
-              size={'1'}
-              variant={'ghost'}
-              color={'gray'}
-              onClick={() => updateData()}
-              title={''}
-            >
-              <Cross1Icon />
-            </IconButton> */}
+            <Flex gap={'2'}>
+              <IconButton
+                size={'1'}
+                variant={'ghost'}
+                color={'gray'}
+                onClick={onEyeButtonClick}
+                title={lensAngleRepr ? 'Hide lens angle' : 'Show lens angle'}
+              >
+                {lensAngleRepr ? <EyeOpenIcon /> : <EyeClosedIcon />}
+              </IconButton>
+              <IconButton
+                size={'1'}
+                variant={'ghost'}
+                color={'gray'}
+                onClick={() => updateData('discard')}
+                title={''}
+              >
+                <Cross1Icon />
+              </IconButton>
+            </Flex>
           </Flex>
           <Flex align={'baseline'} justify={'between'} gap={'1'}>
             {'Focal length'}
