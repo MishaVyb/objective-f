@@ -73,6 +73,7 @@ export const duplicateMeta = (newElement: Mutable<ExcalidrawElement>) => {
         focusDistance: weekMeta.focusDistance,
         cameraFormat: weekMeta.cameraFormat,
         aspectRatio: weekMeta.aspectRatio,
+        lensAngleRepr: weekMeta.lensAngleRepr,
 
 
         // initial values

@@ -29,12 +29,11 @@ import {
 import { deleteEventHandler } from '../elements/events'
 
 import { register } from './register'
-import { Badge, Button, Flex, IconButton, Popover, Text } from '@radix-ui/themes'
+import { Button, Flex, IconButton, Popover, Separator, Text } from '@radix-ui/themes'
 import { CameraIcon, CircleBackslashIcon, EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
 import { ImageIcon, TrashIcon } from '../../../packages/excalidraw/components/icons'
 import { changeElementMeta, changeElementProperty, mutateMeta } from '../elements/mutateElements'
 import { arrangeElements } from '../elements/zindex'
-import { getCameraMetaReprStr } from './actionCamera'
 import { CameraBadge } from '../components/ShotListSidebarContent'
 
 export const actionInitStoryboard = register({
@@ -257,18 +256,13 @@ export const actionStoryboard = register({
 
     return (
       <div className='storyboard-images'>
-        <legend>Storyboard</legend>
+        <Separator size={'4'} mb={'2'} />
+        <legend>{'Storyboard'}</legend>
 
         {images.length ? (
           images.map((image) => (
             <fieldset key={image.id}>
-              <img
-                style={{
-                  width: '185px', // TODO inherit size from parent
-                }}
-                src={image.dataURL}
-                alt=''
-              />
+              <img style={{ width: '100%' }} src={image.dataURL} alt='' />
 
               <Flex gap={'1'} pb={'3'}>
                 <IconButton

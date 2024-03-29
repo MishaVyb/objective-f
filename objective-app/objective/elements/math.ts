@@ -75,7 +75,11 @@ export const getLastLineLength = (el: ExcalidrawLinearElement) => {
 
 export const numberToStr = (
   v: number | null | undefined,
-  opts?: { unit?: string; roundVal?: number | null; hideDecimalVal?: number }
+  opts?: {
+    unit?: string
+    roundVal?: number | null | number[]
+    hideDecimalVal?: number | boolean
+  }
 ) => {
   const defaultOpts = {
     roundVal: 2,
@@ -84,9 +88,12 @@ export const numberToStr = (
   if (typeof v !== 'number') return ''
 
   // apply default
-  let decimalPlaces = typeof opts?.roundVal === 'undefined' ? defaultOpts.roundVal : opts?.roundVal
+  let decimalPlaces = opts?.roundVal === undefined ? defaultOpts.roundVal : opts?.roundVal
+
   const hideDecimalAfter =
-    typeof opts?.hideDecimalVal === 'undefined' ? defaultOpts.hideDecimalVal : opts?.hideDecimalVal
+    opts?.hideDecimalVal === undefined || opts?.hideDecimalVal === true
+      ? defaultOpts.hideDecimalVal
+      : opts?.hideDecimalVal
 
   // normalize
   let strVal
@@ -94,6 +101,17 @@ export const numberToStr = (
   if (typeof decimalPlaces === 'number') {
     v = MathRound(v, decimalPlaces)
     strVal = v.toFixed(decimalPlaces)
+  } else if (decimalPlaces) {
+    let currentDecimalPlaces
+    if (v < 10) currentDecimalPlaces = decimalPlaces[0]
+    else if (v < 100) currentDecimalPlaces = decimalPlaces[1]
+    else if (v < 1000) currentDecimalPlaces = decimalPlaces[2]
+    else if (v < 10000) currentDecimalPlaces = decimalPlaces[3]
+
+    if (!currentDecimalPlaces) currentDecimalPlaces = 0
+
+    v = MathRound(v, currentDecimalPlaces)
+    strVal = v.toFixed(currentDecimalPlaces)
   } else strVal = `${strVal}`
 
   if (opts?.unit) return `${strVal}${opts?.unit}`
@@ -172,7 +190,6 @@ export const isTargetInsideLineArea = (
   const YCondRev = b.y - padding.y < target.y && target.y < a.y + padding.y
   return (XCond || XCondRev) && (YCond || YCondRev)
 }
-
 
 //----------------------------- unused for now, but could be used later ---------------------------//
 

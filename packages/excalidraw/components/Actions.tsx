@@ -45,7 +45,7 @@ import {
   isAllElementsObjective,
 } from "../../../objective-app/objective/meta/types";
 import { objectEntries } from "../../../objective-app/objective/utils/types";
-import { Button, Separator } from "@radix-ui/themes";
+import { Button, Flex, Separator } from "@radix-ui/themes";
 import { __DEBUG_EDITOR } from "../../../objective-app/objective-plus/constants";
 import { getObjectiveMetas } from "../../../objective-app/objective/meta/selectors";
 import { MixerHorizontalIcon } from "@radix-ui/react-icons";
@@ -270,7 +270,13 @@ export const SelectedShapeActions = ({
   }
 
   return (
-    <div className="panelColumn">
+    <div
+      className="panelColumn"
+      style={{
+        width: singleMeta?.kind === ObjectiveKinds.CAMERA ? 250 : 187,
+        maxHeight: "70vh",
+      }}
+    >
       {actionsToRender.metaHeader && renderAction("actionDisplayMetaHeader")}
       {actionsToRender.metaName && renderAction("actionChangeMetaName")}
 
@@ -443,6 +449,11 @@ export const SelectedShapeActions = ({
           </div>
         </fieldset>
       )}
+
+      {/* HACK empty space at island bottom */}
+      <Flex>
+        <Separator style={{ opacity: 0 }} />
+      </Flex>
     </div>
   );
 };

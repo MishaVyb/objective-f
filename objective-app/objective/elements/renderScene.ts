@@ -22,7 +22,7 @@ export const renderObjectiveScene = (
   const metas = getObjectiveMetas(visibleElements)
   const extraEls: ExcalidrawElement[] = []
   metas.forEach((m) => {
-    if (isCameraMeta(m)) extraEls.push(...getCameraLensAngleElements(m))
+    if (isCameraMeta(m) && m.lensAngleRepr) extraEls.push(...getCameraLensAngleElements(m))
   })
 
   extraEls.forEach((e) =>

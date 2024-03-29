@@ -145,6 +145,7 @@ export type CameraMeta = ObjectiveMeta & {
   focusDistance?: number // cm
   cameraFormat?: CameraFormat // width (mm)
   aspectRatio?: number // w/h
+  lensAngleRepr?: boolean
 
   /**
    * Storyboard images. Source `ExcalidrawImage.id` (not `fileId`).
@@ -178,6 +179,7 @@ export type AnyObjectiveMeta = ObjectiveMeta &
     | 'cameraFormat'
     | 'aspectRatio'
     | 'relatedImages'
+    | 'lensAngleRepr'
   >
 
 export type CameraElement = ObjectiveElement<CameraMeta>

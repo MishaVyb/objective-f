@@ -1,10 +1,11 @@
 import {
   CameraIcon,
-  CircleBackslashIcon,
-  EnterIcon,
+  CircleBackslashIcon, EnterIcon,
   ExitIcon,
+  EyeClosedIcon,
+  EyeOpenIcon,
   MinusIcon,
-  PlusIcon,
+  PlusIcon
 } from '@radix-ui/react-icons'
 import { getFormValue } from '../../../packages/excalidraw/actions/actionProperties'
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
@@ -22,7 +23,7 @@ import { CameraFormat, CameraMeta, isAllElementsCameras, isCameraElement } from 
 
 import { register } from './register'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
-import { Button, Code, Flex, IconButton } from '@radix-ui/themes'
+import { Button, Code, Flex, IconButton, Select, Separator, Text } from '@radix-ui/themes'
 import { handleMetaRepresentation } from '../elements/metaRepr'
 import { mutateSelectedElsMeta } from '../elements/mutateElements'
 import { duplicateElements } from '../../../packages/excalidraw/actions/actionDuplicateSelection'
@@ -287,9 +288,32 @@ export const actionChangeMetaCameraVersion = register({
     return (
       <fieldset>
         <legend>{'Shot version'}</legend>
-        <Flex direction={'column'} gap={'1'}>
+
+        <Flex gap={'1'}>
+          {isShot ? (
+            <>
+              <IconButton
+                size={'2'}
+                variant={'soft'}
+                color={'gray'}
+                onClick={() => updateData('decraseShotVersion')}
+                title={'Decrase shot version'}
+              >
+                <MinusIcon />
+              </IconButton>
+              <IconButton
+                size={'2'}
+                variant={'soft'}
+                color={'gray'}
+                onClick={() => updateData('incraseShotVersion')}
+                title={'Incrase shot version'}
+              >
+                <PlusIcon />
+              </IconButton>
+            </>
+          ) : null}
           {singleMeta && (
-            <Flex gap={'1'}>
+            <>
               <Button
                 size={'2'}
                 variant={'surface'}
@@ -311,30 +335,8 @@ export const actionChangeMetaCameraVersion = register({
                 <ExitIcon />
                 {'To'}
               </Button>
-            </Flex>
+            </>
           )}
-          {isShot ? (
-            <Flex gap={'1'}>
-              <IconButton
-                size={'2'}
-                variant={'soft'}
-                color={'gray'}
-                onClick={() => updateData('decraseShotVersion')}
-                title={'Decrase shot version'}
-              >
-                <MinusIcon />
-              </IconButton>
-              <IconButton
-                size={'2'}
-                variant={'soft'}
-                color={'gray'}
-                onClick={() => updateData('incraseShotVersion')}
-                title={'Incrase shot version'}
-              >
-                <PlusIcon />
-              </IconButton>
-            </Flex>
-          ) : null}
         </Flex>
       </fieldset>
     )
@@ -376,9 +378,21 @@ export const CAMERA_FORMATS: readonly CameraFormat[] = [
   },
 ]
 
+export const CAMERA_ASPECT_RATIOS = [
+  2.39,
+  2.35,
+  2.0,
+  1.85,
+  1.77, // 16/9
+  1.6, // 16 / 10
+  1.33, // 4/3
+  1.0,
+]
+
 export const DEFAULT_CAMERA_FORMAT = CAMERA_FORMATS.find((f) => f.isDefault)!
 export const DEFAULT_FOCAL_LENGTH = 35 // mm
 export const DEFAULT_FOCUS_DISTANCE = 300 // cm
+export const DEFAULT_ASPECT_RATIO = 1.77
 
 /** radian */
 export const getCameraLensAngle = (c: CameraMeta) =>
@@ -393,6 +407,9 @@ export const getCameraLensAngleDeg = (c: CameraMeta) =>
 type TChangeDetailsAction = {
   newFocalLength?: number
   newFocusDistance?: number
+  newCameraFormat?: string // title
+  newAspectRatio?: string
+  lensAngleRepr?: boolean
 }
 
 export const actionChangeCameraDetails = register({
@@ -403,6 +420,24 @@ export const actionChangeCameraDetails = register({
       mutateSelectedElsMeta<CameraMeta>(app, { focalLength: action.newFocalLength })
     if (action.newFocusDistance)
       mutateSelectedElsMeta<CameraMeta>(app, { focusDistance: action.newFocusDistance })
+    if (action.lensAngleRepr !== undefined)
+      mutateSelectedElsMeta<CameraMeta>(app, { lensAngleRepr: action.lensAngleRepr })
+
+    if (action.newCameraFormat) {
+      // TODO custom
+      mutateSelectedElsMeta<CameraMeta>(app, {
+        cameraFormat: CAMERA_FORMATS.find((v) => v.title === action.newCameraFormat),
+      })
+    }
+
+    if (action.newAspectRatio) {
+      let aspectRatio
+      if (action.newAspectRatio === 'Custom') aspectRatio = undefined // TODO
+      else if (action.newAspectRatio === 'Disable') aspectRatio = undefined
+      else aspectRatio = Number(action.newAspectRatio)
+
+      mutateSelectedElsMeta<CameraMeta>(app, { aspectRatio })
+    }
 
     return {
       elements: elements,
@@ -422,17 +457,128 @@ export const actionChangeCameraDetails = register({
     const focusDistance = getMetasCommonValue<number, CameraMeta>(metas, 'focusDistance')
     const angle = getMetasCommonValue(metas, (m) => getCameraLensAngleDeg(m))
     const color = getMetasCommonValue(metas, (m) => getRadixColor(m)) || 'gray'
-    const format = getMetasCommonValue(metas, 'cameraFormat', DEFAULT_CAMERA_FORMAT)
+    const format = getMetasCommonValue<CameraFormat, CameraMeta>(metas, 'cameraFormat')
+    const formatDefault = format || DEFAULT_CAMERA_FORMAT
+    const aspectRatio = getMetasCommonValue<number, CameraMeta>(metas, 'aspectRatio')
+    const lensAngleRepr = getMetasCommonValue(metas, 'lensAngleRepr', false)
+
+    const onEyeButtonClick = () =>
+      updateData({
+        lensAngleRepr: !lensAngleRepr,
+        newFocalLength: focalLen ? undefined : DEFAULT_FOCAL_LENGTH, // apply default, if not
+      })
 
     return (
       <fieldset>
+        {/* <legend>{'Specification'}</legend> */}
+        <Separator size={'4'} />
         <label className='control-label'>
+          <Flex display={'flex'} gap={'1'} justify={'between'} m={'2'}>
+            <Select.Root
+              size={'1'}
+              value={format?.title}
+              onValueChange={(v) => updateData({ newCameraFormat: v })}
+            >
+              {/* @ts-ignore */}
+              <Select.Trigger placeholder='Format' variant='ghost' />
+              <Select.Content>
+                <Select.Group>
+                  <Select.Label>{'Pick camera format'}</Select.Label>
+                  <Select.Separator />
+                  {CAMERA_FORMATS.map((f) => (
+                    <Flex justify={'between'} align={'baseline'}>
+                      <Select.Item
+                        key={f.title}
+                        value={f.title}
+                        className={'objective-select-item'}
+                      >
+                        {f.title}{' '}
+                      </Select.Item>
+                      <Text color={'gray'} size={'1'} weight={'light'}>
+                        <Code size={'1'}>
+                          {numberToStr(f.demensions.x, {
+                            roundVal: [2, 1, 0],
+                            hideDecimalVal: false,
+                          })}
+                        </Code>
+                        {'x'}
+                        <Code size={'1'}>
+                          {numberToStr(f.demensions.y, {
+                            roundVal: [2, 1, 0],
+                            hideDecimalVal: false,
+                          })}
+                        </Code>
+                      </Text>
+                    </Flex>
+                  ))}
+                </Select.Group>
+                <Select.Separator />
+                <Select.Group>
+                  <Select.Item value='Custom' disabled>
+                    Custom
+                  </Select.Item>
+                  {/* <Select.Item value='Disable'>Disable</Select.Item> */}
+                </Select.Group>
+              </Select.Content>
+            </Select.Root>
+            <Select.Root
+              size={'1'}
+              value={aspectRatio === undefined ? undefined : String(aspectRatio)}
+              onValueChange={(v) => updateData({ newAspectRatio: v })}
+            >
+              <Select.Trigger
+                // @ts-ignore
+                placeholder={'Aspect Ratio'}
+                variant='ghost'
+                style={{ maxWidth: format ? 70 : 150 }} // TMP use Flex shrink / grow
+              />
+              <Select.Content>
+                <Select.Group>
+                  <Select.Label>{'Pick aspect ratio'}</Select.Label>
+                  <Select.Separator />
+                  {CAMERA_ASPECT_RATIOS.map((r) => (
+                    <Select.Item key={r} value={String(r)} className={'objective-select-item'}>
+                      {numberToStr(r)}
+                    </Select.Item>
+                  ))}
+                </Select.Group>
+                <Select.Separator />
+                <Select.Group>
+                  <Select.Item value='Custom' disabled>
+                    Custom
+                  </Select.Item>
+                  {/* <Select.Item value='Disable'>Disable</Select.Item> */}
+                </Select.Group>
+              </Select.Content>
+            </Select.Root>
+
+            <IconButton
+              size={'1'}
+              variant={'ghost'}
+              color={'gray'}
+              onClick={onEyeButtonClick}
+              title={lensAngleRepr ? 'Hide lens angle' : 'Show lens angle'}
+            >
+              {lensAngleRepr ? <EyeOpenIcon /> : <EyeClosedIcon />}
+            </IconButton>
+
+            {/* TODO DISABLE BUTTON */}
+            {/* <IconButton
+              size={'1'}
+              variant={'ghost'}
+              color={'gray'}
+              onClick={() => updateData()}
+              title={''}
+            >
+              <Cross1Icon />
+            </IconButton> */}
+          </Flex>
           <Flex align={'baseline'} justify={'between'} gap={'1'}>
             {'Focal length'}
             {focalLen ? (
               <>
                 <Code
-                  title={`Regarding ${format?.title} format`}
+                  title={`Regarding ${formatDefault?.title} format`}
                   style={{ marginLeft: 'auto' }}
                   size={'1'}
                   weight={'bold'}
@@ -451,7 +597,7 @@ export const actionChangeCameraDetails = register({
           <EasyInput
             min={5}
             max={200}
-            powerCof={1.15}
+            powerCof={1}
             onChange={(v) => updateData({ newFocalLength: v })}
             value={focalLen !== undefined ? focalLen : DEFAULT_FOCAL_LENGTH}
           />

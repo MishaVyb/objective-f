@@ -134,3 +134,9 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+.objective-select-item {
+  // border: 1px dashed red;
+  --accent-9: var(--accent-3);
+  --accent-9-contrast: black
+}
