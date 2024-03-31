@@ -23,6 +23,7 @@ import React from 'react'
 import { Badge, Code, Flex, IconButton, Separator, Text } from '@radix-ui/themes'
 import {
   actionChangeMetaCameraShot,
+  getCameraLensAngleDeg,
   getCameraMetaReprStr,
   getFormatDemensionStr,
 } from '../actions/actionCamera'
@@ -40,6 +41,7 @@ const ShotListSidebarContent: FC = () => {
   const groupCameras = [...groupBy(cameras, 'shotNumber').entries()]
   const selectedCameras = getSelectedCameraMetas(app.scene, appState)
   const selectedCamera = selectedCameras.length === 1 ? selectedCameras[0] : null
+  const isNoShotCamerasSelected = selectedCameras.length && selectedCameras.every((c) => !c.isShot)
 
   // TODO ??? add internal meta.cameraKey attribute to handle cameras manual ordering
   return (
@@ -70,12 +72,16 @@ const ShotListSidebarContent: FC = () => {
           </div>
         )
       })}
-      <AddCameraButton
-        style={{
-          marginTop: cameras.length ? 'auto' : 10,
-          marginBottom: 10,
-        }}
-      />
+      {isNoShotCamerasSelected ? (
+        <AddCameraButton />
+      ) : (
+        <NewCameraButton
+          style={{
+            marginTop: cameras.length ? 'auto' : 10,
+            marginBottom: 10,
+          }}
+        />
+      )}
     </Flex>
   )
 }
@@ -103,7 +109,7 @@ export const CameraBadge: FC<{ camera: CameraMeta } & TBadgeProps> = (props) => 
   )
 }
 
-const AddCameraButton: FC<{ style: any }> = ({ style }) => {
+const NewCameraButton: FC<{ style?: any }> = ({ style }) => {
   const app = useApp()
   const onClick = () => {
     // TODO use las user choses via
@@ -121,9 +127,9 @@ const AddCameraButton: FC<{ style: any }> = ({ style }) => {
   return (
     <Flex
       className={clsx('toggled-item', { border: true })}
+      style={style}
       align={'baseline'}
       justify={'center'}
-      style={style}
       onClick={() => onClick()}
     >
       <PlusIcon />
@@ -136,7 +142,37 @@ const AddCameraButton: FC<{ style: any }> = ({ style }) => {
         color={'gray'}
         align={'center'}
       >
-        {'Add'}
+        {'New Camera'}
+      </Text>
+    </Flex>
+  )
+}
+
+const AddCameraButton: FC<{ style?: any }> = ({ style }) => {
+  const app = useApp()
+  const onClick = () => {
+    app.actionManager.executeAction(actionChangeMetaCameraShot, 'internal', 'init')
+  }
+
+  return (
+    <Flex
+      className={clsx('toggled-item', { border: true })}
+      style={style}
+      align={'baseline'}
+      justify={'center'}
+      onClick={() => onClick()}
+    >
+      <PlusIcon />
+      <Text
+        className='objective-camera-label'
+        size={'2'}
+        ml={'1'}
+        mt={'3'}
+        mb={'3'}
+        color={'gray'}
+        align={'center'}
+      >
+        {'Add To Shot List'}
       </Text>
     </Flex>
   )
@@ -198,59 +234,72 @@ const ShotListSidebarCameraElement: FC<{ camera: CameraMeta; isSelected: boolean
       </Flex>
 
       <Collapsible.Content>
-        <Flex direction={'column'} ml={'2'} mr={'2'} mt={'1'} height={'max-content'}>
-          <Flex gap={'1'} justify={'start'}>
-            {camera.cameraFormat && (
-              <Flex
-                title={`${camera.cameraFormat.description} — ${formatStr!.x} x ${formatStr!.y}`}
-                align={'center'}
-                gap={'1'}
-              >
-                <MarginIcon />
-                <Text color={'gray'} size={'1'}>
-                  {camera.cameraFormat.title}
-                </Text>
-              </Flex>
-            )}
-            {camera.cameraFormat && camera.aspectRatio && (
-              <Separator orientation={'vertical'} m={'2'} />
-            )}
-            {camera.aspectRatio && (
-              <Flex title={'Aspect ratio'} align={'center'} gap={'1'}>
-                <CropIcon />
-                <Text color={'gray'} size={'1'}>
-                  {numberToStr(camera.aspectRatio)}
-                </Text>
-              </Flex>
-            )}
-          </Flex>
-          <Flex gap={'1'} justify={'start'}>
-            {camera.focalLength && (
-              <Flex title={'Focal length'} align={'center'} gap={'1'}>
-                <AngleIcon />
-                <Text color={'gray'} size={'1'}>
-                  {numberToStr(camera.focalLength, { unit: 'mm' })}
-                </Text>
-              </Flex>
-            )}
-            {camera.focalLength && camera.focusDistance && (
-              <Separator orientation={'vertical'} m={'2'} />
-            )}
-            {camera.focusDistance && (
-              <Flex title={'Focus line distance'} align={'center'} gap={'1'}>
-                <WidthIcon />
-                <Text color={'gray'} size={'1'}>
-                  {numberToStr(camera.focusDistance, { unit: 'm' })}
-                </Text>
-              </Flex>
-            )}
-          </Flex>
+        <Flex direction={'column'} mt={'1'} height={'max-content'} gap={'1'}>
+          {(camera.cameraFormat || camera.aspectRatio) && (
+            <Flex style={{ minHeight: 40 }} ml={'2'} mr={'2'} gap={'1'} justify={'start'}>
+              {camera.cameraFormat && (
+                <Flex
+                  title={`${camera.cameraFormat.description} — ${formatStr!.x} x ${formatStr!.y}`}
+                  align={'center'}
+                  gap={'1'}
+                >
+                  <MarginIcon />
+                  <Text color={'gray'} size={'1'}>
+                    {camera.cameraFormat.title}
+                  </Text>
+                </Flex>
+              )}
+              {camera.cameraFormat && camera.aspectRatio && (
+                <Separator orientation={'vertical'} m={'2'} />
+              )}
+              {camera.aspectRatio && (
+                <Flex title={'Aspect ratio'} align={'center'} gap={'1'}>
+                  <CropIcon />
+                  <Text color={'gray'} size={'1'}>
+                    {numberToStr(camera.aspectRatio)}
+                  </Text>
+                </Flex>
+              )}
+            </Flex>
+          )}
+          {(camera.focalLength || camera.focusDistance) && (
+            <Flex style={{ minHeight: 40 }} ml={'2'} mr={'2'} gap={'1'} justify={'start'}>
+              {camera.focalLength && (
+                <>
+                  <Flex title={'Focal length'} align={'center'} gap={'1'}>
+                    <AngleIcon />
+                    <Text color={'gray'} size={'1'}>
+                      {numberToStr(camera.focalLength, { unit: 'mm' })}
+                    </Text>
+                  </Flex>
+                  <Separator orientation={'vertical'} m={'2'} />
+                  <Flex title={'Lens angle'} align={'center'} gap={'1'}>
+                    <AngleIcon />
+                    <Text color={'gray'} size={'1'}>
+                      {numberToStr(getCameraLensAngleDeg(camera), { unit: '˚', roundVal: 0 })}
+                    </Text>
+                  </Flex>
+                </>
+              )}
+              {camera.focalLength && camera.focusDistance && (
+                <Separator orientation={'vertical'} m={'2'} />
+              )}
+              {camera.focusDistance && (
+                <Flex title={'Focus line distance'} align={'center'} gap={'1'}>
+                  <WidthIcon />
+                  <Text color={'gray'} size={'1'}>
+                    {numberToStr(camera.focusDistance, { unit: 'm' })}
+                  </Text>
+                </Flex>
+              )}
+            </Flex>
+          )}
+          <Text ml={'2'} mr={'2'} title={'Description'} style={{ whiteSpace: 'pre-wrap' }}>
+            {camera.description}
+          </Text>
           {images.map((image) => (
             <img style={{ marginBottom: 5 }} key={image.id} src={image.dataURL} alt='' />
           ))}
-          <Text title={'Description'} style={{ whiteSpace: 'pre-wrap' }}>
-            {camera.description}
-          </Text>
         </Flex>
       </Collapsible.Content>
     </Collapsible.Root>

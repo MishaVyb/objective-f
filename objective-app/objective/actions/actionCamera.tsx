@@ -32,6 +32,7 @@ import { duplicateElements } from '../../../packages/excalidraw/actions/actionDu
 import { numberToStr, radianToDegrees } from '../elements/math'
 import { getRadixColor } from '../UI/colors'
 import { EasyInput } from '../UI/InputEasyIn'
+import clsx from 'clsx'
 
 type TChangeShotActionValue = 'init' | 'remove' | 'incraseShotNumber' | 'decraseShotNumber'
 
@@ -474,6 +475,7 @@ export const actionChangeCameraDetails = register({
     app,
   }: PanelComponentProps<TChangeDetailsAction>) => {
     const metas = getSelectedCameraMetas(app.scene, appState)
+
     const focalLen = getMetasCommonValue<number, CameraMeta>(metas, 'focalLength')
     const focusDistance = getMetasCommonValue<number, CameraMeta>(metas, 'focusDistance')
     const angle = getMetasCommonValue(metas, (m) => getCameraLensAngleDeg(m))
@@ -482,6 +484,9 @@ export const actionChangeCameraDetails = register({
     const formatDefault = format || DEFAULT_CAMERA_FORMAT
     const aspectRatio = getMetasCommonValue<number, CameraMeta>(metas, 'aspectRatio')
     const lensAngleRepr = getMetasCommonValue(metas, 'lensAngleRepr', false)
+    const isDiscardable = metas.some(
+      (m) => m.focalLength || m.focusDistance || m.cameraFormat || m.aspectRatio
+    )
 
     const onEyeButtonClick = () =>
       updateData({
@@ -497,20 +502,20 @@ export const actionChangeCameraDetails = register({
           <Flex display={'flex'} gap={'1'} justify={'between'} m={'2'}>
             <Select.Root
               size={'1'}
-              value={format?.title}
+              value={format?.title === undefined ? '' : format?.title}
+              // defaultValue={DEFAULT_CAMERA_FORMAT.title}
               onValueChange={(v) => updateData({ newCameraFormat: v })}
             >
               {/* @ts-ignore */}
-              <Select.Trigger placeholder='Format' variant='ghost' />
+              <Select.Trigger title={'Camera format'} placeholder='Format' variant='ghost' />
               <Select.Content>
                 <Select.Group>
                   <Select.Label>{'Pick camera format'}</Select.Label>
                   <Select.Separator />
                   {CAMERA_FORMATS.map((f) => (
-                    <Flex justify={'between'} align={'baseline'}>
+                    <Flex key={f.title} justify={'between'} align={'baseline'}>
                       <Select.Item
                         title={f.description}
-                        key={f.title}
                         value={f.title}
                         className={'objective-select-item'}
                       >
@@ -535,14 +540,16 @@ export const actionChangeCameraDetails = register({
             </Select.Root>
             <Select.Root
               size={'1'}
-              value={aspectRatio === undefined ? undefined : String(aspectRatio)}
+              value={aspectRatio === undefined ? '' : String(aspectRatio)}
+              // defaultValue={String(DEFAULT_ASPECT_RATIO)}
               onValueChange={(v) => updateData({ newAspectRatio: v })}
             >
               <Select.Trigger
+                title={'Aspect ratio'}
                 // @ts-ignore
                 placeholder={'Aspect Ratio'}
                 variant='ghost'
-                style={{ maxWidth: (format?.title.length || 0) < 15 ? 150 : 50 }} // TMP use Flex shrink / grow
+                style={{ maxWidth: (format?.title.length || 0) < 12 ? 150 : 50 }} // TMP use Flex shrink / grow
                 ml={'3'}
                 mr={'2'}
               />
@@ -576,37 +583,37 @@ export const actionChangeCameraDetails = register({
               >
                 {lensAngleRepr ? <EyeOpenIcon /> : <EyeClosedIcon />}
               </IconButton>
-              <IconButton
-                size={'1'}
-                variant={'ghost'}
-                color={'gray'}
-                onClick={() => updateData('discard')}
-                title={''}
-              >
-                <Cross1Icon />
-              </IconButton>
+              {isDiscardable && (
+                <IconButton
+                  title={'Discard settings'}
+                  size={'1'}
+                  variant={'ghost'}
+                  color={'gray'}
+                  onClick={() => updateData('discard')}
+                >
+                  <Cross1Icon />
+                </IconButton>
+              )}
             </Flex>
           </Flex>
           <Flex align={'baseline'} justify={'between'} gap={'1'}>
             {'Focal length'}
-            {focalLen ? (
-              <>
-                <Code
-                  title={`Regarding ${formatDefault?.title} format`}
-                  style={{ marginLeft: 'auto' }}
-                  size={'1'}
-                  weight={'bold'}
-                  color={color}
-                >{`${focalLen}mm`}</Code>
-                <Code
-                  title={'Horizontal angle'}
-                  size={'1'}
-                  color={'gray'}
-                  variant={'ghost'}
-                  weight={'light'} //
-                >{`${angle}˚`}</Code>
-              </>
-            ) : null}
+            <Code
+              className={clsx({ hidden: !focalLen })}
+              style={{ marginLeft: 'auto' }}
+              title={`Regarding ${formatDefault?.title} format`}
+              size={'1'}
+              weight={'bold'}
+              color={color}
+            >{`${focalLen}mm`}</Code>
+            <Code
+              className={clsx({ hidden: !focalLen })}
+              title={'Horizontal angle'}
+              size={'1'}
+              color={'gray'}
+              variant={'ghost'}
+              weight={'light'} //
+            >{`${angle}˚`}</Code>
           </Flex>
           <EasyInput
             min={5}
@@ -617,19 +624,16 @@ export const actionChangeCameraDetails = register({
           />
           <Flex align={'baseline'} justify={'between'} gap={'1'}>
             {'Focus distance'}
-            {focusDistance ? (
-              <>
-                <Code
-                  title={`Distance`}
-                  style={{ marginLeft: 'auto' }}
-                  size={'1'}
-                  weight={'bold'}
-                  color={color}
-                >
-                  {numberToStr(focusDistance / 100, { unit: 'm' })}
-                </Code>
-              </>
-            ) : null}
+            <Code
+              className={clsx({ hidden: !focusDistance })}
+              title={`Distance`}
+              style={{ marginLeft: 'auto' }}
+              size={'1'}
+              weight={'bold'}
+              color={color}
+            >
+              {numberToStr(focusDistance! / 100, { unit: 'm' })}
+            </Code>
           </Flex>
           <EasyInput
             min={0}
