@@ -708,7 +708,7 @@ const ExcalidrawWrapper = () => {
         UIOptions={{
           canvasActions: {
             // VBRN custom UI options
-            changeViewBackgroundColor: false,
+            // changeViewBackgroundColor: false,
             toggleTheme: false,
           },
         }}
