@@ -1,6 +1,10 @@
 import { getElementAbsoluteCoords } from ".";
 import { duplicateObjectiveEventHandler } from "../../../objective-app/objective/elements/events";
-import { duplicateMeta } from "../../../objective-app/objective/meta/initial";
+import {
+  duplicateMeta,
+  getInitialMeta,
+} from "../../../objective-app/objective/meta/initial";
+import { ObjectiveKinds } from "../../../objective-app/objective/meta/types";
 import {
   DEFAULT_ELEMENT_PROPS,
   DEFAULT_FONT_FAMILY,
@@ -407,6 +411,12 @@ export const newLinearElement = (
     endBinding: null,
     startArrowhead: opts.startArrowhead || null,
     endArrowhead: opts.endArrowhead || null,
+    //
+    // VBRN any line is wall // TODO two deferent tool: line and wall
+    customData:
+      opts.type === "line"
+        ? getInitialMeta(ObjectiveKinds.WALL, opts.customData)
+        : opts.customData,
   };
 };
 

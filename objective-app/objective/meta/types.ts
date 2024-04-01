@@ -13,26 +13,26 @@ import { Vector } from '../elements/math'
 import { enumKeyTypeGuardFactory, enumValueTypeGuardFactory } from '../utils/types'
 
 export enum ObjectiveKinds {
-  CAMERA = 'Camera',
-  CHARACTER = 'Character',
-  LIGHT = 'Light',
+  CAMERA = 'camera',
+  CHARACTER = 'character',
+  LIGHT = 'light',
 
-  /** window or door (not wall!) ... */
-  LOCATION = 'Location',
-  // WALL = 'Wall' // TODO
+  /** LAYOUT: window or door (not wall!) */
+  LOCATION = 'location',
+  /** LAYOUT: wall (Excalidraw Line) */
+  WALL = 'wall',
 
   /** furniture (big items) */
-  SET = 'Set',
+  SET = 'set',
   /** small items */
-  PROP = 'Prop',
-  OUTDOR = 'Outdor',
+  PROP = 'prop',
+  OUTDOR = 'outdor',
 
   /** internal */
-  POINTER = 'Pointer',
+  POINTER = 'pointer',
   /** internal: container or nested text */
-  LABEL = 'Label',
+  LABEL = 'label',
 }
-
 
 export const isKindKey = enumKeyTypeGuardFactory(ObjectiveKinds)
 export const isKindValue = enumValueTypeGuardFactory(ObjectiveKinds)
@@ -50,6 +50,8 @@ export type ObjectiveMetas = {
   label: readonly Readonly<LabelMeta>[]
 }
 
+
+
 export type ObjectiveSubkinds =
   // pointer:
   | 'labelPointer'
@@ -59,7 +61,6 @@ export type ObjectiveSubkinds =
   | 'cameraLensAngle'
 
   // location:
-  // | 'wall' // TODO
   | 'window'
   | 'doorClosed'
   | 'doorOpen'
@@ -153,6 +154,8 @@ export type LocationMeta = ObjectiveMeta &
     subkind: 'window' | 'doorClosed' | 'doorOpen'
   }>
 
+export type WallMeta = ObjectiveMeta & Readonly<{ kind: ObjectiveKinds.WALL }>
+
 export type CameraMeta = ObjectiveMeta & {
   kind: ObjectiveKinds.CAMERA
 
@@ -220,12 +223,12 @@ export type _ObjectiveElement<TMeta extends ObjectiveMeta = ObjectiveMeta> = Omi
   'customData'
 > &
   Omit<ExcalidrawFrameElement, 'customData'> & { customData: TMeta }
-/**
- * Readonly `ExcalidrawElement` with explicity meta (customData) type.
- */
+
+/** Readonly `ExcalidrawElement` with explicity meta (customData) type. */
 export type ObjectiveElement<TMeta extends ObjectiveMeta = ObjectiveMeta> = Readonly<
   _ObjectiveElement<TMeta>
 >
+export type ObjectiveWallElement = ExcalidrawLinearElement & { customData: WallMeta }
 
 export const isMeta = (meta: MaybeMeta): meta is ObjectiveMeta => !!meta?.kind
 export const isObjective = (el: MaybeExcalidrawElement): el is ObjectiveElement =>
@@ -257,6 +260,17 @@ export const isKindEl = <T extends ObjectiveKinds>(
   return isKind(arg?.customData, kind)
 }
 
+export const isSubkindEl = <T extends ObjectiveKinds>(
+  arg: MaybeExcalidrawElement,
+  subkind: ObjectiveSubkinds
+): arg is T extends ObjectiveKinds.CAMERA
+  ? ObjectiveElement<CameraMeta>
+  : T extends ObjectiveKinds.LABEL
+  ? ObjectiveElement<LabelMeta>
+  : ObjectiveElement<ObjectiveMeta<T>> => {
+  return isObjective(arg) && arg.customData.subkind === subkind
+}
+
 export const isAllElementsObjective = (elements: readonly ExcalidrawElement[]) =>
   !!elements.length && elements.every((e) => isObjective(e))
 
@@ -281,17 +295,16 @@ export const isCameraMeta = (meta: MaybeMeta): meta is CameraMeta =>
 export const isCameraElement = (el: MaybeExcalidrawElement): el is CameraElement =>
   isCameraMeta(el?.customData)
 
-/** TMP solution when any simple lien is Wall. */
-export const isWallElement = (el: MaybeExcalidrawElement): el is ExcalidrawLinearElement =>
-  !!(el && el.type === 'line' && !el.customData)
+export const isWallElement = (
+  el: MaybeExcalidrawElement | ObjectiveElement<LocationMeta>
+): el is ObjectiveWallElement => isKindEl(el, ObjectiveKinds.WALL)
 
 /** TMP solution when any simple lien is Wall. */
 export const isWallTool = (t: ActiveTool) => t.type === 'line'
 
 export const isLocationMeta = (meta: MaybeMeta): meta is LocationMeta =>
   meta?.kind === ObjectiveKinds.LOCATION
-export const isLocationElement = (el: MaybeExcalidrawElement): el is LocationElement =>
-  isLocationMeta(el?.customData)
+
 /**
  * Is element a camera and is it `shot` camera (camera added to shot list).
  */
@@ -302,9 +315,6 @@ export const isShotCameraMeta = (meta: MaybeMeta): meta is CameraMeta =>
 
 export const isAllElementsCameras = (elements: readonly ExcalidrawElement[]) =>
   elements.every((e) => isCameraElement(e))
-
-export const isAllElementsLocation = (elements: readonly ExcalidrawElement[]) =>
-  elements.every((e) => isLocationElement(e))
 
 export const isImageRelatedToCamera = (camera: CameraMeta, image: ExcalidrawImageElement) =>
   camera.relatedImages.includes(image.id)
@@ -336,6 +346,8 @@ const __test = () => {
   const meta = {} as ObjectiveMeta
   const maybe = {} as MaybeExcalidrawElement
   const obj = {} as ObjectiveElement
+  const wall = {} as ObjectiveWallElement
+
 
   const typeGuard = (el: ExcalidrawElement): el is ObjectiveElement => {
     return true

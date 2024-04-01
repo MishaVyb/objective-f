@@ -6,8 +6,8 @@ import { between } from '../elements/math'
 
 import { rotateMultipleElementsOnAngle } from '../elements/mutateElements'
 import { getLocationSnap } from '../elements/snapElements'
-import { getObjectiveMetas } from '../meta/selectors'
-import { LocationMeta, ObjectiveMeta, isLocationMeta } from '../meta/types'
+import { getObjectiveSingleMeta } from '../meta/selectors'
+import { LocationMeta, ObjectiveKinds, ObjectiveMeta } from '../meta/types'
 import { register } from './register'
 
 /** Internal action called at `onPointerUpFromPointerDownEventHandler` */
@@ -18,11 +18,9 @@ export const actionSnapLocation = register({
     const selected = app.scene.getSelectedElements({
       selectedElementIds: app.state.selectedElementIds,
     })
-    const metas = getObjectiveMetas(selected)
-    const singleObjectiveItem = metas.length === 1
-
-    if (singleObjectiveItem && isLocationMeta(metas[0])) {
-      performRotationLocationOnDragFinalize(selected, metas[0], appState, app.scene)
+    const meta = getObjectiveSingleMeta(selected, { kind: ObjectiveKinds.LOCATION })
+    if (meta) {
+      performRotationLocationOnDragFinalize(selected, meta, appState, app.scene)
     }
 
     return {

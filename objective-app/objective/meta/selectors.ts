@@ -14,15 +14,19 @@ import { AppState, Primitive } from '../../../packages/excalidraw/types'
 import { useExcalidrawFiles } from '../components/ObjectiveInnerWrapper'
 import {
   CameraMeta,
+  LabelMeta,
   MaybeExcalidrawElement,
   ObjectiveElement,
   ObjectiveImageElement,
   ObjectiveKinds,
   ObjectiveMeta,
   ObjectiveMetas,
+  ObjectiveWallElement,
+  PointerMeta,
   ShotCameraMeta,
   isKindEl,
   isObjective,
+  isWallElement,
 } from './types'
 import { isInitializedImageElement } from '../../../packages/excalidraw/element/typeChecks'
 import { randomId } from '../../../packages/excalidraw/random'
@@ -63,7 +67,7 @@ export const getMeta = <TMeta extends ObjectiveMeta>(
  */
 export const getObjectiveId = (element: ObjectiveElement | ObjectiveWallElement) => {
   // NOTE wall is always single line element without group, therefore `objective.id === line.id`
-  // if (isWallElement(element)) return element.id
+  if (isWallElement(element)) return element.id
 
   if (element.groupIds[0]) return element.groupIds[0]
 

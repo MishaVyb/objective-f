@@ -29,7 +29,7 @@ import {
   ObjectiveMeta,
   PointerMeta,
   isCameraMeta,
-  isKind,
+  isKind
 } from '../meta/types'
 import {
   actionSnapLocation,

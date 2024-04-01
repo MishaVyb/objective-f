@@ -1,7 +1,8 @@
 import { decomposeWall } from "../../objective-app/objective/elements/linerElementsEditor";
 import { snapDraggedElementsLocation } from "../../objective-app/objective/elements/snapElements";
 import {
-  isAllElementsLocation,
+
+  isLocationMeta,
   isWallElement,
 } from "../../objective-app/objective/meta/types";
 import { TOOL_TYPE } from "./constants";
@@ -667,7 +668,7 @@ export const snapDraggedElements = (
   event: KeyboardModifiersObject,
   scene: Scene | null = null,
 ) => {
-  if (scene && isAllElementsLocation(selectedElements))
+  if (scene && selectedElements.every((e) => isLocationMeta(e.customData)))
     return snapDraggedElementsLocation(
       selectedElements,
       dragOffset,

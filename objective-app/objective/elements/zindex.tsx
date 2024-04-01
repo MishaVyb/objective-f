@@ -17,7 +17,7 @@ import {
 import { arrayToMap } from '../../../packages/excalidraw/utils'
 import { __DEBUG_DISABLE_ARRANGE } from '../../objective-plus/constants'
 import { getMetaSimple } from '../meta/selectors'
-import { ObjectiveKinds, isKindEl, isObjective, isWallElement } from '../meta/types'
+import { ObjectiveKinds, isKindEl, isObjective, isSubkindEl } from '../meta/types'
 
 // TODO
 // remember order tha user have applied for specific elements
@@ -74,7 +74,7 @@ export const arrangeElements = (elements: ElementsMapOrArray, newEls: ElementsMa
       if (container) els.unshift(container)
     }
 
-    if (isWallElement(el)) wall.push(...els)
+    if (isKindEl(el, ObjectiveKinds.WALL)) wall.push(...els)
     else if (isKindEl(el, ObjectiveKinds.LOCATION)) location.push(...els)
     else if (isKindEl(el, ObjectiveKinds.OUTDOR)) outdoor.push(...els)
     else if (isKindEl(el, ObjectiveKinds.SET)) set.push(...els)
