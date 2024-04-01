@@ -42,6 +42,8 @@ interface ImportMetaEnv {
 
   // VBRN
   VITE_APP_OBJECTIVE_HOST: string;
+  VITE_APP_OBJECTIVE_AUTO_SAVE_INTERVAL: string; // sec
+  VITE_APP_OBJECTIVE_AUTO_LOAD_INTERVAL: string; // sec
 
   VITE_APP_OBJECTIVE_API_FREEZE_MS: string;
   VITE_APP_OBJECTIVE_ENSURE_THEME: "light" | "dark" | "";

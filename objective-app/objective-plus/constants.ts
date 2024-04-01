@@ -2,8 +2,8 @@ import { Theme } from '../../packages/excalidraw/element/types'
 import { getVersion } from '../../packages/excalidraw/utils'
 
 export enum SCENE_PERSISTENCE {
-  AUTO_SAVE_INTERVAL_MS = import.meta.env.DEV ? 1_000 * 2 : 1_000 * 10,
-  AUTO_LOADING_INTERVAL_MS = import.meta.env.DEV ? 1_000 * 2 : 1_000 * 10,
+  AUTO_SAVE_INTERVAL_MS = Number(import.meta.env.VITE_APP_OBJECTIVE_AUTO_SAVE_INTERVAL) * 1000,
+  AUTO_LOADING_INTERVAL_MS = Number(import.meta.env.VITE_APP_OBJECTIVE_AUTO_LOAD_INTERVAL) * 1000,
 }
 
 export const ROOT = import.meta.env.VITE_APP_OBJECTIVE_HOST
@@ -31,9 +31,7 @@ export const __DEBUG_EDITOR = Boolean(import.meta.env.VITE_APP_OBJECTIVE_FULL_ED
 export const __DEBUG_LOG_POINTER_CORDS = Boolean(
   import.meta.env.VITE_APP_OBJECTIVE_LOG_POINTER_CORDS
 )
-export const __DEBUG_DISABLE_ARRANGE = Boolean(
-  import.meta.env.VITE_APP_OBJECTIVE_DISABLE_ARRANGE
-)
+export const __DEBUG_DISABLE_ARRANGE = Boolean(import.meta.env.VITE_APP_OBJECTIVE_DISABLE_ARRANGE)
 export const __DEBUG_DISABLE_APPLY_DEFAULTS = Boolean(
   import.meta.env.VITE_APP_OBJECTIVE_DISABLE_APPLY_DEFAULTS
 )
