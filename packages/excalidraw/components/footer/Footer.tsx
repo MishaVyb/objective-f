@@ -12,6 +12,7 @@ import { HelpButton } from "../HelpButton";
 import { Section } from "../Section";
 import Stack from "../Stack";
 import { UIAppState } from "../../types";
+import { Layers } from "../../../../objective-app/objective/components/Layers";
 
 const Footer = ({
   appState,
@@ -41,6 +42,7 @@ const Footer = ({
       >
         <Stack.Col gap={2}>
           <Section heading="canvasActions">
+            <Layers />
             <ZoomActions
               renderAction={actionManager.renderAction}
               zoom={appState.zoom}
