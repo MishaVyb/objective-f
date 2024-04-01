@@ -14,7 +14,6 @@ import { AppState, Primitive } from '../../../packages/excalidraw/types'
 import { useExcalidrawFiles } from '../components/ObjectiveInnerWrapper'
 import {
   CameraMeta,
-  LabelMeta,
   MaybeExcalidrawElement,
   ObjectiveElement,
   ObjectiveImageElement,
@@ -22,7 +21,6 @@ import {
   ObjectiveMeta,
   ObjectiveMetas,
   ObjectiveWallElement,
-  PointerMeta,
   ShotCameraMeta,
   isKindEl,
   isObjective,
@@ -155,20 +153,20 @@ export const extractObjectiveMetas = (opts?: {
   ]
 }
 
-export const groupByKind = (metas: readonly Readonly<ObjectiveMeta>[]): ObjectiveMetas => {
+export const groupByKind = (metas: readonly Readonly<ObjectiveMeta>[]) => {
   const map = groupBy(metas, 'kind')
   return {
-    camera: (map.get(ObjectiveKinds.CAMERA) || []) as any as readonly CameraMeta[],
+    camera: map.get(ObjectiveKinds.CAMERA) || [],
     character: map.get(ObjectiveKinds.CHARACTER) || [],
     light: map.get(ObjectiveKinds.LIGHT) || [],
     location: map.get(ObjectiveKinds.LOCATION) || [],
-    // wall: map.get(ObjectiveKinds.WALL) || [],
+    wall: map.get(ObjectiveKinds.WALL) || [],
     set: map.get(ObjectiveKinds.SET) || [],
     prop: map.get(ObjectiveKinds.PROP) || [],
     outdor: map.get(ObjectiveKinds.OUTDOR) || [],
-    pointer: (map.get(ObjectiveKinds.POINTER) || []) as any as readonly PointerMeta[],
-    label: (map.get(ObjectiveKinds.LABEL) || []) as any as readonly LabelMeta[],
-  }
+    pointer: map.get(ObjectiveKinds.POINTER) || [],
+    label: map.get(ObjectiveKinds.LABEL) || [],
+  } as any as ObjectiveMetas
 }
 
 /**

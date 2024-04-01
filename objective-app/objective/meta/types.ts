@@ -42,7 +42,7 @@ export type ObjectiveMetas = {
   character: readonly Readonly<ObjectiveMeta>[]
   light: readonly Readonly<ObjectiveMeta>[]
   location: readonly Readonly<ObjectiveMeta>[]
-  // wall: readonly Readonly<ObjectiveMeta>[]
+  wall: readonly Readonly<WallMeta>[]
   set: readonly Readonly<ObjectiveMeta>[]
   prop: readonly Readonly<ObjectiveMeta>[]
   outdor: readonly Readonly<ObjectiveMeta>[]
@@ -51,7 +51,7 @@ export type ObjectiveMetas = {
 }
 
 
-
+/** Subkind is ONLY for declare different on canvas item style, not any special logic or behavior */
 export type ObjectiveSubkinds =
   // pointer:
   | 'labelPointer'
