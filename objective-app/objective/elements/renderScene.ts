@@ -18,7 +18,6 @@ export const renderObjectiveScene = (
   }: StaticSceneRenderConfig,
   context: CanvasRenderingContext2D
 ) => {
-  // visibleElements: readonly NonDeletedExcalidrawElement[]
   const metas = getObjectiveMetas(visibleElements)
   const extraEls: ExcalidrawElement[] = []
   metas.forEach((m) => {

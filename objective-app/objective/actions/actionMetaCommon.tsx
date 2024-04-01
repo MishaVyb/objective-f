@@ -44,12 +44,18 @@ import {
   ExcalidrawElement,
   ExcalidrawRectangleElement,
 } from '../../../packages/excalidraw/element/types'
-import { useEffect, useState } from 'react'
+import { FC, ReactNode, useEffect, useState } from 'react'
 import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
 import { handleMetaRepresentation } from '../elements/metaRepr'
 import { mutateSelectedElsMeta, mutateMeta } from '../elements/mutateElements'
 import clsx from 'clsx'
 import { isElementsScalable } from '../elements/resizeElements'
+
+export const KbdLabel: FC<{ children: ReactNode; style?: any }> = ({ children, style }) => (
+  <Kbd style={style}>
+    <div className='capitalize-first'>{children}</div>
+  </Kbd>
+)
 
 export const actionDisplayMetaHeader = register({
   name: 'actionDisplayMetaHeader',
@@ -71,7 +77,7 @@ export const actionDisplayMetaHeader = register({
     if (metaKind === ObjectiveKinds.CHARACTER || metaKind === ObjectiveKinds.LIGHT)
       return (
         <Flex justify={'between'}>
-          <Kbd>{metaKind}</Kbd>
+          <KbdLabel>{metaKind}</KbdLabel>
         </Flex>
       )
 
@@ -92,11 +98,11 @@ export const actionDisplayMetaHeader = register({
       )
       return (
         <Flex justify={'between'}>
-          <Kbd>{metaKind}</Kbd>
+          <KbdLabel>{metaKind}</KbdLabel>
           {shotNumber ? (
-            <Kbd style={{ minWidth: 30 }}>
+            <KbdLabel style={{ minWidth: 30 }}>
               {shotVersion ? `${shotNumber}-${getCameraVersionStr(shotVersion)}` : `${shotNumber}`}
-            </Kbd>
+            </KbdLabel>
           ) : null}
         </Flex>
       )
@@ -113,7 +119,7 @@ export const actionDisplayMetaHeader = register({
     if (metaKind === ObjectiveKinds.POINTER) {
       return (
         <Flex justify={'between'}>
-          <Kbd>{name || metaKind}</Kbd>
+          <KbdLabel>{name || metaKind}</KbdLabel>
         </Flex>
       )
     }
@@ -122,8 +128,8 @@ export const actionDisplayMetaHeader = register({
     // NOTE: display name here, as we do not display meta name input
     return (
       <Flex justify={'between'}>
-        <Kbd>{metaKind}</Kbd>
-        {name ? <Kbd style={{ minWidth: 30 }}>{name}</Kbd> : null}
+        <KbdLabel>{metaKind}</KbdLabel>
+        {name ? <KbdLabel style={{ minWidth: 30 }}>{name}</KbdLabel> : null}
       </Flex>
     )
   },
