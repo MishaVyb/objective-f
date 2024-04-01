@@ -16,6 +16,11 @@ import { Assert, SameType } from "../utility-types";
 import { randomInteger } from "../random";
 import { toBrandedType } from "../utils";
 import { arrangeElements } from "../../../objective-app/objective/elements/zindex";
+import { ObjectiveMetas } from "../../../objective-app/objective/meta/types";
+import {
+  extractObjectiveMetas,
+  groupByKind,
+} from "../../../objective-app/objective/meta/selectors";
 
 type ElementIdKey =
   | InstanceType<typeof LinearElementEditor>["elementId"]
@@ -143,6 +148,13 @@ class Scene {
   };
   private versionNonce: number | undefined;
 
+  private objectiveMetas = {} as ObjectiveMetas;
+
+  /** none deleted */
+  getObjectiveMetas() {
+    return this.objectiveMetas;
+  }
+
   getElementsMapIncludingDeleted() {
     return this.elementsMap;
   }
@@ -261,6 +273,9 @@ class Scene {
   }
 
   replaceAllElements(nextElements: ElementsMapOrArray, mapElementIds = true) {
+    // VBRN
+    const [objectiveSet, objectiveFinalize] = extractObjectiveMetas();
+
     this.elements =
       // ts doesn't like `Array.isArray` of `instanceof Map`
       nextElements instanceof Array
@@ -268,15 +283,13 @@ class Scene {
         : Array.from(nextElements.values());
     const nextFrameLikes: ExcalidrawFrameLikeElement[] = [];
 
-    // TMP try to catch error
-    this.elements.forEach((maybeElement: any) => {
-      if ("type" in maybeElement) return;
-
-      console.error("Invalid element: ", maybeElement);
-    });
-
     this.elementsMap.clear();
     this.elements.forEach((element) => {
+      // VBRN
+      if (!("type" in element)) console.error("Invalid element: ", element); // TMP try to catch error
+      objectiveSet(element);
+      // VBRN
+
       if (isFrameLikeElement(element)) {
         nextFrameLikes.push(element);
       }
@@ -291,6 +304,9 @@ class Scene {
     this.nonDeletedFramesLikes = getNonDeletedElements(this.frames).elements;
 
     this.informMutation();
+
+    // VBRN
+    this.objectiveMetas = groupByKind(objectiveFinalize());
   }
 
   informMutation() {

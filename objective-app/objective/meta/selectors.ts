@@ -19,16 +19,15 @@ import {
   ObjectiveImageElement,
   ObjectiveKinds,
   ObjectiveMeta,
+  ObjectiveMetas,
   ShotCameraMeta,
-  ensureArray,
-  isCameraElement,
   isKindEl,
   isObjective,
-  isShotCameraElement,
 } from './types'
 import { isInitializedImageElement } from '../../../packages/excalidraw/element/typeChecks'
 import { randomId } from '../../../packages/excalidraw/random'
 import { logger } from 'workbox-core/_private'
+import { groupBy } from '../utils/helpers'
 
 /**
  * Get readonly `el.customData` reference (net copy).
@@ -62,9 +61,14 @@ export const getMeta = <TMeta extends ObjectiveMeta>(
  * @param element objective element
  * @returns first group id of element
  */
-export const getObjectiveId = (element: ObjectiveElement) => {
-  if (!element.groupIds[0]) logger.warn('No objective id: ', element.customData)
-  return element.groupIds[0] || randomId()
+export const getObjectiveId = (element: ObjectiveElement | ObjectiveWallElement) => {
+  // NOTE wall is always single line element without group, therefore `objective.id === line.id`
+  // if (isWallElement(element)) return element.id
+
+  if (element.groupIds[0]) return element.groupIds[0]
+
+  logger.warn('No objective id: ', element.customData)
+  return randomId()
 }
 
 /**
@@ -79,7 +83,6 @@ export const getObjectiveId = (element: ObjectiveElement) => {
  * The same list of elementIds could be accessed from groupId
  *
  * @param elements any elements
- * @param extraPredicate takes only specific metas (custom filter)
  * @param kind takes only specific object kinds (camera \ character \ etc)
  * @returns unique meta instances (non deleted  & readonly)
  */
@@ -87,65 +90,95 @@ export const getObjectiveMetas = <TMeta extends ObjectiveMeta>(
   elements: ElementsMapOrArray,
   opts?: {
     kind?: ObjectiveKinds
-    extraPredicate?: (meta: TMeta) => boolean
     includingDelited?: boolean
-
-    /** @deprecated use `kind` */
-    objectivePredicate?: (el: MaybeExcalidrawElement) => el is ObjectiveElement
   }
 ): readonly Readonly<TMeta>[] => {
-  if (opts?.kind && opts?.objectivePredicate) throw Error('Exclusive options')
+  const [add, finalize] = extractObjectiveMetas(opts)
+  elements.forEach(add)
+  return finalize<TMeta>()
+}
 
-  const kind = opts?.kind
-  const objectivePredicate = kind
-    ? (el: MaybeExcalidrawElement) => isKindEl(el, kind)
-    : opts?.objectivePredicate || isObjective
-  const extraPredicate = opts?.extraPredicate || (() => true)
-  const idsByGroup = new Map<string, string[]>() // groupId : [element.id, element.id, ...]
-  const elementsByGroups = new Map<string, ExcalidrawElement[]>() // groupId : [{...}, {...}, ...]
+/** callbacks factory for `getObjectiveMetas`, could be used directly  */
+export const extractObjectiveMetas = (opts?: {
+  kind?: ObjectiveKinds
+  includingDelited?: boolean
+}) => {
+  const objectivePredicate = opts?.kind
+    ? (e: ExcalidrawElement): e is ObjectiveElement => isKindEl(e, opts.kind as ObjectiveKinds)
+    : (e: ExcalidrawElement): e is ObjectiveElement => isObjective(e)
 
-  return ensureArray(elements)
-    .filter((e): e is ObjectiveElement<TMeta> => {
-      if (!opts?.includingDelited && e.isDeleted) return false // Omit deleted element
-      if (!objectivePredicate(e)) return false // Omit another Objective Element kind
-      const objectiveId = getObjectiveId(e as ObjectiveElement)
+  // store only first element of any meta to use it as week meta ref later
+  const uniqueMetaElement = new Set<ObjectiveElement>()
+  const elementsByGroups = new Map<string, ExcalidrawElement[]>()
 
-      // meta duplicates: append element id and omit meta duplicate
-      if (idsByGroup.has(objectiveId)) {
-        idsByGroup.get(objectiveId)?.push(e.id) // TMP backwards capability! Use elements, not ids.
-        elementsByGroups.get(objectiveId)?.push(e)
-        return false
-      }
+  // LEGACY use elements, not ids
+  const idsByGroup = new Map<string, string[]>()
 
-      idsByGroup.set(objectiveId, [e.id])
-      elementsByGroups.set(objectiveId, [e])
-      return true
-    })
-    .map((e): TMeta => {
+  const addElementCallback = (e: ExcalidrawElement) => {
+    if (!opts?.includingDelited && e.isDeleted) return false
+    if (!objectivePredicate(e)) return false
+
+    const objectiveId = getObjectiveId(e as ObjectiveElement)
+
+    // meta duplicates: append element id and omit meta duplicate
+    if (idsByGroup.has(objectiveId)) {
+      idsByGroup.get(objectiveId)?.push(e.id)
+      elementsByGroups.get(objectiveId)?.push(e)
+      return false
+    }
+
+    idsByGroup.set(objectiveId, [e.id])
+    elementsByGroups.set(objectiveId, [e])
+    uniqueMetaElement.add(e)
+    return true
+  }
+
+  const finalizeCallback = <TMeta extends ObjectiveMeta>(): readonly Readonly<TMeta>[] =>
+    [...uniqueMetaElement].map((e) => {
       const weekMeta = getMetaSimple(e)
       const els = elementsByGroups.get(getObjectiveId(e))
       const ids = idsByGroup.get(getObjectiveId(e))
 
       // NOTE: new API for accessing basis, replacement for `getObjectdiveBasis`
       const basis = els && els[weekMeta.basisIndex || 0] // TODO basis validation ???
-      return getMeta(e, ids, els, basis)
+
+      return getMeta<TMeta>(e as ObjectiveElement<TMeta>, ids, els, basis)
     })
-    .filter((meta) => extraPredicate(meta))
+
+  return [addElementCallback, finalizeCallback] as [
+    typeof addElementCallback,
+    typeof finalizeCallback
+  ]
 }
+
+export const groupByKind = (metas: readonly Readonly<ObjectiveMeta>[]): ObjectiveMetas => {
+  const map = groupBy(metas, 'kind')
+  return {
+    camera: (map.get(ObjectiveKinds.CAMERA) || []) as any as readonly CameraMeta[],
+    character: map.get(ObjectiveKinds.CHARACTER) || [],
+    light: map.get(ObjectiveKinds.LIGHT) || [],
+    location: map.get(ObjectiveKinds.LOCATION) || [],
+    // wall: map.get(ObjectiveKinds.WALL) || [],
+    set: map.get(ObjectiveKinds.SET) || [],
+    prop: map.get(ObjectiveKinds.PROP) || [],
+    outdor: map.get(ObjectiveKinds.OUTDOR) || [],
+    pointer: (map.get(ObjectiveKinds.POINTER) || []) as any as readonly PointerMeta[],
+    label: (map.get(ObjectiveKinds.LABEL) || []) as any as readonly LabelMeta[],
+  }
+}
+
 /**
  * Ensure provided elements are single Objective object and return its metas.
  * If there are no one or many metas found, return null.
  * */
-export const getObjectiveSingleMeta = <TKind extends ObjectiveKinds>(
+export const getObjectiveSingleMeta = <TMeta extends ObjectiveMeta>(
   elements: ElementsMapOrArray,
   opts?: {
-    kind?: TKind
-    objectivePredicate?: (el: MaybeExcalidrawElement) => el is ObjectiveElement
-    extraPredicate?: (meta: ObjectiveMeta<TKind>) => boolean
+    kind?: TMeta['kind']
     includingDelited?: boolean
   }
-): Readonly<ObjectiveMeta<TKind>> | null => {
-  const metas = getObjectiveMetas(elements, opts)
+): Readonly<TMeta> | null => {
+  const metas = getObjectiveMetas<TMeta>(elements, opts)
   if (metas.length === 1) return metas[0]
   return null
 }
@@ -193,7 +226,7 @@ export const getCameraMetas = (
 ) => {
   const cameras = getObjectiveMetas<CameraMeta>(elements, {
     ...opts,
-    objectivePredicate: isCameraElement,
+    kind: ObjectiveKinds.CAMERA,
   })
 
   if (opts?.sort) {
@@ -234,15 +267,11 @@ export const getSelectedCameraMetas = (
 
 export const getShotCameraMetas = (
   elements: readonly ExcalidrawElement[],
-  opts?: {
-    extraPredicate?: (meta: CameraMeta) => boolean
-    includingDelited?: boolean
-  }
+  opts?: { includingDelited?: boolean }
 ) =>
-  getObjectiveMetas<ShotCameraMeta>(elements, {
-    ...opts,
-    objectivePredicate: isShotCameraElement,
-  })
+  getObjectiveMetas<ShotCameraMeta>(elements, { ...opts, kind: ObjectiveKinds.CAMERA }).filter(
+    (c) => c.isShot
+  )
 
 /** @deprecated use `meta.basis` */
 export const getObjectiveBasis = <T extends ExcalidrawElement>(

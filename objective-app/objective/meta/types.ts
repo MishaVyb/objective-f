@@ -10,6 +10,7 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import { ActiveTool, BinaryFileData } from '../../../packages/excalidraw/types'
 import { Vector } from '../elements/math'
+import { enumKeyTypeGuardFactory, enumValueTypeGuardFactory } from '../utils/types'
 
 export enum ObjectiveKinds {
   CAMERA = 'Camera',
@@ -30,6 +31,23 @@ export enum ObjectiveKinds {
   POINTER = 'Pointer',
   /** internal: container or nested text */
   LABEL = 'Label',
+}
+
+
+export const isKindKey = enumKeyTypeGuardFactory(ObjectiveKinds)
+export const isKindValue = enumValueTypeGuardFactory(ObjectiveKinds)
+
+export type ObjectiveMetas = {
+  camera: readonly Readonly<CameraMeta>[]
+  character: readonly Readonly<ObjectiveMeta>[]
+  light: readonly Readonly<ObjectiveMeta>[]
+  location: readonly Readonly<ObjectiveMeta>[]
+  // wall: readonly Readonly<ObjectiveMeta>[]
+  set: readonly Readonly<ObjectiveMeta>[]
+  prop: readonly Readonly<ObjectiveMeta>[]
+  outdor: readonly Readonly<ObjectiveMeta>[]
+  pointer: readonly Readonly<PointerMeta>[]
+  label: readonly Readonly<LabelMeta>[]
 }
 
 export type ObjectiveSubkinds =

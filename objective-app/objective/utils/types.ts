@@ -27,3 +27,15 @@ export const objectKeys = <T extends object>(obj: T) => {
 export const objectValues = <T extends object>(obj: T) => {
   return Object.values(obj) as [ValueOf<T>]
 }
+
+export const enumValueTypeGuardFactory =
+  <T>(enumObject: T) =>
+  (enumValue: any): enumValue is T[keyof T] =>
+    //@ts-ignore
+    Object.values(enumObject).includes(enumValue as T[keyof T])
+
+export const enumKeyTypeGuardFactory =
+  <T>(enumObject: T) =>
+  (enumKey: any): enumKey is keyof T =>
+    //@ts-ignore
+    Object.keys(enumObject).includes(enumKey as keyof T)

@@ -1,5 +1,5 @@
 export const groupBy = <T extends Record<string, any>>(
-  seq: T[],
+  seq: readonly T[],
   field: keyof T
 ): Map<any, T[]> => {
   return seq.reduce((result, current) => {
