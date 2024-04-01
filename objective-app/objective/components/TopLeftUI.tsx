@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useSelector } from '../../objective-plus/hooks/redux'
 import { selectIsPending } from '../../objective-plus/store/projects/reducer'
 import { useExcalidrawAppState } from '../../../packages/excalidraw/components/App'
+import { ToolButton } from '../../../packages/excalidraw/components/ToolButton'
 
 const SHOW_SAVING_DEALOG_DELAY_MS = 1500
 
@@ -22,26 +23,23 @@ const TopLeftUI: FC<{ children: ReactNode }> = ({ children }) => {
   }, [isPending])
 
   return (
-    <Flex
-      gap={'2'}
-      direction={'column'}
-      style={{ maxWidth: '40px' }} //
-    >
+    <Flex gap={'2'} style={{ maxWidth: '40px' }}>
       <Flex gap={'2'}>
-        <IconButton
-          variant={'outline'}
-          color={'gray'}
-          highContrast
-          onClick={() => navigate('/')}
-        >
-          <ArrowLeftIcon />
-        </IconButton>
+        <div className='undo-redo-buttons'>
+          <ToolButton
+            title={'Go back to projects'}
+            type='button'
+            icon={<ArrowLeftIcon />}
+            onClick={() => navigate('/')}
+            aria-label={'undefined'}
+          />
+        </div>
+        {children}
         <Text weight={'bold'} size={'1'}>
           {appState.name}
         </Text>
-        {showSavingDialog && <SymbolIcon />}
+        {showSavingDialog && <SymbolIcon style={{ opacity: '10%' }} />}
       </Flex>
-      {children}
     </Flex>
   )
 }
