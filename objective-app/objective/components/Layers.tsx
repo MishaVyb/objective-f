@@ -8,7 +8,7 @@ import {
   LockOpen1Icon,
 } from '@radix-ui/react-icons'
 import { Button, Flex, IconButton, Popover, Separator, Text } from '@radix-ui/themes'
-import { ObjectiveKinds, isKindValue, isObjective } from '../meta/types'
+import { ObjectiveKinds, ObjectiveMeta, isKindValue, isObjective } from '../meta/types'
 import {
   ElementsMap,
   ExcalidrawElement,
@@ -39,42 +39,45 @@ const Layer: FC<{ kind: ObjectiveKinds[] | ExcalidrawElementType[]; name?: strin
   const elsMap = app.scene.getNonDeletedElementsMap()
   const appState = useExcalidrawAppState()
   const setAppState = useExcalidrawSetAppState()
-  const locked = false
   const layerName = name || kind[0]
-  let elementTypesMap: ReturnType<typeof getElementTypesMap>
+
+  let elementTypesMap: ReturnType<typeof getElementTypesMap> | undefined = undefined
+  const elementIds: string[] = []
+  const groupIds: string[] = []
+  const metas: ObjectiveMeta[] = []
+
+  const locked = false
+
+  for (const k of kind) {
+    if (isKindValue(k)) {
+      for (const meta of app.scene.getObjectiveMetas()[k]) {
+        metas.push(meta)
+        elementIds.push(...meta.elements.map((e) => e.id))
+        groupIds.push(meta.id)
+      }
+    } else {
+      if (!elementTypesMap) elementTypesMap = getElementTypesMap(elsMap)
+
+      const elements = (elementTypesMap.get(k) || []).filter((e) => {
+        if (isObjective(e)) return false
+        if (isTextElement(e) && isObjective(getContainerElement(e, elsMap))) return false
+        return true
+      })
+      elementIds.push(...elements.map((e) => e.id))
+    }
+  }
 
   const onSelectAll = () => {
-    const selectedElementIds: string[] = []
-    const selectedGroupIds: string[] = []
-
-    for (const k of kind) {
-      if (isKindValue(k)) {
-        for (const meta of app.scene.getObjectiveMetas()[k]) {
-          selectedElementIds.push(...meta.elements.map((e) => e.id))
-          selectedGroupIds.push(meta.id)
-        }
-      } else {
-        if (!elementTypesMap) elementTypesMap = getElementTypesMap(elsMap)
-
-        const elements = (elementTypesMap.get(k) || []).filter((e) => {
-          if (isObjective(e)) return false
-          if (isTextElement(e) && isObjective(getContainerElement(e, elsMap))) return false
-          return true
-        })
-        selectedElementIds.push(...elements.map((e) => e.id))
-      }
-    }
-
     setAppState({
       ...appState,
-      selectedGroupIds: Object.fromEntries(selectedGroupIds.map((id) => [id, true])),
-      selectedElementIds: Object.fromEntries(selectedElementIds.map((id) => [id, true])),
+      selectedGroupIds: Object.fromEntries(groupIds.map((id) => [id, true])),
+      selectedElementIds: Object.fromEntries(elementIds.map((id) => [id, true])),
     })
   }
 
   return (
     <Flex gap={'1'} align={'baseline'}>
-      <Text ml={'1'} size={'1'} style={{ minWidth: 100, userSelect: 'none' }}>
+      <Text className='capitalize-first' ml={'1'} size={'1'} style={{ minWidth: 100, userSelect: 'none' }}>
         {layerName}
       </Text>
       <IconButton size={'1'} variant={'soft'} color={'gray'} onClick={() => onSelectAll()}>
@@ -110,7 +113,12 @@ export const Layers: FC = () => {
     // open={true}
     >
       <Popover.Trigger>
-        <Button color={'gray'} variant='soft'>
+        <Button
+          className='objective-gray-button' //
+          mr={'2'}
+          color={'gray'}
+          variant='soft'
+        >
           <LayersIcon />
           {'Layers'}
         </Button>
@@ -134,7 +142,7 @@ export const Layers: FC = () => {
           <Separator size={'4'} m='1' />
           <Layer kind={[ObjectiveKinds.SET, ObjectiveKinds.OUTDOR]} />
           <Separator size={'4'} m='1' />
-          <Layer kind={[ObjectiveKinds.LOCATION]} />
+          <Layer kind={[ObjectiveKinds.LOCATION, ObjectiveKinds.WALL]} />
           <Separator size={'4'} m='1' />
           <Layer kind={['image']} />
           <Separator size={'4'} m='1' />

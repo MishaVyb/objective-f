@@ -1,4 +1,10 @@
-import { GridIcon, LinkBreak2Icon, MixerHorizontalIcon } from '@radix-ui/react-icons'
+import {
+  GridIcon,
+  LinkBreak2Icon,
+  MixerHorizontalIcon,
+  RulerHorizontalIcon,
+  SizeIcon,
+} from '@radix-ui/react-icons'
 import { Footer } from '../../../packages/excalidraw'
 import { ToolButton } from '../../../packages/excalidraw/components/ToolButton'
 import React from 'react'
@@ -9,7 +15,7 @@ import {
 } from '../../../packages/excalidraw/components/App'
 import { actionSettings } from '../actions'
 import { AppState } from '../../../packages/excalidraw/types'
-import { Code, Flex, IconButton, Tooltip } from '@radix-ui/themes'
+import { Code, Flex, IconButton, Kbd, Text, Tooltip } from '@radix-ui/themes'
 import clsx from 'clsx'
 import { getBoldLineGridScaleVerbose } from './ObjectiveSettingsDialog'
 import { actionToggleGridMode } from '../../../packages/excalidraw/actions'
@@ -37,19 +43,27 @@ export const ObjectiveFooter = React.memo(() => {
   return (
     <Footer>
       <Flex gap={'2'}>
-        {appState.gridSize && (
-          <Code color={'lime'} style={{ textDecoration: 'underline', paddingTop: '5px' }}>
+        <Flex
+          style={{ visibility: appState.gridSize ? 'inherit' : 'hidden' }}
+          direction={'column'}
+          justify={'center'}
+          align={'center'}
+        >
+          {/* <Kbd>{scale}</Kbd> */}
+          <Text size={'1'} weight={'light'}>
             {scale}
-          </Code>
-        )}
+          </Text>
+          <RulerHorizontalIcon width={20} height={20} />
+        </Flex>
+
         {appState.gridSize && (
           <IconButton
             title={`Snap to grid — ${getShortcutFromShortcutName(actionToggleGridSnapMode.name)}`}
-            variant={'outline'}
             className={clsx(
               'objective-toggled-icon-button',
-              { active: appState.gridSnappingEnabled } //
+              { toggled: appState.gridSnappingEnabled } //
             )}
+            variant={'soft'}
             color={'gray'}
             onClick={() =>
               setAppState(
@@ -63,11 +77,11 @@ export const ObjectiveFooter = React.memo(() => {
 
         <IconButton
           title={`Show grid — ${getShortcutFromShortcutName(actionToggleGridMode.name)}`}
-          variant={'outline'}
           className={clsx(
             'objective-toggled-icon-button',
-            { active: appState.gridSize } //
+            { toggled: appState.gridSize } //
           )}
+          variant={'soft'}
           color={'gray'}
           onClick={() =>
             setAppState(

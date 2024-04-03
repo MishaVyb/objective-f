@@ -53,10 +53,8 @@ const ShotListSidebarContent: FC = () => {
       style={{ height: '100%', overflowY: 'scroll' }}
     >
       {/* TODO CONTROLS
-        -- select All Cameras
         -- collapse all collapsible
         -- re-order ???
-
       */}
       {groupCameras.map(([key, cameras], i) => {
         return (

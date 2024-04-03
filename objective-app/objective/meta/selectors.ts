@@ -218,6 +218,7 @@ export const getMetasCommonValue = <
 export const getSelectedSceneEls = (scene: Scene, appState: AppState) =>
   scene.getSelectedElements({ selectedElementIds: appState.selectedElementIds })
 
+/** @deprecated `scene.getObjectiveMetas().camera` should be used */
 export const getCameraMetas = (
   elements: readonly ExcalidrawElement[],
   opts?: {
@@ -267,6 +268,7 @@ export const getSelectedCameraMetas = (
   }
 ) => getCameraMetas(getSelectedSceneEls(scene, appState), opts)
 
+/** @deprecated `scene.getObjectiveMetas().camera` should be used */
 export const getShotCameraMetas = (
   elements: readonly ExcalidrawElement[],
   opts?: { includingDelited?: boolean }
