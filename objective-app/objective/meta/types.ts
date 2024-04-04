@@ -9,6 +9,7 @@ import {
   InitializedExcalidrawImageElement,
 } from '../../../packages/excalidraw/element/types'
 import { ActiveTool, BinaryFileData } from '../../../packages/excalidraw/types'
+import { arrayToMap } from '../../../packages/excalidraw/utils'
 import { Vector } from '../elements/math'
 import { enumKeyTypeGuardFactory, enumValueTypeGuardFactory } from '../utils/types'
 
@@ -49,7 +50,6 @@ export type ObjectiveMetas = {
   pointer: readonly Readonly<PointerMeta>[]
   label: readonly Readonly<LabelMeta>[]
 }
-
 
 /** Subkind is ONLY for declare different on canvas item style, not any special logic or behavior */
 export type ObjectiveSubkinds =
@@ -338,6 +338,7 @@ export const isNotSelectableOnGroupSelection = (el: ExcalidrawElement) =>
 // ---------------------------------------------------------------------- helper functions
 
 export const ensureArray = (els: ElementsMapOrArray) => ('values' in els ? [...els.values()] : els)
+export const ensureMap = arrayToMap // alias
 
 //--------------------- TS tests ------------------------ //
 
@@ -347,7 +348,6 @@ const __test = () => {
   const maybe = {} as MaybeExcalidrawElement
   const obj = {} as ObjectiveElement
   const wall = {} as ObjectiveWallElement
-
 
   const typeGuard = (el: ExcalidrawElement): el is ObjectiveElement => {
     return true

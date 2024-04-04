@@ -49,7 +49,6 @@ export const ObjectiveFooter = React.memo(() => {
           justify={'center'}
           align={'center'}
         >
-          {/* <Kbd>{scale}</Kbd> */}
           <Text size={'1'} weight={'light'}>
             {scale}
           </Text>

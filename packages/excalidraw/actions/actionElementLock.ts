@@ -7,7 +7,7 @@ import { KEYS } from "../keys";
 import { arrayToMap } from "../utils";
 import { register } from "./register";
 
-const shouldLock = (elements: readonly ExcalidrawElement[]) =>
+export const shouldLock = (elements: readonly ExcalidrawElement[]) =>
   elements.every((el) => !el.locked);
 
 export const actionToggleElementLock = register({

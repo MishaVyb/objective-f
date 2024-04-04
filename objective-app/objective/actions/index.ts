@@ -5,7 +5,7 @@ export { actionInitStoryboard } from './actionStoryboard'
 export { actionSnapLocation } from './actionLocation'
 export { actionSettings } from './actionSettings'
 export { actionMoveCharacterToFrom } from './actionCharacter'
+export { actionChangeOpacityObjective } from './actionElements'
 
 // base:
-export { register } from './register'
-export { objectiveActions } from './register'
+export { register, objectiveActions } from './register'

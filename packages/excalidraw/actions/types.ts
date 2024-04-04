@@ -164,7 +164,11 @@ export type ActionName =
 
   // internal:
   | "actionCreatePointer"
-  | "actionDeletePointer";
+  | "actionDeletePointer"
+
+  // elements properties:
+  | "changeOpacityObjective"
+  | "toggleElementLockObjective";
 
 export type PanelComponentProps<TFormData = any> = {
   elements: readonly ExcalidrawElement[];
