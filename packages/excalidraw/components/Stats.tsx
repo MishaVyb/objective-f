@@ -50,6 +50,18 @@ export const Stats = (props: {
     );
   const basisPoints = basis && getBasisPoints(basis);
 
+  const appStateInfo = () =>
+    objectEntries(props.appState).map(([k, v]) => {
+      const repr =
+        v && typeof v === "object" ? String(objectEntries(v)) : String(v);
+      return (
+        <Flex justify={"between"} key={k}>
+          <Text>{k}</Text>
+          <Code>{repr.slice(0, 50)}</Code>
+        </Flex>
+      );
+    });
+
   const objectiveMetaInfo = () =>
     singleMeta && (
       <div>
@@ -380,6 +392,7 @@ export const Stats = (props: {
             <Tabs.Trigger value="default">XY</Tabs.Trigger>
             <Tabs.Trigger value="fullElementsInfo">Els</Tabs.Trigger>
             <Tabs.Trigger value="custom">Sys</Tabs.Trigger>
+            <Tabs.Trigger value="appState">App State</Tabs.Trigger>
             <Tabs.Trigger value="envObjective">Env Obj</Tabs.Trigger>
             <Tabs.Trigger value="envExcalidraw">Env Exc</Tabs.Trigger>
           </Tabs.List>
@@ -394,6 +407,7 @@ export const Stats = (props: {
           <Tabs.Content value="custom">
             {props.renderCustomStats?.(props.elements, props.appState)}
           </Tabs.Content>
+          <Tabs.Content value="appState">{appStateInfo()}</Tabs.Content>
 
           <Tabs.Content value="envObjective">{envObjectiveInfo()}</Tabs.Content>
           <Tabs.Content value="envExcalidraw">
