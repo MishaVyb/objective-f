@@ -111,6 +111,8 @@ export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readon
   elements: readonly ObjectiveElement[]
   /** Excalidraw primitive element. Populated by `getMetas` regarding to `basisIndex` */
   basis: ExcalidrawElement | undefined
+  /** is invisible bases that used only to make custom bounding borders */
+  isInternalBasis?: boolean
 
   //
   //
@@ -327,7 +329,12 @@ export const isPointerElement = (el: MaybeExcalidrawElement): el is PointerEleme
 
 export const isDisplayed = (el: ExcalidrawElement) => (el.opacity > 5 ? true : false)
 
-export const isHiddenObjective = (el: ExcalidrawElement) =>
+/**
+ * NOTE:
+ * Should be used in pair with `getInvisibleBasisFromMetas`,
+ * because `invisibleBasis` is not Objective hidden.
+ * */
+export const isObjectiveHidden = (el: ExcalidrawElement) =>
   //isObjective(el) && // FIXME storyboard image are not marked as Objective, so skip that condition
   el.opacity === 0 && el.locked
 

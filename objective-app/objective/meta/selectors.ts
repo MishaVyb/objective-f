@@ -283,6 +283,19 @@ export const getObjectiveBasis = <T extends ExcalidrawElement>(
 ): T | undefined =>
   (meta?.elements?.length && (meta.elements[meta.basisIndex || 0] as T)) || undefined
 
+export const getInternalElementsSet = (elements: readonly ExcalidrawElement[]) =>
+  new Set(
+    getObjectiveMetas(elements)
+      .filter((m) => m.isInternalBasis)
+      .map((m) => m.basis)
+  )
+
+export const getInternalElementsFromMetas = (metas: readonly ObjectiveMeta[]) =>
+  new Set(metas.filter((m) => m.isInternalBasis).map((m) => m.basis))
+
+export const getNotInternalElementsFromMeta = (meta: ObjectiveMeta) =>
+  meta.isInternalBasis ? meta.elements.filter((e) => e !== meta.basis) : meta.elements
+
 /**
  * we do not store ids of pointer at any special meta field,
  * so extract all lines/arrays from element.boundElements and find common elements,

@@ -97,6 +97,10 @@ import { hasStrokeColor } from "../scene/comparisons";
 import { arrayToMap, getShortcutKey } from "../utils";
 import { register } from "./register";
 import { __DEBUG_EDITOR } from "../../../objective-app/objective-plus/constants";
+import {
+  getInternalElementsSet,
+  getSelectedSceneEls,
+} from "../../../objective-app/objective/meta/selectors";
 
 const FONT_SIZE_RELATIVE_INCREASE_STEP = 0.1;
 
@@ -595,14 +599,18 @@ export const actionChangeStrokeStyle = register({
 export const actionChangeOpacity = register({
   name: "changeOpacity",
   trackEvent: false,
-  perform: (elements, appState, value) => {
+  perform: (elements, appState, value, app) => {
+    const objectiveInternals = getInternalElementsSet(
+      getSelectedSceneEls(app.scene, appState),
+    );
+
     return {
       elements: changeProperty(
         elements,
         appState,
         (el) =>
           newElementWith(el, {
-            opacity: value,
+            opacity: objectiveInternals.has(el) ? el.opacity : value,
           }),
         true,
       ),

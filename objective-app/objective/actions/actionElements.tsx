@@ -2,7 +2,8 @@ import { newElementWith } from '../../../packages/excalidraw'
 import { shouldLock } from '../../../packages/excalidraw/actions/actionElementLock'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { arrayToMap } from '../../../packages/excalidraw/utils'
-import { ensureArray, isHiddenObjective } from '../meta/types'
+import { getInternalElementsSet } from '../meta/selectors'
+import { isObjectiveHidden } from '../meta/types'
 import { register } from './register'
 
 type TChangeOpacityObjective = {
@@ -14,7 +15,11 @@ export const actionChangeOpacityObjective = register({
   name: 'changeOpacityObjective',
   trackEvent: false,
   perform: (elements, appState, payload: TChangeOpacityObjective) => {
-    const elementsToAffectMap = new Map(payload.elements.map((el) => [el.id, el]))
+    const objectiveInternals = getInternalElementsSet(payload.elements)
+    const elementsToAffectMap = new Map(
+      payload.elements.filter((e) => !objectiveInternals.has(e)).map((el) => [el.id, el])
+    )
+
     return {
       elements: elements.map((el) =>
         elementsToAffectMap.get(el.id)
@@ -46,6 +51,7 @@ export const actionToggleElementLockObjective = register({
         includeBoundTextElement: true,
         includeElementsInFrames: true,
       })
+    const internalObjective = getInternalElementsSet(selectedElements)
 
     if (!selectedElements.length) {
       return false
@@ -56,14 +62,14 @@ export const actionToggleElementLockObjective = register({
 
     const selectedElementsMap = arrayToMap(selectedElements)
     return {
-      elements: elements.map((element) => {
-        if (!selectedElementsMap.has(element.id)) {
-          return element
+      elements: elements.map((e) => {
+        if (!selectedElementsMap.has(e.id)) {
+          return e
         }
 
-        return newElementWith(element, {
+        return newElementWith(e, {
           locked: nextLockState,
-          opacity: isHiddenObjective(element) ? 100 : element.opacity,
+          opacity: isObjectiveHidden(e) && !internalObjective.has(e) ? 100 : e.opacity,
         })
       }),
       appState: {

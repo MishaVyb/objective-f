@@ -11,7 +11,7 @@ import { Button, Flex, IconButton, Popover, Separator, Text } from '@radix-ui/th
 import {
   ObjectiveKinds,
   ObjectiveMeta,
-  isHiddenObjective,
+  isObjectiveHidden,
   isKindValue,
   isObjective,
 } from '../meta/types'
@@ -33,6 +33,8 @@ import {
   actionChangeOpacityObjective,
   actionToggleElementLockObjective,
 } from '../actions/actionElements'
+import { getNotInternalElementsFromMeta } from '../meta/selectors'
+import { isBoundToContainer } from '../../../packages/excalidraw/element/typeChecks'
 
 const getElementTypesMap = (els: readonly ExcalidrawElement[] | ElementsMap) => {
   const elementTypesMap = new Map<ExcalidrawElementType, ExcalidrawElement[]>([])
@@ -56,15 +58,18 @@ const Layer: FC<{
 
   let elementTypesMap: ReturnType<typeof getElementTypesMap> | undefined = undefined
   const elements: ExcalidrawElement[] = []
+  const notInternalElements: ExcalidrawElement[] = []
   const elementIds: string[] = []
   const groupIds: string[] = []
   const metas: ObjectiveMeta[] = []
+  // const objectiveInternals = getInvisibleBasisFromMetas(metas)
 
   for (const k of kind) {
     if (isKindValue(k)) {
       for (const meta of app.scene.getObjectiveMetas()[k]) {
         metas.push(meta)
         elements.push(...meta.elements)
+        notInternalElements.push(...getNotInternalElementsFromMeta(meta))
         elementIds.push(...meta.elements.map((e) => e.id))
         groupIds.push(meta.id)
       }
@@ -77,6 +82,7 @@ const Layer: FC<{
         return true
       })
       elements.push(...currentTypeElements)
+      notInternalElements.push(...currentTypeElements)
       elementIds.push(...currentTypeElements.map((e) => e.id))
     }
   }
@@ -129,15 +135,18 @@ const Layer: FC<{
     }
   }
 
-  const isLocked = elements.every((e) => e.locked)
-  const isDisplayed = elements.every((e) => e.opacity === 100)
-  const isHidden = elements.every((e) => isHiddenObjective(e))
+  const isLocked = notInternalElements.every((e) => e.locked)
+  const isHidden = notInternalElements.every((e) => isObjectiveHidden(e))
 
   const COMMON_OPACITY_VALUE = 50
   let opacityValue: number | undefined
-  for (const e of elements) {
+  for (const e of notInternalElements) {
     if (opacityValue === undefined) opacityValue = e.opacity
-    if (opacityValue !== e.opacity) opacityValue = COMMON_OPACITY_VALUE
+    if (opacityValue !== e.opacity) {
+      if (isBoundToContainer(e)) continue // will take opecity from container, not from text inself
+      if (e.opacity === 100) opacityValue = 100 // 100% always takes priority on other values
+      else opacityValue = COMMON_OPACITY_VALUE
+    }
   }
 
   const [lastUsedValue, setLastUsedValue] = useState({

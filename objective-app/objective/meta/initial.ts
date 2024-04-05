@@ -11,6 +11,29 @@ import {
   isObjective,
 } from './types'
 
+// export const CAMERA_META_INITIAL_OVERRIDES: Partial<AnyObjectiveMeta> =
+// export const CHARACTER_META_INITIAL_OVERRIDES: Partial<AnyObjectiveMeta> = {
+//   isInternalBasis: true,
+// }
+
+const _DEFAULT_META_OVERRIDES: Record<ObjectiveKinds, Partial<AnyObjectiveMeta>> = {
+  camera: {
+    isInternalBasis: true,
+    relatedImages: [],
+  },
+  character: {
+    isInternalBasis: true,
+  },
+  light: {},
+  location: {},
+  wall: {},
+  set: {},
+  prop: {},
+  outdor: {},
+  pointer: {},
+  label: {},
+}
+
 /**
  * NOTE: dont forget apply all defaults here and at duplicateMeta function bellow
  *
@@ -28,20 +51,11 @@ export const getInitialMeta = <T extends ObjectiveKinds>(
   name: undefined,
   nameRepr: undefined,
   basisIndex: 0,
+  isInternalBasis: false,
   disableResize: true,
+  ..._DEFAULT_META_OVERRIDES[kind],
   ...overriddes,
 })
-
-export const cameraInitialMeta: CameraMeta = {
-  ...getInitialMeta(ObjectiveKinds.CAMERA),
-
-  isShot: undefined,
-  shotNumber: undefined,
-  shotVersion: undefined,
-  focalLength: undefined,
-
-  relatedImages: [],
-}
 
 /**
  * Initialize new meta. Some values are copied, some other taken from initial Meta.
@@ -53,18 +67,27 @@ export const duplicateMeta = (newElement: Mutable<ExcalidrawElement>) => {
   if (!isObjective(newElement)) return
   const weekMeta = getMetaSimple(newElement)
 
+  // common:
+  Object.assign(
+    newElement.customData,
+    getInitialMeta(weekMeta.kind, {
+      name: weekMeta.name,
+      description: weekMeta.description,
+      disableResize: weekMeta.disableResize,
+
+      // HACK
+      // pass here TMP id in order to tell `duplicateObjectiveEventHandler` hat Object has nameRep.
+      // So it will recreate Label with new id and provide that id here as well.
+      nameRepr: weekMeta.nameRepr ? randomId() : undefined,
+    })
+  )
+
+  // per kind:
   if (isCameraMeta(weekMeta)) {
     Object.assign(
       newElement.customData,
       getInitialMeta(ObjectiveKinds.CAMERA, {
-        name: weekMeta.name,
-        description: weekMeta.description,
-        disableResize: weekMeta.disableResize,
-
-        // HACK
-        // pass here TMP id in order to tell `duplicateObjectiveEventHandler` hat Object has nameRep.
-        // So it will recreate Label with new id and provide that id here as well.
-        nameRepr: weekMeta.nameRepr ? randomId() : undefined,
+        ...newElement.customData,
 
         isShot: weekMeta.isShot,
         shotNumber: weekMeta.shotNumber, // do not incrase shot number atomatecly, user will do it by himself
@@ -74,22 +97,6 @@ export const duplicateMeta = (newElement: Mutable<ExcalidrawElement>) => {
         cameraFormat: weekMeta.cameraFormat,
         aspectRatio: weekMeta.aspectRatio,
         lensAngleRepr: weekMeta.lensAngleRepr,
-
-
-        // initial values
-        relatedImages: [],
-      })
-    )
-  } else {
-    Object.assign(
-      newElement.customData,
-      getInitialMeta(weekMeta.kind, {
-        name: weekMeta.name,
-        description: weekMeta.description,
-        disableResize: weekMeta.disableResize,
-
-        // HACK
-        nameRepr: weekMeta.nameRepr ? randomId() : undefined,
       })
     )
   }

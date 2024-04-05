@@ -18,9 +18,9 @@ const OBJ_COLORS = [
   // COLOR_PALETTE.gray[OBJ_COLOR_SHADE_INDEX],
 ]
 
-const createObj = (clipboardObj: ElementsClipboard, primary_color: string): LibraryItem => {
+const createObj = (clipboardObj: ElementsClipboard, primaryColor: string): LibraryItem => {
   return createObjFromClipboard(clipboardObj, '', ObjectiveKinds.CHARACTER, {
-    backgroundColor: primary_color,
+    backgroundColor: primaryColor,
   })
 }
 

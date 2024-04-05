@@ -1,5 +1,5 @@
 import { getObjectiveMetas } from "../../../objective-app/objective/meta/selectors";
-import { isHiddenObjective } from "../../../objective-app/objective/meta/types";
+import { isObjectiveHidden } from "../../../objective-app/objective/meta/types";
 import { newElementWith } from "../element/mutateElement";
 import { isFrameLikeElement } from "../element/typeChecks";
 import { ExcalidrawElement } from "../element/types";
@@ -95,17 +95,17 @@ export const actionUnlockAllElements = register({
   viewMode: false,
   predicate: (elements) => {
     return elements.some(
-      (element) => !isHiddenObjective(element) && element.locked,
+      (element) => !isObjectiveHidden(element) && element.locked,
     );
   },
   perform: (elements, appState) => {
     const lockedElements = elements.filter(
-      (el) => !isHiddenObjective(el) && el.locked,
+      (el) => !isObjectiveHidden(el) && el.locked,
     );
 
     return {
       elements: elements.map((element) => {
-        if (!isHiddenObjective(element) && element.locked) {
+        if (!isObjectiveHidden(element) && element.locked) {
           return newElementWith(element, { locked: false });
         }
         return element;

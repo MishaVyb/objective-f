@@ -86,7 +86,7 @@ export const ObjectiveSettingsDialog = ({ onClose }: { onClose?: () => void }) =
             list='tickmarks'
           />
           {/* TODO REFACTOR RANGE OPTIONS VALUES */}
-          {!DEBUG_MODES && (
+          {!DEBUG_MODES.length && (
             <>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <label className='control-label'>0.5m</label>
