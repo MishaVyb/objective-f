@@ -183,7 +183,7 @@ const APP_STATE_STORAGE_CONF = (<
   isRotating: { browser: false, export: false, server: false },
   lastPointerDownWith: { browser: true, export: false, server: false },
   multiElement: { browser: false, export: false, server: false },
-  name: { browser: true, export: false, server: false },
+  name: { browser: true, export: true, server: true },
   offsetLeft: { browser: false, export: false, server: false },
   offsetTop: { browser: false, export: false, server: false },
   contextMenu: { browser: false, export: false, server: false },

@@ -2,11 +2,13 @@ import { DotsVerticalIcon, PlusIcon } from '@radix-ui/react-icons'
 import {
   Box,
   Button,
+  Code,
   Dialog,
   DropdownMenu,
   Flex,
   Heading,
   IconButton,
+  Tabs,
   Text,
   TextField,
 } from '@radix-ui/themes'
@@ -30,6 +32,12 @@ import {
 } from '../store/projects/reducer'
 import { useNavigate } from 'react-router-dom'
 import { ACCENT_COLOR } from '../constants'
+import { getDefaultAppState } from '../../../packages/excalidraw/appState'
+import { AppState } from '../../../packages/excalidraw/types'
+import { RestoredAppState } from '../../../packages/excalidraw/data/restore'
+import { loadFromJSON } from '../../../packages/excalidraw/data'
+
+const DEFAULT_SCENE_NAME = 'Untitled Scene'
 
 const SceneCard: FC<{ children: ReactNode; className?: string; onClick?: () => void }> = ({
   children,
@@ -52,11 +60,14 @@ const SceneCard: FC<{ children: ReactNode; className?: string; onClick?: () => v
   )
 }
 
-const SceneNewItem: FC = () => {
+const AddSceneItem: FC = () => {
   const project = useSelector(selectToggledProject)
   const dispatch = useDispatch()
-  const [name, setName] = useState('Untitled Scene')
+  const [name, setName] = useState('')
   const [open, setOpen] = useState(false)
+
+  // Excalidraw initialize appState from last openned scene (from local storage)
+  const lastUsedAppState: RestoredAppState = getDefaultAppState()
 
   if (!project) return <></>
 
@@ -68,16 +79,40 @@ const SceneNewItem: FC = () => {
     setOpen(false)
     dispatch(
       loadCreateScene({
-        name,
+        name: name || DEFAULT_SCENE_NAME,
         project_id: project?.id,
-        // @ts-ignore // Excalidraw initialize appState from last openned scene (from local storage)
-        appState: {},
+        appState: lastUsedAppState,
         elements: [],
       })
     )
       .unwrap()
       .then(() => dispatch(loadProjects({})))
   }
+  const onOpenFile = () => {
+    setOpen(false)
+    loadFromJSON(lastUsedAppState as any as AppState, [])
+      .then((v) =>
+        dispatch(
+          loadCreateScene({
+            name: v.appState.name,
+            project_id: project?.id,
+            appState: v.appState,
+            elements: v.elements,
+          })
+        )
+          .unwrap()
+          .then(() => dispatch(loadProjects({})))
+      )
+      .catch((error) => {
+        if (error?.name === 'AbortError') {
+          console.warn(error)
+          return // do nothing
+        }
+        // TODO error dialog / message
+        return
+      })
+  }
+
   return (
     <SceneCard className='ghost' onClick={() => onClick()}>
       <Flex
@@ -92,41 +127,68 @@ const SceneNewItem: FC = () => {
           color={ACCENT_COLOR}
           style={{ paddingRight: 20 }} // HACK: center
         >
-          <PlusIcon /> New Scene
+          <PlusIcon />
+          {' Add'}
         </Text>
 
         <div onClick={(e) => e.stopPropagation()}>
           <Dialog.Root open={open} onOpenChange={setOpen}>
             <Dialog.Content style={{ maxWidth: 450 }} onCloseAutoFocus={(e) => e.preventDefault()}>
-              <Dialog.Title>Scene</Dialog.Title>
-              <Dialog.Description size='2' mb='4'>
-                Create New Scene
-              </Dialog.Description>
+              <Dialog.Title>Add Scene</Dialog.Title>
 
-              <label>
-                <Text as='div' size='1' mb='1' color={'gray'}>
-                  Name
-                </Text>
-                <TextField.Input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder='Enter scene name'
-                  onKeyUp={(e) => e.key === 'Enter' && onCreate()}
-                />
-              </label>
+              <Tabs.Root defaultValue='new'>
+                <Tabs.List size={'2'}>
+                  <Tabs.Trigger value='new'>New Scene</Tabs.Trigger>
+                  <Tabs.Trigger value='open'>Open Scene</Tabs.Trigger>
+                </Tabs.List>
 
-              <Flex gap='3' mt='4' justify='end'>
-                <Dialog.Close>
-                  <Button variant='soft' color='gray'>
-                    Cancel
-                  </Button>
-                </Dialog.Close>
-                <Dialog.Close>
-                  <Button variant={'soft'} onClick={onCreate}>
-                    Create
-                  </Button>
-                </Dialog.Close>
-              </Flex>
+                <Tabs.Content value='new'>
+                  <Flex style={{ height: 150 }} direction={'column'} justify={'between'}>
+                    <Flex direction={'column'} mt='4' gap={'1'}>
+                      <Text as='div' size='1' color={'gray'}>
+                        Name
+                      </Text>
+                      <TextField.Input
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder='Enter scene name'
+                        onKeyUp={(e) => e.key === 'Enter' && onCreate()}
+                      />
+                    </Flex>
+                    <Flex gap='3' justify='end'>
+                      <Dialog.Close>
+                        <Button variant='soft' color='gray'>
+                          Cancel
+                        </Button>
+                      </Dialog.Close>
+                      <Dialog.Close>
+                        <Button variant={'soft'} onClick={onCreate}>
+                          Create
+                        </Button>
+                      </Dialog.Close>
+                    </Flex>
+                  </Flex>
+                </Tabs.Content>
+                <Tabs.Content value='open'>
+                  <Flex style={{ height: 150 }} direction={'column'} justify={'between'}>
+                    <Text as='div' size='2' mt='4' color={'gray'}>
+                      Open <Code>.objective</Code> scene from local disk
+                    </Text>
+                    <Flex gap='3' justify='end'>
+                      <Dialog.Close>
+                        <Button variant='soft' color='gray'>
+                          Cancel
+                        </Button>
+                      </Dialog.Close>
+                      <Dialog.Close>
+                        <Button variant={'soft'} onClick={onOpenFile}>
+                          Open File ...
+                        </Button>
+                      </Dialog.Close>
+                    </Flex>
+                  </Flex>
+                </Tabs.Content>
+              </Tabs.Root>
             </Dialog.Content>
           </Dialog.Root>
         </div>
@@ -259,7 +321,7 @@ const ScenesList = () => {
         {scenes.map((p) => (
           <SceneItem key={p.id} scene={p} />
         ))}
-        <SceneNewItem />
+        <AddSceneItem />
       </Flex>
     </Box>
   )

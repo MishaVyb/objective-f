@@ -25,9 +25,12 @@ import { objectEntries, objectValues } from '../utils/types'
 
 import { DEFAULT_GRID_MODE, getGridMode } from './ObjectiveSettingsDialog'
 import { RestoredAppState } from '../../../packages/excalidraw/data/restore'
+import { clearAppStateForDatabase } from '../../../packages/excalidraw/appState'
 
-/** ref: RestoredAppState */
+// NOTE: we are using clearAppStateForDatabase, but to be sure those properties are not taken from
+// server, use this exclude:
 const EXCLUDE_APP_STATE_VALUES = new Set<keyof AppState>([
+  // ref: RestoredAppState
   'offsetTop',
   'offsetLeft',
   'width',
@@ -64,6 +67,9 @@ const ObjectiveOuterWrapper: FC<{
           ) as RestoredAppState
 
           const serializedAppState: RestoredAppState = {
+            // current
+            ...excalidrawApi.getAppState(),
+
             // from server
             ...restoredAppState,
 
@@ -72,7 +78,7 @@ const ObjectiveOuterWrapper: FC<{
             collaborators: new Map([]),
 
             // overrides (debug)
-            theme: __DEBUG_ENSURE_THEME ? __DEBUG_ENSURE_THEME : scene.appState.theme,
+            theme: __DEBUG_ENSURE_THEME ? __DEBUG_ENSURE_THEME : scene.appState.theme || 'light',
           }
 
           // ensure objective settings
@@ -146,7 +152,7 @@ const ObjectiveOuterWrapper: FC<{
       loadUpdateScene({
         id: sceneId!,
         elements: els,
-        appState: excalidrawApi.getAppState(),
+        appState: clearAppStateForDatabase(excalidrawApi.getAppState()),
       })
     )
       .unwrap()
