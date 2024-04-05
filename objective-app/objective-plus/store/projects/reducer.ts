@@ -35,7 +35,7 @@ export interface ISceneFull extends ISceneSimplified {
   version: number
   source: string
   elements: readonly ExcalidrawElement[] // JSON
-  appState: AppState // JSON
+  appState: Omit<AppState, 'offsetTop' | 'offsetLeft' | 'width' | 'height'> // JSON (RestoredAppState)
 
   /** Excalidraw file IDs currently stored at backend */
   files: Pick<BinaryFileData, 'id' | 'mimeType'>[]

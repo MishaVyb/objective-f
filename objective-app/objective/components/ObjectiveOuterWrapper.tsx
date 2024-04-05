@@ -1,4 +1,4 @@
-import { FC, ReactNode, useCallback, useEffect, useState } from 'react'
+import { FC, ReactNode, useCallback, useEffect } from 'react'
 
 import { useParams } from 'react-router-dom'
 import { SCENE_PERSISTENCE, __DEBUG_ENSURE_THEME } from '../../objective-plus/constants'
@@ -19,11 +19,20 @@ import {
 } from '../../objective-plus/store/projects/reducer'
 import { deepCopyElement } from '../../../packages/excalidraw/element/newElement'
 import { isImageElement } from '../../../packages/excalidraw/element/typeChecks'
-import { Collaborator, ExcalidrawImperativeAPI, SocketId } from '../../../packages/excalidraw/types'
+import { AppState, ExcalidrawImperativeAPI } from '../../../packages/excalidraw/types'
 import { OBJECTIVE_LIB as OBJECTIVE_LIB_ITEMS } from '../lib'
-import { objectValues } from '../utils/types'
+import { objectEntries, objectValues } from '../utils/types'
 
 import { DEFAULT_GRID_MODE, getGridMode } from './ObjectiveSettingsDialog'
+import { RestoredAppState } from '../../../packages/excalidraw/data/restore'
+
+/** ref: RestoredAppState */
+const EXCLUDE_APP_STATE_VALUES = new Set<keyof AppState>([
+  'offsetTop',
+  'offsetLeft',
+  'width',
+  'height',
+])
 
 /** Implements scene loading and saving */
 const ObjectiveOuterWrapper: FC<{
@@ -50,15 +59,23 @@ const ObjectiveOuterWrapper: FC<{
           // Data serialization. Ensure types.
           const serializedElements = scene.elements.map((e) => deepCopyElement(e))
 
-          const serializedAppState = {
-            ...scene.appState,
+          const restoredAppState: RestoredAppState = Object.fromEntries(
+            objectEntries(scene.appState).filter(([k, v]) => !EXCLUDE_APP_STATE_VALUES.has(k))
+          ) as RestoredAppState
+
+          const serializedAppState: RestoredAppState = {
+            // from server
+            ...restoredAppState,
+
+            // overrides
             name: scene.name,
+            collaborators: new Map([]),
+
+            // overrides (debug)
             theme: __DEBUG_ENSURE_THEME ? __DEBUG_ENSURE_THEME : scene.appState.theme,
           }
-          serializedAppState.collaborators = new Map<SocketId, Collaborator>(
-            //@ts-ignore
-            Object.entries(serializedAppState.collaborators || {})
-          )
+
+          // ensure objective settings
           if (getGridMode(serializedAppState) === -1) {
             serializedAppState.gridSizeConfig = DEFAULT_GRID_MODE.size
             serializedAppState.gridBoldLineFrequency = DEFAULT_GRID_MODE.freq

@@ -50,7 +50,7 @@ import {
 import { ImportedDataState, LegacyAppState } from "./types";
 import { normalizeLink } from "./url";
 
-type RestoredAppState = Omit<
+export type RestoredAppState = Omit<
   AppState,
   "offsetTop" | "offsetLeft" | "width" | "height"
 >;

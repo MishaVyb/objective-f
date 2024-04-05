@@ -7,6 +7,7 @@ import {
 import { AppState } from '../../../packages/excalidraw/types'
 import { numberToStr } from '../elements/math'
 import { __DEBUG_EDITOR } from '../../objective-plus/constants'
+import { RestoredAppState } from '../../../packages/excalidraw/data/restore'
 
 type Mode = {
   size: number
@@ -36,7 +37,7 @@ const MODES: Mode[] = [
   { size: 50, freq: 4 },
 ]
 
-export const getGridMode = (appState: AppState) => {
+export const getGridMode = (appState: AppState | RestoredAppState) => {
   const { gridSizeConfig, gridBoldLineFrequency } = appState
   const modeIndex = MODES.findIndex(
     (v) => v.size === gridSizeConfig && v.freq === gridBoldLineFrequency
