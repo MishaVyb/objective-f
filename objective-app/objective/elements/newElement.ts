@@ -31,6 +31,8 @@ import { mutateElement } from '../../../packages/excalidraw'
 import { DEFAULT_FOCUS_DISTANCE, getCameraLensAngle } from '../actions/actionCamera'
 import { LinearElementEditor } from '../../../packages/excalidraw/element/linearElementEditor'
 import { rotateElementOnAngle } from './mutateElements'
+import { HEX_TO_COLOR } from '../UI/colors'
+import { COLOR_PALETTE } from '../../../packages/excalidraw/colors'
 
 export const POINTER_COMMON = (): Partial<ExcalidrawArrowElement> => ({
   // locked: true, // ??? lock for label but not for images...
@@ -248,7 +250,7 @@ export const META_REPR_CONTAINER_INITIAL = (): Partial<ExcalidrawElement> => ({
   strokeWidth: 1,
   strokeStyle: 'solid',
   roughness: 0,
-  opacity: 30,
+  opacity: 70,
   strokeColor: 'transparent',
 
   roundness: null,
@@ -260,14 +262,19 @@ export const newMetaReprElement = (meta: ObjectiveMeta, initialValue: string | u
   const gap = 1
   const [w, h] = [70, 30] // TODO dynamic ?
 
+  const colorName  = HEX_TO_COLOR.get(basis!.backgroundColor)
+  let bg
+  if (colorName) bg = COLOR_PALETTE[colorName][1]
+
   //@ts-ignore
   const container = newElement({
     customData: getInitialMeta(ObjectiveKinds.LABEL, { labelOf: meta.id }),
+
     width: w,
     height: h,
     x: basis!.x + basis!.width / 2 - w / 2,
     y: basis!.y + basis!.height + gap,
-    backgroundColor: basis!.backgroundColor,
+    backgroundColor: bg || basis!.backgroundColor,
     groupIds: [randomId()],
     ...META_REPR_CONTAINER_INITIAL(),
   })
@@ -275,7 +282,7 @@ export const newMetaReprElement = (meta: ObjectiveMeta, initialValue: string | u
   // All other props generated dynamically inside
   const widthExtension = 12
   const text = newTextElement({
-    // customData -- bound text not marked as Objective as we handle only its container as Obj.
+    customData: getInitialMeta(ObjectiveKinds.LABEL_TEXT),
 
     x: container.x + container.width / 2,
     y: container.y + container.height / 2,

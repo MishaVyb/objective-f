@@ -31,24 +31,27 @@ export enum ObjectiveKinds {
 
   /** internal */
   POINTER = 'pointer',
-  /** internal: container or nested text */
+  /** internal: container with bound text */
   LABEL = 'label',
+  /** internal: text that bound to label container*/
+  LABEL_TEXT = 'labelText',
 }
 
 export const isKindKey = enumKeyTypeGuardFactory(ObjectiveKinds)
 export const isKindValue = enumValueTypeGuardFactory(ObjectiveKinds)
 
 export type ObjectiveMetas = {
-  camera: readonly Readonly<CameraMeta>[]
-  character: readonly Readonly<ObjectiveMeta>[]
-  light: readonly Readonly<ObjectiveMeta>[]
-  location: readonly Readonly<ObjectiveMeta>[]
-  wall: readonly Readonly<WallMeta>[]
-  set: readonly Readonly<ObjectiveMeta>[]
-  prop: readonly Readonly<ObjectiveMeta>[]
-  outdor: readonly Readonly<ObjectiveMeta>[]
-  pointer: readonly Readonly<PointerMeta>[]
-  label: readonly Readonly<LabelMeta>[]
+  camera: readonly CameraMeta[]
+  character: readonly ObjectiveMeta[]
+  light: readonly ObjectiveMeta[]
+  location: readonly ObjectiveMeta[]
+  wall: readonly WallMeta[]
+  set: readonly ObjectiveMeta[]
+  prop: readonly ObjectiveMeta[]
+  outdor: readonly ObjectiveMeta[]
+  pointer: readonly PointerMeta[]
+  label: readonly LabelMeta[]
+  labelText: readonly ObjectiveMeta[]
 }
 
 /** Subkind is ONLY for declare different on canvas item style, not any special logic or behavior */

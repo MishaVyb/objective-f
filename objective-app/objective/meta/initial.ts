@@ -32,6 +32,7 @@ const _DEFAULT_META_OVERRIDES: Record<ObjectiveKinds, Partial<AnyObjectiveMeta>>
   outdor: {},
   pointer: {},
   label: {},
+  labelText: {},
 }
 
 /**

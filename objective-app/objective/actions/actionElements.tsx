@@ -1,8 +1,15 @@
 import { newElementWith } from '../../../packages/excalidraw'
 import { shouldLock } from '../../../packages/excalidraw/actions/actionElementLock'
+import { getBoundTextElement } from '../../../packages/excalidraw/element/textElement'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { arrayToMap } from '../../../packages/excalidraw/utils'
-import { getInternalElementsSet } from '../meta/selectors'
+import { META_REPR_CONTAINER_INITIAL } from '../elements/newElement'
+import {
+  getInternalElementsSet,
+  getObjectiveMetas,
+  getPointerIds,
+  getPointers,
+} from '../meta/selectors'
 import { isObjectiveHidden } from '../meta/types'
 import { register } from './register'
 
@@ -14,10 +21,41 @@ type TChangeOpacityObjective = {
 export const actionChangeOpacityObjective = register({
   name: 'changeOpacityObjective',
   trackEvent: false,
-  perform: (elements, appState, payload: TChangeOpacityObjective) => {
+  perform: (elements, appState, payload: TChangeOpacityObjective, app) => {
+    const metas = getObjectiveMetas(payload.elements)
+    const elsMap = app.scene.getNonDeletedElementsMap()
+
+    const extraElements: ExcalidrawElement[] = []
+    for (const meta of metas) {
+      // label
+      if (meta.nameRepr) {
+        const containter = elsMap.get(meta.nameRepr) || null
+        const text = getBoundTextElement(containter, elsMap)
+
+        if (
+          containter &&
+          !isObjectiveHidden(containter) &&
+          payload.value < META_REPR_CONTAINER_INITIAL().opacity!
+        )
+          extraElements.push(containter)
+
+        if (text && !isObjectiveHidden(text)) extraElements.push(text)
+      }
+      // pinter
+      const bounds = meta.basis?.boundElements
+      if (bounds?.length) {
+        bounds.forEach((e) => {
+          const pointer = elsMap.get(e.id)
+          if (pointer) extraElements.push(pointer)
+        })
+      }
+    }
+
     const objectiveInternals = getInternalElementsSet(payload.elements)
     const elementsToAffectMap = new Map(
-      payload.elements.filter((e) => !objectiveInternals.has(e)).map((el) => [el.id, el])
+      [...payload.elements, ...extraElements]
+        .filter((e) => !objectiveInternals.has(e))
+        .map((el) => [el.id, el])
     )
 
     return {

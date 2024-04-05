@@ -276,11 +276,13 @@ export const Layers: FC = () => {
           style={{
             minHeight: 50,
             maxHeight: 430,
-            // overflowY: 'scroll',
           }}
         >
           <Layer close={() => setOpen(false)} kind={['text']} />
-          <Layer close={() => setOpen(false)} kind={[ObjectiveKinds.LABEL]} />
+          <Layer
+            close={() => setOpen(false)}
+            kind={[ObjectiveKinds.LABEL, ObjectiveKinds.LABEL_TEXT]}
+          />
           <Layer close={() => setOpen(false)} kind={[ObjectiveKinds.CAMERA]} />
           <Layer close={() => setOpen(false)} kind={[ObjectiveKinds.LIGHT]} />
           <Layer close={() => setOpen(false)} kind={[ObjectiveKinds.CHARACTER]} />

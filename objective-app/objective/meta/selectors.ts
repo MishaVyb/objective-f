@@ -14,6 +14,7 @@ import { AppState, Primitive } from '../../../packages/excalidraw/types'
 import { useExcalidrawFiles } from '../components/ObjectiveInnerWrapper'
 import {
   CameraMeta,
+  LabelMeta,
   MaybeExcalidrawElement,
   ObjectiveElement,
   ObjectiveImageElement,
@@ -21,7 +22,9 @@ import {
   ObjectiveMeta,
   ObjectiveMetas,
   ObjectiveWallElement,
+  PointerMeta,
   ShotCameraMeta,
+  WallMeta,
   isKindEl,
   isObjective,
   isWallElement,
@@ -66,6 +69,7 @@ export const getMeta = <TMeta extends ObjectiveMeta>(
 export const getObjectiveId = (element: ObjectiveElement | ObjectiveWallElement) => {
   // NOTE wall is always single line element without group, therefore `objective.id === line.id`
   if (isWallElement(element)) return element.id
+  if (isKindEl(element, ObjectiveKinds.LABEL_TEXT)) return element.id
 
   if (element.groupIds[0]) return element.groupIds[0]
 
@@ -153,20 +157,21 @@ export const extractObjectiveMetas = (opts?: {
   ]
 }
 
-export const groupByKind = (metas: readonly Readonly<ObjectiveMeta>[]) => {
+export const groupByKind = (metas: readonly Readonly<ObjectiveMeta>[]): ObjectiveMetas => {
   const map = groupBy(metas, 'kind')
   return {
-    camera: map.get(ObjectiveKinds.CAMERA) || [],
+    camera: (map.get(ObjectiveKinds.CAMERA) || []) as CameraMeta[],
     character: map.get(ObjectiveKinds.CHARACTER) || [],
     light: map.get(ObjectiveKinds.LIGHT) || [],
     location: map.get(ObjectiveKinds.LOCATION) || [],
-    wall: map.get(ObjectiveKinds.WALL) || [],
+    wall: (map.get(ObjectiveKinds.WALL) || []) as WallMeta[],
     set: map.get(ObjectiveKinds.SET) || [],
     prop: map.get(ObjectiveKinds.PROP) || [],
     outdor: map.get(ObjectiveKinds.OUTDOR) || [],
-    pointer: map.get(ObjectiveKinds.POINTER) || [],
-    label: map.get(ObjectiveKinds.LABEL) || [],
-  } as any as ObjectiveMetas
+    pointer: (map.get(ObjectiveKinds.POINTER) || []) as PointerMeta[],
+    label: (map.get(ObjectiveKinds.LABEL) || []) as LabelMeta[],
+    labelText: map.get(ObjectiveKinds.LABEL_TEXT) || [],
+  }
 }
 
 /**
