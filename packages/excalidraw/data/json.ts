@@ -79,8 +79,8 @@ export const saveAsJSON = async (
 
   const fileHandle = await fileSave(blob, {
     name: appState.name,
-    extension: "excalidraw",
-    description: "Excalidraw file",
+    extension: "objective",
+    description: "Objective file",
     fileHandle: isImageFileHandle(appState.fileHandle)
       ? null
       : appState.fileHandle,
@@ -93,7 +93,7 @@ export const loadFromJSON = async (
   localElements: readonly ExcalidrawElement[] | null,
 ) => {
   const file = await fileOpen({
-    description: "Excalidraw files",
+    description: "Objective files",
     // ToDo: Be over-permissive until https://bugs.webkit.org/show_bug.cgi?id=34442
     // gets resolved. Else, iOS users cannot open `.excalidraw` files.
     // extensions: ["json", "excalidraw", "png", "svg"],

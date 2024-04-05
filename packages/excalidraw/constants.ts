@@ -177,6 +177,8 @@ export const MIME_TYPES = {
   // excalidraw data
   excalidraw: "application/vnd.excalidraw+json",
   excalidrawlib: "application/vnd.excalidrawlib+json",
+  // objective data
+  objective: "application/vnd.objective+json",
   // image-encoded excalidraw data
   "excalidraw.svg": "image/svg+xml",
   "excalidraw.png": "image/png",
