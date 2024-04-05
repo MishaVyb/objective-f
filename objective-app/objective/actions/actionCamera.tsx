@@ -494,6 +494,18 @@ export const actionChangeCameraDetails = register({
         newFocalLength: focalLen ? undefined : DEFAULT_FOCAL_LENGTH, // apply default, if not
       })
 
+    const onFocalLenChange = (v: number) =>
+      updateData({
+        newFocalLength: v,
+        lensAngleRepr: focalLen ? undefined : true, // set default
+      })
+    const onDistanceChange = (v: number) =>
+      updateData({
+        newFocusDistance: v,
+        newFocalLength: focusDistance ? undefined : DEFAULT_FOCAL_LENGTH, // set default
+        lensAngleRepr: focusDistance ? undefined : true, // set default
+      })
+
     return (
       <fieldset>
         {/* <legend>{'Specification'}</legend> */}
@@ -619,7 +631,7 @@ export const actionChangeCameraDetails = register({
             min={5}
             max={200}
             powerCof={1}
-            onChange={(v) => updateData({ newFocalLength: v })}
+            onChange={onFocalLenChange}
             value={focalLen !== undefined ? focalLen : DEFAULT_FOCAL_LENGTH}
           />
           <Flex align={'baseline'} justify={'between'} gap={'1'}>
@@ -638,7 +650,7 @@ export const actionChangeCameraDetails = register({
           <EasyInput
             min={0}
             max={1600}
-            onChange={(v) => updateData({ newFocusDistance: v })}
+            onChange={onDistanceChange}
             value={focusDistance !== undefined ? focusDistance : DEFAULT_FOCUS_DISTANCE}
           />
         </label>

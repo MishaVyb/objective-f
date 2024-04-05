@@ -173,6 +173,7 @@ export const getCameraLensAngleElements = (
     ...CAMERA_LENS_ANGLE_LINE(),
     ...(opts?.overrides || {}),
     strokeColor: basis.backgroundColor,
+    opacity: camera.elements[1].opacity, // FIXME we cannot use basis here as it always has opacity 0
   }
 
   const leftSide = getCameraLensAngleSide(
@@ -262,7 +263,7 @@ export const newMetaReprElement = (meta: ObjectiveMeta, initialValue: string | u
   const gap = 1
   const [w, h] = [70, 30] // TODO dynamic ?
 
-  const colorName  = HEX_TO_COLOR.get(basis!.backgroundColor)
+  const colorName = HEX_TO_COLOR.get(basis!.backgroundColor)
   let bg
   if (colorName) bg = COLOR_PALETTE[colorName][1]
 
