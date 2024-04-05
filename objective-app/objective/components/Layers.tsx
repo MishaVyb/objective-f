@@ -66,7 +66,8 @@ const Layer: FC<{
 
   for (const k of kind) {
     if (isKindValue(k)) {
-      for (const meta of app.scene.getObjectiveMetas()[k]) {
+      const currentKindMetas = app.scene.getObjectiveMetas()[k]!
+      for (const meta of currentKindMetas) {
         metas.push(meta)
         elements.push(...meta.elements)
         notInternalElements.push(...getNotInternalElementsFromMeta(meta))

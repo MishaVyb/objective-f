@@ -14,7 +14,6 @@ import { AppState, Primitive } from '../../../packages/excalidraw/types'
 import { useExcalidrawFiles } from '../components/ObjectiveInnerWrapper'
 import {
   CameraMeta,
-  LabelMeta,
   MaybeExcalidrawElement,
   ObjectiveElement,
   ObjectiveImageElement,
@@ -22,9 +21,7 @@ import {
   ObjectiveMeta,
   ObjectiveMetas,
   ObjectiveWallElement,
-  PointerMeta,
   ShotCameraMeta,
-  WallMeta,
   isKindEl,
   isObjective,
   isWallElement,
@@ -33,6 +30,7 @@ import { isInitializedImageElement } from '../../../packages/excalidraw/element/
 import { randomId } from '../../../packages/excalidraw/random'
 import { logger } from 'workbox-core/_private'
 import { groupBy } from '../utils/helpers'
+import { objectValues } from '../utils/types'
 
 /**
  * Get readonly `el.customData` reference (net copy).
@@ -159,19 +157,13 @@ export const extractObjectiveMetas = (opts?: {
 
 export const groupByKind = (metas: readonly Readonly<ObjectiveMeta>[]): ObjectiveMetas => {
   const map = groupBy(metas, 'kind')
-  return {
-    camera: (map.get(ObjectiveKinds.CAMERA) || []) as CameraMeta[],
-    character: map.get(ObjectiveKinds.CHARACTER) || [],
-    light: map.get(ObjectiveKinds.LIGHT) || [],
-    location: map.get(ObjectiveKinds.LOCATION) || [],
-    wall: (map.get(ObjectiveKinds.WALL) || []) as WallMeta[],
-    set: map.get(ObjectiveKinds.SET) || [],
-    prop: map.get(ObjectiveKinds.PROP) || [],
-    outdor: map.get(ObjectiveKinds.OUTDOR) || [],
-    pointer: (map.get(ObjectiveKinds.POINTER) || []) as PointerMeta[],
-    label: (map.get(ObjectiveKinds.LABEL) || []) as LabelMeta[],
-    labelText: map.get(ObjectiveKinds.LABEL_TEXT) || [],
-  }
+
+  // Set default [] // NOTE: enum value used as key at ObjectiveMetas
+  objectValues(ObjectiveKinds).forEach((key) => {
+    if (!map.get(key)) map.set(key, [])
+  })
+
+  return Object.fromEntries(map.entries())
 }
 
 /**

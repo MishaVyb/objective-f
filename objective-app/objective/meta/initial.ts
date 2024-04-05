@@ -1,22 +1,13 @@
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { randomId } from '../../../packages/excalidraw/random'
-import { Mutable } from '../../../packages/excalidraw/utility-types'
+import { MarkOptional, Mutable } from '../../../packages/excalidraw/utility-types'
 import { getMetaSimple } from './selectors'
-import {
-  AnyObjectiveMeta,
-  CameraMeta,
-  ObjectiveKinds,
-  ObjectiveMeta,
-  isCameraMeta,
-  isObjective,
-} from './types'
+import { AnyObjectiveMeta, ObjectiveKinds, ObjectiveMeta, isCameraMeta, isObjective } from './types'
 
-// export const CAMERA_META_INITIAL_OVERRIDES: Partial<AnyObjectiveMeta> =
-// export const CHARACTER_META_INITIAL_OVERRIDES: Partial<AnyObjectiveMeta> = {
-//   isInternalBasis: true,
-// }
+type TMetaOverrides = Record<ObjectiveKinds, Partial<Omit<AnyObjectiveMeta, 'kind'>>>
+type TOptionMetaOverrides = MarkOptional<TMetaOverrides, keyof TMetaOverrides>
 
-const _DEFAULT_META_OVERRIDES: Record<ObjectiveKinds, Partial<AnyObjectiveMeta>> = {
+const _DEFAULT_META_OVERRIDES: TOptionMetaOverrides = {
   camera: {
     isInternalBasis: true,
     relatedImages: [],
@@ -24,15 +15,6 @@ const _DEFAULT_META_OVERRIDES: Record<ObjectiveKinds, Partial<AnyObjectiveMeta>>
   character: {
     isInternalBasis: true,
   },
-  light: {},
-  location: {},
-  wall: {},
-  set: {},
-  prop: {},
-  outdor: {},
-  pointer: {},
-  label: {},
-  labelText: {},
 }
 
 /**

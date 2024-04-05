@@ -40,18 +40,14 @@ export enum ObjectiveKinds {
 export const isKindKey = enumKeyTypeGuardFactory(ObjectiveKinds)
 export const isKindValue = enumValueTypeGuardFactory(ObjectiveKinds)
 
-export type ObjectiveMetas = {
+export type ObjectiveMetas = Omit<
+  Record<ObjectiveKinds, readonly ObjectiveMeta[]>,
+  'camera' | 'wall' | 'pointer' | 'label'
+> & {
   camera: readonly CameraMeta[]
-  character: readonly ObjectiveMeta[]
-  light: readonly ObjectiveMeta[]
-  location: readonly ObjectiveMeta[]
   wall: readonly WallMeta[]
-  set: readonly ObjectiveMeta[]
-  prop: readonly ObjectiveMeta[]
-  outdor: readonly ObjectiveMeta[]
   pointer: readonly PointerMeta[]
   label: readonly LabelMeta[]
-  labelText: readonly ObjectiveMeta[]
 }
 
 /** Subkind is ONLY for declare different on canvas item style, not any special logic or behavior */
@@ -358,6 +354,8 @@ const __test = () => {
   const maybe = {} as MaybeExcalidrawElement
   const obj = {} as ObjectiveElement
   const wall = {} as ObjectiveWallElement
+  const metas = {} as ObjectiveMetas
+  metas.camera
 
   const typeGuard = (el: ExcalidrawElement): el is ObjectiveElement => {
     return true
