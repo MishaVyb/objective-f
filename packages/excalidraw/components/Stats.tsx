@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FC } from "react";
 import { getCommonBounds, getElementAbsoluteCoords } from "../element/bounds";
 import { NonDeletedExcalidrawElement } from "../element/types";
 import { t } from "../i18n";
@@ -21,7 +21,34 @@ import {
   getObjectiveSingleMeta,
 } from "../../../objective-app/objective/meta/selectors";
 import { BasisElementType } from "../../../objective-app/objective/elements/snapElements";
-import { objectEntries } from "../../../objective-app/objective/utils/types";
+import {
+  objectEntries,
+  objectKeys,
+} from "../../../objective-app/objective/utils/types";
+
+const RecordComponent: FC<{
+  value: Record<string, any>;
+  filter?: (k: string) => boolean;
+}> = ({ value, filter }) => {
+  return (
+    <>
+      {objectKeys(value)
+        .filter((key) => !filter || filter(key))
+        .toSorted()
+        .map((k) => {
+          const v = value[k];
+          const repr =
+            v && typeof v === "object" ? String(objectEntries(v)) : String(v);
+          return (
+            <Flex justify={"between"} key={k}>
+              <Text>{k}</Text>
+              <Code>{repr.slice(0, 50)}</Code>
+            </Flex>
+          );
+        })}
+    </>
+  );
+};
 
 export const Stats = (props: {
   appState: UIAppState;
@@ -50,35 +77,13 @@ export const Stats = (props: {
     );
   const basisPoints = basis && getBasisPoints(basis);
 
-  const appStateInfo = () =>
-    objectEntries(props.appState).map(([k, v]) => {
-      const repr =
-        v && typeof v === "object" ? String(objectEntries(v)) : String(v);
-      return (
-        <Flex justify={"between"} key={k}>
-          <Text>{k}</Text>
-          <Code>{repr.slice(0, 50)}</Code>
-        </Flex>
-      );
-    });
+  const appStateInfo = () => <RecordComponent value={props.appState} />;
 
   const objectiveMetaInfo = () =>
     singleMeta && (
       <div>
         <div>
-          {objectEntries(singleMeta).map(([k, v]) =>
-            typeof v === "object" && "length" in v ? (
-              <Flex justify={"between"} key={k}>
-                <Text>{k}</Text>
-                <Code>{`len ${v.length}`}</Code>
-              </Flex>
-            ) : (
-              <Flex justify={"between"} key={k}>
-                <Text>{k}</Text>
-                <Code>{String(v).slice(0, 50)}</Code>
-              </Flex>
-            ),
-          )}
+          <RecordComponent value={singleMeta} />
           {basis && basis.boundElements?.length && (
             <>
               <div>
@@ -330,42 +335,25 @@ export const Stats = (props: {
     </table>
   );
 
-  const envObjectiveInfo = () =>
-    objectEntries(import.meta.env).map(
-      ([k, v]) =>
-        k.toString().match(/.*OBJECTIVE.*/) && (
-          <Flex justify={"between"} key={k}>
-            <Text>{k}</Text>
-            <Code>{String(v).slice(0, 50)} </Code>
-          </Flex>
-        ),
-    );
-
-  const envExcalidrawInfo = () =>
-    objectEntries(import.meta.env).map(
-      ([k, v]) =>
-        !k.toString().match(/.*OBJECTIVE.*/) && (
-          <Flex justify={"between"} key={k}>
-            <Text>{k}</Text>
-            <Code>{String(v).slice(0, 50)} </Code>
-          </Flex>
-        ),
-    );
+  const envObjectiveInfo = () => (
+    <RecordComponent
+      value={import.meta.env}
+      filter={(k) => !!k.toString().match(/.*OBJECTIVE.*/)}
+    />
+  );
+  const envExcalidrawInfo = () => (
+    <RecordComponent
+      value={import.meta.env}
+      filter={(k) => !k.toString().match(/.*OBJECTIVE.*/)}
+    />
+  );
 
   const fullElementsInfo = () => (
     <div>
       <div>
         {selectedElements.map((el) => (
           <div key={el.id}>
-            {objectEntries(el).map(
-              ([k, v]) =>
-                !k.toString().match(/.*OBJECTIVE.*/) && (
-                  <Flex justify={"between"} key={k}>
-                    <Text>{k}</Text>
-                    <Code>{String(v).slice(0, 50)} </Code>
-                  </Flex>
-                ),
-            )}
+            <RecordComponent value={el} />
             <Separator size={"4"} />
           </div>
         ))}
