@@ -65,14 +65,17 @@ const AddSceneItem: FC = () => {
   const dispatch = useDispatch()
   const [name, setName] = useState('')
   const [open, setOpen] = useState(false)
+  const nameInputRef = useRef<HTMLInputElement>(null)
 
   // Excalidraw initialize appState from last openned scene (from local storage)
   const lastUsedAppState: RestoredAppState = getDefaultAppState()
 
   if (!project) return <></>
 
-  const onClick = () => {
-    setOpen(true)
+  const onOpenChange = (open: boolean) => {
+    console.log(nameInputRef)
+    setOpen(open)
+    setTimeout(() => nameInputRef?.current?.focus(), 0)
   }
 
   const onCreate = () => {
@@ -114,86 +117,89 @@ const AddSceneItem: FC = () => {
   }
 
   return (
-    <SceneCard className='ghost' onClick={() => onClick()}>
-      <Flex
-        align={'center'}
-        justify={'center'}
-        style={{
-          height: '100%',
-        }}
-      >
-        <Text
-          m='2'
-          color={ACCENT_COLOR}
-          style={{ paddingRight: 20 }} // HACK: center
+    <>
+      <SceneCard className='ghost' onClick={() => onOpenChange(true)}>
+        <Flex
+          align={'center'}
+          justify={'center'}
+          style={{
+            height: '100%',
+          }}
         >
-          <PlusIcon />
-          {' Add'}
-        </Text>
+          <Text
+            m='2'
+            color={ACCENT_COLOR}
+            style={{ paddingRight: 20 }} // HACK: center
+          >
+            <PlusIcon />
+            {' Add'}
+          </Text>
+        </Flex>
+      </SceneCard>
 
-        <div onClick={(e) => e.stopPropagation()}>
-          <Dialog.Root open={open} onOpenChange={setOpen}>
-            <Dialog.Content style={{ maxWidth: 450 }} onCloseAutoFocus={(e) => e.preventDefault()}>
-              <Dialog.Title>Add Scene</Dialog.Title>
+      <div onClick={(e) => e.stopPropagation()}>
+        <Dialog.Root open={open} onOpenChange={onOpenChange}>
+          <Dialog.Content style={{ maxWidth: 450 }} onCloseAutoFocus={(e) => e.preventDefault()}>
+            <Dialog.Title>Add Scene</Dialog.Title>
 
-              <Tabs.Root defaultValue='new'>
-                <Tabs.List size={'2'}>
-                  <Tabs.Trigger value='new'>New Scene</Tabs.Trigger>
-                  <Tabs.Trigger value='open'>Open Scene</Tabs.Trigger>
-                </Tabs.List>
+            <Tabs.Root defaultValue='new'>
+              <Tabs.List size={'2'}>
+                <Tabs.Trigger value='new'>New Scene</Tabs.Trigger>
+                <Tabs.Trigger value='open'>Open Scene</Tabs.Trigger>
+              </Tabs.List>
 
-                <Tabs.Content value='new'>
-                  <Flex style={{ height: 150 }} direction={'column'} justify={'between'}>
-                    <Flex direction={'column'} mt='4' gap={'1'}>
-                      <Text as='div' size='1' color={'gray'}>
-                        Name
-                      </Text>
-                      <TextField.Input
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder='Enter scene name'
-                        onKeyUp={(e) => e.key === 'Enter' && onCreate()}
-                      />
-                    </Flex>
-                    <Flex gap='3' justify='end'>
-                      <Dialog.Close>
-                        <Button variant='soft' color='gray'>
-                          Cancel
-                        </Button>
-                      </Dialog.Close>
-                      <Dialog.Close>
-                        <Button variant={'soft'} onClick={onCreate}>
-                          Create
-                        </Button>
-                      </Dialog.Close>
-                    </Flex>
-                  </Flex>
-                </Tabs.Content>
-                <Tabs.Content value='open'>
-                  <Flex style={{ height: 150 }} direction={'column'} justify={'between'}>
-                    <Text as='div' size='2' mt='4' color={'gray'}>
-                      Open <Code>.objective</Code> scene from local disk
+              <Tabs.Content value='new'>
+                <Flex style={{ height: 150 }} direction={'column'} justify={'between'}>
+                  <Flex direction={'column'} mt='4' gap={'1'}>
+                    <Text as='div' size='1' color={'gray'}>
+                      Name
                     </Text>
-                    <Flex gap='3' justify='end'>
-                      <Dialog.Close>
-                        <Button variant='soft' color='gray'>
-                          Cancel
-                        </Button>
-                      </Dialog.Close>
-                      <Dialog.Close>
-                        <Button variant={'soft'} onClick={onOpenFile}>
-                          Open File ...
-                        </Button>
-                      </Dialog.Close>
-                    </Flex>
+                    <TextField.Input
+                      ref={nameInputRef}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder='Enter scene name'
+                      onKeyUp={(e) => e.key === 'Enter' && onCreate()}
+                    />
                   </Flex>
-                </Tabs.Content>
-              </Tabs.Root>
-            </Dialog.Content>
-          </Dialog.Root>
-        </div>
-      </Flex>
-    </SceneCard>
+                  <Flex gap='3' justify='end'>
+                    <Dialog.Close>
+                      <Button variant='soft' color='gray'>
+                        Cancel
+                      </Button>
+                    </Dialog.Close>
+                    <Dialog.Close>
+                      <Button variant={'soft'} onClick={onCreate}>
+                        Create
+                      </Button>
+                    </Dialog.Close>
+                  </Flex>
+                </Flex>
+              </Tabs.Content>
+              <Tabs.Content value='open'>
+                <Flex style={{ height: 150 }} direction={'column'} justify={'between'}>
+                  <Text as='div' size='2' mt='4' color={'gray'}>
+                    Open <Code>.objective</Code> scene from local disk
+                  </Text>
+                  <Flex gap='3' justify='end'>
+                    <Dialog.Close>
+                      <Button variant='soft' color='gray'>
+                        Cancel
+                      </Button>
+                    </Dialog.Close>
+                    <Dialog.Close>
+                      <Button variant={'soft'} onClick={onOpenFile}>
+                        Open File ...
+                      </Button>
+                    </Dialog.Close>
+                  </Flex>
+                </Flex>
+              </Tabs.Content>
+            </Tabs.Root>
+          </Dialog.Content>
+        </Dialog.Root>
+      </div>
+    </>
   )
 }
 
