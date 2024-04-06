@@ -8,6 +8,7 @@ import {
   Link,
   Popover,
   Select,
+  Separator,
   Strong,
   Text,
   TextField,
@@ -25,17 +26,20 @@ import {
 import { Sidebar } from '../../../packages/excalidraw'
 import { ACCENT_COLOR } from '../../objective-plus/constants'
 
-const MySceneShareOptions = () => {
+export const MySceneShareOptions = () => {
   const url = window.location.href
   return (
     <>
-      <Heading color={ACCENT_COLOR} size={'2'}>
+      <Heading size={'3'} color={ACCENT_COLOR}>
         Public scene.
       </Heading>
+
+      <Separator size={'4'} mt={'3'} mb={'3'} />
+
       <Text as={'p'} size={'1'}>
         Everyone with a link <Strong>can view</Strong>, but can not edit this scene.{' '}
       </Text>
-      <Flex gap={'1'} direction={'row'} justify={'between'} mt={'1'}>
+      <Flex gap={'1'} direction={'row'} justify={'between'} mt={'3'}>
         <TextField.Root style={{ flexGrow: 1 }}>
           <TextField.Input value={url} size='2' readOnly />
         </TextField.Root>
@@ -47,7 +51,7 @@ const MySceneShareOptions = () => {
   )
 }
 
-const CopySceneDialog: FC<{ open: boolean; setOpen: (open: boolean) => void }> = ({
+export const CopySceneDialog: FC<{ open: boolean; setOpen: (open: boolean) => void }> = ({
   open,
   setOpen,
 }) => {
@@ -123,14 +127,12 @@ const CopySceneDialog: FC<{ open: boolean; setOpen: (open: boolean) => void }> =
   )
 }
 
-const OtherSceneShareOptions = () => {
+export const OtherSceneShareOptions = () => {
   const [open, setOpen] = useState(false)
 
   return (
     <>
-      <Heading size={'2'}>
-        Protected scene.
-      </Heading>
+      <Heading size={'2'}>Protected scene.</Heading>
       <Text as={'p'} size={'1'}>
         You can view, but can not edit this scene. Make{' '}
         <Link weight={'regular'} onClick={() => setOpen(true)}>

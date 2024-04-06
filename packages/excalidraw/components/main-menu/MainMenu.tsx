@@ -29,9 +29,13 @@ const MainMenu = Object.assign(
       const device = useDevice();
       const appState = useUIAppState();
       const setAppState = useExcalidrawSetAppState();
-      const onClickOutside = device.editor.isMobile
-        ? undefined
-        : () => setAppState({ openMenu: null });
+      const onClickOutside =
+        device.editor.isMobile ||
+        appState.openDialog?.name === "objectiveRenameScene" ||
+        appState.openDialog?.name === "objectiveSaveScene" ||
+        appState.openDialog?.name === "objectiveShareOptions"
+          ? undefined
+          : () => setAppState({ openMenu: null, openDialog: null });
 
       return (
         <MainMenuTunnel.In>
@@ -48,6 +52,7 @@ const MainMenu = Object.assign(
               {HamburgerMenuIcon}
             </DropdownMenu.Trigger>
             <DropdownMenu.Content
+              style={{ minWidth: 280 }}
               onClickOutside={onClickOutside}
               onSelect={composeEventHandlers(onSelect, () => {
                 setAppState({ openMenu: null });

@@ -1,6 +1,8 @@
 import { Theme } from '../../packages/excalidraw/element/types'
 import { getVersion } from '../../packages/excalidraw/utils'
 
+export const CONTACT_AUTHOR_LINK = 'https://t.me/mishaviborniy'
+
 export enum SCENE_PERSISTENCE {
   AUTO_SAVE_INTERVAL_MS = Number(import.meta.env.VITE_APP_OBJECTIVE_AUTO_SAVE_INTERVAL) * 1000,
   AUTO_LOADING_INTERVAL_MS = Number(import.meta.env.VITE_APP_OBJECTIVE_AUTO_LOAD_INTERVAL) * 1000,

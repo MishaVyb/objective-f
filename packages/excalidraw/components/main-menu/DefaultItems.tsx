@@ -36,6 +36,7 @@ import { jotaiScope } from "../../jotai";
 import { useUIAppState } from "../../context/ui-appState";
 import { openConfirmModal } from "../OverwriteConfirm/OverwriteConfirmState";
 import Trans from "../Trans";
+import { Badge, Flex } from "@radix-ui/themes";
 
 export const LoadScene = () => {
   const { t } = useI18n();
@@ -90,12 +91,17 @@ export const SaveToActiveFile = () => {
 
   return (
     <DropdownMenuItem
-      shortcut={getShortcutFromShortcutName("saveScene")}
+      // shortcut={getShortcutFromShortcutName("saveScene")}
       data-testid="save-button"
       onSelect={() => actionManager.executeAction(actionSaveToActiveFile)}
       icon={save}
       aria-label={`${t("buttons.save")}`}
-    >{`${t("buttons.save")}`}</DropdownMenuItem>
+    >
+      <Flex style={{ width: "100%" }} justify={"between"}>
+        {"Save"}
+        <Badge color={"gray"}>{"offline"}</Badge>
+      </Flex>
+    </DropdownMenuItem>
   );
 };
 SaveToActiveFile.displayName = "SaveToActiveFile";
@@ -108,7 +114,7 @@ export const SaveAsImage = () => {
       icon={ExportImageIcon}
       data-testid="image-export-button"
       onSelect={() => setAppState({ openDialog: { name: "imageExport" } })}
-      shortcut={getShortcutFromShortcutName("imageExport")}
+      // shortcut={getShortcutFromShortcutName("imageExport")}
       aria-label={t("buttons.exportImage")}
     >
       {"Export Canvas"}
@@ -151,12 +157,13 @@ export const ClearCanvas = () => {
 
   return (
     <DropdownMenuItem
+      title="Remove all elements"
       icon={TrashIcon}
       onSelect={() => setActiveConfirmDialog("clearCanvas")}
       data-testid="clear-canvas-button"
       aria-label={t("buttons.clearReset")}
     >
-      {t("buttons.clearReset")}
+      {"Reset the Canvas"}
     </DropdownMenuItem>
   );
 };

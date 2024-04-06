@@ -259,7 +259,18 @@ export interface AppState {
   openSidebar: { name: SidebarName; tab?: SidebarTabName } | null;
   openDialog:
     | null
-    | { name: "imageExport" | "help" | "jsonExport" | "objectiveSettings" }
+    | {
+        name:
+          | "imageExport"
+          | "help"
+          | "jsonExport"
+
+          // VBRN
+          | "objectiveSettings"
+          | "objectiveRenameScene"
+          | "objectiveSaveScene"
+          | "objectiveShareOptions";
+      }
     | {
         name: "settings";
         source:

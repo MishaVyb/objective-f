@@ -180,7 +180,7 @@ const AddSceneItem: FC = () => {
               <Tabs.Content value='open'>
                 <Flex style={{ height: 150 }} direction={'column'} justify={'between'}>
                   <Text as='div' size='2' mt='4' color={'gray'}>
-                    Open <Code>.objective</Code> scene from local disk
+                    Open scene from <Code>.objective</Code> file
                   </Text>
                   <Flex gap='3' justify='end'>
                     <Dialog.Close>

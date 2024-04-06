@@ -1,8 +1,9 @@
 import React from "react";
-import { PlusPromoIcon } from "../../packages/excalidraw/components/icons";
 import { MainMenu } from "../../packages/excalidraw/index";
 import { LanguageList } from "./LanguageList";
 import { ObjectiveMainMenu } from "../../objective-app/objective/components/AppMainMenuItems";
+import { CONTACT_AUTHOR_LINK } from "../../objective-app/objective-plus/constants";
+import { PaperPlaneIcon } from "@radix-ui/react-icons";
 
 export const AppMainMenu: React.FC<{
   onCollabDialogOpen: () => any;
@@ -12,23 +13,26 @@ export const AppMainMenu: React.FC<{
   return (
     <MainMenu>
       {/* <MainMenu.DefaultItems.LoadScene /> */}
-      {/* <MainMenu.ItemCustom> */}
       <ObjectiveMainMenu.NewScene />
       <ObjectiveMainMenu.RenameScene />
-      {/* </MainMenu.ItemCustom> */}
       <MainMenu.DefaultItems.SaveToActiveFile />
-      <MainMenu.DefaultItems.Export />
+      {/* <MainMenu.DefaultItems.Export /> */}
+      <ObjectiveMainMenu.SaveScene />
       <MainMenu.DefaultItems.SaveAsImage />
-      {props.isCollabEnabled && (
+      <ObjectiveMainMenu.ShareOption />
+      {/* {props.isCollabEnabled && (
         <MainMenu.DefaultItems.LiveCollaborationTrigger
           isCollaborating={props.isCollaborating}
           onSelect={() => props.onCollabDialogOpen()}
         />
-      )}
+      )} */}
 
-      <MainMenu.DefaultItems.Help />
       <MainMenu.DefaultItems.ClearCanvas />
       <MainMenu.Separator />
+      <MainMenu.DefaultItems.Help />
+      <MainMenu.ItemLink icon={<PaperPlaneIcon />} href={CONTACT_AUTHOR_LINK}>
+        {"Contact Us"}
+      </MainMenu.ItemLink>
       {/* <MainMenu.ItemLink
         icon={PlusPromoIcon}
         href={`${
@@ -39,8 +43,10 @@ export const AppMainMenu: React.FC<{
         Excalidraw+
       </MainMenu.ItemLink>
       <MainMenu.DefaultItems.Socials />
-      <MainMenu.Separator /> */}
+      <MainMenu.Separator />
       <MainMenu.DefaultItems.ToggleTheme />
+      */}
+      <MainMenu.Separator />
       <MainMenu.ItemCustom>
         <LanguageList style={{ width: "100%" }} />
       </MainMenu.ItemCustom>
