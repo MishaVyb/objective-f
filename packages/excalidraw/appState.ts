@@ -125,7 +125,7 @@ const APP_STATE_STORAGE_CONF = (<
     browser: boolean;
     /** whether to keep when exporting to file/database */
     export: boolean;
-    /** server (shareLink/collab/...) */
+    /** server / database (shareLink/collab/...) */
     server: boolean;
   },
   T extends Record<keyof AppState, Values>,
