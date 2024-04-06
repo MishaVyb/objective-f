@@ -30,7 +30,7 @@ import {
   selectScenes,
   selectToggledProject,
 } from '../store/projects/reducer'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { ACCENT_COLOR } from '../constants'
 import { getDefaultAppState } from '../../../packages/excalidraw/appState'
 import { AppState } from '../../../packages/excalidraw/types'
@@ -61,10 +61,11 @@ const SceneCard: FC<{ children: ReactNode; className?: string; onClick?: () => v
 }
 
 const AddSceneItem: FC = () => {
+  const { state } = useLocation()
   const project = useSelector(selectToggledProject)
   const dispatch = useDispatch()
   const [name, setName] = useState('')
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(state?.openAddSceneDialog || false)
   const nameInputRef = useRef<HTMLInputElement>(null)
 
   // Excalidraw initialize appState from last openned scene (from local storage)

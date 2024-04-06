@@ -15,7 +15,8 @@ const DropdownMenuItem = ({
   ...rest
 }: {
   icon?: JSX.Element;
-  onSelect: (event: Event) => void;
+  /** NOTE: onClick could be used instead, if you don't want to close AppMenu (which is default) */
+  onSelect?: (event: Event) => void;
   children: React.ReactNode;
   shortcut?: string;
   selected?: boolean;
@@ -26,7 +27,7 @@ const DropdownMenuItem = ({
   return (
     <button
       {...rest}
-      onClick={handleClick}
+      onClick={onSelect ? handleClick : rest.onClick}
       type="button"
       className={getDropdownMenuItemClassName(className, selected)}
       title={rest.title ?? rest["aria-label"]}

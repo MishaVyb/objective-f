@@ -107,6 +107,7 @@
       flex-direction: column;
       flex-wrap: wrap;
       gap: 18px;
+      margin-right: auto;
 
       @include isMobile {
         margin-left: unset;
@@ -136,7 +137,7 @@
           align-items: center;
 
           font-family: "Assistant";
-          font-weight: 600;
+          font-weight: 400;
           font-size: 1rem;
           line-height: 150%;
 

@@ -1,5 +1,5 @@
 import { FC, useEffect } from 'react'
-import { Route, Routes, useLocation } from 'react-router-dom'
+import { Route, Routes, useLocation, Navigate } from 'react-router-dom'
 
 import { Flex, Theme } from '@radix-ui/themes'
 import clsx from 'clsx'
@@ -56,12 +56,12 @@ const ObjectivePlusApp: FC = () => {
       >
         {!excalidrawPath && <ObjectiveHeader />}
         <Routes>
-          <Route path='*' element={<NotFoundPage />} />
+          <Route path='*' element={<Navigate to={'/projects'} />} />
           <Route path='/about' element={<AboutPage />} />
           <Route path='/error' element={<ScheckSentry />} />
           <Route path='/debug' element={<DebugPage />} />
           <Route
-            path='/'
+            path='/projects'
             element={
               <RouteDispatch loginRequired>
                 <HomePage />

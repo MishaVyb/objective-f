@@ -4,15 +4,15 @@
   --RadioGroup-background: var(--island-bg-color);
   --RadioGroup-border: var(--color-surface-high);
 
-  --RadioGroup-choice-color-off: var(--color-primary);
+  --RadioGroup-choice-color-off: var(--color-gray-50);
   --RadioGroup-choice-color-off-hover: var(--color-brand-hover);
   --RadioGroup-choice-background-off: var(--island-bg-color);
   --RadioGroup-choice-background-off-active: var(--color-surface-high);
 
-  --RadioGroup-choice-color-on: var(--color-surface-lowest);
-  --RadioGroup-choice-background-on: var(--color-primary);
-  --RadioGroup-choice-background-on-hover: var(--color-brand-hover);
-  --RadioGroup-choice-background-on-active: var(--color-brand-active);
+  --RadioGroup-choice-color-on: var(--color-gray-90);
+  --RadioGroup-choice-background-on: var(--color-primary-light);
+  --RadioGroup-choice-background-on-hover: var(--color-primary-light);
+  --RadioGroup-choice-background-on-active: var(--color-primary-light);
 
   .RadioGroup {
     box-sizing: border-box;
@@ -24,7 +24,7 @@
     border-radius: 10px;
 
     background: var(--RadioGroup-background);
-    border: 1px solid var(--RadioGroup-border);
+    // border: 1px solid var(--RadioGroup-border);
 
     &__choice {
       position: relative;
@@ -37,11 +37,11 @@
       color: var(--RadioGroup-choice-color-off);
       background: var(--RadioGroup-choice-background-off);
 
-      border-radius: 8px;
+      border-radius: 2px;
 
       font-family: "Assistant";
       font-style: normal;
-      font-weight: 600;
+      font-weight: 500;
       font-size: 0.75rem;
       line-height: 100%;
       user-select: none;

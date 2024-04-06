@@ -111,7 +111,7 @@ export const SaveAsImage = () => {
       shortcut={getShortcutFromShortcutName("imageExport")}
       aria-label={t("buttons.exportImage")}
     >
-      {t("buttons.exportImage")}
+      {"Export Canvas"}
     </DropdownMenuItem>
   );
 };

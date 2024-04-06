@@ -175,7 +175,7 @@ const ImageExportModal = ({
         </div>
       </div>
       <div className="ImageExportModal__settings">
-        <h3>{t("imageExportDialog.header")}</h3>
+        <h3>{"Export Canvas"}</h3>
         {hasSelection && (
           <ExportSetting
             label={t("imageExportDialog.label.onlySelected")}
@@ -190,7 +190,7 @@ const ImageExportModal = ({
             />
           </ExportSetting>
         )}
-        <ExportSetting
+        {/* <ExportSetting
           label={t("imageExportDialog.label.withBackground")}
           name="exportBackgroundSwitch"
         >
@@ -243,7 +243,7 @@ const ImageExportModal = ({
               );
             }}
           />
-        </ExportSetting>
+          </ExportSetting> */}
         <ExportSetting
           label={t("imageExportDialog.label.scale")}
           name="exportScale"
@@ -275,7 +275,7 @@ const ImageExportModal = ({
           >
             {t("imageExportDialog.button.exportToPng")}
           </FilledButton>
-          <FilledButton
+          {/* <FilledButton
             className="ImageExportModal__settings__buttons__button"
             label={t("imageExportDialog.title.exportToSvg")}
             onClick={() =>
@@ -286,9 +286,10 @@ const ImageExportModal = ({
             icon={downloadIcon}
           >
             {t("imageExportDialog.button.exportToSvg")}
-          </FilledButton>
+          </FilledButton> */}
           {(probablySupportsClipboardBlob || isFirefox) && (
             <FilledButton
+              variant={"outlined"}
               className="ImageExportModal__settings__buttons__button"
               label={t("imageExportDialog.title.copyPngToClipboard")}
               onClick={() =>

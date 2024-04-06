@@ -2,6 +2,7 @@ import React from "react";
 import { PlusPromoIcon } from "../../packages/excalidraw/components/icons";
 import { MainMenu } from "../../packages/excalidraw/index";
 import { LanguageList } from "./LanguageList";
+import { ObjectiveMainMenu } from "../../objective-app/objective/components/AppMainMenuItems";
 
 export const AppMainMenu: React.FC<{
   onCollabDialogOpen: () => any;
@@ -10,7 +11,11 @@ export const AppMainMenu: React.FC<{
 }> = React.memo((props) => {
   return (
     <MainMenu>
-      <MainMenu.DefaultItems.LoadScene />
+      {/* <MainMenu.DefaultItems.LoadScene /> */}
+      {/* <MainMenu.ItemCustom> */}
+      <ObjectiveMainMenu.NewScene />
+      <ObjectiveMainMenu.RenameScene />
+      {/* </MainMenu.ItemCustom> */}
       <MainMenu.DefaultItems.SaveToActiveFile />
       <MainMenu.DefaultItems.Export />
       <MainMenu.DefaultItems.SaveAsImage />
@@ -24,7 +29,7 @@ export const AppMainMenu: React.FC<{
       <MainMenu.DefaultItems.Help />
       <MainMenu.DefaultItems.ClearCanvas />
       <MainMenu.Separator />
-      <MainMenu.ItemLink
+      {/* <MainMenu.ItemLink
         icon={PlusPromoIcon}
         href={`${
           import.meta.env.VITE_APP_PLUS_LP
@@ -34,7 +39,7 @@ export const AppMainMenu: React.FC<{
         Excalidraw+
       </MainMenu.ItemLink>
       <MainMenu.DefaultItems.Socials />
-      <MainMenu.Separator />
+      <MainMenu.Separator /> */}
       <MainMenu.DefaultItems.ToggleTheme />
       <MainMenu.ItemCustom>
         <LanguageList style={{ width: "100%" }} />
