@@ -5,9 +5,9 @@ import { getMetaSimple } from './selectors'
 import { AnyObjectiveMeta, ObjectiveKinds, ObjectiveMeta, isCameraMeta, isObjective } from './types'
 
 type TMetaOverrides = Record<ObjectiveKinds, Partial<Omit<AnyObjectiveMeta, 'kind'>>>
-type TOptionMetaOverrides = MarkOptional<TMetaOverrides, keyof TMetaOverrides>
+type TOptionalMetaOverrides = MarkOptional<TMetaOverrides, keyof TMetaOverrides>
 
-const _DEFAULT_META_OVERRIDES: TOptionMetaOverrides = {
+const _DEFAULT_META_OVERRIDES: TOptionalMetaOverrides = {
   camera: {
     isInternalBasis: true,
     relatedImages: [],

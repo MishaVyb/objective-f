@@ -1,22 +1,21 @@
-import { useMemo } from 'react'
+// NOTE
+// Do not put here imports from Excalidraw App.tsx to avoid circular imports
+
 import isDeepEqual from 'lodash/isEqual'
-import { useApp, useExcalidrawElements } from '../../../packages/excalidraw/components/App'
+
 import {
   ElementsMap,
   ElementsMapOrArray,
   ExcalidrawBindableElement,
   ExcalidrawElement,
-  InitializedExcalidrawImageElement,
   NonDeletedExcalidrawElement,
 } from '../../../packages/excalidraw/element/types'
 import Scene from '../../../packages/excalidraw/scene/Scene'
 import { AppState, Primitive } from '../../../packages/excalidraw/types'
-import { useExcalidrawFiles } from '../components/ObjectiveInnerWrapper'
 import {
   CameraMeta,
   MaybeExcalidrawElement,
   ObjectiveElement,
-  ObjectiveImageElement,
   ObjectiveKinds,
   ObjectiveMeta,
   ObjectiveMetas,
@@ -26,9 +25,7 @@ import {
   isObjective,
   isWallElement,
 } from './types'
-import { isInitializedImageElement } from '../../../packages/excalidraw/element/typeChecks'
 import { randomId } from '../../../packages/excalidraw/random'
-import { logger } from 'workbox-core/_private'
 import { groupBy } from '../utils/helpers'
 import { objectValues } from '../utils/types'
 
@@ -71,7 +68,7 @@ export const getObjectiveId = (element: ObjectiveElement | ObjectiveWallElement)
 
   if (element.groupIds[0]) return element.groupIds[0]
 
-  logger.warn('No objective id: ', element.customData)
+  console.warn('No objective id: ', element.customData)
   return randomId()
 }
 
@@ -332,33 +329,6 @@ export const getMetaByObjectiveId = (
   elements: readonly ExcalidrawElement[],
   id: ObjectiveMeta['id']
 ) => getObjectiveSingleMeta(getElementsByObjectiveId(elements, id))
-
-// -------------------------- selectors hooks -----------------------//
-
-export const useCamerasImages = (cameras: readonly CameraMeta[]) => {
-  const files = useExcalidrawFiles()
-  const elements = useExcalidrawElements()
-  const app = useApp()
-  const elsMap = app.scene.getElementsMapIncludingDeleted()
-
-  return useMemo(() => {
-    const imageElementIds: string[] = []
-    cameras.forEach((c) => imageElementIds.push(...c.relatedImages))
-    const imageElements = imageElementIds
-      .map((id) => elsMap.get(id))
-      .filter(
-        (e): e is InitializedExcalidrawImageElement =>
-          !!e && !e.isDeleted && isInitializedImageElement(e)
-      )
-    const images: ObjectiveImageElement[] = []
-    imageElements.forEach((e) =>
-      files[e.fileId] ? images.push({ ...files[e.fileId], ...e }) : null
-    )
-    return images
-  }, [files, elements, cameras])
-}
-
-export const useCameraImages = (camera: CameraMeta) => useCamerasImages([camera])
 
 //--------------------- TS tests ------------------------ //
 

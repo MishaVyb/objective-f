@@ -1,11 +1,9 @@
 import { ElementsClipboard } from '../../../packages/excalidraw/clipboard'
-import { COLOR_PALETTE } from '../../../packages/excalidraw/colors'
 import { LibraryItem, LibraryItems } from '../../../packages/excalidraw/types'
 import { ObjectiveKinds, ObjectiveMeta } from '../meta/types'
 import { createObjFromClipboard } from './helpers'
 import doorOpen from './location/door-open'
 import doorClose from './location/door-close'
-import doorHalfOpen from './location/door-half-open'
 import window from './location/window'
 
 import windowImage from './location/window-no-grid.png'

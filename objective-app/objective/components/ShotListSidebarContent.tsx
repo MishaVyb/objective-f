@@ -6,7 +6,7 @@ import {
   useExcalidrawAppState,
   useExcalidrawSetAppState,
 } from '../../../packages/excalidraw/components/App'
-import { getObjectiveBasis, getSelectedCameraMetas, useCameraImages } from '../meta/selectors'
+import { getObjectiveBasis, getSelectedCameraMetas } from '../meta/selectors'
 import { CameraElement, CameraMeta } from '../meta/types'
 import * as Collapsible from '@radix-ui/react-collapsible'
 import {
@@ -33,6 +33,7 @@ import { groupBy } from '../utils/helpers'
 import { distributeLibraryItemsOnSquareGrid } from '../../../packages/excalidraw/data/library'
 import { LIB_CAMERAS } from '../lib/cameras.library'
 import { numberToStr } from '../elements/math'
+import { useCameraImages } from '../meta/hooks'
 
 const ShotListSidebarContent: FC = () => {
   const app = useApp()

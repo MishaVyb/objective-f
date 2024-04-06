@@ -16,7 +16,6 @@ import {
   getObjectiveBasis,
   getCameraMetas,
   getShotCameraMetas,
-  useCamerasImages,
   getPointers,
   getMetaByObjectiveId,
 } from '../meta/selectors'
@@ -35,6 +34,7 @@ import { ImageIcon, TrashIcon } from '../../../packages/excalidraw/components/ic
 import { changeElementMeta, changeElementProperty, mutateMeta } from '../elements/mutateElements'
 import { arrangeElements } from '../elements/zindex'
 import { CameraBadge } from '../components/ShotListSidebarContent'
+import { useCamerasImages } from '../meta/hooks'
 
 export const actionInitStoryboard = register({
   name: 'actionInitStoryboard',
