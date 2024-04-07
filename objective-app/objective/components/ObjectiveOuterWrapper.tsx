@@ -25,7 +25,7 @@ import { objectValues } from '../utils/types'
 import { DEFAULT_GRID_MODE, getGridMode } from './ObjectiveSettingsDialog'
 import { RestoredAppState } from '../../../packages/excalidraw/data/restore'
 import { clearAppStateForDatabase } from '../../../packages/excalidraw/appState'
-
+import { deepCopyElement } from '../../../packages/excalidraw/element/newElement'
 
 /** Implements scene loading and saving */
 const ObjectiveOuterWrapper: FC<{
@@ -50,7 +50,12 @@ const ObjectiveOuterWrapper: FC<{
         .unwrap()
         .then((scene) => {
           // Data serialization. Ensure types.
-          const serializedElements = scene.elements
+
+          // NOTE: deep copy is required here in order to resolve this issue:
+          //   TypeError: Cannot assign to read only property 'x' of object '#<Object>'
+          //
+          // Maybe `fetch()` method return read-only objects...
+          const serializedElements = scene.elements.map((e) => deepCopyElement(e))
 
           const serializedAppState: RestoredAppState = {
             // current
