@@ -25,6 +25,11 @@ import {
 } from "../element/typeChecks";
 import { getSelectedElements } from "../scene";
 import { ExcalidrawTextElement } from "../element/types";
+import {
+  getInternalElementsSet,
+  getSelectedSceneEls,
+} from "../../../objective-app/objective/meta/selectors";
+import { isObjective } from "../../../objective-app/objective/meta/types";
 
 // `copiedStyles` is exported only for tests.
 export let copiedStyles: string = "{}";
@@ -34,7 +39,15 @@ export const actionCopyStyles = register({
   trackEvent: { category: "element" },
   perform: (elements, appState, formData, app) => {
     const elementsCopied = [];
-    const element = elements.find((el) => appState.selectedElementIds[el.id]);
+
+    // VBRN
+    const objectiveInternal = getInternalElementsSet(
+      getSelectedSceneEls(app.scene, appState),
+    );
+    const element = elements.find(
+      (el) => !objectiveInternal.has(el) && appState.selectedElementIds[el.id],
+    );
+
     elementsCopied.push(element);
     if (element && hasBoundTextElement(element)) {
       const boundTextElement = getBoundTextElement(
@@ -70,10 +83,16 @@ export const actionPasteStyles = register({
       return { elements, commitToHistory: false };
     }
 
+    // VBRN
+    const objectiveInternal = getInternalElementsSet(
+      getSelectedSceneEls(app.scene, appState),
+    );
     const selectedElements = getSelectedElements(elements, appState, {
       includeBoundTextElement: true,
-    });
+    }).filter((e) => !objectiveInternal.has(e));
+
     const selectedElementIds = selectedElements.map((element) => element.id);
+
     return {
       elements: elements.map((element) => {
         if (selectedElementIds.includes(element.id)) {
@@ -92,7 +111,9 @@ export const actionPasteStyles = register({
             fillStyle: elementStylesToCopyFrom?.fillStyle,
             opacity: elementStylesToCopyFrom?.opacity,
             roughness: elementStylesToCopyFrom?.roughness,
-            roundness: elementStylesToCopyFrom.roundness
+            roundness: isObjective(element)
+              ? undefined // VBRN do not copy past roundness for Objective
+              : elementStylesToCopyFrom.roundness
               ? canApplyRoundnessTypeToElement(
                   elementStylesToCopyFrom.roundness.type,
                   element,

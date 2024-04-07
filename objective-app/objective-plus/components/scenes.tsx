@@ -74,7 +74,6 @@ const AddSceneItem: FC = () => {
   if (!project) return <></>
 
   const onOpenChange = (open: boolean) => {
-    console.log(nameInputRef)
     setOpen(open)
     setTimeout(() => nameInputRef?.current?.focus(), 0)
   }
