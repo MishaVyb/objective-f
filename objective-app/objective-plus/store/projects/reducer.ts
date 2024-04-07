@@ -158,9 +158,12 @@ export const selectProjects = createSelector(
   (projects) => projects.projects.filter((p) => !p.is_deleted)
 )
 
-export const selectToggledProjectId = (state: RootState) => state.projects.toggledProjectId
+export const selectToggledProjectId = (state: RootState) =>
+  state.projects.toggledProjectId || state.projects.projects[0]?.id
+
 export const selectToggledProject = (state: RootState) =>
-  state.projects.projects.find((p) => p.id === state.projects.toggledProjectId)
+  state.projects.projects.find((p) => p.id === state.projects.toggledProjectId) ||
+  state.projects.projects[0]
 
 /** Select not deleted scenes of current toggled project */
 export const selectScenes = createSelector(

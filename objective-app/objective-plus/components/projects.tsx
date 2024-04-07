@@ -206,6 +206,12 @@ const ProjectsList = () => {
 
   useEffect(() => {
     dispatch(loadProjects({}))
+      .unwrap()
+      .then((projects) => {
+        if (projects.length && !toggledProject) {
+          dispatch(toggleProject(projects[0].id))
+        }
+      })
   }, [dispatch])
 
   return (
