@@ -123,10 +123,10 @@ const APP_STATE_STORAGE_CONF = (<
   Values extends {
     /** whether to keep when storing to browser storage (localStorage/IDB) */
     browser: boolean;
-    /** whether to keep when exporting to file/database */
-    export: boolean;
-    /** server / database (shareLink/collab/...) */
-    server: boolean;
+
+    // NOTE: `export` and `server` has the SAME values...
+    export: boolean /** whether to keep when exporting to file/database */;
+    server: boolean /** server / database (shareLink/collab/...) */;
   },
   T extends Record<keyof AppState, Values>,
 >(config: { [K in keyof T]: K extends keyof AppState ? T[K] : never }) =>
@@ -195,8 +195,8 @@ const APP_STATE_STORAGE_CONF = (<
   previousSelectedElementIds: { browser: true, export: false, server: false },
   resizingElement: { browser: false, export: false, server: false },
   scrolledOutside: { browser: true, export: false, server: false },
-  scrollX: { browser: true, export: false, server: false },
-  scrollY: { browser: true, export: false, server: false },
+  scrollX: { browser: true, export: true, server: true },
+  scrollY: { browser: true, export: true, server: true },
   selectedElementIds: { browser: true, export: false, server: false },
   selectedGroupIds: { browser: true, export: false, server: false },
   selectedElementsAreBeingDragged: {
@@ -217,7 +217,7 @@ const APP_STATE_STORAGE_CONF = (<
   viewBackgroundColor: { browser: true, export: true, server: true },
   width: { browser: false, export: false, server: false },
   zenModeEnabled: { browser: true, export: false, server: false },
-  zoom: { browser: true, export: false, server: false },
+  zoom: { browser: true, export: true, server: true },
   viewModeEnabled: { browser: false, export: false, server: false },
   pendingImageElementId: { browser: false, export: false, server: false },
   showHyperlinkPopup: { browser: false, export: false, server: false },
