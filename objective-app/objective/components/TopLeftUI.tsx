@@ -38,8 +38,10 @@ const TopLeftUI: FC<{ children: ReactNode }> = ({ children }) => {
         weight={'bold'}
         size={'1'}
         style={{
+          width: 170,
+          overflow: 'hidden',
           whiteSpace: 'nowrap',
-          textOverflow: 'ellipsis', // FIXME doesn't work ...
+          textOverflow: 'ellipsis',
         }}
       >
         {appState.name}

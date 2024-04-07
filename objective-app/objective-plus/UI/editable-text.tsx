@@ -56,7 +56,19 @@ const EditableText = forwardRef<HTMLInputElement, TEditableTextProps>(
       )
 
     return (
-      <Text className='editable-text' m={'1'} size={'1'} as={'p'} onClick={(e) => onTextClick(e)}>
+      <Text
+        style={{
+          width: 120,
+          overflow: 'hidden',
+          whiteSpace: 'nowrap',
+          textOverflow: 'ellipsis',
+        }}
+        className='editable-text'
+        m={'1'}
+        size={'1'}
+        as={'p'}
+        onClick={(e) => onTextClick(e)}
+      >
         {value}
       </Text>
     )
