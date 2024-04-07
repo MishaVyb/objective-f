@@ -13,7 +13,7 @@ import {
   TextField,
 } from '@radix-ui/themes'
 import clsx from 'clsx'
-import { FC, ReactNode, useRef, useState } from 'react'
+import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import EditableText from '../UI/editable-text'
 import { useDispatch, useSelector } from '../hooks/redux'
 import {
@@ -25,17 +25,21 @@ import {
 } from '../store/projects/actions'
 import {
   IProject,
+  ISceneFull,
   ISceneSimplified,
   selectProjects,
+  selectSceneFullInfo,
   selectScenes,
   selectToggledProject,
 } from '../store/projects/reducer'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ACCENT_COLOR } from '../constants'
 import { getDefaultAppState } from '../../../packages/excalidraw/appState'
-import { AppState } from '../../../packages/excalidraw/types'
+import { AppState, BinaryFileData } from '../../../packages/excalidraw/types'
 import { RestoredAppState } from '../../../packages/excalidraw/data/restore'
 import { loadFromJSON } from '../../../packages/excalidraw/data'
+import { MIME_TYPES, exportToBlob } from '../../../packages/excalidraw'
+import { useFilesFromLocalOrServer } from '../store/projects/helpers'
 
 const DEFAULT_SCENE_NAME = 'Untitled Scene'
 
@@ -51,7 +55,7 @@ const SceneCard: FC<{ children: ReactNode; className?: string; onClick?: () => v
       p={'2'}
       style={{
         width: 170,
-        height: 70,
+        height: 170,
       }}
       onClick={onClick}
     >
@@ -203,13 +207,62 @@ const AddSceneItem: FC = () => {
   )
 }
 
+const ScenesThumbnailsCache = new Map<ISceneFull['id'], SVGSVGElement>([]) // TMP
+
 const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const projects = useSelector(selectProjects)
   const otherProjects = projects.filter((p) => p.id !== scene.project_id)
-  const ref = useRef(null)
+  const sceneFullInfo = useSelector(selectSceneFullInfo(scene.id))
+  const nameRef = useRef(null)
   const [isRenameToggled, setIsRenameToggled] = useState(false)
+
+  const [thumbnailURL, setThumbnailURL] = useState('')
+  const fetchFiles = useFilesFromLocalOrServer()
+  const [files, setFiles] = useState<BinaryFileData[]>([])
+
+  const buildThumbnailURL = useCallback(
+    (files: BinaryFileData[]) => {
+      if (!sceneFullInfo) return
+      exportToBlob({
+        elements: sceneFullInfo.elements,
+        appState: {
+          ...sceneFullInfo.appState,
+          exportBackground: true,
+          viewBackgroundColor: '#fdfcfd', // var(--gray-1)
+        },
+        maxWidthOrHeight: 500,
+        files: Object.fromEntries(files.map((f) => [f.id, f])),
+        mimeType: MIME_TYPES.png,
+      }).then((blob) => {
+        const url = URL.createObjectURL(blob)
+        setThumbnailURL(url)
+      })
+    },
+    [sceneFullInfo]
+  )
+
+  const addFilesCallback = useCallback(
+    (filesToAppend: BinaryFileData[]) =>
+      setFiles((currentFiles) => {
+        if (!sceneFullInfo) return []
+
+        const nextFiles = [...currentFiles, ...filesToAppend]
+        buildThumbnailURL(nextFiles)
+
+        return nextFiles
+      }),
+    [sceneFullInfo, buildThumbnailURL]
+  )
+
+  useEffect(() => {
+    if (!sceneFullInfo) return
+    const fileIds = sceneFullInfo.files.map((f) => f.id)
+
+    if (fileIds.length) fetchFiles(scene.id, fileIds, addFilesCallback)
+    else buildThumbnailURL([])
+  }, [sceneFullInfo])
 
   const onRenameActivate = () => {
     setIsRenameToggled(true)
@@ -252,7 +305,7 @@ const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
     <SceneCard onClick={() => onClick()}>
       <Flex justify={'between'}>
         <EditableText
-          ref={ref}
+          ref={nameRef}
           initialValue={scene.name}
           defaultValue='Untitled Scene'
           onSubmit={(v) => onRename(v)}
@@ -297,6 +350,24 @@ const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
             </DropdownMenu.Content>
           </DropdownMenu.Root>
         </div>
+      </Flex>
+      <Flex
+        style={{
+          height: '85%',
+        }}
+        ml={'-1'}
+        mr={'-1'}
+        justify={'center'}
+        align={'center'}
+      >
+        <img
+          style={{
+            maxHeight: 120,
+            maxWidth: 165,
+          }}
+          src={thumbnailURL}
+          alt=''
+        />
       </Flex>
     </SceneCard>
   )

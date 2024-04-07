@@ -17,6 +17,7 @@ import {
   loadCreateProject,
   loadDeleteProject,
   loadProjects,
+  loadScenes,
   loadUpdateProject,
   toggleProject,
 } from '../store/projects/actions'
@@ -208,9 +209,7 @@ const ProjectsList = () => {
     dispatch(loadProjects({}))
       .unwrap()
       .then((projects) => {
-        if (projects.length && !toggledProject) {
-          dispatch(toggleProject(projects[0].id))
-        }
+        dispatch(loadScenes({}))
       })
   }, [dispatch])
 

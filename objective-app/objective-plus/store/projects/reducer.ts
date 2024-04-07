@@ -12,6 +12,7 @@ import {
   loadSceneInitial,
   resetRequestStatusAction,
   toggleProject,
+  loadScenes,
 } from './actions'
 import { selectAuth } from '../auth/reducer'
 import { AppState, BinaryFileData } from '../../../../packages/excalidraw/types'
@@ -50,8 +51,10 @@ export interface IProjectsState {
   projects: IProject[]
   toggledProjectId: IProject['id'] | undefined // use URL Path param instead
 
-  /** @deprecated */
+  /** full scenes info for thumbnails render only (scene elements could be outdated) */
   scenes: ISceneFull[]
+
+  /** target scene to request full scene info and pass it to Excalidraw state */
   currentScene: ISceneSimplified | undefined
 
   error: string | undefined
@@ -94,6 +97,13 @@ const reducer = createReducer(initialState, (builder) => {
   )
 
   // Scenes REQUEST LIFECYCLE
+
+  builder.addCase(loadScenes.fulfilled, (state, action) =>
+    saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
+      ...state,
+      scenes: action.payload,
+    })
+  )
 
   // DO NOT CHANGE state.initialSceneLoadingIsPending here, we do it in separate action above
   // and we call that action in proper time scene would be fully initialized
@@ -149,8 +159,10 @@ const reducer = createReducer(initialState, (builder) => {
 })
 
 export const selectIsPending = (state: RootState) => state.projects.pendingRequest
+
 export const selectInitialSceneLoadingIsPending = (state: RootState) =>
   state.projects.initialSceneLoadingIsPending
+
 export const selectError = (state: RootState) => state.projects.error
 
 export const selectProjects = createSelector(
@@ -168,8 +180,11 @@ export const selectToggledProject = (state: RootState) =>
 /** Select not deleted scenes of current toggled project */
 export const selectScenes = createSelector(
   [selectToggledProject],
-  (project) => project?.scenes.filter((s) => !s.is_deleted) || []
+  (project) => project?.scenes?.filter((s) => !s.is_deleted) || []
 )
+
+export const selectSceneFullInfo = (id: ISceneFull['id']) => (state: RootState) =>
+  state.projects.scenes.find((s) => s.id === id)
 
 /**
  * Get current openned Scene meta info.

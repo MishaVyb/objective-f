@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from '../../objective-plus/hooks/redux'
 import {
   createFile,
   setInitialSceneLoadingIsPending,
-  loadFile,
   loadSceneContinuos,
   loadSceneInitial,
   loadUpdateScene,
@@ -18,7 +17,7 @@ import {
   selectInitialSceneLoadingIsPending,
 } from '../../objective-plus/store/projects/reducer'
 import { isImageElement } from '../../../packages/excalidraw/element/typeChecks'
-import { AppState, ExcalidrawImperativeAPI } from '../../../packages/excalidraw/types'
+import { ExcalidrawImperativeAPI } from '../../../packages/excalidraw/types'
 import { OBJECTIVE_LIB as OBJECTIVE_LIB_ITEMS } from '../lib'
 import { objectValues } from '../utils/types'
 
@@ -26,6 +25,8 @@ import { DEFAULT_GRID_MODE, getGridMode } from './ObjectiveSettingsDialog'
 import { RestoredAppState } from '../../../packages/excalidraw/data/restore'
 import { clearAppStateForDatabase } from '../../../packages/excalidraw/appState'
 import { deepCopyElement } from '../../../packages/excalidraw/element/newElement'
+import { LocalData } from '../../../excalidraw-app/data/LocalData'
+import { useFilesFromLocalOrServer } from '../../objective-plus/store/projects/helpers'
 
 /** Implements scene loading and saving */
 const ObjectiveOuterWrapper: FC<{
@@ -37,6 +38,7 @@ const ObjectiveOuterWrapper: FC<{
   const isMyScene = useSelector(selectIsMyScene)
   const scene = useSelector(selectCurrentScene)
   const loading = useSelector(selectInitialSceneLoadingIsPending)
+  const fetchFiles = useFilesFromLocalOrServer()
 
   /** loading... */
   const loadingScene = useCallback(
@@ -87,40 +89,36 @@ const ObjectiveOuterWrapper: FC<{
             libraryItems: OBJECTIVE_LIB_ITEMS,
           })
 
+          // images that we have
           const localFiles = excalidrawApi.getFiles()
           const localFileIds = new Set(objectValues(localFiles).map((f) => f.id))
+
+          // images that we don't have
           const imageElementsWithFileNotInLocalFileIds = serializedElements
             .filter(isImageElement)
             .filter((e) => !e.isDeleted && e.fileId && !localFileIds.has(e.fileId))
+          const fileIds = imageElementsWithFileNotInLocalFileIds.map((e) => e.fileId!)
 
           // scene has been load from server, but we need a little bit more for Excalidraw internal work
           setTimeout(() => {
             dispatch(setInitialSceneLoadingIsPending(false))
           }, 100)
 
-          imageElementsWithFileNotInLocalFileIds.forEach((e) => {
-            // TODO
-            // chick is action to fetch already dispatched or not? (do not dispatche the same request)
-            dispatch(loadFile({ sceneId: scene.id, fileId: e.fileId! }))
-              .unwrap()
-              .then((value) => {
-                excalidrawApi.addFiles([
-                  {
-                    ...value,
-                    created: new Date().getTime(), // ??? it seems that it works
-                  },
-                ])
-              })
-          })
+          fetchFiles(scene.id, fileIds, excalidrawApi.addFiles)
         })
     },
     [excalidrawApi, dispatch]
   )
 
-  /** saving... */
+  /**
+   * saving...
+   * - to backend (elements, appState + files)
+   * - to local IndexDB (files)
+   *
+   * */
   const updatingScene = useCallback(() => {
     if (!excalidrawApi) return
-    const els = excalidrawApi.getSceneElements() // save on backend only not deleted elements
+    const elements = excalidrawApi.getSceneElements() // save on backend only not deleted elements
 
     // HACK
     // edge case, when we exiting from scene, Excalidraw api release elements store and return
@@ -128,7 +126,7 @@ const ObjectiveOuterWrapper: FC<{
     //
     // and it also prevents scene updateing with no elements, if any app error occurs
     //
-    if (!els.length) {
+    if (!elements.length) {
       // if in some bad scenarios initial loading fails (no elemnets have been uploaded),
       // we want ensure that scene has no elements for real (at server side),
       // so dispatch load action for one more time
@@ -142,7 +140,7 @@ const ObjectiveOuterWrapper: FC<{
     dispatch(
       loadUpdateScene({
         id: sceneId!,
-        elements: els,
+        elements: elements,
         appState: clearAppStateForDatabase(excalidrawApi.getAppState()),
       })
     )
@@ -151,13 +149,15 @@ const ObjectiveOuterWrapper: FC<{
         // TODO
         // check is action to fetch already dispatched or not? (do not dispatche the same request)
 
-        const localFiles = excalidrawApi.getFiles()
-        const localFileIds = objectValues(localFiles).map((f) => f.id)
+        // save on backend
+        const files = excalidrawApi.getFiles() // files in memory (not at server and not at local IndexDB)
+        const filesIds = objectValues(files).map((f) => f.id)
         const fileIdsStorredOnBackend = new Set(value.files.map((f) => f.id))
-        const fileIdsToSave = localFileIds.filter((id) => !fileIdsStorredOnBackend.has(id))
-        fileIdsToSave.forEach((id) =>
-          dispatch(createFile({ sceneId: sceneId!, file: localFiles[id] }))
-        )
+        const fileIdsToSave = filesIds.filter((id) => !fileIdsStorredOnBackend.has(id))
+        fileIdsToSave.forEach((id) => dispatch(createFile({ sceneId: sceneId!, file: files[id] })))
+
+        // save on local IndexDB
+        LocalData.fileStorage.saveFiles({ elements, files })
       })
   }, [excalidrawApi, dispatch, sceneId])
 

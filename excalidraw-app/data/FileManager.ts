@@ -1,3 +1,4 @@
+import { objectValues } from "../../objective-app/objective/utils/types";
 import { compressData } from "../../packages/excalidraw/data/encode";
 import { newElementWith } from "../../packages/excalidraw/element/mutateElement";
 import { isInitializedImageElement } from "../../packages/excalidraw/element/typeChecks";
@@ -64,19 +65,20 @@ export class FileManager {
     elements,
     files,
   }: {
-    elements: readonly ExcalidrawElement[];
+    elements?: readonly ExcalidrawElement[];
     files: BinaryFiles;
   }) => {
     const addedFiles: Map<FileId, BinaryFileData> = new Map();
 
-    for (const element of elements) {
-      if (
-        isInitializedImageElement(element) &&
-        files[element.fileId] &&
-        !this.isFileHandled(element.fileId)
-      ) {
-        addedFiles.set(element.fileId, files[element.fileId]);
-        this.savingFiles.set(element.fileId, true);
+    // VBRN
+    const fileIds = elements
+      ? elements.filter(isInitializedImageElement).map((e) => e.fileId)
+      : objectValues(files).map((f) => f.id);
+
+    for (const fileId of fileIds) {
+      if (files[fileId] && !this.isFileHandled(fileId)) {
+        addedFiles.set(fileId, files[fileId]);
+        this.savingFiles.set(fileId, true);
       }
     }
 
@@ -169,6 +171,11 @@ export class FileManager {
     this.savingFiles.clear();
     this.savedFiles.clear();
     this.erroredFiles.clear();
+  }
+
+  // VBRN
+  resetErroredFile(fileId: FileId) {
+    return this.erroredFiles.delete(fileId);
   }
 }
 
