@@ -15,6 +15,7 @@ import {
   selectCurrentScene,
   selectIsMyScene,
   selectInitialSceneLoadingIsPending,
+  ISceneFull,
 } from '../../objective-plus/store/projects/reducer'
 import { isImageElement } from '../../../packages/excalidraw/element/typeChecks'
 import { ExcalidrawImperativeAPI } from '../../../packages/excalidraw/types'
@@ -27,6 +28,64 @@ import { clearAppStateForDatabase } from '../../../packages/excalidraw/appState'
 import { deepCopyElement } from '../../../packages/excalidraw/element/newElement'
 import { LocalData } from '../../../excalidraw-app/data/LocalData'
 import { useFilesFromLocalOrServer } from '../../objective-plus/store/projects/helpers'
+
+/**
+ * saving...
+ * - to backend (elements, appState + files)
+ * - to local IndexDB (files)
+ *
+ * */
+export const updateScenePersistence = (
+  dispatch: ReturnType<typeof useDispatch>,
+  excalidrawApi: Pick<
+    ExcalidrawImperativeAPI,
+    'getAppState' | 'getFiles' | 'getSceneElements'
+  > | null,
+  sceneId: ISceneFull['id'] | undefined
+) => {
+  if (!excalidrawApi || !sceneId) return
+  const elements = excalidrawApi.getSceneElements() // save on backend only not deleted elements
+
+  // HACK
+  // edge case, when we exiting from scene, Excalidraw api release elements store and return
+  // empty list (but scene actually may has elements)
+  //
+  // and it also prevents scene updateing with no elements, if any app error occurs
+  //
+  if (!elements.length) {
+    // if in some bad scenarios initial loading fails (no elemnets have been uploaded),
+    // we want ensure that scene has no elements for real (at server side),
+    // so dispatch load action for one more time
+    //
+    // UNUSED ???
+    // loadingScene(loadSceneContinuos({ id: sceneId! }), { updateAppState: true })
+
+    return
+  }
+
+  dispatch(
+    loadUpdateScene({
+      id: sceneId!,
+      elements: elements,
+      appState: clearAppStateForDatabase(excalidrawApi.getAppState()),
+    })
+  )
+    .unwrap()
+    .then((value) => {
+      // TODO
+      // check is action to fetch already dispatched or not? (do not dispatche the same request)
+
+      // save on backend
+      const files = excalidrawApi.getFiles() // files in memory (not at server and not at local IndexDB)
+      const filesIds = objectValues(files).map((f) => f.id)
+      const fileIdsStorredOnBackend = new Set(value.files.map((f) => f.id))
+      const fileIdsToSave = filesIds.filter((id) => !fileIdsStorredOnBackend.has(id))
+      fileIdsToSave.forEach((id) => dispatch(createFile({ sceneId: sceneId!, file: files[id] })))
+
+      // save on local IndexDB
+      LocalData.fileStorage.saveFiles({ elements, files })
+    })
+}
 
 /** Implements scene loading and saving */
 const ObjectiveOuterWrapper: FC<{
@@ -110,68 +169,15 @@ const ObjectiveOuterWrapper: FC<{
     [excalidrawApi, dispatch]
   )
 
-  /**
-   * saving...
-   * - to backend (elements, appState + files)
-   * - to local IndexDB (files)
-   *
-   * */
-  const updatingScene = useCallback(() => {
-    if (!excalidrawApi) return
-    const elements = excalidrawApi.getSceneElements() // save on backend only not deleted elements
-
-    // HACK
-    // edge case, when we exiting from scene, Excalidraw api release elements store and return
-    // empty list (but scene actually may has elements)
-    //
-    // and it also prevents scene updateing with no elements, if any app error occurs
-    //
-    if (!elements.length) {
-      // if in some bad scenarios initial loading fails (no elemnets have been uploaded),
-      // we want ensure that scene has no elements for real (at server side),
-      // so dispatch load action for one more time
-      //
-      // UNUSED ???
-      // loadingScene(loadSceneContinuos({ id: sceneId! }), { updateAppState: true })
-
-      return
-    }
-
-    dispatch(
-      loadUpdateScene({
-        id: sceneId!,
-        elements: elements,
-        appState: clearAppStateForDatabase(excalidrawApi.getAppState()),
-      })
-    )
-      .unwrap()
-      .then((value) => {
-        // TODO
-        // check is action to fetch already dispatched or not? (do not dispatche the same request)
-
-        // save on backend
-        const files = excalidrawApi.getFiles() // files in memory (not at server and not at local IndexDB)
-        const filesIds = objectValues(files).map((f) => f.id)
-        const fileIdsStorredOnBackend = new Set(value.files.map((f) => f.id))
-        const fileIdsToSave = filesIds.filter((id) => !fileIdsStorredOnBackend.has(id))
-        fileIdsToSave.forEach((id) => dispatch(createFile({ sceneId: sceneId!, file: files[id] })))
-
-        // save on local IndexDB
-        LocalData.fileStorage.saveFiles({ elements, files })
-      })
-  }, [excalidrawApi, dispatch, sceneId])
-
-  // load scene on mount, save scene on un-mount
+  // load scene on mount
   useEffect(() => {
     loadingScene(loadSceneInitial({ id: sceneId! }))
-
     return () => {
-      // set true by as default to ensure when other scene will be opened,
-      // it will have pending status initially
+      // set true to ensure when other scene will be opened,
+      // that that other scene will have pending status at the begining
       dispatch(setInitialSceneLoadingIsPending(true))
-      updatingScene()
     }
-  }, [loadingScene, updatingScene, sceneId])
+  }, [loadingScene, sceneId])
 
   // auto save/load
   useEffect(() => {
@@ -181,7 +187,7 @@ const ObjectiveOuterWrapper: FC<{
     if (isMyScene) {
       // AUTO SAVE
       interval = setInterval(() => {
-        updatingScene()
+        updateScenePersistence(dispatch, excalidrawApi, sceneId)
       }, SCENE_PERSISTENCE.AUTO_SAVE_INTERVAL_MS)
     } else {
       //
@@ -192,7 +198,7 @@ const ObjectiveOuterWrapper: FC<{
     }
 
     return () => clearInterval(interval)
-  }, [updatingScene, loading, isMyScene, loadingScene, sceneId])
+  }, [loading, isMyScene, loadingScene, sceneId, excalidrawApi])
 
   // in case scene opened by link, toggle scene project
   useEffect(() => {

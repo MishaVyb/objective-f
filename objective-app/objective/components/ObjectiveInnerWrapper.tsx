@@ -2,7 +2,7 @@ import isEqual from 'lodash/isEqual'
 import { FC, ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react'
 import * as Tooltip from '@radix-ui/react-tooltip'
 
-import { useSelector } from '../../objective-plus/hooks/redux'
+import { useDispatch, useSelector } from '../../objective-plus/hooks/redux'
 import {
   selectIsMyScene,
   selectInitialSceneLoadingIsPending,
@@ -19,6 +19,8 @@ import { CameraMeta } from '../meta/types'
 import { useMouse } from '../hooks/useMouse'
 import { getLastLineLength, numberToStr } from '../elements/math'
 import { LoadingMessage } from '../../../packages/excalidraw/components/LoadingMessage'
+import { updateScenePersistence } from './ObjectiveOuterWrapper'
+import { useParams } from 'react-router-dom'
 
 /**
  * Extra contexts
@@ -32,14 +34,17 @@ export const useExcalidrawFiles = () => useContext(ExcalidrawFilesContext)
 /**
  * Helper component.
  * - Handle custom context providers.
- * - Handle loading span.
+ * - Handle loading/saving span.
  */
 const ObjectiveInnerWrapper: FC<{ children: ReactNode }> = ({ children }) => {
+  const dispatch = useDispatch()
   const app = useApp() as App
   const { multiElement } = useExcalidrawAppState()
+  const appState = useExcalidrawAppState()
   const elements = useExcalidrawElements()
 
   const loading = useSelector(selectInitialSceneLoadingIsPending)
+  const { sceneId } = useParams()
   const isMyScene = useSelector(selectIsMyScene)
 
   const showMeasurement = !!multiElement // TODO show when `appState.editingLinearElement`
@@ -87,6 +92,22 @@ const ObjectiveInnerWrapper: FC<{ children: ReactNode }> = ({ children }) => {
       })
     }
   }, [isMyScene, loading, app])
+
+  /** saving scene on elements changes */
+  useEffect(() => {
+    updateScenePersistence(
+      dispatch,
+      {
+        getFiles: () => app.files,
+        getSceneElements: () => elements,
+
+        // FIXME we should pass appState as dependency,
+        // but it will trigger updates for every scroll movement
+        getAppState: () => app.state,
+      },
+      sceneId
+    )
+  }, [elements, app])
 
   if (loading) return <LoadingMessage />
 
