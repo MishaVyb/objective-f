@@ -712,7 +712,7 @@ const ExcalidrawWrapper = () => {
             toggleTheme: false,
           },
         }}
-        langCode={langCode}
+        langCode={defaultLang.code} // VBRN
         renderCustomStats={renderCustomStats}
         detectScroll={false}
         handleKeyboardGlobally={true}

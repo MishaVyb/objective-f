@@ -8,6 +8,7 @@ import {
   Flex,
   Heading,
   IconButton,
+  Separator,
   Tabs,
   Text,
   TextField,
@@ -351,6 +352,7 @@ const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
           </DropdownMenu.Root>
         </div>
       </Flex>
+      <Separator size={'4'} mt='1' />
       <Flex
         style={{
           height: '85%',

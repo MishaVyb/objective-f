@@ -47,9 +47,9 @@ export const AppMainMenu: React.FC<{
       <MainMenu.DefaultItems.ToggleTheme />
       */}
       <MainMenu.Separator />
-      <MainMenu.ItemCustom>
+      {/* <MainMenu.ItemCustom>
         <LanguageList style={{ width: "100%" }} />
-      </MainMenu.ItemCustom>
+      </MainMenu.ItemCustom> */}
       <MainMenu.DefaultItems.ChangeCanvasBackground />
     </MainMenu>
   );
