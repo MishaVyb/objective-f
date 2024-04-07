@@ -15,12 +15,14 @@ export const useFilesFromLocalOrServer = () => {
       addFilesCallback: ExcalidrawImperativeAPI['addFiles']
     ) => {
       LocalData.fileStorage.getFiles(fileIds).then(({ loadedFiles, erroredFiles }) => {
-        console.debug(
-          'Files loaded from IndexDB',
-          loadedFiles,
-          'Files not found at IndexDB (load from server)',
-          [...erroredFiles.keys()]
-        )
+        // DEBUG
+        // console.debug(
+        //   'Files loaded from IndexDB',
+        //   loadedFiles,
+        //   'Files not found at IndexDB (load from server)',
+        //   [...erroredFiles.keys()]
+        // )
+
         addFilesCallback(loadedFiles)
 
         for (const fileId of erroredFiles.keys()) {
