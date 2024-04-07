@@ -92,6 +92,9 @@ export const SaveToActiveFile = () => {
   return (
     <DropdownMenuItem
       // shortcut={getShortcutFromShortcutName("saveScene")}
+      title={`Save to active file — ${getShortcutFromShortcutName(
+        "saveScene",
+      )}`}
       data-testid="save-button"
       onSelect={() => actionManager.executeAction(actionSaveToActiveFile)}
       icon={save}
@@ -111,6 +114,7 @@ export const SaveAsImage = () => {
   const { t } = useI18n();
   return (
     <DropdownMenuItem
+      title={`Export as image — ${getShortcutFromShortcutName("imageExport")}`}
       icon={ExportImageIcon}
       data-testid="image-export-button"
       onSelect={() => setAppState({ openDialog: { name: "imageExport" } })}
@@ -157,7 +161,9 @@ export const ClearCanvas = () => {
 
   return (
     <DropdownMenuItem
-      title="Remove all elements"
+      title={`Remove all elements — ${getShortcutFromShortcutName(
+        "clearCanvas",
+      )}`}
       icon={TrashIcon}
       onSelect={() => setActiveConfirmDialog("clearCanvas")}
       data-testid="clear-canvas-button"
@@ -230,6 +236,7 @@ export const ChangeCanvasBackground = () => {
 };
 ChangeCanvasBackground.displayName = "ChangeCanvasBackground";
 
+/** Save to a file ... */
 export const Export = () => {
   const { t } = useI18n();
   const setAppState = useExcalidrawSetAppState();

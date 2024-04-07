@@ -23,23 +23,28 @@ const TopLeftUI: FC<{ children: ReactNode }> = ({ children }) => {
   }, [isPending])
 
   return (
-    <Flex gap={'2'} style={{ maxWidth: '40px' }}>
-      <Flex gap={'2'}>
-        <div className='undo-redo-buttons'>
-          <ToolButton
-            title={'Go back to projects'}
-            type='button'
-            icon={<ArrowLeftIcon />}
-            onClick={() => navigate('/')}
-            aria-label={'undefined'}
-          />
-        </div>
-        {children}
-        <Text weight={'bold'} size={'1'}>
-          {appState.name}
-        </Text>
-        {showSavingDialog && <SymbolIcon style={{ opacity: '10%' }} />}
-      </Flex>
+    <Flex gap={'2'}>
+      <div className='undo-redo-buttons'>
+        <ToolButton
+          title={'Go back to projects'}
+          type='button'
+          icon={<ArrowLeftIcon />}
+          onClick={() => navigate('/')}
+          aria-label={'undefined'}
+        />
+      </div>
+      {children}
+      <Text
+        weight={'bold'}
+        size={'1'}
+        style={{
+          whiteSpace: 'nowrap',
+          textOverflow: 'ellipsis', // FIXME doesn't work ...
+        }}
+      >
+        {appState.name}
+      </Text>
+      {showSavingDialog && <SymbolIcon style={{ opacity: '10%' }} />}
     </Flex>
   )
 }

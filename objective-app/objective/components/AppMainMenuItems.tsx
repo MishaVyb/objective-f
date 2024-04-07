@@ -41,7 +41,7 @@ const NewScene: FC = () => {
 
   return (
     <DropdownMenuItem
-      title='Open or create scene'
+      title='Open or create new scene'
       icon={<FilePlusIcon />}
       onSelect={handleSelect}
       data-testid='load-button'
@@ -148,7 +148,7 @@ const SaveScene: FC = () => {
   return (
     <>
       <DropdownMenuItem
-        title='Save to a local file'
+        title='Save to a local file' // TODO ${getShortcutFromShortcutName("")}
         icon={ExportIcon}
         onClick={() => onOpenChange(true)}
         data-testid='load-button'
