@@ -1,6 +1,6 @@
 import { FC, ReactNode, useCallback, useEffect } from 'react'
 
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import { SCENE_PERSISTENCE, __DEBUG_ENSURE_THEME } from '../../objective-plus/constants'
 import { useDispatch, useSelector } from '../../objective-plus/hooks/redux'
 import {
@@ -8,7 +8,6 @@ import {
   setInitialSceneLoadingIsPending,
   loadSceneContinuos,
   loadSceneInitial,
-  loadUpdateScene,
   loadUpdateSceneContinuos,
   toggleProject,
 } from '../../objective-plus/store/projects/actions'
@@ -96,6 +95,7 @@ const ObjectiveOuterWrapper: FC<{
 }> = ({ excalidrawApi, children }) => {
   const dispatch = useDispatch()
   const { sceneId } = useParams()
+  const { state } = useLocation()
   const isMyScene = useSelector(selectIsMyScene)
   const scene = useSelector(selectCurrentScene)
   const loading = useSelector(selectInitialSceneLoadingIsPending)
@@ -133,6 +133,9 @@ const ObjectiveOuterWrapper: FC<{
 
             // overrides (debug)
             theme: __DEBUG_ENSURE_THEME ? __DEBUG_ENSURE_THEME : excalidrawApi.getAppState().theme,
+
+            // overrides (from navigation)
+            ...(state?.appStateOverrides || {}),
           }
 
           // ensure objective settings

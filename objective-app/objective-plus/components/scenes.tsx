@@ -30,6 +30,7 @@ import {
   loadDeleteScene,
   loadProjects,
   loadSceneInitial,
+  loadScenes,
   loadUpdateScene,
 } from '../store/projects/actions'
 import {
@@ -117,7 +118,12 @@ const AddSceneItem: FC = () => {
             project_id: project?.id,
             appState: v.appState,
             elements: v.elements,
-            // files: v.files, // TODO
+
+            // HACK
+            // files migrations from one scene to another works out of the box, as we have the
+            // same fileIds that shared among any scenes. So, when we use some ImageElement from
+            // another scene at new scene, it will point to the same fileId
+            // files: v.files,
           })
         )
           .unwrap()
@@ -308,7 +314,12 @@ const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
       .then((scene) =>
         dispatch(loadCreateScene({ ...scene, name: scene.name + ' [duplicate]' })) // TODO: counter
           .unwrap()
-          .then(() => dispatch(loadProjects({})))
+          .then(() => {
+            dispatch(loadProjects({}))
+            //
+            // TODO request only 1 scene and insert that scene into store
+            dispatch(loadScenes({}))
+          })
       )
   }
 
@@ -316,6 +327,14 @@ const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
     dispatch(loadUpdateScene({ id: scene.id, project_id: p.id }))
       .unwrap()
       .then(() => dispatch(loadProjects({})))
+  }
+
+  const onExportClick = () => {
+    // TMP solution
+    const appStateOverrides: Partial<AppState> = {
+      openDialog: { name: 'imageExport' },
+    }
+    navigate(`/scenes/${scene.id}`, { state: { appStateOverrides } })
   }
 
   const onClick = () => {
@@ -383,7 +402,7 @@ const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
               <CustomDropDownMenuItem
                 Icon={ImageIcon}
                 text={'Export'}
-                // onClick={onDuplicate} //
+                onClick={onExportClick} //
               />
               <DropdownMenu.Separator />
               <CustomDropDownMenuItem
