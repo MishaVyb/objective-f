@@ -120,6 +120,9 @@ export const toggleProject = createAction<IProject['id']>('projects/toggleProjec
 export const setInitialSceneLoadingIsPending = createAction<boolean>(
   'projects/setInitialLoadingSceneStatus'
 )
+export const setContinuousSceneUpdateIsPending = createAction<boolean>(
+  'projects/setContinuousSceneUpdateIsPending'
+)
 
 export const loadProjects = createAsyncThunk<
   TGetProjectsResponse,
@@ -194,6 +197,23 @@ export const loadUpdateScene = createAsyncThunk<
 >('projects/loadUpdateScene', ({ id, ...payload }, thunkApi) =>
   safeAsyncThunk(thunkApi, () => fetchUpdateScene(id, payload, selectAuth(thunkApi.getState())))
 )
+
+export const loadUpdateSceneContinuos = createAsyncThunk<
+  TUpdateSceneResponse | null,
+  TUpdateSceneThunkArg,
+  ThunkApiConfig
+>('projects/loadUpdateSceneContinuos', async ({ id, ...payload }, thunkApi) => {
+  const pending = thunkApi.getState().projects.continuousSceneUpdateIsPending
+  if (pending) return null
+
+  thunkApi.dispatch(setContinuousSceneUpdateIsPending(true))
+  const result = await safeAsyncThunk(thunkApi, () =>
+    fetchUpdateScene(id, payload, selectAuth(thunkApi.getState()))
+  )
+  thunkApi.dispatch(setContinuousSceneUpdateIsPending(false))
+
+  return result
+})
 
 export const loadDeleteScene = createAsyncThunk<
   TDeleteSceneResponse,

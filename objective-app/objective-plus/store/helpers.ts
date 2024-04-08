@@ -46,6 +46,6 @@ export const safeAsyncThunk = async <TResponse>(
 
     // Error not a Response or Unknown response error:
     console.error('Unknown error in request: ', response_data || e)
-    throw thunkApi.rejectWithValue('Something went wrong. Please, try again. ')
+    return thunkApi.rejectWithValue('Something went wrong. Please, try again. ')
   }
 }

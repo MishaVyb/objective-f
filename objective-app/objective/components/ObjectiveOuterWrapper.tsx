@@ -9,6 +9,7 @@ import {
   loadSceneContinuos,
   loadSceneInitial,
   loadUpdateScene,
+  loadUpdateSceneContinuos,
   toggleProject,
 } from '../../objective-plus/store/projects/actions'
 import {
@@ -64,7 +65,7 @@ export const updateScenePersistence = (
   }
 
   dispatch(
-    loadUpdateScene({
+    loadUpdateSceneContinuos({
       id: sceneId!,
       elements: elements,
       appState: clearAppStateForDatabase(excalidrawApi.getAppState()),
@@ -72,8 +73,9 @@ export const updateScenePersistence = (
   )
     .unwrap()
     .then((value) => {
-      // TODO
-      // check is action to fetch already dispatched or not? (do not dispatche the same request)
+      if (!value) return // prev request is still panding
+
+      // HANDLE FILES:
 
       // save on backend
       const files = excalidrawApi.getFiles() // files in memory (not at server and not at local IndexDB)

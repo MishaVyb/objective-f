@@ -13,6 +13,7 @@ import {
   resetRequestStatusAction,
   toggleProject,
   loadScenes,
+  setContinuousSceneUpdateIsPending,
 } from './actions'
 import { selectAuth } from '../auth/reducer'
 import { AppState, BinaryFileData } from '../../../../packages/excalidraw/types'
@@ -61,6 +62,7 @@ export interface IProjectsState {
   pendingRequest: boolean
   /** Pending initial loading */
   initialSceneLoadingIsPending: boolean
+  continuousSceneUpdateIsPending: boolean
 }
 
 export const initialState: IProjectsState = {
@@ -71,6 +73,7 @@ export const initialState: IProjectsState = {
   error: undefined,
   pendingRequest: false,
   initialSceneLoadingIsPending: true, // default true so when component is mounted for the fist time, it will render Loader immediately
+  continuousSceneUpdateIsPending: false,
 }
 
 const reducer = createReducer(initialState, (builder) => {
@@ -82,8 +85,14 @@ const reducer = createReducer(initialState, (builder) => {
     })
   )
 
+  // -------------------- Regular Actions - requests lifecycle ----------------------------
+
   builder.addCase(setInitialSceneLoadingIsPending, (state, action) => {
     state.initialSceneLoadingIsPending = action.payload
+    return state
+  })
+  builder.addCase(setContinuousSceneUpdateIsPending, (state, action) => {
+    state.continuousSceneUpdateIsPending = action.payload
     return state
   })
 
