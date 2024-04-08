@@ -13,11 +13,11 @@
 @import '@radix-ui/themes/styles.css';
 
 // HACK Override style of saved password field in google chrome
-input:-webkit-autofill {
-  -webkit-box-shadow: 200px 200px 100px white inset;
-  box-shadow: 200px 200px 100px white inset;
-  border-radius: var(--radius-1);
-}
+// input:-webkit-autofill {
+//   -webkit-box-shadow: 200px 200px 100px white inset;
+//   box-shadow: 200px 200px 100px white inset;
+//   border-radius: var(--radius-1);
+// }
 
 a {
   text-decoration: none;

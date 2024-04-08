@@ -1,10 +1,10 @@
-import { Button, Flex, Heading, IconButton, Link, Text, TextField } from '@radix-ui/themes'
+import { Button, Flex, Heading, IconButton, Link, Spinner, Text, TextField } from '@radix-ui/themes'
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from '../../../hooks/redux'
 import { loadLogin, loadUser, resetRequestStatusAction } from '../../../store/auth/actions'
 import { selectAuthError, selectAuthIsPending } from '../../../store/auth/reducer'
 
-import { EyeClosedIcon, EyeOpenIcon, SymbolIcon } from '@radix-ui/react-icons'
+import { EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
 import { useNavigate } from 'react-router-dom'
 import { ObjectiveCard, RootBox } from '../../../components/layout'
 import { ACCENT_COLOR } from '../../../constants'
@@ -51,27 +51,26 @@ const LoginPage = () => {
           <Heading ml={'1'} size={'3'} weight={'medium'}>
             Enter to Objective Plus
           </Heading>
-          <TextField.Root mt={'5'}>
-            <TextField.Root
-              placeholder='Enter your email'
-              type='email'
-              name='email'
-              autoComplete={'username'}
-              required
-              onChange={onFormChange}
-              disabled={loading}
-            />
-          </TextField.Root>
-          <TextField.Root mt={'1'}>
-            <TextField.Root
-              placeholder='Enter your password'
-              type={showPassword ? 'text' : 'password'}
-              name='password'
-              autoComplete={'current-password'}
-              required
-              onChange={onFormChange}
-              disabled={loading}
-            />
+          <TextField.Root
+            mt={'5'}
+            placeholder='Enter your email'
+            type='email'
+            name='email'
+            autoComplete={'username'}
+            required
+            onChange={onFormChange}
+            disabled={loading}
+          />
+          <TextField.Root
+            mt={'1'}
+            placeholder='Enter your password'
+            type={showPassword ? 'text' : 'password'}
+            name='password'
+            autoComplete={'current-password'}
+            required
+            onChange={onFormChange}
+            disabled={loading}
+          >
             <TextField.Slot>
               <IconButton
                 onClick={() => setShowPassword(!showPassword)}
@@ -90,9 +89,11 @@ const LoginPage = () => {
           )}
 
           <Flex justify={'center'} align={'center'} pt={'2'} pr={'2'} gap={'2'}>
-            <Button type={'submit'} variant='surface' size={'2'} disabled={loading}>
-              {loading ? <SymbolIcon /> : 'Sign In'}
-            </Button>
+            <Spinner loading={loading}>
+              <Button type={'submit'} variant='surface' size={'2'} disabled={loading}>
+                {'Sign In'}
+              </Button>
+            </Spinner>
           </Flex>
           <Text mt={'5'} size={'1'} color={'gray'}>
             Not registered?

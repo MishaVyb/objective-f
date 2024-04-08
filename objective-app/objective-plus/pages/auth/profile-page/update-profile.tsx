@@ -1,11 +1,5 @@
-import {
-  Cross2Icon,
-  EyeClosedIcon,
-  EyeOpenIcon,
-  Pencil1Icon,
-  SymbolIcon,
-} from '@radix-ui/react-icons'
-import { Button, Flex, IconButton, Select, Text, TextField } from '@radix-ui/themes'
+import { Cross2Icon, EyeClosedIcon, EyeOpenIcon, Pencil1Icon } from '@radix-ui/react-icons'
+import { Button, Flex, IconButton, Select, Spinner, Text, TextField } from '@radix-ui/themes'
 import { ChangeEvent, FC, FormEvent, RefObject, useEffect, useMemo, useRef, useState } from 'react'
 import { objectEntries, objectKeys } from '../../../../objective/utils/types'
 import { ObjectiveCard, RootBox } from '../../../components/layout'
@@ -57,6 +51,7 @@ const UpdateProfile: FC = () => {
   }
 
   const loading = useSelector(selectAuthIsPending)
+  console.log({loading})
   const error = useSelector(selectAuthError)
 
   const dispatch = useDispatch()
@@ -146,42 +141,39 @@ const UpdateProfile: FC = () => {
         <Flex ml={'-9'}>
           <ProfileNavbar />
           <ObjectiveCard extraClass={{ 'error-border': error }}>
-            <TextField.Root>
-              <TextField.Root
-                ref={inputRefs.email}
-                value={form.email}
-                placeholder='Update email'
-                type='email'
-                name='email'
-                autoComplete={'username'}
-                onChange={onFormChange}
-                disabled={!toggleUpdate.email}
-              />
+            <TextField.Root
+              ref={inputRefs.email}
+              value={form.email}
+              placeholder='Update email'
+              type='email'
+              name='email'
+              autoComplete={'username'}
+              onChange={onFormChange}
+              disabled={!toggleUpdate.email}
+            >
               {getToggleUpdateController('email')}
             </TextField.Root>
-            <TextField.Root>
-              <TextField.Root
-                ref={inputRefs.username}
-                value={form.username}
-                placeholder='Update username'
-                type='text'
-                name='username'
-                onChange={onFormChange}
-                disabled={!toggleUpdate.username}
-              />
+            <TextField.Root
+              ref={inputRefs.username}
+              value={form.username}
+              placeholder='Update username'
+              type='text'
+              name='username'
+              onChange={onFormChange}
+              disabled={!toggleUpdate.username}
+            >
               {getToggleUpdateController('username')}
             </TextField.Root>
-            <TextField.Root>
-              <TextField.Root
-                ref={inputRefs.password}
-                value={form.password}
-                placeholder='Update password'
-                type={showPassword ? 'text' : 'password'}
-                name='password'
-                autoComplete={'current-password'}
-                onChange={onFormChange}
-                disabled={!toggleUpdate.password}
-              />
+            <TextField.Root
+              ref={inputRefs.password}
+              value={form.password}
+              placeholder='Update password'
+              type={showPassword ? 'text' : 'password'}
+              name='password'
+              autoComplete={'current-password'}
+              onChange={onFormChange}
+              disabled={!toggleUpdate.password}
+            >
               {toggleUpdate.password && (
                 <TextField.Slot>
                   <IconButton
@@ -227,9 +219,11 @@ const UpdateProfile: FC = () => {
                 </IconButton>
               )}
 
-              <Button variant={'outline'} size={'1'} disabled={loading || !wasChanged}>
-                {loading ? <SymbolIcon /> : 'Update'}
-              </Button>
+              <Spinner loading={loading}>
+                <Button variant={'outline'} size={'1'} disabled={loading || !wasChanged}>
+                  {'Update'}
+                </Button>
+              </Spinner>
             </Flex>
           </ObjectiveCard>
         </Flex>

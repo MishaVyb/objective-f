@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Theme } from "../element/types";
 import { RootBox } from "../../../objective-app/objective-plus/components/layout";
-import { Flex, Text } from "@radix-ui/themes";
-import { SymbolIcon } from "@radix-ui/react-icons";
+import { Flex, Spinner, Text } from "@radix-ui/themes";
 
 export const LoadingMessage: React.FC<{ delay?: number; theme?: Theme }> = ({
   delay,
@@ -27,7 +26,7 @@ export const LoadingMessage: React.FC<{ delay?: number; theme?: Theme }> = ({
   return (
     <RootBox>
       <Flex justify={"center"} align={"center"} gap={"2"}>
-        <SymbolIcon />
+        <Spinner loading />
         <Text>loading</Text>
       </Flex>
     </RootBox>

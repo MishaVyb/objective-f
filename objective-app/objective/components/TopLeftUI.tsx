@@ -1,6 +1,6 @@
-import { ArrowLeftIcon, SymbolIcon } from '@radix-ui/react-icons'
-import { Flex, IconButton, Text } from '@radix-ui/themes'
-import { FC, ReactNode, useEffect, useState } from 'react'
+import { ArrowLeftIcon } from '@radix-ui/react-icons'
+import { Flex, Spinner, Text } from '@radix-ui/themes'
+import { FC, ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from '../../objective-plus/hooks/redux'
 import { selectContinuousSceneUpdateIsPending } from '../../objective-plus/store/projects/reducer'
@@ -37,11 +37,7 @@ const TopLeftUI: FC<{ children: ReactNode }> = ({ children }) => {
       >
         {appState.name}
       </Text>
-      <SymbolIcon
-        color={'gray'}
-        className={clsx({ 'fade-out': !isPending })} //
-        // style={{ opacity: '20%' }}
-      />
+      <Spinner className={clsx({ 'fade-out': !isPending })} />
     </Flex>
   )
 }

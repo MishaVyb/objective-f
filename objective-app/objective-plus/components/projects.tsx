@@ -1,9 +1,7 @@
 import {
   DotsVerticalIcon,
   FilePlusIcon,
-  Pencil2Icon,
-  SymbolIcon,
-  TrashIcon,
+  Pencil2Icon, TrashIcon
 } from '@radix-ui/react-icons'
 import {
   Button,

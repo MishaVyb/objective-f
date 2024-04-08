@@ -1,4 +1,4 @@
-import { EyeClosedIcon, EyeOpenIcon, SymbolIcon } from '@radix-ui/react-icons'
+import { EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
 import {
   Button,
   Checkbox,
@@ -7,6 +7,7 @@ import {
   IconButton,
   Link,
   Select,
+  Spinner,
   Text,
   TextField,
 } from '@radix-ui/themes'
@@ -80,27 +81,25 @@ const RegisterPage: FC = () => {
             Create an account at Objective Plus
           </Heading>
 
-          <TextField.Root mt={'5'}>
-            <TextField.Root
-              value={form.email}
-              placeholder='E-mail'
-              type='email'
-              name='email'
-              autoComplete={'username'}
-              onChange={onFormChange}
-            />
-          </TextField.Root>
+          <TextField.Root
+            mt={'5'}
+            value={form.email}
+            placeholder='E-mail'
+            type='email'
+            name='email'
+            autoComplete={'username'}
+            onChange={onFormChange}
+          />
 
-          <TextField.Root>
-            <TextField.Root
-              value={form.password}
-              placeholder='Password'
-              type={showPassword ? 'text' : 'password'}
-              name='password'
-              autoComplete={'current-password'}
-              onChange={onFormChange}
-              required
-            />
+          <TextField.Root
+            value={form.password}
+            placeholder='Password'
+            type={showPassword ? 'text' : 'password'}
+            name='password'
+            autoComplete={'current-password'}
+            onChange={onFormChange}
+            required
+          >
             <TextField.Slot>
               <IconButton
                 onClick={() => setShowPassword(!showPassword)}
@@ -113,15 +112,14 @@ const RegisterPage: FC = () => {
           </TextField.Root>
 
           {/* <Separator size={'4'} mt={'3'} /> */}
-          <TextField.Root mt={'3'}>
-            <TextField.Root
-              value={form.username}
-              placeholder='Username'
-              type='text'
-              name='username'
-              onChange={onFormChange}
-            />
-          </TextField.Root>
+          <TextField.Root
+            mt={'3'}
+            value={form.username}
+            placeholder='Username'
+            type='text'
+            name='username'
+            onChange={onFormChange}
+          />
 
           <Select.Root
             value={form.role}
@@ -155,9 +153,11 @@ const RegisterPage: FC = () => {
           )}
 
           <Flex justify={'center'} align={'center'} pt={'2'} pr={'2'} gap={'2'}>
-            <Button variant='surface' size={'2'} disabled={loading || !requiredFieldsAreFilled}>
-              {loading ? <SymbolIcon /> : 'Sign In'}
-            </Button>
+            <Spinner loading={loading}>
+              <Button variant='surface' size={'2'} disabled={loading || !requiredFieldsAreFilled}>
+                {'Sign In'}
+              </Button>
+            </Spinner>
           </Flex>
 
           <Text mt={'5'} size={'1'} color={'gray'}>
