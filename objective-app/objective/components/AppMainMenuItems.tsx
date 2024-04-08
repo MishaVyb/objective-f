@@ -70,8 +70,7 @@ const RenameScene: FC = () => {
   }
 
   const onRename = () => {
-    onOpenChange(false)
-    setAppState({ ...appState, name: name, openMenu: null })
+    setAppState({ ...appState, name: name, openMenu: null, openDialog: null })
     dispatch(loadUpdateScene({ id: sceneId!, name: name }))
       .unwrap()
       .then(() => dispatch(loadProjects({})))
@@ -104,19 +103,15 @@ const RenameScene: FC = () => {
           />
 
           <Flex gap='3' mt='4' justify='end'>
-            <Dialog.Close>
-              <Button variant='soft' color='gray'>
-                Cancel
-              </Button>
-            </Dialog.Close>
-            <Dialog.Close>
-              <Button
-                variant={'soft'} //
-                onClick={onRename}
-              >
-                Save
-              </Button>
-            </Dialog.Close>
+            <Button variant='soft' color='gray' onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant={'soft'} //
+              onClick={onRename}
+            >
+              Save
+            </Button>
           </Flex>
         </Dialog.Content>
       </Dialog.Root>
