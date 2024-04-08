@@ -175,6 +175,20 @@
   visibility: hidden;
 }
 
+.fade-out {
+  animation: fadeOut ease 1.5s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 .capitalize-first::first-letter {
   text-transform: uppercase;
 }

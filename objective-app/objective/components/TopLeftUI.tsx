@@ -3,24 +3,15 @@ import { Flex, IconButton, Text } from '@radix-ui/themes'
 import { FC, ReactNode, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from '../../objective-plus/hooks/redux'
-import { selectIsPending } from '../../objective-plus/store/projects/reducer'
+import { selectContinuousSceneUpdateIsPending } from '../../objective-plus/store/projects/reducer'
 import { useExcalidrawAppState } from '../../../packages/excalidraw/components/App'
 import { ToolButton } from '../../../packages/excalidraw/components/ToolButton'
-
-const SHOW_SAVING_DEALOG_DELAY_MS = 1500
+import clsx from 'clsx'
 
 const TopLeftUI: FC<{ children: ReactNode }> = ({ children }) => {
   const navigate = useNavigate()
-  const isPending = useSelector(selectIsPending)
-  const [showSavingDialog, setShowSavingDialog] = useState(false)
+  const isPending = useSelector(selectContinuousSceneUpdateIsPending)
   const appState = useExcalidrawAppState()
-
-  useEffect(() => {
-    if (isPending) {
-      setShowSavingDialog(true)
-      setTimeout(() => setShowSavingDialog(false), SHOW_SAVING_DEALOG_DELAY_MS)
-    }
-  }, [isPending])
 
   return (
     <Flex gap={'2'}>
@@ -38,7 +29,7 @@ const TopLeftUI: FC<{ children: ReactNode }> = ({ children }) => {
         weight={'bold'}
         size={'1'}
         style={{
-          width: 170,
+          maxWidth: 150,
           overflow: 'hidden',
           whiteSpace: 'nowrap',
           textOverflow: 'ellipsis',
@@ -46,7 +37,11 @@ const TopLeftUI: FC<{ children: ReactNode }> = ({ children }) => {
       >
         {appState.name}
       </Text>
-      {showSavingDialog && <SymbolIcon style={{ opacity: '10%' }} />}
+      <SymbolIcon
+        color={'gray'}
+        className={clsx({ 'fade-out': !isPending })} //
+        // style={{ opacity: '20%' }}
+      />
     </Flex>
   )
 }

@@ -168,6 +168,8 @@ const reducer = createReducer(initialState, (builder) => {
 })
 
 export const selectIsPending = (state: RootState) => state.projects.pendingRequest
+export const selectContinuousSceneUpdateIsPending = (state: RootState) =>
+  state.projects.continuousSceneUpdateIsPending
 
 export const selectInitialSceneLoadingIsPending = (state: RootState) =>
   state.projects.initialSceneLoadingIsPending
