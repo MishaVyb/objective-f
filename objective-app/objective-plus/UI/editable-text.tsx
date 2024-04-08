@@ -10,7 +10,6 @@ type TEditableTextProps = {
 
 const EditableText = forwardRef<HTMLInputElement, TEditableTextProps>(
   ({ initialValue, defaultValue, onSubmit, toggled }, nameInputRef) => {
-    const [isEdit, setIsEdit] = useState(toggled)
     const [value, setValue] = useState(initialValue)
 
     const onTextClick = useCallback(
@@ -18,7 +17,6 @@ const EditableText = forwardRef<HTMLInputElement, TEditableTextProps>(
         if (e) e.stopPropagation()
         //@ts-ignore
         setTimeout(() => nameInputRef?.current?.focus(), 0)
-        setIsEdit(true)
       },
       [nameInputRef]
     )
@@ -32,45 +30,31 @@ const EditableText = forwardRef<HTMLInputElement, TEditableTextProps>(
     }
 
     const onDoneEditing = () => {
-      setIsEdit(false)
-
       const cleanValue = value || defaultValue
       if (cleanValue !== value) setValue(cleanValue)
       if (cleanValue !== initialValue) onSubmit(cleanValue)
     }
 
-    if (isEdit)
-      return (
-        <TextField.Root>
-          <TextField.Input
-            ref={nameInputRef}
-            value={value}
-            size={'1'}
-            onChange={(e) => setValue(e.target.value)}
-            onFocus={onInputFocus}
-            onBlur={onDoneEditing}
-            onKeyUp={(e) => e.key === 'Enter' && onDoneEditing()}
-            onClick={(e) => e.stopPropagation()}
-          />
-        </TextField.Root>
-      )
-
     return (
-      <Text
+      <TextField.Root
         style={{
-          width: 120,
-          overflow: 'hidden',
-          whiteSpace: 'nowrap',
-          textOverflow: 'ellipsis',
+          width: 123, // TODO configurable
+
+          // NOTE: its not working for imputs
+          // overflow: 'hidden',
+          // whiteSpace: 'nowrap',
+          // textOverflow: 'ellipsis',
         }}
-        className='editable-text'
-        m={'1'}
+        className='ghost-text-field'
+        ref={nameInputRef}
+        value={value}
         size={'1'}
-        as={'p'}
-        onClick={(e) => onTextClick(e)}
-      >
-        {value}
-      </Text>
+        onChange={(e) => setValue(e.target.value)}
+        onFocus={onInputFocus}
+        onBlur={onDoneEditing}
+        onKeyUp={(e) => e.key === 'Enter' && onDoneEditing()}
+        onClick={(e) => e.stopPropagation()}
+      />
     )
   }
 )

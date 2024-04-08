@@ -171,4 +171,28 @@ a {
       }
     }
   }
+
+
+  .ghost-text-field {
+    // styles for <textfield />
+
+    border: 0px solid transparent !important;
+    --accent-a8: transparent !important;  // disable blue frame on :active
+    background-color: transparent !important;
+
+    // styles for <textaria />
+    box-shadow: inset 0 0 0 0px transparent !important; // disable gray frame (standby)
+    --accent-8: transparent !important; // disable blue frame on :active
+
+
+    &:hover {
+      background-color: var(--accent-3) !important;
+
+      // &.toggled {
+      //   background-color: var(--gray-3) !important;
+      // }
+    }
+
+
+  }
 }
