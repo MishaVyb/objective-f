@@ -26,8 +26,8 @@ import {
 import { Sidebar } from '../../../packages/excalidraw'
 import { ACCENT_COLOR } from '../../objective-plus/constants'
 
-export const MySceneShareOptions = () => {
-  const url = window.location.href
+export const MySceneShareOptions: FC<{ url?: string }> = (props) => {
+  const url = props.url || window.location.href
   return (
     <>
       <Heading size={'3'} color={ACCENT_COLOR}>

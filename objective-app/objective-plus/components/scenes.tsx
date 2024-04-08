@@ -1,4 +1,12 @@
-import { DotsVerticalIcon, PlusIcon } from '@radix-ui/react-icons'
+import {
+  DotsVerticalIcon,
+  EnterIcon,
+  FilePlusIcon,
+  ImageIcon,
+  Link2Icon,
+  Pencil2Icon,
+  TrashIcon,
+} from '@radix-ui/react-icons'
 import {
   Box,
   Button,
@@ -40,7 +48,10 @@ import { AppState, BinaryFileData } from '../../../packages/excalidraw/types'
 import { RestoredAppState } from '../../../packages/excalidraw/data/restore'
 import { loadFromJSON } from '../../../packages/excalidraw/data'
 import { MIME_TYPES, exportToBlob } from '../../../packages/excalidraw'
-import { useFilesFromLocalOrServer } from '../store/projects/helpers'
+import { getSceneVisibleFileIds, useFilesFromLocalOrServer } from '../store/projects/helpers'
+import { isObjectiveHidden } from '../../objective/meta/types'
+import { CustomDropDownMenuItem } from '../UI'
+import { MySceneShareOptions } from '../../objective/components/TopRightUI'
 
 const DEFAULT_SCENE_NAME = 'Untitled Scene'
 
@@ -106,6 +117,7 @@ const AddSceneItem: FC = () => {
             project_id: project?.id,
             appState: v.appState,
             elements: v.elements,
+            // files: v.files, // TODO
           })
         )
           .unwrap()
@@ -134,10 +146,13 @@ const AddSceneItem: FC = () => {
           <Text
             m='2'
             color={ACCENT_COLOR}
-            style={{ paddingRight: 20 }} // HACK: center
+            style={{
+              userSelect: 'none',
+              paddingRight: 20, // HACK: center
+            }}
           >
-            <PlusIcon />
-            {' Add'}
+            <FilePlusIcon />
+            {' New'}
           </Text>
         </Flex>
       </SceneCard>
@@ -208,7 +223,10 @@ const AddSceneItem: FC = () => {
   )
 }
 
-const ScenesThumbnailsCache = new Map<ISceneFull['id'], SVGSVGElement>([]) // TMP
+// TODO
+const ScenesThumbnailsCache = new Map<ISceneFull['id'], SVGSVGElement>([])
+
+export const getSceneUrl = (id: ISceneFull['id']) => `${window.location.host}/scenes/${id}`
 
 const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
   const navigate = useNavigate()
@@ -218,6 +236,7 @@ const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
   const sceneFullInfo = useSelector(selectSceneFullInfo(scene.id))
   const nameRef = useRef(null)
   const [isRenameToggled, setIsRenameToggled] = useState(false)
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
 
   const [thumbnailURL, setThumbnailURL] = useState('')
   const fetchFiles = useFilesFromLocalOrServer()
@@ -226,8 +245,9 @@ const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
   const buildThumbnailURL = useCallback(
     (files: BinaryFileData[]) => {
       if (!sceneFullInfo) return
+
       exportToBlob({
-        elements: sceneFullInfo.elements,
+        elements: sceneFullInfo.elements.filter((e) => !isObjectiveHidden(e)),
         appState: {
           ...sceneFullInfo.appState,
           exportBackground: true,
@@ -257,10 +277,10 @@ const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
     [sceneFullInfo, buildThumbnailURL]
   )
 
+  // build thumbnail on mount
   useEffect(() => {
     if (!sceneFullInfo) return
-    const fileIds = sceneFullInfo.files.map((f) => f.id)
-
+    const fileIds = getSceneVisibleFileIds(sceneFullInfo)
     if (fileIds.length) fetchFiles(scene.id, fileIds, addFilesCallback)
     else buildThumbnailURL([])
   }, [sceneFullInfo])
@@ -321,18 +341,29 @@ const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
               </IconButton>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content
-              style={{ minWidth: 150 }}
+              style={{ minWidth: 180 }}
               size={'1'}
               variant={'soft'} //
               onCloseAutoFocus={(e) => e.preventDefault()}
             >
-              <DropdownMenu.Item onClick={() => onRenameActivate()}>Rename</DropdownMenu.Item>
-              <DropdownMenu.Item onClick={() => onDuplicate()}>Duplicate</DropdownMenu.Item>
+              <CustomDropDownMenuItem
+                Icon={Pencil2Icon}
+                text={'Rename'}
+                onClick={onRenameActivate}
+              />
+              <CustomDropDownMenuItem
+                Icon={FilePlusIcon}
+                text={'Duplicate'}
+                onClick={onDuplicate} //
+              />
               <DropdownMenu.Sub>
                 <DropdownMenu.SubTrigger disabled={!otherProjects.length}>
-                  Move To
+                  <Flex>
+                    <EnterIcon style={{ marginTop: 2, marginRight: 7 }} />
+                    <Text>{'Move To'}</Text>
+                  </Flex>
                 </DropdownMenu.SubTrigger>
-                <DropdownMenu.SubContent>
+                <DropdownMenu.SubContent sideOffset={10} alignOffset={1} style={{ minWidth: 100 }}>
                   {otherProjects.map((p) => (
                     <DropdownMenu.Item key={p.id} onClick={() => onMoveTo(p)}>
                       {p.name}
@@ -342,14 +373,33 @@ const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
               </DropdownMenu.Sub>
 
               <DropdownMenu.Separator />
-              <DropdownMenu.Item>Share</DropdownMenu.Item>
-              <DropdownMenu.Item>Export</DropdownMenu.Item>
+
+              <CustomDropDownMenuItem
+                Icon={Link2Icon}
+                text={'Share'}
+                onClick={() => setShareDialogOpen(true)} //
+              />
+
+              <CustomDropDownMenuItem
+                Icon={ImageIcon}
+                text={'Export'}
+                // onClick={onDuplicate} //
+              />
               <DropdownMenu.Separator />
-              <DropdownMenu.Item onClick={onDelete} color='red'>
-                Delete
-              </DropdownMenu.Item>
+              <CustomDropDownMenuItem
+                Icon={TrashIcon}
+                text={'Delete'}
+                color='red'
+                onClick={onDelete}
+              />
             </DropdownMenu.Content>
           </DropdownMenu.Root>
+
+          <Dialog.Root open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+            <Dialog.Content style={{ width: 500, minHeight: 200 }}>
+              <MySceneShareOptions url={getSceneUrl(scene.id)} />
+            </Dialog.Content>
+          </Dialog.Root>
         </div>
       </Flex>
       <Separator size={'4'} mt='1' />

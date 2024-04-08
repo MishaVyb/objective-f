@@ -1,12 +1,7 @@
 import { FC, useState } from 'react'
 import DropdownMenuItem from '../../../packages/excalidraw/components/dropdownMenu/DropdownMenuItem'
 import { useNavigate, useParams } from 'react-router-dom'
-import {
-  DownloadIcon,
-  ExclamationTriangleIcon,
-  FilePlusIcon,
-  Pencil1Icon,
-} from '@radix-ui/react-icons'
+import { DownloadIcon, FilePlusIcon, Pencil2Icon } from '@radix-ui/react-icons'
 import {
   Badge,
   Button,
@@ -18,8 +13,6 @@ import {
   TextFieldInput,
   Blockquote,
   Heading,
-  IconButton,
-  Popover,
 } from '@radix-ui/themes'
 import {
   useExcalidrawActionManager,
@@ -80,7 +73,7 @@ const RenameScene: FC = () => {
     <>
       <DropdownMenuItem
         title='Edit scene name'
-        icon={<Pencil1Icon />}
+        icon={<Pencil2Icon />}
         onClick={() => onOpenChange(true)}
         data-testid='load-button'
         // shortcut={getShortcutFromShortcutName('loadScene')}
@@ -219,12 +212,6 @@ const ShareOption: FC = () => {
           {isOtherScene ? <OtherSceneShareOptions /> : <MySceneShareOptions />}
         </Dialog.Content>
       </Dialog.Root>
-
-      {/* <Popover.Root open={open} onOpenChange={onOpenChange}>
-        <Popover.Content style={{ width: 360 }}>
-          {isOtherScene ? <OtherSceneShareOptions /> : <MySceneShareOptions />}
-        </Popover.Content>
-      </Popover.Root> */}
     </>
   )
 }

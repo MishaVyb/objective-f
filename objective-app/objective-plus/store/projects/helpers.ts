@@ -5,6 +5,13 @@ import { ExcalidrawImperativeAPI } from '../../../../packages/excalidraw/types'
 import { useDispatch } from '../../hooks/redux'
 import { loadFile } from './actions'
 import { ISceneFull } from './reducer'
+import { isInitializedImageElement } from '../../../../packages/excalidraw/element/typeChecks'
+
+export const getSceneVisibleFileIds = (scene: ISceneFull) =>
+  scene.elements
+    .filter(isInitializedImageElement)
+    .filter((e) => !e.isDeleted && e.opacity)
+    .map((e) => e.fileId)
 
 export const useFilesFromLocalOrServer = () => {
   const dispatch = useDispatch()

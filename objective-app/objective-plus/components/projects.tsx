@@ -1,4 +1,10 @@
-import { DotsVerticalIcon, PlusIcon, SymbolIcon } from '@radix-ui/react-icons'
+import {
+  DotsVerticalIcon,
+  FilePlusIcon,
+  Pencil2Icon,
+  SymbolIcon,
+  TrashIcon,
+} from '@radix-ui/react-icons'
 import {
   Button,
   Dialog,
@@ -28,6 +34,7 @@ import {
   selectToggledProjectId,
 } from '../store/projects/reducer'
 import { ACCENT_COLOR } from '../constants'
+import { CustomDropDownMenuItem } from '../UI'
 
 const ProjectNewItem: FC = () => {
   const dispatch = useDispatch()
@@ -50,12 +57,12 @@ const ProjectNewItem: FC = () => {
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger>
         <Button
-          style={{ paddingRight: 30 }} // HACK: center
+          style={{ paddingRight: 30, opacity: '80%' }}
           m='2'
           variant={'ghost'}
           radius={'none'}
         >
-          <PlusIcon /> New Project
+          <FilePlusIcon /> New Project
         </Button>
       </Dialog.Trigger>
 
@@ -126,7 +133,7 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
       onOpenChange={setOpen}
     >
       <Dialog.Content style={{ maxWidth: 450 }}>
-        <Dialog.Title>Project</Dialog.Title>
+        <Dialog.Title color={ACCENT_COLOR}>Project</Dialog.Title>
         <Dialog.Description size='2' mb='4'>
           Rename Project
         </Dialog.Description>
@@ -172,11 +179,9 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
         variant={'soft'} //
         onCloseAutoFocus={(e) => e.preventDefault()}
       >
-        <DropdownMenu.Item onClick={() => onRenameActivate()}>Rename</DropdownMenu.Item>
+        <CustomDropDownMenuItem Icon={Pencil2Icon} text={'Rename'} onClick={onRenameActivate} />
         <DropdownMenu.Separator />
-        <DropdownMenu.Item color='red' onClick={onDelete}>
-          Delete
-        </DropdownMenu.Item>
+        <CustomDropDownMenuItem Icon={TrashIcon} text={'Delete'} color='red' onClick={onDelete} />
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   )
@@ -189,7 +194,12 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
         className={clsx('projects-toggled-item', { toggled: toggled })}
         onClick={onClick}
       >
-        <Text color={toggled ? ACCENT_COLOR : 'gray'} ml='1' mr={'auto'}>
+        <Text
+          color={toggled ? ACCENT_COLOR : 'gray'}
+          ml='1'
+          mr={'auto'}
+          style={{ userSelect: 'none' }}
+        >
           {project.name}
         </Text>
       </div>
@@ -225,7 +235,7 @@ const ProjectsList = () => {
       direction={'column'} //
       gap={'1'}
     >
-      <Heading ml={'2'} size={'2'}>
+      <Heading ml={'2'} size={'2'} style={{ userSelect: 'none' }}>
         Your Projects {loading && <SymbolIcon />}
       </Heading>
       <Separator mt='1' mb='4' size={'4'} />
