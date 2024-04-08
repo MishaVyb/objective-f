@@ -10,9 +10,9 @@ import {
   Separator,
   Strong,
   Text,
-  TextFieldInput,
   Blockquote,
   Heading,
+  TextField,
 } from '@radix-ui/themes'
 import {
   useExcalidrawActionManager,
@@ -87,7 +87,7 @@ const RenameScene: FC = () => {
             Rename Scene
           </Heading>
           <Separator size={'4'} mt={'3'} mb={'3'} />
-          <TextFieldInput
+          <TextField.Root
             mt={'3'}
             mb={'3'}
             value={name}

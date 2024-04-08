@@ -15,6 +15,7 @@ import {
   Separator,
   Text,
   TextField,
+  Spinner,
 } from '@radix-ui/themes'
 import clsx from 'clsx'
 import { FC, useEffect, useState } from 'react'
@@ -76,7 +77,7 @@ const ProjectNewItem: FC = () => {
           <Text as='div' size='2' mb='1' weight='bold'>
             Name
           </Text>
-          <TextField.Input
+          <TextField.Root
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder='Enter project name'
@@ -142,7 +143,7 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
           <Text as='div' size='1' mb='1' color={'gray'}>
             Name
           </Text>
-          <TextField.Input
+          <TextField.Root
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder='Enter scene name'
@@ -235,9 +236,12 @@ const ProjectsList = () => {
       direction={'column'} //
       gap={'1'}
     >
-      <Heading ml={'2'} size={'2'} style={{ userSelect: 'none' }}>
-        Your Projects {loading && <SymbolIcon />}
-      </Heading>
+      <Flex justify={'between'}>
+        <Heading ml={'2'} size={'2'} style={{ userSelect: 'none' }}>
+          Your Projects
+        </Heading>
+        <Spinner loading={loading} />
+      </Flex>
       <Separator mt='1' mb='4' size={'4'} />
 
       {projects.map((p) => (

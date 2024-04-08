@@ -180,7 +180,7 @@ const AddSceneItem: FC = () => {
                     <Text as='div' size='1' color={'gray'}>
                       Name
                     </Text>
-                    <TextField.Input
+                    <TextField.Root
                       ref={nameInputRef}
                       value={name}
                       onChange={(e) => setName(e.target.value)}

@@ -41,7 +41,7 @@ export const MySceneShareOptions: FC<{ url?: string }> = (props) => {
       </Text>
       <Flex gap={'1'} direction={'row'} justify={'between'} mt={'3'}>
         <TextField.Root style={{ flexGrow: 1 }}>
-          <TextField.Input value={url} size='2' readOnly />
+          <TextField.Root value={url} size='2' readOnly />
         </TextField.Root>
         <IconButton variant={'outline'} color={'gray'} ml={'auto'}>
           <ClipboardCopyIcon onClick={() => navigator.clipboard.writeText(url)} />
@@ -84,7 +84,7 @@ export const CopySceneDialog: FC<{ open: boolean; setOpen: (open: boolean) => vo
           <Text as='div' size='1' mb='2' color={'gray'}>
             Name
           </Text>
-          <TextField.Input
+          <TextField.Root
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder='Enter scene name'

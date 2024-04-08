@@ -92,7 +92,7 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
             <RadixTextField.Slot>
               <MagnifyingGlassIcon height='16' width='16' />
             </RadixTextField.Slot>
-            <RadixTextField.Input placeholder='Search the docs…' />
+            <RadixTextField.Root placeholder='Search the docs…' />
           </RadixTextField.Root> */}
         </div>
       </div>

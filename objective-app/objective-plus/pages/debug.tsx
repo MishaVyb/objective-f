@@ -21,7 +21,7 @@ const DebugPage = () => {
             <TextField.Root
               className='my-text-field' //
             >
-              <TextField.Input
+              <TextField.Root
                 variant='soft'
                 color={'gray'}
                 className='my-text-field' //

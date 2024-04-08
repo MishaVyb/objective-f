@@ -147,7 +147,7 @@ const UpdateProfile: FC = () => {
           <ProfileNavbar />
           <ObjectiveCard extraClass={{ 'error-border': error }}>
             <TextField.Root>
-              <TextField.Input
+              <TextField.Root
                 ref={inputRefs.email}
                 value={form.email}
                 placeholder='Update email'
@@ -160,7 +160,7 @@ const UpdateProfile: FC = () => {
               {getToggleUpdateController('email')}
             </TextField.Root>
             <TextField.Root>
-              <TextField.Input
+              <TextField.Root
                 ref={inputRefs.username}
                 value={form.username}
                 placeholder='Update username'
@@ -172,7 +172,7 @@ const UpdateProfile: FC = () => {
               {getToggleUpdateController('username')}
             </TextField.Root>
             <TextField.Root>
-              <TextField.Input
+              <TextField.Root
                 ref={inputRefs.password}
                 value={form.password}
                 placeholder='Update password'

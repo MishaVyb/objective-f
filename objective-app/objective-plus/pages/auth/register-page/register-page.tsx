@@ -81,7 +81,7 @@ const RegisterPage: FC = () => {
           </Heading>
 
           <TextField.Root mt={'5'}>
-            <TextField.Input
+            <TextField.Root
               value={form.email}
               placeholder='E-mail'
               type='email'
@@ -92,7 +92,7 @@ const RegisterPage: FC = () => {
           </TextField.Root>
 
           <TextField.Root>
-            <TextField.Input
+            <TextField.Root
               value={form.password}
               placeholder='Password'
               type={showPassword ? 'text' : 'password'}
@@ -114,7 +114,7 @@ const RegisterPage: FC = () => {
 
           {/* <Separator size={'4'} mt={'3'} /> */}
           <TextField.Root mt={'3'}>
-            <TextField.Input
+            <TextField.Root
               value={form.username}
               placeholder='Username'
               type='text'

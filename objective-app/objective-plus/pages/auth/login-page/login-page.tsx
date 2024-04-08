@@ -52,7 +52,7 @@ const LoginPage = () => {
             Enter to Objective Plus
           </Heading>
           <TextField.Root mt={'5'}>
-            <TextField.Input
+            <TextField.Root
               placeholder='Enter your email'
               type='email'
               name='email'
@@ -63,7 +63,7 @@ const LoginPage = () => {
             />
           </TextField.Root>
           <TextField.Root mt={'1'}>
-            <TextField.Input
+            <TextField.Root
               placeholder='Enter your password'
               type={showPassword ? 'text' : 'password'}
               name='password'
