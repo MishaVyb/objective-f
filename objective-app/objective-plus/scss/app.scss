@@ -104,8 +104,6 @@ a {
 .objective-plus-app {
   background-size: contain;
 
-  // re-define globals at `public/index.html`
-  overflow: scroll;
 
   .objective-header {
     min-height: 40px;
@@ -172,18 +170,16 @@ a {
     }
   }
 
-
   .ghost-text-field {
     // styles for <textfield />
 
     border: 0px solid transparent !important;
-    --accent-a8: transparent !important;  // disable blue frame on :active
+    --accent-a8: transparent !important; // disable blue frame on :active
     background-color: transparent !important;
 
     // styles for <textaria />
     box-shadow: inset 0 0 0 0px transparent !important; // disable gray frame (standby)
     --accent-8: transparent !important; // disable blue frame on :active
-
 
     &:hover {
       background-color: var(--accent-3) !important;
@@ -192,7 +188,23 @@ a {
       //   background-color: var(--gray-3) !important;
       // }
     }
+  }
 
+  .allert-callout {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    // position: absolute;
+    // left: 100%;
+    // top: 0;
 
+    // position: fixed;
+    // bottom: 0;
+    // left: 100%;
+    // right: 10;
+    // position: absolute;
+    // z-index: 9999;
+    // margin-top: auto;
+    // margin-left: auto;
   }
 }
