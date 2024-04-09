@@ -22,6 +22,7 @@ const NavLink: FC<{ to: string; children?: ReactNode }> = ({ to, children }) => 
 
   return (
     <RadixLink
+      style={{ cursor: 'pointer' }}
       underline={location.pathname === to ? 'always' : 'auto'}
       onClick={() => navigate(to)}
     >
@@ -37,15 +38,15 @@ export const ObjectiveHeader = () => {
   return (
     <Flex className='objective-header' pl={'5'} pr={'5'} align={'center'} justify={'between'}>
       {isAuth ? (
-        <NavLink to={'/'}>
-          <Text>
+        <NavLink to={'/projects'}>
+          <Text style={{ userSelect: 'none' }}>
             <CubeIcon />
             {' projects'}
           </Text>
         </NavLink>
       ) : (
         <NavLink to={'/about'}>
-          <Text>
+          <Text style={{ userSelect: 'none' }}>
             <ReaderIcon />
             {' about'}
           </Text>
