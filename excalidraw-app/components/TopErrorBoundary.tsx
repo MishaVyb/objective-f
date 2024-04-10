@@ -2,6 +2,8 @@ import React from "react";
 import * as Sentry from "@sentry/browser";
 import { t } from "../../packages/excalidraw/i18n";
 import Trans from "../../packages/excalidraw/components/Trans";
+import { Link } from "@radix-ui/themes";
+import { CONTACT_AUTHOR_LINK } from "../../objective-app/objective-plus/constants";
 
 interface TopErrorBoundaryState {
   hasError: boolean;
@@ -117,14 +119,14 @@ export class TopErrorBoundary extends React.Component<
                 eventId: this.state.sentryEventId,
               })}
             </div>
-            <div className="ErrorSplash-paragraph">
+            {/* <div className="ErrorSplash-paragraph">
               <Trans
                 i18nKey="errorSplash.openIssueMessage"
                 button={(el) => (
                   <button onClick={() => this.createGithubIssue()}>{el}</button>
                 )}
               />
-            </div>
+            </div> */}
             <div className="ErrorSplash-paragraph">
               <div className="ErrorSplash-details">
                 <label>{t("errorSplash.sceneContent")}</label>
@@ -135,6 +137,13 @@ export class TopErrorBoundary extends React.Component<
                   value={this.state.localStorage}
                 />
               </div>
+            </div>
+            <div className="ErrorSplash-paragraph">
+              {"If you got this message, please "}
+              <Link href={CONTACT_AUTHOR_LINK} target="_blank">
+                {"contact us"}
+              </Link>
+              {"."}
             </div>
           </div>
         </div>
