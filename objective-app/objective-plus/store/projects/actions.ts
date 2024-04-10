@@ -116,6 +116,10 @@ export type TFulfilledAction = ReturnType<TAuthAsyncThunk['fulfilled']>
 export const resetRequestStatusAction = createAction('projects/resetRequestStatusAction')
 export type TResetRequestStatusAction = ReturnType<typeof resetRequestStatusAction>
 
+/** reset /projects API error (not auth) */
+export const resetAPIError = createAction('projects/resetAPIError')
+export type TResetAPIError = ReturnType<typeof resetAPIError>
+
 export const toggleProject = createAction<IProject['id']>('projects/toggleProject')
 export const setInitialSceneLoadingIsPending = createAction<boolean>(
   'projects/setInitialLoadingSceneStatus'

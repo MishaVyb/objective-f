@@ -2,7 +2,7 @@ import { Button, Flex, Heading, IconButton, Link, Spinner, Text, TextField } fro
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from '../../../hooks/redux'
 import { loadLogin, loadUser, resetRequestStatusAction } from '../../../store/auth/actions'
-import { selectAuthError, selectAuthIsPending } from '../../../store/auth/reducer'
+import { selectAuthUserAPIErrors, selectAuthIsPending } from '../../../store/auth/reducer'
 
 import { EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
 import { useNavigate } from 'react-router-dom'
@@ -16,7 +16,7 @@ const LoginPage = () => {
 
   const dispatch = useDispatch()
   const loading = useSelector(selectAuthIsPending)
-  const error = useSelector(selectAuthError)
+  const error = useSelector(selectAuthUserAPIErrors)
 
   const EyeIcon = showPassword ? EyeOpenIcon : EyeClosedIcon
 
@@ -82,11 +82,14 @@ const LoginPage = () => {
             </TextField.Slot>
           </TextField.Root>
 
-          {error && (
-            <Text color={'red'} size={'1'} ml={'1'}>
-              {error}
-            </Text>
-          )}
+          <Text
+            style={{ visibility: error ? 'inherit' : 'hidden', maxWidth: 300 }}
+            color={'red'}
+            size={'1'}
+            ml={'1'}
+          >
+            {error || 'HIDDEN'}
+          </Text>
 
           <Flex justify={'center'} align={'center'} pt={'2'} pr={'2'} gap={'2'}>
             <Spinner loading={loading}>

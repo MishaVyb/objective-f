@@ -25,7 +25,7 @@ import {
 import {
   UserRoles,
   initialState,
-  selectAuthError,
+  selectAuthUserAPIErrors,
   selectAuthIsPending,
 } from '../../../store/auth/reducer'
 import { ACCENT_COLOR } from '../../../constants'
@@ -34,7 +34,7 @@ const RegisterPage: FC = () => {
   const [form, setForm] = useState({ password: '', ...initialState.user })
   const navigate = useNavigate()
   const loading = useSelector(selectAuthIsPending)
-  const error = useSelector(selectAuthError)
+  const error = useSelector(selectAuthUserAPIErrors)
   const dispatch = useDispatch()
   const [showPassword, setShowPassword] = useState(false)
   const EyeIcon = showPassword ? EyeOpenIcon : EyeClosedIcon
@@ -146,11 +146,14 @@ const RegisterPage: FC = () => {
             </Flex>
           </Text>
 
-          {error && (
-            <Text color={'red'} size={'1'} ml={'1'}>
-              {error}
-            </Text>
-          )}
+          <Text
+            style={{ visibility: error ? 'inherit' : 'hidden', maxWidth: 300 }}
+            color={'red'}
+            size={'1'}
+            ml={'1'}
+          >
+            {error || 'HIDDEN'}
+          </Text>
 
           <Flex justify={'center'} align={'center'} pt={'2'} pr={'2'} gap={'2'}>
             <Spinner loading={loading}>

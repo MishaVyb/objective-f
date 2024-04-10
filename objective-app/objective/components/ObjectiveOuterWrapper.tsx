@@ -1,6 +1,6 @@
 import { FC, ReactNode, useCallback, useEffect } from 'react'
 
-import { useLocation, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { SCENE_PERSISTENCE, __DEBUG_ENSURE_THEME } from '../../objective-plus/constants'
 import { useDispatch, useSelector } from '../../objective-plus/hooks/redux'
 import {
@@ -16,6 +16,8 @@ import {
   selectIsMyScene,
   selectInitialSceneLoadingIsPending,
   ISceneFull,
+  APIError,
+  selectUserAPIErrors,
 } from '../../objective-plus/store/projects/reducer'
 import { isImageElement } from '../../../packages/excalidraw/element/typeChecks'
 import { ExcalidrawImperativeAPI } from '../../../packages/excalidraw/types'
@@ -28,6 +30,7 @@ import { clearAppStateForDatabase } from '../../../packages/excalidraw/appState'
 import { deepCopyElement } from '../../../packages/excalidraw/element/newElement'
 import { LocalData } from '../../../excalidraw-app/data/LocalData'
 import { useFilesFromLocalOrServer } from '../../objective-plus/store/projects/helpers'
+import { ERROR_REPR_DELTA_SEC, ObjectiveErrorCollout } from '../../objective-plus/components/errors'
 
 /**
  * saving...
@@ -93,7 +96,9 @@ const ObjectiveOuterWrapper: FC<{
   excalidrawApi: ExcalidrawImperativeAPI | null
   children: ReactNode
 }> = ({ excalidrawApi, children }) => {
+  const navigate = useNavigate()
   const dispatch = useDispatch()
+  const userErrors = useSelector(selectUserAPIErrors)
   const { sceneId } = useParams()
   const { state } = useLocation()
   const isMyScene = useSelector(selectIsMyScene)
@@ -170,6 +175,12 @@ const ObjectiveOuterWrapper: FC<{
 
           fetchFiles(scene.id, fileIds, excalidrawApi.addFiles)
         })
+        .catch((e: APIError) => {
+          dispatch(setInitialSceneLoadingIsPending(false))
+          setTimeout(() => {
+            navigate('/projects')
+          }, ERROR_REPR_DELTA_SEC)
+        })
     },
     [excalidrawApi, dispatch]
   )
@@ -209,6 +220,9 @@ const ObjectiveOuterWrapper: FC<{
   useEffect(() => {
     if (isMyScene && scene) dispatch(toggleProject(scene.project_id))
   }, [isMyScene, scene, dispatch])
+
+  if (userErrors.length)
+    return <ObjectiveErrorCollout className='allert-callout-container-center' errors={userErrors} />
 
   // NOTE
   // Do not render loader here, othervie it won't render Excalidraw App and we never get excalidrawAPI

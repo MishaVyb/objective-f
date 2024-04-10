@@ -13,7 +13,7 @@ import {
 import {
   UserRoles,
   initialState,
-  selectAuthError,
+  selectAuthUserAPIErrors,
   selectAuthIsPending,
   selectUser,
 } from '../../../store/auth/reducer'
@@ -51,8 +51,8 @@ const UpdateProfile: FC = () => {
   }
 
   const loading = useSelector(selectAuthIsPending)
-  console.log({loading})
-  const error = useSelector(selectAuthError)
+  console.log({ loading })
+  const error = useSelector(selectAuthUserAPIErrors)
 
   const dispatch = useDispatch()
 
@@ -206,11 +206,14 @@ const UpdateProfile: FC = () => {
               </Select.Content>
             </Select.Root>
 
-            {error && (
-              <Text color={'red'} size={'1'} ml={'1'}>
-                {error}
-              </Text>
-            )}
+            <Text
+              style={{ visibility: error ? 'inherit' : 'hidden', maxWidth: 300 }}
+              color={'red'}
+              size={'1'}
+              ml={'1'}
+            >
+              {error || 'HIDDEN'}
+            </Text>
 
             <Flex justify={'end'} align={'center'} pt={'2'} pr={'2'} gap={'2'}>
               {wasChanged && (

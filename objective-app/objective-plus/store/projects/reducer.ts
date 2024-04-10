@@ -14,6 +14,7 @@ import {
   toggleProject,
   loadScenes,
   setContinuousSceneUpdateIsPending,
+  resetAPIError,
 } from './actions'
 import { selectAuth } from '../auth/reducer'
 import { AppState, BinaryFileData } from '../../../../packages/excalidraw/types'
@@ -47,6 +48,13 @@ export interface IProject extends IBase {
   name: string
   scenes: readonly ISceneSimplified[]
 }
+
+export type APIError = {
+  type: 'UserError' | 'ServerError' | 'InternalError' | 'ConnectionError' | 'UnknownError'
+  message: string
+  detail?: string
+  status?: number
+}
 export interface IProjectsState {
   /** user's projects */
   projects: IProject[]
@@ -58,7 +66,7 @@ export interface IProjectsState {
   /** target scene to request full scene info and pass it to Excalidraw state */
   currentScene: ISceneSimplified | undefined
 
-  error: string | undefined
+  error: APIError | undefined
   pendingRequest: boolean
   /** Pending initial loading */
   initialSceneLoadingIsPending: boolean
@@ -93,6 +101,10 @@ const reducer = createReducer(initialState, (builder) => {
   })
   builder.addCase(setContinuousSceneUpdateIsPending, (state, action) => {
     state.continuousSceneUpdateIsPending = action.payload
+    return state
+  })
+  builder.addCase(resetAPIError, (state, action) => {
+    state.error = undefined
     return state
   })
 
@@ -134,6 +146,7 @@ const reducer = createReducer(initialState, (builder) => {
     (action): action is TPendingAction =>
       action.type.startsWith('projects') && action.type.endsWith('/pending'),
     (state) => {
+      state.error = undefined
       state.pendingRequest = true
     }
   )
@@ -144,7 +157,11 @@ const reducer = createReducer(initialState, (builder) => {
       state.pendingRequest = false
 
       if (action.payload) state.error = action.payload
-      else state.error = action.error.message
+      else
+        state.error = {
+          type: 'InternalError',
+          message: action.error.message || 'Internal app error',
+        }
     }
   )
   builder.addMatcher<TFulfilledAction | TResetRequestStatusAction>(
@@ -154,6 +171,7 @@ const reducer = createReducer(initialState, (builder) => {
     (state) => {
       state.pendingRequest = false
       state.error = undefined
+      return state
     }
   )
 
@@ -214,6 +232,15 @@ export const selectIsMyScene = createSelector(
 export const selectIsOtherScene = createSelector(
   [selectCurrentScene, selectAuth],
   (scene, auth) => scene?.user_id !== auth.user.id
+)
+
+export const selectAPIErrors = (state: RootState) =>
+  [state.projects.error, state.auth.error].filter((e): e is APIError => !!e)
+export const selectNotUserAPIErrors = createSelector([selectAPIErrors], (errors) =>
+  errors.filter((e) => e.type !== 'UserError')
+)
+export const selectUserAPIErrors = createSelector([selectAPIErrors], (errors) =>
+  errors.filter((e) => e.type === 'UserError')
 )
 
 export default reducer

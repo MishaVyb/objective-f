@@ -16,6 +16,9 @@ import { fetchErrorCheck } from '../utils/objective-api'
 import { ObjectiveHeader } from './header'
 import RouteDispatch from './route-dispatch'
 import DebugPage from '../pages/debug'
+import { ObjectiveErrorCollout } from './errors'
+import { selectNotUserAPIErrors } from '../store/projects/reducer'
+import { useSelector } from '../hooks/redux'
 
 const ScheckSentry: FC = () => {
   console.info('ScheckSentry: info log')
@@ -32,13 +35,14 @@ const ScheckSentry: FC = () => {
 const ObjectivePlusApp: FC = () => {
   const location = useLocation()
   const excalidrawPath = location.pathname.match('/scenes/.*')
+  const notUserErrors = useSelector(selectNotUserAPIErrors)
 
   return (
     <Theme
       style={{ height: '100%' }} // height: '100%' is required for any element above Excalidraw
       className={clsx(
         'excalidraw-app', // ???
-        'excalidraw-app-overrides',
+        'excalidraw-app-overrides'
         // 'zoom-out' //
       )}
       appearance={'light'}
@@ -119,6 +123,7 @@ const ObjectivePlusApp: FC = () => {
                 }
           />*/}
         </Routes>
+        <ObjectiveErrorCollout className='allert-callout-container' errors={notUserErrors} />
       </Flex>
     </Theme>
   )

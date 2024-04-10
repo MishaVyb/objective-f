@@ -1,9 +1,10 @@
 import { GetThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk'
 import { RootState } from './store'
 import { resetAuth } from './auth/actions'
+import { APIError } from './projects/reducer'
 
 export interface ThunkApiConfig {
-  rejectValue: string
+  rejectValue: APIError
   state: RootState
 }
 
@@ -18,7 +19,7 @@ export const safeAsyncThunk = async <TResponse>(
 ) => {
   try {
     return await callback()
-  } catch (e) {
+  } catch (e: any) {
     let responseData
 
     if (e instanceof Response) {
@@ -31,21 +32,76 @@ export const safeAsyncThunk = async <TResponse>(
         responseData = await response.text()
       }
 
+      if (response.status === 500)
+        return thunkApi.rejectWithValue({
+          type: 'ServerError',
+          message: 'Something went wrong. Please, try again. ',
+          detail: responseData.detail,
+          status: response.status,
+        })
+
       // Dispath known errors:
       if (response.status === 400 && responseData.detail === 'LOGIN_BAD_CREDENTIALS')
-        return thunkApi.rejectWithValue('User does not exist or password incorrect. ')
+        return thunkApi.rejectWithValue({
+          type: 'UserError',
+          message: 'User does not exist or password incorrect. ',
+          status: response.status,
+        })
       if (response.status === 400 && responseData.detail === 'REGISTER_USER_ALREADY_EXISTS')
-        return thunkApi.rejectWithValue('User with that email already exist. ')
+        return thunkApi.rejectWithValue({
+          type: 'UserError',
+          message: 'User with that email already exist. ',
+          status: response.status,
+        })
       if (response.status === 400 && responseData.detail === 'UPDATE_USER_EMAIL_ALREADY_EXISTS')
-        return thunkApi.rejectWithValue('User with that email already exist. ')
+        return thunkApi.rejectWithValue({
+          type: 'UserError',
+          message: 'User with that email already exist. ',
+          status: response.status,
+        })
       if (response.status === 401) {
         thunkApi.dispatch(resetAuth())
-        return thunkApi.rejectWithValue('Unauthorized. Please, sign in. ')
+        return thunkApi.rejectWithValue({
+          type: 'UserError',
+          message: 'Unauthorized. Please, sign in. ',
+          status: response.status,
+        })
       }
+
+      if (response.status === 404) {
+        return thunkApi.rejectWithValue({
+          type: 'UserError',
+          message: 'Not found. ',
+          status: response.status,
+        })
+      }
+      if (response.status === 422 && responseData.detail[0].type === 'uuid_parsing') {
+        return thunkApi.rejectWithValue({
+          type: 'UserError',
+          message: 'Invalid URL. ',
+          status: response.status,
+        })
+      }
+    }
+
+    if (e instanceof Error) {
+      if (e.message === 'Failed to fetch')
+        return thunkApi.rejectWithValue({
+          type: 'ConnectionError',
+          message: 'No internet connection. ',
+          detail: String(e),
+        })
+      return thunkApi.rejectWithValue({
+        type: 'InternalError',
+        message: 'Something went wrong. Please, try again. ',
+      })
     }
 
     // Error not a Response or Unknown response error:
     console.error('Unknown error in request: ', responseData || e)
-    return thunkApi.rejectWithValue('Something went wrong. Please, try again. ')
+    return thunkApi.rejectWithValue({
+      type: 'UnknownError',
+      message: 'Something went wrong. Please, try again. ',
+    })
   }
 }

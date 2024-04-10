@@ -234,7 +234,7 @@ const ProjectsList = () => {
       direction={'column'} //
       gap={'1'}
     >
-      <Flex justify={'between'}>
+      <Flex justify={'between'} p='1'>
         <Heading ml={'2'} size={'2'} style={{ userSelect: 'none' }}>
           Your Projects
         </Heading>

@@ -190,21 +190,19 @@ a {
     }
   }
 
-  .allert-callout {
+  .allert-callout-container { // bottom
+    width: 100vw;
+    z-index: 999;
+
     position: fixed;
     bottom: 0;
-    right: 0;
-    // position: absolute;
-    // left: 100%;
-    // top: 0;
+  }
+  .allert-callout-container-center {
+    width: 100vw;
+    height: 100vw;
+    z-index: 999;
 
     // position: fixed;
     // bottom: 0;
-    // left: 100%;
-    // right: 10;
-    // position: absolute;
-    // z-index: 9999;
-    // margin-top: auto;
-    // margin-left: auto;
   }
 }

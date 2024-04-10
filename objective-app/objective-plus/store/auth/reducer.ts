@@ -11,6 +11,7 @@ import {
   resetAuth,
   resetRequestStatusAction,
 } from './actions'
+import { APIError } from '../projects/reducer'
 
 export interface ITokens {
   /** no 'Bearer' prefix */
@@ -55,7 +56,7 @@ export interface RequestFailReason {
 
 export interface IAuthState extends ITokens {
   user: IUser
-  error: string | undefined
+  error: APIError | undefined
   pendingRequest: boolean
 }
 
@@ -73,6 +74,7 @@ const reducer = createReducer(initialState, (builder) => {
     (action): action is TPendingAction =>
       action.type.startsWith('auth') && action.type.endsWith('/pending'),
     (state) => {
+      state.error = undefined
       state.pendingRequest = true
     }
   )
@@ -83,7 +85,11 @@ const reducer = createReducer(initialState, (builder) => {
       state.pendingRequest = false
 
       if (action.payload) state.error = action.payload
-      else state.error = action.error.message
+      else
+        state.error = {
+          type: 'InternalError',
+          message: action.error.message || 'Internal app error',
+        }
     }
   )
   builder.addMatcher<TFulfilledAction | TResetRequestStatusAction>(
@@ -124,7 +130,8 @@ const reducer = createReducer(initialState, (builder) => {
 })
 
 export const selectAuthIsPending = (state: RootState) => state.auth.pendingRequest
-export const selectAuthError = (state: RootState) => state.auth.error
+export const selectAuthUserAPIErrors = (state: RootState) =>
+  state.auth.error?.type === 'UserError' ? state.auth.error.message : undefined
 
 export const selectAuth = (state: RootState) => state.auth
 export const selectUser = (state: RootState) => state.auth.user
