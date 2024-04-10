@@ -15,9 +15,13 @@ import {
   loadScenes,
   setContinuousSceneUpdateIsPending,
   resetAPIError,
+  loadSceneContinuos,
+  loadUpdateSceneContinuos,
 } from './actions'
 import { selectAuth } from '../auth/reducer'
 import { AppState, BinaryFileData } from '../../../../packages/excalidraw/types'
+import { TRadixColor } from '../../../objective/UI/colors'
+import { ACCENT_COLOR } from '../../constants'
 
 export interface IBase {
   id: string
@@ -54,6 +58,10 @@ export type APIError = {
   message: string
   detail?: string
   status?: number
+  renderOpts?: {
+    noHide?: boolean
+    color?: TRadixColor
+  }
 }
 export interface IProjectsState {
   /** user's projects */
@@ -145,9 +153,17 @@ const reducer = createReducer(initialState, (builder) => {
   builder.addMatcher<TPendingAction>(
     (action): action is TPendingAction =>
       action.type.startsWith('projects') && action.type.endsWith('/pending'),
-    (state) => {
-      state.error = undefined
-      state.pendingRequest = true
+    (state, action) => {
+      if (
+        action.type === loadSceneContinuos.pending.type ||
+        action.type === loadUpdateSceneContinuos.pending.type
+      ) {
+        // do not discard state.error for continues loading actions
+        state.pendingRequest = true
+      } else {
+        state.error = undefined
+        state.pendingRequest = true
+      }
     }
   )
   builder.addMatcher<TRejectedAction>(
@@ -162,6 +178,20 @@ const reducer = createReducer(initialState, (builder) => {
           type: 'InternalError',
           message: action.error.message || 'Internal app error',
         }
+
+      // special options for continuous requests
+      if (action.type === loadSceneContinuos.rejected.type) {
+        state.error.renderOpts = { noHide: true, color: 'yellow' }
+        state.error.detail = undefined
+        state.error.message = 'No internet connection. Offline mode. '
+        state.error.detail = undefined
+      }
+      if (action.type === loadUpdateSceneContinuos.rejected.type) {
+        state.error.renderOpts = { noHide: true, color: 'yellow' }
+        state.error.detail = undefined
+        state.error.message = 'No internet connection. Offline mode. '
+        state.error.detail = 'Save your scene locally to avoid losing any changes. '
+      }
     }
   )
   builder.addMatcher<TFulfilledAction | TResetRequestStatusAction>(
@@ -171,7 +201,6 @@ const reducer = createReducer(initialState, (builder) => {
     (state) => {
       state.pendingRequest = false
       state.error = undefined
-      return state
     }
   )
 
@@ -234,8 +263,11 @@ export const selectIsOtherScene = createSelector(
   (scene, auth) => scene?.user_id !== auth.user.id
 )
 
-export const selectAPIErrors = (state: RootState) =>
-  [state.projects.error, state.auth.error].filter((e): e is APIError => !!e)
+export const selectAPIErrors = createSelector(
+  [(state: RootState) => state.projects.error, (state: RootState) => state.auth.error],
+  (project_error, auth_error) => [project_error, auth_error].filter((e): e is APIError => !!e)
+)
+
 export const selectNotUserAPIErrors = createSelector([selectAPIErrors], (errors) =>
   errors.filter((e) => e.type !== 'UserError')
 )

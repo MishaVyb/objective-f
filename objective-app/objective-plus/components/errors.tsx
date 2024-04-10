@@ -30,11 +30,11 @@ export const ObjectiveErrorCollout: FC<{ errors: APIError[]; className?: string 
   if (!errors.length) return null
 
   return (
-    <Flex className={className} justify={'center'} m={'4'} gap={'1'}>
+    <Flex className={className} justify={'center'} m={'4'} >
       {errors.map((e) => (
         <Callout.Root
-          className={clsx({ 'fade-out': isHidden })}
-          color='red'
+          className={clsx({ 'fade-out': e.renderOpts?.noHide ? false : isHidden })}
+          color={e.renderOpts?.color || 'red'}
           role='alert'
           size={'1'}
           key={e.message}
@@ -44,11 +44,11 @@ export const ObjectiveErrorCollout: FC<{ errors: APIError[]; className?: string 
             height: 'min-content',
           }}
         >
-          <Callout.Icon>
-            <ExclamationTriangleIcon />
-          </Callout.Icon>
+          {/* <Callout.Icon>
+          </Callout.Icon> */}
           <Flex justify={'between'} style={{ minWidth: 300 }}>
-            <Callout.Text size={'1'}>{e?.message}</Callout.Text>
+
+            <Callout.Text size={'1'} weight={'bold'}>{e?.message}</Callout.Text>
             <IconButton onClick={() => disparch(resetAPIError())} color='gray' variant='ghost'>
               <Cross1Icon />
             </IconButton>

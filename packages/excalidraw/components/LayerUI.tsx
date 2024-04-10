@@ -52,7 +52,7 @@ import { LibraryIcon } from "./icons";
 import MainMenu from "./main-menu/MainMenu";
 
 import clsx from "clsx";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TopLeftUI from "../../../objective-app/objective/components/TopLeftUI";
 import { mutateElement } from "../element/mutateElement";
 import Scene from "../scene/Scene";
@@ -66,6 +66,8 @@ import { TTDDialog } from "./TTDDialog/TTDDialog";
 import "./Toolbar.scss";
 import { UserList } from "./UserList";
 import { ObjectiveSettingsDialog } from "../../../objective-app/objective/components/ObjectiveSettingsDialog";
+import { useDispatch } from "../../../objective-app/objective-plus/hooks/redux";
+import { resetAPIError } from "../../../objective-app/objective-plus/store/projects/actions";
 
 interface LayerUIProps {
   actionManager: ActionManager;
@@ -158,6 +160,14 @@ const LayerUI = ({
 }: LayerUIProps) => {
   const device = useDevice();
   const tunnels = useInitializeTunnels();
+
+  // VBRN
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (appState.scrolledOutside) {
+      dispatch(resetAPIError());
+    }
+  }, [appState.scrolledOutside, dispatch]);
 
   const [eyeDropperState, setEyeDropperState] = useAtom(
     activeEyeDropperAtom,

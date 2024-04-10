@@ -220,7 +220,7 @@ const Layer: FC<{
   )
 }
 
-export const Layers: FC = () => {
+export const Layers: FC<{shrink?: boolean}> = ({shrink}) => {
   const [open, setOpen] = useState(false)
   const app = useApp()
   const elsMap = app.scene.getNonDeletedElementsMap()
@@ -268,7 +268,7 @@ export const Layers: FC = () => {
           disabled={isDisabled}
         >
           <LayersIcon />
-          {'Layers'}
+          {shrink ? '' : 'Layers'}
         </Button>
       </Popover.Trigger>
       <Popover.Content className={clsx('excalidraw', 'objective-popover-content')}>

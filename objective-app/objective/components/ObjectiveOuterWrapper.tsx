@@ -176,7 +176,6 @@ const ObjectiveOuterWrapper: FC<{
           fetchFiles(scene.id, fileIds, excalidrawApi.addFiles)
         })
         .catch((e: APIError) => {
-          dispatch(setInitialSceneLoadingIsPending(false))
           setTimeout(() => {
             navigate('/projects')
           }, ERROR_REPR_DELTA_SEC)

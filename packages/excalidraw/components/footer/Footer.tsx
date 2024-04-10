@@ -13,6 +13,9 @@ import { Section } from "../Section";
 import Stack from "../Stack";
 import { UIAppState } from "../../types";
 import { Layers } from "../../../../objective-app/objective/components/Layers";
+import { useSelector } from "../../../../objective-app/objective-plus/hooks/redux";
+import { selectAPIErrors } from "../../../../objective-app/objective-plus/store/projects/reducer";
+import { useViewport } from "../../../../objective-app/objective/hooks/useVieport";
 
 const Footer = ({
   appState,
@@ -26,6 +29,11 @@ const Footer = ({
   renderWelcomeScreen: boolean;
 }) => {
   const { FooterCenterTunnel, WelcomeScreenHelpHintTunnel } = useTunnels();
+  const { width } = useViewport();
+
+  const errors = useSelector(selectAPIErrors);
+  const hideExtra =
+    (appState.toast || appState.scrolledOutside || errors) && width < 1000;
 
   const showFinalize = !appState.viewModeEnabled && appState.multiElement;
 
@@ -42,13 +50,13 @@ const Footer = ({
       >
         <Stack.Col gap={2}>
           <Section heading="canvasActions">
-            <Layers />
+            <Layers shrink={hideExtra} />
             <ZoomActions
               renderAction={actionManager.renderAction}
               zoom={appState.zoom}
             />
 
-            {!appState.viewModeEnabled && (
+            {!hideExtra && !appState.viewModeEnabled && (
               <UndoRedoActions
                 renderAction={actionManager.renderAction}
                 className={clsx("zen-mode-transition", {
@@ -57,7 +65,7 @@ const Footer = ({
                 })}
               />
             )}
-            {showFinalize && (
+            {!hideExtra && showFinalize && (
               <FinalizeAction
                 renderAction={actionManager.renderAction}
                 className={clsx("zen-mode-transition", {
