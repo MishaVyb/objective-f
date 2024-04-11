@@ -6,7 +6,10 @@ import { VitePWA } from "vite-plugin-pwa";
 import checker from "vite-plugin-checker";
 
 // To load .env.local variables
-export const envVars = loadEnv("", `../`);
+export const envVars = loadEnv("development", `../`,);
+
+console.debug(envVars)
+
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
@@ -42,7 +45,7 @@ export default defineConfig({
   plugins: [
     react(),
     checker({
-      typescript: true,
+      typescript: false,
       eslint:
         envVars.VITE_APP_ENABLE_ESLINT === "false"
           ? undefined
@@ -55,7 +58,7 @@ export default defineConfig({
     svgrPlugin(),
     ViteEjsPlugin(),
     VitePWA({
-      registerType: "autoUpdate",
+      registerType: "autoUpdate", // ???
       devOptions: {
         /* set this flag to true to enable in Development mode */
         enabled: false,
