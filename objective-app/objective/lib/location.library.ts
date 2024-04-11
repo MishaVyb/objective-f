@@ -5,6 +5,7 @@ import { createObjFromClipboard } from './helpers'
 import doorOpen from './location/door-open'
 import doorClose from './location/door-close'
 import window from './location/window'
+import stairs from './location/stairs'
 
 import windowImage from './location/window-no-grid.png'
 import doorOpenImage from './location/door-open-no-grid.png'
@@ -55,6 +56,9 @@ export const LIB_LOCATION: LibraryItems = [
     },
   }),
   // createObj(doorHalfOpen, 'Door Half Open', DOOR_BASIS_INDEX),
+
+  //
+  createObj(stairs, 'Stairs', { subkind: 'Stairs' }),
 ]
 
 export const WALL_IMAGE: ObjectiveMeta['libraryImg'] = {
