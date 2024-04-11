@@ -35,6 +35,7 @@ import { WALL_IMAGE } from "../../../objective-app/objective/lib/location.librar
 
 import { useApp } from "./App";
 import { LibraryUnitAsImage } from "./LibraryUnit";
+import { Flex, Popover } from "@radix-ui/themes";
 
 // using an odd number of items per batch so the rendering creates an irregular
 // pattern which looks more organic
@@ -274,7 +275,8 @@ export default function LibraryMenuItems({
 
         <ObjectiveLibraryItems
           items={lightLibItems}
-          title={t("labels.libCharacters", null, "Light")}
+          title={t("labels.libLight", null, "Light")}
+          splitBySubkind
           {...commonProps}
         />
 
@@ -325,10 +327,10 @@ const ObjectiveLibraryItems: FC<{
   isItemSelected: (id: LibraryItem["id"] | null) => boolean;
   svgCache: SvgCache;
   extraItem?: ReactNode;
+  splitBySubkind?: boolean;
 }> = (props) => {
-  // const isLibItem = items && typeof items === "object" && "length" in items;
   return (
-    <>
+    <div className="objective-lib">
       <div className="library-menu-items-container__header">{props.title}</div>
       {props.isLoading ? (
         <LibSpinner />
@@ -343,10 +345,11 @@ const ObjectiveLibraryItems: FC<{
             onClick={props.onItemClick}
             isItemSelected={props.isItemSelected}
             svgCache={props.svgCache}
+            splitBySubkind={props.splitBySubkind}
           />
         </LibraryMenuSectionGrid>
       )}
-    </>
+    </div>
   );
 };
 

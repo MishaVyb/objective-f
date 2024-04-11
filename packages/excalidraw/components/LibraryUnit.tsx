@@ -6,7 +6,10 @@ import { useDevice } from "./App";
 import "./LibraryUnit.scss";
 import { PlusIcon } from "./icons";
 import { Flex, Text, Tooltip } from "@radix-ui/themes";
-import { getMetaSimple } from "../../../objective-app/objective/meta/selectors";
+import {
+  getMetaSimple,
+  getObjectiveSingleMeta,
+} from "../../../objective-app/objective/meta/selectors";
 import {
   ObjectiveElement,
   ObjectiveMeta,
@@ -84,6 +87,7 @@ export const LibraryUnit = memo(
     const adder = isPending && (
       <div className="library-unit__adder">{PlusIcon}</div>
     );
+    // const meta = getObjectiveSingleMeta(elements || []);
 
     if (asImage)
       return (
@@ -124,44 +128,59 @@ export const LibraryUnit = memo(
 
     return (
       <Tooltip content={toolTip} style={toolTip ? {} : { display: "none" }}>
-        <div
-          className={clsx("library-unit", {
-            "library-unit__active": elements,
-            "library-unit--hover": elements && isHovered,
-            "library-unit--selected": selected,
-            "library-unit--skeleton": !svg,
-          })}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
+        <Flex direction={"column"}>
           <div
-            className={clsx("library-unit__dragger", {
-              "library-unit__pulse": !!isPending,
+            className={clsx("library-unit", {
+              "library-unit__active": elements,
+              "library-unit--hover": elements && isHovered,
+              "library-unit--selected": selected,
+              "library-unit--skeleton": !svg,
             })}
-            ref={ref}
-            draggable={!!elements}
-            onClick={
-              !!elements || !!isPending
-                ? (event) => {
-                    if (id && event.shiftKey) {
-                      onToggle(id, event);
-                    } else {
-                      onClick(id);
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <div
+              className={clsx("library-unit__dragger", {
+                "library-unit__pulse": !!isPending,
+              })}
+              ref={ref}
+              draggable={!!elements}
+              onClick={
+                !!elements || !!isPending
+                  ? (event) => {
+                      if (id && event.shiftKey) {
+                        onToggle(id, event);
+                      } else {
+                        onClick(id);
+                      }
                     }
-                  }
-                : undefined
-            }
-            onDragStart={(event) => {
-              if (!id) {
-                event.preventDefault();
-                return;
+                  : undefined
               }
-              setIsHovered(false);
-              onDrag(id, event);
+              onDragStart={(event) => {
+                if (!id) {
+                  event.preventDefault();
+                  return;
+                }
+                setIsHovered(false);
+                onDrag(id, event);
+              }}
+            />
+            {adder}
+          </div>
+          <Text
+            align={'center'}
+            size={"1"}
+            weight={"light"}
+            style={{
+              width: 50,
+              // overflow: "hidden",
+              whiteSpace: "nowrap",
+              // textOverflow: "clip",
             }}
-          />
-          {adder}
-        </div>
+          >
+            {meta?.subkind}
+          </Text>
+        </Flex>
       </Tooltip>
     );
   },

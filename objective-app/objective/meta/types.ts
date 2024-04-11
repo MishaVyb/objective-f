@@ -63,6 +63,24 @@ export type ObjectiveSubkinds =
   | 'window'
   | 'doorClosed'
   | 'doorOpen'
+  | 'Stairs'
+
+  // light
+  | 'Led Panel'
+  | 'Kinoflo'
+  | 'Jambo'
+  | 'Astera'
+  | 'Pipe'
+  | 'Arri'
+  | 'Aputure'
+  | 'Open Face'
+  | 'Par'
+  | 'Etc'
+  | 'Bulb'
+  | 'Frame'
+  | 'Farm'
+  | 'Apple Box'
+  | 'Sun'
 
 export type TObjectiveKind = `${ObjectiveKinds}`
 
