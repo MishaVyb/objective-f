@@ -32,10 +32,11 @@ import {
   isDisplayed,
   isObjective,
   isPure,
+  isWallToolOrWallDrawing,
 } from '../meta/types'
 import { getCameraMetaReprStr, getCameraVersionStr } from './actionCamera'
 import { arrangeElements } from '../elements/zindex'
-import { Button, Dialog, Flex, IconButton, Kbd, TextArea } from '@radix-ui/themes'
+import { Button, Callout, Dialog, Flex, IconButton, Kbd, TextArea } from '@radix-ui/themes'
 import { EyeClosedIcon, EyeOpenIcon, Pencil1Icon, TransformIcon } from '@radix-ui/react-icons'
 import { getBoundTextElement } from '../../../packages/excalidraw/element/textElement'
 import { mutateElement } from '../../../packages/excalidraw'
@@ -63,7 +64,7 @@ export const actionDisplayMetaHeader = register({
   perform: (elements, appState, value) => {
     return false // No perform action, actually
   },
-  PanelComponent: ({ elements, appState, updateData, appProps }: PanelComponentProps) => {
+  PanelComponent: ({ elements, appState, updateData, appProps, app }: PanelComponentProps) => {
     const metaKind = getFormValue(
       elements,
       appState,
@@ -72,7 +73,40 @@ export const actionDisplayMetaHeader = register({
       null
     )
 
-    if (!metaKind) return <></> // different metas selected
+    // Objective tools
+    const selected = getSelectedSceneEls(app.scene, appState)
+    const isWallTall = isWallToolOrWallDrawing(appState.activeTool, selected)
+
+    if (!metaKind && !isWallTall) return <></> // different metas selected
+
+    console.log({
+      selected,
+      tool: appState.activeTool,
+      aaa: appState.selectedLinearElement,
+      bbb: appState.editingLinearElement,
+    })
+
+    if (isWallTall) {
+      return (
+        <Flex direction={'column'} gap={'1'} mb={'3'}>
+          <Flex justify={'between'} mb={'3'}>
+            <KbdLabel>{ObjectiveKinds.WALL}</KbdLabel>
+          </Flex>
+          <Callout.Root ml={'-1'} mr={'-1'}>
+            {selected.length ? (
+              <Callout.Text m={'-2'}>{'Pres Esqape or Ender to finish'}</Callout.Text>
+            ) : (
+              <Callout.Text m={'-2'}>
+                {'Tap once to start draw'}
+                <br />
+                {'Click more to create corners'}
+              </Callout.Text>
+            )}
+          </Callout.Root>
+        </Flex>
+      )
+    }
+    // other custom tools...
 
     if (metaKind === ObjectiveKinds.CHARACTER || metaKind === ObjectiveKinds.LIGHT)
       return (

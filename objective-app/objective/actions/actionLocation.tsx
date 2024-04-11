@@ -1,3 +1,4 @@
+import { Button } from '@radix-ui/themes'
 import { normalizeAngle } from '../../../packages/excalidraw/element/resizeElements'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import Scene from '../../../packages/excalidraw/scene/Scene'
@@ -6,9 +7,12 @@ import { between } from '../elements/math'
 
 import { rotateMultipleElementsOnAngle } from '../elements/mutateElements'
 import { getLocationSnap } from '../elements/snapElements'
-import { getObjectiveSingleMeta } from '../meta/selectors'
-import { LocationMeta, ObjectiveKinds, ObjectiveMeta } from '../meta/types'
+import { getObjectiveSingleMeta, getSelectedSceneEls } from '../meta/selectors'
+import { LocationMeta, ObjectiveKinds, ObjectiveMeta, isWallElement } from '../meta/types'
 import { register } from './register'
+import { Share1Icon } from '@radix-ui/react-icons'
+import { LinearElementEditor } from '../../../packages/excalidraw/element/linearElementEditor'
+import { ACCENT_COLOR } from '../../objective-plus/constants'
 
 /** Internal action called at `onPointerUpFromPointerDownEventHandler` */
 export const actionSnapLocation = register({
@@ -27,6 +31,40 @@ export const actionSnapLocation = register({
       elements,
       commitToHistory: false,
     }
+  },
+})
+
+export const actionToggleEditWall = register({
+  name: 'actionToggleEditWall',
+  trackEvent: false,
+  perform: (elements, appState, value, app) => {
+    const selectedElements = getSelectedSceneEls(app.scene, appState)
+    const wall = isWallElement(selectedElements[0]) ? selectedElements[0] : null
+
+    if (!wall) return false
+
+    return {
+      appState: {
+        ...appState,
+        editingLinearElement: value ? new LinearElementEditor(wall, app.scene) : null,
+      },
+      commitToHistory: false,
+    }
+  },
+  PanelComponent: ({ elements, appState, updateData, appProps, app }) => {
+    if (appState.activeTool.type !== 'selection') return <></>
+    appState.editingLinearElement
+
+    return (
+      <Button
+        style={{ width: 'min-content' }}
+        variant={appState.editingLinearElement ? 'outline' : 'soft'}
+        color={appState.editingLinearElement ? ACCENT_COLOR : 'gray'}
+        onClick={() => updateData(!appState.editingLinearElement)}
+      >
+        <Share1Icon /> {appState.editingLinearElement ? 'Done' : 'Edit'}
+      </Button>
+    )
   },
 })
 

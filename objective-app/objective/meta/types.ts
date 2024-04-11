@@ -302,6 +302,8 @@ export const isWallElement = (
 
 /** TMP solution when any simple lien is Wall. */
 export const isWallTool = (t: ActiveTool) => t.type === 'line'
+export const isWallToolOrWallDrawing = (t: ActiveTool, selected: readonly ExcalidrawElement[]) =>
+  (!selected.length || (selected.length === 1 && selected[0].type === 'line')) && isWallTool(t)
 
 export const isLocationMeta = (meta: MaybeMeta): meta is LocationMeta =>
   meta?.kind === ObjectiveKinds.LOCATION

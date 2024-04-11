@@ -43,6 +43,7 @@ import { useTunnels } from "../context/tunnels";
 import {
   ObjectiveKinds,
   isAllElementsObjective,
+  isWallToolOrWallDrawing,
 } from "../../../objective-app/objective/meta/types";
 import { objectEntries } from "../../../objective-app/objective/utils/types";
 import { Button, Flex, Separator } from "@radix-ui/themes";
@@ -134,10 +135,15 @@ export const SelectedShapeActions = ({
   const isSingleImage =
     targetElements.length === 1 && isInitializedImageElement(targetElements[0]);
 
+  const isObjectiveTool = isWallToolOrWallDrawing(
+    appState.activeTool,
+    targetElements,
+  );
+
   const getActionsToRender = (showOBJStyle: boolean) => ({
     // Objective
     // common:
-    metaHeader: isAllObjective,
+    metaHeader: isObjectiveTool || isAllObjective,
     metaName:
       isAllObjective &&
       singleMetaKind &&
@@ -152,12 +158,15 @@ export const SelectedShapeActions = ({
         metasSet.has(ObjectiveKinds.CHARACTER) ||
         metasSet.has(ObjectiveKinds.LIGHT)),
 
-    buttonToShowOrHideExcalidrawStyle: isAllObjective,
+    buttonToShowOrHideExcalidrawStyle: isObjectiveTool ? false : isAllObjective,
 
     // when many cameras selected:
     metaCameraShot: isAllObjective && singleMetaKind === ObjectiveKinds.CAMERA,
     metaCameraDetails:
       isAllObjective && singleMetaKind === ObjectiveKinds.CAMERA,
+
+    //
+    metaToggleEditWall: singleMeta?.kind === ObjectiveKinds.WALL,
 
     // when only one camera selected:
     metaActionStoryboard:
@@ -170,27 +179,31 @@ export const SelectedShapeActions = ({
     metaInitStoryboard: isSingleImage,
 
     // Excalidraw
-    strokeColor:
-      isOnlyExcali ||
-      (metasSet.has(ObjectiveKinds.LOCATION) && showOBJStyle) ||
-      (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
+    strokeColor: isObjectiveTool
+      ? showOBJStyle
+      : isOnlyExcali ||
+        (metasSet.has(ObjectiveKinds.LOCATION) && showOBJStyle) ||
+        (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
 
-    bgColor: isOnlyExcali || showOBJStyle,
-    bgStyle:
-      isOnlyExcali || (showOBJStyle && !metasSet.has(ObjectiveKinds.LABEL)),
+    bgColor: isObjectiveTool ? showOBJStyle : isOnlyExcali || showOBJStyle,
+    bgStyle: isObjectiveTool
+      ? showOBJStyle
+      : isOnlyExcali || (showOBJStyle && !metasSet.has(ObjectiveKinds.LABEL)),
 
-    strokeWidth:
-      isOnlyExcali ||
-      // (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle) ||
-      (metasSet.has(ObjectiveKinds.LOCATION) && showOBJStyle) ||
-      (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
+    strokeWidth: isObjectiveTool
+      ? showOBJStyle
+      : isOnlyExcali ||
+        // (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle) ||
+        (metasSet.has(ObjectiveKinds.LOCATION) && showOBJStyle) ||
+        (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
 
     /** solid / dashed / dottee */
-    strokeStyle:
-      isOnlyExcali ||
-      // (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle) ||
-      (metasSet.has(ObjectiveKinds.LOCATION) && showOBJStyle) ||
-      (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
+    strokeStyle: isObjectiveTool
+      ? showOBJStyle
+      : isOnlyExcali ||
+        // (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle) ||
+        (metasSet.has(ObjectiveKinds.LOCATION) && showOBJStyle) ||
+        (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
 
     /** only(!) for pure excalidraw figures */
     strokeSloppiness:
@@ -208,25 +221,30 @@ export const SelectedShapeActions = ({
     strokeShape: isOnlyExcali,
 
     // only for movement arrows
-    roundness:
-      isOnlyExcali ||
-      metas.every(
-        (m) =>
-          m.subkind === "cameraMovementPointer" ||
-          m.subkind === "characterMovementPointer",
-      ),
-    arrowheads:
-      isOnlyExcali ||
-      metas.every(
-        (m) =>
-          m.subkind === "cameraMovementPointer" ||
-          m.subkind === "characterMovementPointer",
-      ),
+    roundness: isObjectiveTool
+      ? showOBJStyle
+      : isOnlyExcali ||
+        metas.every(
+          (m) =>
+            m.subkind === "cameraMovementPointer" ||
+            m.subkind === "characterMovementPointer",
+        ),
+    arrowheads: isObjectiveTool
+      ? showOBJStyle
+      : isOnlyExcali ||
+        metas.every(
+          (m) =>
+            m.subkind === "cameraMovementPointer" ||
+            m.subkind === "characterMovementPointer",
+        ),
 
-    textStyle:
-      isOnlyExcali || (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle),
+    textStyle: isObjectiveTool
+      ? showOBJStyle
+      : isOnlyExcali || (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle),
 
-    opacity: isOnlyExcali || showOBJStyle || isObjAndExcali,
+    opacity: isObjectiveTool
+      ? showOBJStyle
+      : isOnlyExcali || showOBJStyle || isObjAndExcali,
 
     layers: false, // TODO
 
@@ -260,11 +278,14 @@ export const SelectedShapeActions = ({
   const actionsToRenderTotal = objectEntries(actionsToRender).filter(([k, v]) =>
     k === "metaHeader" || !k.startsWith("meta") ? false : v,
   );
-  // console.log("Actions to Render", actionsToRenderTotal);
+  // console.debug("Actions to Render", actionsToRenderTotal, {
+  //   isObjectiveTool,
+  //   tool: appState.activeTool,
+  // });
 
   // NOTE
   // if no actions to render (except metaHeader), show Excalidraw actions
-  if (!actionsToRenderTotal.length) {
+  if (!actionsToRenderTotal.length && !isObjectiveTool) {
     actionsToRender = getActionsToRender(true);
     actionsToRender.buttonToShowOrHideExcalidrawStyle = false;
   }
@@ -279,6 +300,9 @@ export const SelectedShapeActions = ({
     >
       {actionsToRender.metaHeader && renderAction("actionDisplayMetaHeader")}
       {actionsToRender.metaName && renderAction("actionChangeMetaName")}
+
+      {actionsToRender.metaToggleEditWall &&
+        renderAction("actionToggleEditWall")}
 
       {actionsToRender.metaCameraShot &&
         renderAction("actionChangeMetaCameraShot")}

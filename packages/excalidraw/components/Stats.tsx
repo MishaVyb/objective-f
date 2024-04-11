@@ -167,8 +167,8 @@ export const Stats = (props: {
               </Code>{" "}
               <Code>{Math.round(basisPoints[0].y)}</Code>
               {" | "}
-              <Code>{Math.round(basisPoints[1].x)}</Code>{" "}
-              <Code>{Math.round(basisPoints[1].y)}</Code>
+              <Code>{Math.round(basisPoints[1]?.x)}</Code>{" "}
+              <Code>{Math.round(basisPoints[1]?.y)}</Code>
             </td>
           </tr>
         )}
