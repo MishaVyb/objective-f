@@ -100,17 +100,17 @@ export const SelectedShapeActions = ({
 
   const buttonShowOrHideExcalidrawStyle = () => {
     return (
-      <>
-        <Button
-          style={{ width: "min-content" }}
-          variant={showOBJStyle ? "outline" : "soft"}
-          color={showOBJStyle ? "blue" : "gray"}
-          onClick={() => setShowOBJStyle(!showOBJStyle)}
-        >
-          <MixerHorizontalIcon />
-          {"Style"}
-        </Button>
-      </>
+      <Button
+        mt={"3"}
+        mb={!showOBJStyle ? "-5" : "1"}
+        style={{ width: "100%" }}
+        variant={"ghost"}
+        color={showOBJStyle ? "blue" : "gray"}
+        onClick={() => setShowOBJStyle(!showOBJStyle)}
+      >
+        <MixerHorizontalIcon />
+        {"Style"}
+      </Button>
     );
   };
 
@@ -296,6 +296,7 @@ export const SelectedShapeActions = ({
       style={{
         width: singleMeta?.kind === ObjectiveKinds.CAMERA ? 250 : 187,
         maxHeight: "70vh",
+        // overflowY: "clip", ???
       }}
     >
       {actionsToRender.metaHeader && renderAction("actionDisplayMetaHeader")}
