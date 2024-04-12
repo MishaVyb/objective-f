@@ -4,12 +4,13 @@ import { FC, ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useSelector } from '../hooks/redux'
 import { selectIsAuthenticated, selectUser } from '../store/auth/reducer'
+import { ACCENT_COLOR } from '../constants'
 
 export const ObjectiveLogo = () => {
   return (
     <Flex>
       <Heading weight={'light'}>Objective</Heading>
-      <Badge color={'yellow'} m='2' size={'1'}>
+      <Badge color={ACCENT_COLOR} m='2' size={'1'}>
         beta
       </Badge>
     </Flex>
@@ -31,7 +32,7 @@ const NavLink: FC<{ to: string; children?: ReactNode }> = ({ to, children }) => 
   )
 }
 
-export const ObjectiveHeader = () => {
+export const ObjectiveHeader: FC<{ renderLogo: boolean }> = ({ renderLogo }) => {
   const isAuth = useSelector(selectIsAuthenticated)
   const user = useSelector(selectUser)
 
@@ -53,9 +54,11 @@ export const ObjectiveHeader = () => {
         </NavLink>
       )}
 
-      <Link to='/about'>
-        <ObjectiveLogo />
-      </Link>
+      {renderLogo && (
+        <Link to='/about'>
+          <ObjectiveLogo />
+        </Link>
+      )}
 
       <Flex>
         {isAuth ? (

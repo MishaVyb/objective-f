@@ -30,7 +30,11 @@ export const AppMainMenu: React.FC<{
       <MainMenu.DefaultItems.ClearCanvas />
       <MainMenu.Separator />
       <MainMenu.DefaultItems.Help />
-      <MainMenu.ItemLink icon={<PaperPlaneIcon />} href={CONTACT_AUTHOR_LINK}>
+      <MainMenu.ItemLink
+        icon={<PaperPlaneIcon />}
+        href={CONTACT_AUTHOR_LINK}
+        target="_blank"
+      >
         {"Contact Us"}
       </MainMenu.ItemLink>
       {/* <MainMenu.ItemLink

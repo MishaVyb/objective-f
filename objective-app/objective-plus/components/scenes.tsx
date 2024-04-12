@@ -462,6 +462,7 @@ const ScenesList = () => {
         weight={'light'} //
         ml={'5'}
         mb={'2'}
+        style={{ textDecoration: 'underline', textDecorationThickness: '2px' }}
       >
         {project?.name}
       </Heading>

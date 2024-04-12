@@ -4,7 +4,8 @@ import { Route, Routes, useLocation, Navigate } from 'react-router-dom'
 import { Flex, Theme } from '@radix-ui/themes'
 import clsx from 'clsx'
 import ExcalidrawApp from '../../../excalidraw-app/App'
-import BackgroundImage from '../images/objective-bg-image-v1.png'
+import MainBackgroundImage from '../images/objective-bg-image-v4.png'
+import ProjectsBackgroundImage from '../images/simple-grid-v2.png'
 import AboutPage from '../pages/about'
 import LoginPage from '../pages/auth/login-page/login-page'
 import UpdateProfile from '../pages/auth/profile-page/update-profile'
@@ -35,6 +36,7 @@ const ScheckSentry: FC = () => {
 const ObjectivePlusApp: FC = () => {
   const location = useLocation()
   const excalidrawPath = location.pathname.match('/scenes/.*')
+  const projectsPath = location.pathname.match('/projects')
   const notUserErrors = useSelector(selectNotUserAPIErrors)
 
   return (
@@ -53,12 +55,20 @@ const ObjectivePlusApp: FC = () => {
       <Flex // Base Layout container for the whole APP //
         style={{
           height: '100vh',
-          backgroundImage: excalidrawPath ? undefined : `url(${BackgroundImage})`,
+          backgroundImage: excalidrawPath
+            ? undefined
+            : projectsPath
+            ? `url(${ProjectsBackgroundImage})`
+            : `url(${MainBackgroundImage})`,
+          backgroundPosition: 'center',
+          // backgroundRepeat: 'round',
+          // backgroundAttachment: 'scroll',
+          // boxShadow: '0 0 20px 20px white inset'
         }}
         className='objective-plus-app'
         direction={'column'}
       >
-        {!excalidrawPath && <ObjectiveHeader />}
+        {!excalidrawPath && <ObjectiveHeader renderLogo={projectsPath} />}
         <Routes>
           <Route path='*' element={<Navigate to={'/projects'} />} />
           <Route path='/about' element={<AboutPage />} />

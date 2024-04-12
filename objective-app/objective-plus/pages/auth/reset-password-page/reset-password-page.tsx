@@ -11,7 +11,11 @@ const ResetPasswordPage = () => {
           Reset Password
         </Heading>
         <Text mt={'5'} size={'1'}>
-          Please, contact <Link href={CONTACT_AUTHOR_LINK}>support</Link>.
+          Please, contact{' '}
+          <Link href={CONTACT_AUTHOR_LINK} target='_blank'>
+            support
+          </Link>
+          .
         </Text>
       </ObjectiveCard>
     </RootBox>

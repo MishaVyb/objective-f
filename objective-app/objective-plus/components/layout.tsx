@@ -43,7 +43,10 @@ export const ObjectiveCard: FC<{ extraClass?: ClassValue; children?: ReactNode }
     <Flex
       style={{ minWidth: 400 }}
       className={clsx('objective-card', extraClass)}
-      p={'9'}
+      pt={'6'}
+      pb={'6'}
+      pl={'9'}
+      pr={'9'}
       justify={'center'}
       direction={'column'}
       gap={'1'}
