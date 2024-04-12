@@ -256,7 +256,7 @@ export default function LibraryMenuItems({
       >
         <ObjectiveLibraryItems
           items={locationLibItems}
-          title={t("labels.libLocation", null, "Location")}
+          title={t("labels.libLocation", null, "Layout")}
           {...commonProps}
           extraItem={<WallToolLibraryItem />}
         />

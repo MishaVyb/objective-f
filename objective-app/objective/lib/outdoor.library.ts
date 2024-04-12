@@ -16,7 +16,7 @@ const createObj = (clipboardObj: ElementsClipboard, name: string): LibraryItem =
   })
 }
 
-export const LIB_OUTDOR: LibraryItems = [
+export const LIB_OTHER: LibraryItems = [
   createObj(car, 'Car'),
   createObj(track, 'Track'),
   createObj(bush, 'Bush'),
