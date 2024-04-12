@@ -6,10 +6,7 @@ import { useDevice } from "./App";
 import "./LibraryUnit.scss";
 import { PlusIcon } from "./icons";
 import { Flex, Text, Tooltip } from "@radix-ui/themes";
-import {
-  getMetaSimple,
-  getObjectiveSingleMeta,
-} from "../../../objective-app/objective/meta/selectors";
+import { getMetaSimple } from "../../../objective-app/objective/meta/selectors";
 import {
   ObjectiveElement,
   ObjectiveMeta,
@@ -23,9 +20,6 @@ export const LibraryUnitAsImage: FC<{
 
   return (
     <Flex direction={"column"} justify={"center"}>
-      <Text align={"center"} size={"1"} weight={"light"}>
-        {libraryImg.title}
-      </Text>
       <img
         src={libraryImg.src}
         alt=""
@@ -33,6 +27,9 @@ export const LibraryUnitAsImage: FC<{
         height={libraryImg.h}
         draggable={false}
       />
+      <Text align={"center"} size={"1"} weight={"light"} mt={"2"}>
+        {libraryImg.title}
+      </Text>
     </Flex>
   );
 };
@@ -47,20 +44,26 @@ export const LibraryUnit = memo(
     onToggle,
     onDrag,
     svgCache,
+    title,
   }: {
     id: LibraryItem["id"] | /** for pending item */ null;
     elements?: LibraryItem["elements"];
     isPending?: boolean;
-    onClick: (id: LibraryItem["id"] | null) => void;
+    onClick?: (id: LibraryItem["id"] | null) => void;
     selected: boolean;
     onToggle: (id: string, event: React.MouseEvent) => void;
     onDrag: (id: string, event: React.DragEvent) => void;
     svgCache: SvgCache;
+    title?: string;
   }) => {
     const element = elements![0] as ObjectiveElement;
     const meta = getMetaSimple(element);
     const asImage = meta.libraryImg;
-    const toolTip = (!meta.libraryImg?.title && meta.name) || "";
+
+    title = title || meta?.subkind;
+    const toolTip = title
+      ? undefined
+      : (!meta.libraryImg?.title && meta.name) || undefined;
 
     const ref = useRef<HTMLDivElement | null>(null);
     const svg = useLibraryItemSvg(id, elements, svgCache);
@@ -87,12 +90,12 @@ export const LibraryUnit = memo(
     const adder = isPending && (
       <div className="library-unit__adder">{PlusIcon}</div>
     );
-    // const meta = getObjectiveSingleMeta(elements || []);
 
     if (asImage)
       return (
         <Tooltip content={toolTip} style={toolTip ? {} : { display: "none" }}>
           <div
+            title={onClick ? "Click to add" : undefined}
             className={clsx("library-unit", {
               "library-unit__active": elements,
               "library-unit--hover": elements && isHovered,
@@ -104,11 +107,8 @@ export const LibraryUnit = memo(
             onClick={
               !!elements || !!isPending
                 ? (event) => {
-                    if (id && event.shiftKey) {
-                      onToggle(id, event);
-                    } else {
-                      onClick(id);
-                    }
+                    if (id && event.shiftKey) onToggle(id, event);
+                    else if (onClick) onClick(id);
                   }
                 : undefined
             }
@@ -130,6 +130,7 @@ export const LibraryUnit = memo(
       <Tooltip content={toolTip} style={toolTip ? {} : { display: "none" }}>
         <Flex direction={"column"}>
           <div
+            title={onClick ? "Click to add" : undefined}
             className={clsx("library-unit", {
               "library-unit__active": elements,
               "library-unit--hover": elements && isHovered,
@@ -148,11 +149,8 @@ export const LibraryUnit = memo(
               onClick={
                 !!elements || !!isPending
                   ? (event) => {
-                      if (id && event.shiftKey) {
-                        onToggle(id, event);
-                      } else {
-                        onClick(id);
-                      }
+                      if (id && event.shiftKey) onToggle(id, event);
+                      else if (onClick) onClick(id);
                     }
                   : undefined
               }
@@ -168,17 +166,12 @@ export const LibraryUnit = memo(
             {adder}
           </div>
           <Text
-            align={'center'}
+            align={"center"}
             size={"1"}
             weight={"light"}
-            style={{
-              width: 50,
-              // overflow: "hidden",
-              whiteSpace: "nowrap",
-              // textOverflow: "clip",
-            }}
+            style={{ width: 50, whiteSpace: "nowrap" }}
           >
-            {meta?.subkind}
+            {title}
           </Text>
         </Flex>
       </Tooltip>

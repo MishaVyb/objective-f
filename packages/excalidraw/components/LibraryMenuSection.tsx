@@ -4,14 +4,10 @@ import { LibraryItem } from "../types";
 import { ExcalidrawElement, NonDeleted } from "../element/types";
 import { SvgCache } from "../hooks/useLibraryItemSvg";
 import { useTransition } from "../hooks/useTransition";
-import {
-  groupBy,
-  groupByV2,
-} from "../../../objective-app/objective/utils/helpers";
+import { groupByV2 } from "../../../objective-app/objective/utils/helpers";
 import { getObjectiveSingleMeta } from "../../../objective-app/objective/meta/selectors";
-import { Button, Flex, Separator } from "@radix-ui/themes";
-import * as Popover from "@radix-ui/react-popover";
-import { Cross2Icon } from "@radix-ui/react-icons";
+import { Flex, Separator } from "@radix-ui/themes";
+import * as HoverCard from "@radix-ui/react-hover-card";
 
 type LibraryOrPendingItem = (
   | LibraryItem
@@ -72,7 +68,10 @@ export const LibraryMenuSection = memo(
 
       return groupList.map(([subkind, objectiveItems], i) => {
         if (!objectiveItems.length) return null;
-        const item = objectiveItems[0];
+        const item = objectiveItems.at(-1); // TODO configurable?
+        if (!item) return <></>;
+
+        const meta = getObjectiveSingleMeta(item.elements);
 
         if (objectiveItems.length === 1)
           return (
@@ -86,34 +85,30 @@ export const LibraryMenuSection = memo(
               onToggle={onItemSelectToggle}
               onDrag={onItemDrag}
               key={subkind + item?.id ?? i}
+              title={meta?.library?.mainTitle}
             />
           );
 
         return (
-          <Popover.Root
-            key={subkind + item?.id ?? i}
-
-            // open={popoverOpen}
-            // onOpenChange={setPopoverOpen}
-          >
-            <Popover.Trigger asChild>
+          <HoverCard.Root openDelay={500}>
+            <HoverCard.Trigger asChild>
               <div>
                 <LibraryUnit
                   elements={item?.elements}
                   isPending={!item?.id && !!item?.elements}
-                  onClick={() => {}}
                   svgCache={svgCache}
                   id={item?.id}
                   selected={isItemSelected(item.id)}
                   onToggle={onItemSelectToggle}
                   onDrag={onItemDrag}
                   key={item?.id ?? i}
+                  title={meta?.library?.mainTitle}
                 />
               </div>
-            </Popover.Trigger>
-
-            <Popover.Content className="PopoverContent">
-              <Flex gap={"1"} p={"1"} ml="1" mr="5" mb="1" align={"center"}>
+            </HoverCard.Trigger>
+            {/* <HoverCard.Portal> ??? */}
+            <HoverCard.Content className="HoverCardContent">
+              <Flex gap={"1"} p={"1"} m="1" align={"baseline"}>
                 <LibraryUnit
                   elements={item?.elements}
                   isPending={!item?.id && !!item?.elements}
@@ -124,31 +119,40 @@ export const LibraryMenuSection = memo(
                   onToggle={onItemSelectToggle}
                   onDrag={onItemDrag}
                   key={item?.id ?? i}
+                  title={meta?.library?.mainTitle}
                 />
                 <Separator orientation={"vertical"} size={"2"} />
-                {objectiveItems.map((item, i) => (
-                  <div
-                    style={{ width: 50, height: 50 }}
-                    key={subkind + item?.id ?? i}
-                  >
-                    <LibraryUnit
-                      elements={item?.elements}
-                      isPending={!item?.id && !!item?.elements}
-                      onClick={onClick}
-                      svgCache={svgCache}
-                      id={item?.id}
-                      selected={isItemSelected(item.id)}
-                      onToggle={onItemSelectToggle}
-                      onDrag={onItemDrag}
-                    />
-                  </div>
-                ))}
+                {objectiveItems.map((item, i) => {
+                  const meta = getObjectiveSingleMeta(item.elements);
+                  return (
+                    <div
+                      style={{ width: 50, height: 50 }}
+                      key={subkind + item?.id ?? i}
+                    >
+                      <LibraryUnit
+                        elements={item?.elements}
+                        isPending={!item?.id && !!item?.elements}
+                        onClick={onClick}
+                        svgCache={svgCache}
+                        id={item?.id}
+                        selected={isItemSelected(item.id)}
+                        onToggle={onItemSelectToggle}
+                        onDrag={onItemDrag}
+                        title={meta?.library?.subTitle}
+                      />
+                    </div>
+                  );
+                })}
               </Flex>
-              <Popover.Close className="PopoverClose" aria-label="Close">
-                <Cross2Icon />
-              </Popover.Close>
-            </Popover.Content>
-          </Popover.Root>
+
+              <HoverCard.Arrow
+                height={10}
+                width={15}
+                className="HoverCardArrow"
+              />
+            </HoverCard.Content>
+            {/* </HoverCard.Portal> */}
+          </HoverCard.Root>
         );
       });
     }

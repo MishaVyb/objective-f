@@ -47,7 +47,7 @@ import {
 } from "../../../objective-app/objective/meta/types";
 import { objectEntries } from "../../../objective-app/objective/utils/types";
 import { Button, Flex, Separator } from "@radix-ui/themes";
-import { __DEBUG_EDITOR } from "../../../objective-app/objective-plus/constants";
+import { ACCENT_COLOR, __DEBUG_EDITOR } from "../../../objective-app/objective-plus/constants";
 import { getObjectiveMetas } from "../../../objective-app/objective/meta/selectors";
 import { MixerHorizontalIcon } from "@radix-ui/react-icons";
 
@@ -105,7 +105,7 @@ export const SelectedShapeActions = ({
         mb={!showOBJStyle ? "-5" : "1"}
         style={{ width: "100%" }}
         variant={"ghost"}
-        color={showOBJStyle ? "blue" : "gray"}
+        color={showOBJStyle ? ACCENT_COLOR : "gray"}
         onClick={() => setShowOBJStyle(!showOBJStyle)}
       >
         <MixerHorizontalIcon />

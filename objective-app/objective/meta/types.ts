@@ -104,6 +104,19 @@ export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readon
     h: number
   }>
 
+  library?: Readonly<{
+    mainTitle?: string
+    subTitle?: string
+    // ... TODO refactor other fields
+  }>
+
+  // TODO do not depends on Meta.kind -- it's to generic...
+  // other configuration, like
+  // - doSnapToWall
+  // - renderActions: string[...]
+  // - ...
+
+
   // CHANGEABLE BY USEAR'S ACTIONS FIELDS
 
   /** Aka Title / Label. Populated by User from `actionProps` panel. */

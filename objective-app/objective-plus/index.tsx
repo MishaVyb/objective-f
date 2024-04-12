@@ -8,6 +8,7 @@ import '@radix-ui/themes/styles.css'
 
 import './scss/app.scss' // objective-plus
 import './../objective/scss/app.scss'
+import './../objective/scss/radix.scss'
 // app.scss Excalidraw styles imported at packages/excalidraw/index.tsx
 
 // TMP
