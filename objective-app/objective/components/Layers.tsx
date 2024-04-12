@@ -288,7 +288,7 @@ export const Layers: FC<{shrink?: boolean}> = ({shrink}) => {
           <Layer close={() => setOpen(false)} kind={[ObjectiveKinds.LIGHT]} />
           <Layer close={() => setOpen(false)} kind={[ObjectiveKinds.CHARACTER]} />
           <Layer close={() => setOpen(false)} kind={[ObjectiveKinds.PROP]} />
-          <Layer close={() => setOpen(false)} kind={[ObjectiveKinds.SET, ObjectiveKinds.OUTDOR]} />
+          <Layer close={() => setOpen(false)} kind={[ObjectiveKinds.SET, ObjectiveKinds.OTHER]} />
           <Layer
             close={() => setOpen(false)}
             kind={[ObjectiveKinds.LOCATION, ObjectiveKinds.WALL]}

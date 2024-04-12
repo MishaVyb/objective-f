@@ -27,7 +27,7 @@ export enum ObjectiveKinds {
   SET = 'set',
   /** small items */
   PROP = 'prop',
-  OUTDOR = 'outdor',
+  OTHER = 'other',
 
   /** internal */
   POINTER = 'pointer',
@@ -105,7 +105,8 @@ export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readon
   }>
 
   library?: Readonly<{
-    mainTitle?: string
+    groupTitle?: string // or meta.kind
+    mainTitle?: string // or meta.name
     subTitle?: string
     // ... TODO refactor other fields
   }>

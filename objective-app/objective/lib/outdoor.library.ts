@@ -11,7 +11,7 @@ import playback from './outdoor/playback'
 const BG_COLOR = COLOR_PALETTE.gray[1]
 
 const createObj = (clipboardObj: ElementsClipboard, name: string): LibraryItem => {
-  return createObjFromClipboard(clipboardObj, name, ObjectiveKinds.OUTDOR, {
+  return createObjFromClipboard(clipboardObj, name, ObjectiveKinds.OTHER, {
     backgroundColor: BG_COLOR,
   })
 }

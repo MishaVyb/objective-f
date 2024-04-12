@@ -104,8 +104,8 @@ export default function LibraryMenuItems({
     () => libraryItems.filter((item) => item.kind === ObjectiveKinds.SET),
     [libraryItems],
   );
-  const outdoorLibItems = useMemo(
-    () => libraryItems.filter((item) => item.kind === ObjectiveKinds.OUTDOR),
+  const otherLibItems = useMemo(
+    () => libraryItems.filter((item) => item.kind === ObjectiveKinds.OTHER),
     [libraryItems],
   );
 
@@ -293,8 +293,8 @@ export default function LibraryMenuItems({
         />
 
         <ObjectiveLibraryItems
-          items={outdoorLibItems}
-          title={t("labels.libOutdoor", null, "Outdoor")}
+          items={otherLibItems}
+          title={"Other"}
           {...commonProps}
         />
 

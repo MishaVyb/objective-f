@@ -76,7 +76,7 @@ export const arrangeElements = (elements: ElementsMapOrArray, newEls: ElementsMa
 
     if (isKindEl(el, ObjectiveKinds.WALL)) wall.push(...els)
     else if (isKindEl(el, ObjectiveKinds.LOCATION)) location.push(...els)
-    else if (isKindEl(el, ObjectiveKinds.OUTDOR)) outdoor.push(...els)
+    else if (isKindEl(el, ObjectiveKinds.OTHER)) outdoor.push(...els)
     else if (isKindEl(el, ObjectiveKinds.SET)) set.push(...els)
     else if (isKindEl(el, ObjectiveKinds.PROP)) prop.push(...els)
     else if (isImageElement(el)) image.push(...els)
