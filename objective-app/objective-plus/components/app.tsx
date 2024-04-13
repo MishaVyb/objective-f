@@ -4,7 +4,7 @@ import { Route, Routes, useLocation, Navigate } from 'react-router-dom'
 import { Flex, Theme } from '@radix-ui/themes'
 import clsx from 'clsx'
 import ExcalidrawApp from '../../../excalidraw-app/App'
-import MainBackgroundImage from '../images/objective-bg-image-v4.png'
+import MainBackgroundImage from '../images/objective-bg-image-v5.png'
 import ProjectsBackgroundImage from '../images/simple-grid-v2.png'
 import AboutPage from '../pages/about'
 import LoginPage from '../pages/auth/login-page/login-page'
@@ -20,6 +20,7 @@ import DebugPage from '../pages/debug'
 import { ObjectiveErrorCollout } from './errors'
 import { selectNotUserAPIErrors } from '../store/projects/reducer'
 import { useSelector } from '../hooks/redux'
+import { useViewport } from '../../objective/hooks/useVieport'
 
 const ScheckSentry: FC = () => {
   console.info('ScheckSentry: info log')
@@ -38,6 +39,7 @@ const ObjectivePlusApp: FC = () => {
   const excalidrawPath = location.pathname.match('/scenes/.*')
   const projectsPath = location.pathname.match('/projects')
   const notUserErrors = useSelector(selectNotUserAPIErrors)
+  const { width } = useViewport()
 
   return (
     <Theme
@@ -61,14 +63,15 @@ const ObjectivePlusApp: FC = () => {
             ? `url(${ProjectsBackgroundImage})`
             : `url(${MainBackgroundImage})`,
           backgroundPosition: 'center',
-          // backgroundRepeat: 'round',
+          backgroundSize: width < 1000 ? 'cover' : undefined,
+          // backgroundRepeat: 'repeat-x',
           // backgroundAttachment: 'scroll',
           // boxShadow: '0 0 20px 20px white inset'
         }}
         className='objective-plus-app'
         direction={'column'}
       >
-        {!excalidrawPath && <ObjectiveHeader renderLogo={projectsPath} />}
+        {!excalidrawPath && <ObjectiveHeader renderLogo={!!projectsPath} />}
         <Routes>
           <Route path='*' element={<Navigate to={'/projects'} />} />
           <Route path='/about' element={<AboutPage />} />

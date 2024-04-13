@@ -51,7 +51,6 @@ const UpdateProfile: FC = () => {
   }
 
   const loading = useSelector(selectAuthIsPending)
-  console.log({ loading })
   const error = useSelector(selectAuthUserAPIErrors)
 
   const dispatch = useDispatch()
