@@ -117,6 +117,9 @@ export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readon
   // - renderActions: string[...]
   // - ...
 
+  elementsRequiredLength?: number
+  /** is invisible bases that used only to make custom bounding borders */
+  isInternalBasis?: boolean
 
   // CHANGEABLE BY USEAR'S ACTIONS FIELDS
 
@@ -142,8 +145,8 @@ export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readon
   elements: readonly ObjectiveElement[]
   /** Excalidraw primitive element. Populated by `getMetas` regarding to `basisIndex` */
   basis: ExcalidrawElement | undefined
-  /** is invisible bases that used only to make custom bounding borders */
-  isInternalBasis?: boolean
+  /** Is meta has required elements length (opposite for `weekMeta`)*/
+  isComplite?: boolean
 
   //
   //

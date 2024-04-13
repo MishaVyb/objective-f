@@ -11,6 +11,7 @@ const _DEFAULT_META_OVERRIDES: TOptionalMetaOverrides = {
   camera: {
     isInternalBasis: true,
     relatedImages: [],
+    elementsRequiredLength: 3,
   },
   character: {
     isInternalBasis: true,

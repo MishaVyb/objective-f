@@ -163,6 +163,10 @@ export const getCameraLensAngleElements = (
   camera: CameraMeta,
   opts?: { overrides?: Partial<ExcalidrawArrowElement> }
 ) => {
+  if (!camera.isComplite) {
+    return []
+  }
+
   const { basis, focalLength } = camera
   if (!focalLength || !basis) return []
 
@@ -173,7 +177,7 @@ export const getCameraLensAngleElements = (
     ...CAMERA_LENS_ANGLE_LINE(),
     ...(opts?.overrides || {}),
     strokeColor: basis.backgroundColor,
-    opacity: camera.elements[1].opacity, // FIXME we cannot use basis here as it always has opacity 0
+    opacity: camera.elements[1]?.opacity || 100, // FIXME we cannot use basis here as it always has opacity 0
   }
 
   const leftSide = getCameraLensAngleSide(

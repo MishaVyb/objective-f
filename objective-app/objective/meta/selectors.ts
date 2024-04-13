@@ -46,11 +46,12 @@ export const getMeta = <TMeta extends ObjectiveMeta>(
   el: ObjectiveElement<TMeta>,
   elementIds: readonly string[] = [],
   elements: readonly ExcalidrawElement[] = [],
-  basis: ObjectiveMeta['basis'] | undefined = undefined
+  basis: ObjectiveMeta['basis'] | undefined = undefined,
+  isComplite: boolean | undefined = undefined
 ): TMeta => {
   // WARNING
   // DeepCopy here?
-  return { ...el.customData, id: getObjectiveId(el), elementIds, elements, basis }
+  return { ...el.customData, id: getObjectiveId(el), elementIds, elements, basis, isComplite }
 }
 
 /**
@@ -143,7 +144,11 @@ export const extractObjectiveMetas = (opts?: {
       // NOTE: new API for accessing basis, replacement for `getObjectdiveBasis`
       const basis = els && els[weekMeta.basisIndex || 0] // TODO basis validation ???
 
-      return getMeta<TMeta>(e as ObjectiveElement<TMeta>, ids, els, basis)
+      const isComplite = weekMeta.elementsRequiredLength
+        ? els!.length === weekMeta.elementsRequiredLength
+        : undefined
+
+      return getMeta<TMeta>(e as ObjectiveElement<TMeta>, ids, els, basis, isComplite)
     })
 
   return [addElementCallback, finalizeCallback] as [

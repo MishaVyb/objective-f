@@ -69,7 +69,7 @@ export const LibraryMenuSection = memo(
       return groupList.map(([subkind, objectiveItems], i) => {
         if (!objectiveItems.length) return null;
         const item = objectiveItems.at(-1); // TODO configurable?
-        if (!item) return <></>;
+        if (!item) return null;
 
         const meta = getObjectiveSingleMeta(item.elements);
 
@@ -90,7 +90,7 @@ export const LibraryMenuSection = memo(
           );
 
         return (
-          <HoverCard.Root openDelay={500}>
+          <HoverCard.Root key={item?.id ?? i} openDelay={500}>
             <HoverCard.Trigger asChild>
               <div>
                 <LibraryUnit
@@ -101,7 +101,6 @@ export const LibraryMenuSection = memo(
                   selected={isItemSelected(item.id)}
                   onToggle={onItemSelectToggle}
                   onDrag={onItemDrag}
-                  key={item?.id ?? i}
                   title={meta?.library?.mainTitle}
                 />
               </div>
@@ -118,7 +117,6 @@ export const LibraryMenuSection = memo(
                   selected={isItemSelected(item.id)}
                   onToggle={onItemSelectToggle}
                   onDrag={onItemDrag}
-                  key={item?.id ?? i}
                   title={meta?.library?.mainTitle}
                 />
                 <Separator orientation={"vertical"} size={"2"} />

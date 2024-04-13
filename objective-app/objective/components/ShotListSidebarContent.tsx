@@ -14,6 +14,7 @@ import {
   CaretDownIcon,
   CaretRightIcon,
   CropIcon,
+  FontFamilyIcon,
   MarginIcon,
   PlusIcon,
   WidthIcon,
@@ -266,7 +267,7 @@ const ShotListSidebarCameraElement: FC<{ camera: CameraMeta; isSelected: boolean
               {camera.focalLength && (
                 <>
                   <Flex title={'Focal length'} align={'center'} gap={'1'}>
-                    <AngleIcon />
+                    <FontFamilyIcon />
                     <Text color={'gray'} size={'1'}>
                       {numberToStr(camera.focalLength, { unit: 'mm' })}
                     </Text>
