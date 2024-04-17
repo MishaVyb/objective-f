@@ -331,7 +331,7 @@ export const actionChangeMetaDescription = register({
         <legend>{'Properties'}</legend>
         <Dialog.Root onOpenChange={(open) => !open && updateData(textValue)}>
           <Dialog.Trigger>
-            <Button variant={'soft'} color={'gray'}>
+            <Button variant={'soft'} color={'gray'} size={'1'}>
               <Pencil1Icon />
               {'Description'}
             </Button>
@@ -387,11 +387,11 @@ export const actionChangeMetaDescription = register({
 export const actionToggleScalable = register({
   name: 'actionToggleScalable',
   trackEvent: false,
-  contextItemLabel: 'Scaleable',
+  contextItemLabel: 'Scalable',
   checked: (appState, app) => isElementsScalable(getSelectedSceneEls(app!.scene, appState)),
   predicate(elements, appState, appProps, app) {
     // for any objective except pure obj elements
-    // (does not support disableScaleable flag for pure elements)
+    // (does not support disableScalable flag for pure elements)
     const metas = getSelectedObjectiveMetas(app.scene, appState)
     return !!metas.length && !metas.every(isPure)
   },
@@ -408,7 +408,7 @@ export const actionToggleScalable = register({
       <IconButton
         size={'2'}
         variant={'soft'}
-        className={clsx('objective-toggled-icon-button', { active: isScalable })}
+        className={clsx('objective-toggled-icon-button', { toggled: isScalable })}
         title={'Scalable'}
         onClick={() => updateData()} //
       >

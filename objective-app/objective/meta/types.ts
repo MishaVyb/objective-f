@@ -135,7 +135,7 @@ export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readon
   nameRepr?: ExcalidrawElement['id']
   /** long object description */
   description?: string
-  /** opposite to scaleable flag */
+  /** opposite to scalable flag */
   disableResize: boolean
 
   // AUTO POPULATED FIELDS:

@@ -352,7 +352,7 @@ export const HelpDialog = ({ onClose }: { onClose?: () => void }) => {
               shortcuts={[getShortcutKey("CtrlOrCmd+Alt+V")]}
             />
             <Shortcut
-              label={"Toggle scaleable"}
+              label={"Toggle scalable"}
               shortcuts={[getShortcutKey("Alt+T")]}
             />
             <Shortcut

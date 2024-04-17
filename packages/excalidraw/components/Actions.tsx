@@ -277,7 +277,7 @@ export const SelectedShapeActions = ({
         singleMeta.subkind === "doorClosed" ||
         singleMeta.kind === ObjectiveKinds.LIGHT),
 
-    scaleable: isSomeObjective,
+    scalable: isSomeObjective,
     delete: isOnlyExcali || isObjAndExcali || showOBJStyle,
     group: isOnlyExcali || isObjAndExcali || showOBJStyle,
     ungroup: isOnlyExcali || isObjAndExcali || showOBJStyle,
@@ -469,7 +469,7 @@ export const SelectedShapeActions = ({
           <div className="buttonList">
             {actionsToRender.flip && renderAction("flipHorizontal")}
             {actionsToRender.flip && renderAction("flipVertical")}
-            {actionsToRender.scaleable && renderAction("actionToggleScalable")}
+            {actionsToRender.scalable && renderAction("actionToggleScalable")}
 
             {actionsToRender.duplicate &&
               !device.editor.isMobile &&
