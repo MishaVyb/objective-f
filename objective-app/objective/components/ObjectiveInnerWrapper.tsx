@@ -40,10 +40,9 @@ const ObjectiveInnerWrapper: FC<{ children: ReactNode }> = ({ children }) => {
   const dispatch = useDispatch()
   const app = useApp() as App
   const { multiElement } = useExcalidrawAppState()
-  const appState = useExcalidrawAppState()
   const elements = useExcalidrawElements()
 
-  const loading = useSelector(selectInitialSceneLoadingIsPending)
+  const initialSceneLoading = useSelector(selectInitialSceneLoadingIsPending)
   const { sceneId } = useParams()
   const isMyScene = useSelector(selectIsMyScene)
 
@@ -78,9 +77,14 @@ const ObjectiveInnerWrapper: FC<{ children: ReactNode }> = ({ children }) => {
     setFiles(app.files)
   }, [app.files])
 
-  /** Configure appState programatecly */
+  /** Configure app/appState programatecly after `loading` flag has been changed */
   useEffect(() => {
-    if (loading) return
+    if (initialSceneLoading) return
+    else {
+      // HACK: clear history to prevent Undo to empty scene (when scene hasn't loaded yet)
+      app.history.clear()
+      app.history.resumeRecording();
+    }
 
     // HACK: set `viewMode` by actionManager, otherwise it won't work
     //
@@ -91,7 +95,7 @@ const ObjectiveInnerWrapper: FC<{ children: ReactNode }> = ({ children }) => {
         app.actionManager.executeAction(actionToggleViewMode, 'contextMenu')
       })
     }
-  }, [isMyScene, loading, app])
+  }, [isMyScene, initialSceneLoading, app])
 
   /** saving scene on elements changes */
   useEffect(() => {
@@ -102,14 +106,15 @@ const ObjectiveInnerWrapper: FC<{ children: ReactNode }> = ({ children }) => {
         getSceneElements: () => elements,
 
         // FIXME we should pass appState as dependency,
-        // but it will trigger updates for every scroll movement
+        // but it will trigger updates for every scroll movement,
+        // therefore appState are updating only when elements have updated or every 10 sec on auto update timer
         getAppState: () => app.state,
       },
       sceneId
     )
   }, [elements, app])
 
-  if (loading) return <LoadingMessage />
+  if (initialSceneLoading) return <LoadingMessage />
 
   return (
     <ObjectiveCamerasContext.Provider value={cameras}>

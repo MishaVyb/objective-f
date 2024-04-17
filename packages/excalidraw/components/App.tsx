@@ -559,7 +559,7 @@ class App extends React.Component<AppProps, AppState> {
   public library: AppClassProperties["library"];
   public libraryItemsFromStorage: LibraryItems | undefined;
   public id: string;
-  private history: History;
+  public history: History;
   private excalidrawContainerValue: {
     container: HTMLDivElement | null;
     id: string;
