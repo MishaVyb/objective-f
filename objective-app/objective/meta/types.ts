@@ -92,7 +92,7 @@ export type MaybeMeta<T extends ObjectiveMeta = ObjectiveMeta> = T | WeekMeta<T>
 
 export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readonly<{
   //
-  // CONSTANT FIELDS
+  // CONSTANT (INITIAL) FIELDS
 
   kind: Kind
   subkind?: ObjectiveSubkinds
@@ -109,6 +109,12 @@ export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readon
     mainTitle?: string // or meta.name
     subTitle?: string
     // ... TODO refactor other fields
+  }>
+
+
+  coreOpts?: Readonly<{
+    isSnappedToWalls?: boolean
+    isBoundsTakenFromBasis?: boolean
   }>
 
   // TODO do not depends on Meta.kind -- it's too generic...

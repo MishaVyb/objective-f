@@ -187,6 +187,20 @@ export const getObjectiveSingleMeta = <TMeta extends ObjectiveMeta>(
   return null
 }
 
+/* if only ALL specified elements represent that single objective meta */
+export const getObjectiveSingleMetaStrict = <TMeta extends ObjectiveMeta>(
+  elements: ElementsMapOrArray,
+  opts?: {
+    kind?: TMeta['kind']
+    includingDelited?: boolean
+  }
+): Readonly<TMeta> | null => {
+  const elsSize = 'size' in elements ? elements.size : elements.length
+  const meta = getObjectiveSingleMeta(elements, opts)
+  if (meta && meta.elements.length === elsSize) return meta
+  return null
+}
+
 /** Objective version for Excalidraw `getFormValue` */
 export const getMetasCommonValue = <
   TResult extends Primitive | Record<string, any>,

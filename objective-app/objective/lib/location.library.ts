@@ -44,6 +44,9 @@ export const LIB_LOCATION: LibraryItems = [
       h: 27,
       title: 'Door',
     },
+    coreOpts: {
+      isBoundsTakenFromBasis: true,
+    },
   }),
   createObj(doorOpen, 'Open Door', {
     basisIndex: DOOR_BASIS_INDEX,
@@ -54,8 +57,23 @@ export const LIB_LOCATION: LibraryItems = [
       h: 27,
       title: 'Door',
     },
+    coreOpts: {
+      isBoundsTakenFromBasis: true,
+    },
   }),
-  // createObj(doorHalfOpen, 'Door Half Open', DOOR_BASIS_INDEX),
+  // createObj(doorHalfOpen, 'Door Half Open', {
+  //   basisIndex: DOOR_BASIS_INDEX,
+  //   subkind: 'doorOpen',
+  //   libraryImg: {
+  //     src: doorOpenImage,
+  //     w: 55,
+  //     h: 27,
+  //     title: 'Door',
+  //   },
+  //   coreOpts: {
+  //     isBoundsTakenFromBasis: true,
+  //   },
+  // }),
 
   //
   createObj(stairs, 'Stairs', { subkind: 'Stairs' }),

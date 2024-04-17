@@ -1,20 +1,17 @@
-import {
-  ElementsMapOrArray,
-  ExcalidrawLinearElement,
-} from '../../../packages/excalidraw/element/types'
-import { getObjectiveBasis, getObjectiveSingleMeta } from '../meta/selectors'
+import { ElementsMapOrArray } from '../../../packages/excalidraw/element/types'
+import { getObjectiveSingleMetaStrict } from '../meta/selectors'
 import { ObjectiveKinds } from '../meta/types'
 
 export const getObjectiveCommonBounds = (elements: ElementsMapOrArray) => {
-  const location = getObjectiveSingleMeta(elements, { kind: ObjectiveKinds.LOCATION })
-  if (location) {
-    // makes door rotate around bases center
-    // so door won't shift while rotation and leaves fixed to its basis
-    const basis = getObjectiveBasis<ExcalidrawLinearElement>(location)
-    const extraBasis = location.elements[0] // TODO refactor
+  const meta = getObjectiveSingleMetaStrict(elements)
 
+  // makes door rotate around bases center
+  // so door won't shift while rotation and leaves fixed to its basis
+  if (meta?.coreOpts?.isBoundsTakenFromBasis) {
+    // FIXME elements[0]
     // we need at least 2 elements to respond, otherwise Excalidraw fails on resize
-    if (basis && extraBasis) return [extraBasis, basis]
+    const extraBasis = meta.elements[0]
+    if (meta.basis && extraBasis) return [extraBasis, meta.basis]
   }
   return elements
 }
