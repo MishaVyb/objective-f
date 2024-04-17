@@ -17,6 +17,12 @@ export const createObjFromClipboard = (
 
   // OVERRIDES:
   const els = clipboardObj.elements.map((el) => ({
+    customData: getInitialMeta(kind, {
+      name: name,
+      elementsRequiredLength: clipboardObj.elements.length,
+      ...metaOverrides,
+    }),
+
     ...el,
     ...elOverrides,
     // do not change BG color if it's transparent:
@@ -24,9 +30,7 @@ export const createObjFromClipboard = (
       el.backgroundColor === COLOR_PALETTE.transparent
         ? COLOR_PALETTE.transparent
         : elOverrides.backgroundColor || el.backgroundColor,
-    //
-    customData: getInitialMeta(kind, { name: name, ...metaOverrides }),
-    //
+
     version: 1,
     versionNonce: 0,
     id: randomId(),

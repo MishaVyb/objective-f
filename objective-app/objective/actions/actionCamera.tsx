@@ -68,10 +68,7 @@ export const actionChangeMetaCameraShot = register({
           app.scene,
           cameras,
           'nameRepr',
-          (c: CameraMeta) => {
-            console.log(c)
-            return getCameraMetaReprStr(c, { shotNumberUpdate: 1 })
-          },
+          (c: CameraMeta) => getCameraMetaReprStr(c, { shotNumberUpdate: 1 }),
           newMetaReprElement
         )
         mutateSelectedElsMeta(app, (c: CameraMeta) => ({

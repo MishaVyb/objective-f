@@ -1,4 +1,11 @@
-import React, { memo, ReactNode, useEffect, useState } from "react";
+import React, {
+  FC,
+  memo,
+  ReactElement,
+  ReactNode,
+  useEffect,
+  useState,
+} from "react";
 import { EmptyLibraryUnit, LibraryUnit } from "./LibraryUnit";
 import { LibraryItem } from "../types";
 import { ExcalidrawElement, NonDeleted } from "../element/types";
@@ -17,6 +24,7 @@ type LibraryOrPendingItem = (
     }
 )[];
 
+
 interface Props {
   items: LibraryOrPendingItem;
   onClick: (id: LibraryItem["id"] | null) => void;
@@ -28,14 +36,6 @@ interface Props {
   splitBySubkind?: boolean;
 }
 
-export const LibraryMenuSectionGrid = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
-  return <div className="library-menu-items-container__grid">{children}</div>;
-};
-
 export const LibraryMenuSection = memo(
   ({
     items,
@@ -46,10 +46,9 @@ export const LibraryMenuSection = memo(
     svgCache,
     itemsRenderedPerBatch,
     splitBySubkind,
-  }: Props) => {
+  }: Props): ReactElement<any, any> => {
     const [, startTransition] = useTransition();
     const [index, setIndex] = useState(0);
-    // const [popoverOpen, setPopoverOpen] = useState(false);
 
     useEffect(() => {
       if (index < items.length) {
@@ -66,6 +65,7 @@ export const LibraryMenuSection = memo(
       });
       const groupList = [...grouped.entries()];
 
+      //@ts-ignore
       return groupList.map(([subkind, objectiveItems], i) => {
         if (!objectiveItems.length) return null;
         const item = objectiveItems.at(-1); // TODO configurable?
@@ -84,7 +84,7 @@ export const LibraryMenuSection = memo(
               selected={isItemSelected(item.id)}
               onToggle={onItemSelectToggle}
               onDrag={onItemDrag}
-              key={subkind + item?.id ?? i}
+              key={subkind + item.id}
               title={meta?.library?.mainTitle}
             />
           );
@@ -125,7 +125,7 @@ export const LibraryMenuSection = memo(
                   return (
                     <div
                       style={{ width: 50, height: 50 }}
-                      key={subkind + item?.id ?? i}
+                      key={subkind + item.id}
                     >
                       <LibraryUnit
                         elements={item?.elements}
@@ -155,6 +155,7 @@ export const LibraryMenuSection = memo(
       });
     }
 
+    //@ts-ignore
     return items.map((item, i) => {
       return i < index ? (
         <LibraryUnit

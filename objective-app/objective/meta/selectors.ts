@@ -21,6 +21,7 @@ import {
   ObjectiveMetas,
   ObjectiveWallElement,
   ShotCameraMeta,
+  WeekMeta,
   isKindEl,
   isObjective,
   isWallElement,
@@ -30,29 +31,11 @@ import { groupBy } from '../utils/helpers'
 import { objectValues } from '../utils/types'
 
 /**
- * Get readonly `el.customData` reference (net copy).
- * Simplified version of `getMeta` without `elements` nested field population.
+ * Get week meta reference without autopopulated fields. Simplified version of `getMeta`.
  */
 export const getMetaSimple = <TMeta extends ObjectiveMeta>(
   el: ObjectiveElement<TMeta>
-): Readonly<TMeta> => el.customData
-
-/**
- * Get *COPY* of element's meta (customData) with current Objective id and Objective basis.
- * @param el
- * @returns Objective's meta
- */
-export const getMeta = <TMeta extends ObjectiveMeta>(
-  el: ObjectiveElement<TMeta>,
-  elementIds: readonly string[] = [],
-  elements: readonly ExcalidrawElement[] = [],
-  basis: ObjectiveMeta['basis'] | undefined = undefined,
-  isComplite: boolean | undefined = undefined
-): TMeta => {
-  // WARNING
-  // DeepCopy here?
-  return { ...el.customData, id: getObjectiveId(el), elementIds, elements, basis, isComplite }
-}
+): WeekMeta<TMeta> => el.customData
 
 /**
  * Any Objective is always a group of excalidraw element and it is always first group id.
@@ -111,7 +94,7 @@ export const extractObjectiveMetas = (opts?: {
 
   // store only first element of any meta to use it as week meta ref later
   const uniqueMetaElement = new Set<ObjectiveElement>()
-  const elementsByGroups = new Map<string, ExcalidrawElement[]>()
+  const elementsByGroups = new Map<string, ObjectiveElement[]>()
 
   // LEGACY use elements, not ids
   const idsByGroup = new Map<string, string[]>()
@@ -135,26 +118,46 @@ export const extractObjectiveMetas = (opts?: {
     return true
   }
 
-  const finalizeCallback = <TMeta extends ObjectiveMeta>(): readonly Readonly<TMeta>[] =>
-    [...uniqueMetaElement].map((e) => {
+  const finalizeCallback = <TMeta extends ObjectiveMeta>(): readonly Readonly<TMeta>[] => {
+    const resultMetas = []
+    for (const e of uniqueMetaElement) {
       const weekMeta = getMetaSimple(e)
       const els = elementsByGroups.get(getObjectiveId(e))
       const ids = idsByGroup.get(getObjectiveId(e))
+      const isComplite = weekMeta.elementsRequiredLength
+        ? els?.length === weekMeta.elementsRequiredLength
+        : true
+
+      if (!ids || !els || !isComplite) {
+        continue
+      }
 
       // NOTE: new API for accessing basis, replacement for `getObjectdiveBasis`
       const basis = els && els[weekMeta.basisIndex || 0] // TODO basis validation ???
 
-      const isComplite = weekMeta.elementsRequiredLength
-        ? els!.length === weekMeta.elementsRequiredLength
-        : undefined
+      const meta = _getMeta<TMeta>(e as ObjectiveElement<TMeta>, {
+        id: getObjectiveId(e),
+        elementIds: ids,
+        elements: els,
+        basis,
+      })
+      resultMetas.push(meta)
+    }
 
-      return getMeta<TMeta>(e as ObjectiveElement<TMeta>, ids, els, basis, isComplite)
-    })
+    return resultMetas
+  }
 
   return [addElementCallback, finalizeCallback] as [
     typeof addElementCallback,
     typeof finalizeCallback
   ]
+}
+
+export const _getMeta = <TMeta extends ObjectiveMeta>(
+  el: ObjectiveElement<TMeta>,
+  autopopulatedFields: Pick<ObjectiveMeta, 'id' | 'elementIds' | 'elements' | 'basis'>
+): TMeta => {
+  return { ...el.customData, ...autopopulatedFields }
 }
 
 export const groupByKind = (metas: readonly Readonly<ObjectiveMeta>[]): ObjectiveMetas => {
@@ -334,10 +337,3 @@ export const getMetaByObjectiveId = (
   elements: readonly ExcalidrawElement[],
   id: ObjectiveMeta['id']
 ) => getObjectiveSingleMeta(getElementsByObjectiveId(elements, id))
-
-//--------------------- TS tests ------------------------ //
-
-const __test = () => {
-  const obj = {} as ObjectiveElement<CameraMeta>
-  const aaa = getMeta(obj)
-}

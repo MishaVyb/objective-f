@@ -163,10 +163,6 @@ export const getCameraLensAngleElements = (
   camera: CameraMeta,
   opts?: { overrides?: Partial<ExcalidrawArrowElement> }
 ) => {
-  if (!camera.isComplite) {
-    return []
-  }
-
   const { basis, focalLength } = camera
   if (!focalLength || !basis) return []
 

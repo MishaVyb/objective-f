@@ -22,10 +22,7 @@ import {
 import { arrayToMap } from "../utils";
 import { LibraryMenuControlButtons } from "./LibraryMenuControlButtons";
 import { LibraryDropdownMenu } from "./LibraryMenuHeaderContent";
-import {
-  LibraryMenuSection,
-  LibraryMenuSectionGrid,
-} from "./LibraryMenuSection";
+import { LibraryMenuSection } from "./LibraryMenuSection";
 import Stack from "./Stack";
 
 import "./LibraryMenuItems.scss";
@@ -35,7 +32,6 @@ import { WALL_IMAGE } from "../../../objective-app/objective/lib/location.librar
 
 import { useApp } from "./App";
 import { LibraryUnitAsImage } from "./LibraryUnit";
-import { Flex, Popover } from "@radix-ui/themes";
 
 // using an odd number of items per batch so the rendering creates an irregular
 // pattern which looks more organic
@@ -335,7 +331,7 @@ const ObjectiveLibraryItems: FC<{
       {props.isLoading ? (
         <LibSpinner />
       ) : (
-        <LibraryMenuSectionGrid>
+        <div className="library-menu-items-container__grid">
           {props.extraItem}
           <LibraryMenuSection
             itemsRenderedPerBatch={props.itemsRenderedPerBatch}
@@ -347,7 +343,7 @@ const ObjectiveLibraryItems: FC<{
             svgCache={props.svgCache}
             splitBySubkind={props.splitBySubkind}
           />
-        </LibraryMenuSectionGrid>
+        </div>
       )}
     </div>
   );

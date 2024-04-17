@@ -88,7 +88,7 @@ export type MaybeExcalidrawElement<T extends ExcalidrawElement = ExcalidrawEleme
   | T
   | undefined
   | null
-export type MaybeMeta<T extends ObjectiveMeta = ObjectiveMeta> = T | undefined | null
+export type MaybeMeta<T extends ObjectiveMeta = ObjectiveMeta> = T | WeekMeta<T> | undefined | null
 
 export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readonly<{
   //
@@ -111,12 +111,13 @@ export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readon
     // ... TODO refactor other fields
   }>
 
-  // TODO do not depends on Meta.kind -- it's to generic...
+  // TODO do not depends on Meta.kind -- it's too generic...
   // other configuration, like
   // - doSnapToWall
   // - renderActions: string[...]
   // - ...
 
+  /** How much elements represent Objective item. NOTE: for some dynamic Object that property could not be defined */
   elementsRequiredLength?: number
   /** is invisible bases that used only to make custom bounding borders */
   isInternalBasis?: boolean
@@ -145,14 +146,18 @@ export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readon
   elements: readonly ObjectiveElement[]
   /** Excalidraw primitive element. Populated by `getMetas` regarding to `basisIndex` */
   basis: ExcalidrawElement | undefined
-  /** Is meta has required elements length (opposite for `weekMeta`)*/
-  isComplite?: boolean
 
   //
   //
   /** HACK: as TS support for internal Excalidraw properties for IFrames. Objective do not use that. */
   generationData?: MagicCacheData
 }>
+
+/** simple meta without autopopulated fields */
+export type WeekMeta<TMeta extends ObjectiveMeta = ObjectiveMeta> = Omit<
+  TMeta,
+  'elements' | 'elementIds' | 'basis' | 'id'
+>
 
 export type LabelMeta = ObjectiveMeta &
   Readonly<{
@@ -392,7 +397,7 @@ const __test = () => {
   const obj = {} as ObjectiveElement
   const wall = {} as ObjectiveWallElement
   const metas = {} as ObjectiveMetas
-  metas.camera
+  const week = {} as WeekMeta
 
   const typeGuard = (el: ExcalidrawElement): el is ObjectiveElement => {
     return true
