@@ -339,7 +339,7 @@ export const actionChangeMetaDescription = register({
 
           <Dialog.Content style={{ maxWidth: 450 }}>
             <Dialog.Title>{app.actionManager.renderAction('actionDisplayMetaHeader')}</Dialog.Title>
-            <Dialog.Description size='2' mb='4'>
+            <Dialog.Description size='2'>
               {'Edit description'}
             </Dialog.Description>
 

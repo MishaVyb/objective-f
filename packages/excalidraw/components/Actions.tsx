@@ -105,7 +105,7 @@ export const SelectedShapeActions = ({
   const buttonShowOrHideExcalidrawStyle = () => {
     return (
       <>
-        <Separator mt={"3"} size={"4"} />
+        <Separator mt={"2"} size={"4"} />
         <Button
           mb={!showOBJStyle ? "-4" : "1"}
           style={{ width: "100%" }}
@@ -306,8 +306,11 @@ export const SelectedShapeActions = ({
       className="panelColumn"
       style={{
         width: singleMeta?.kind === ObjectiveKinds.CAMERA ? 250 : 187,
-        maxHeight: "70vh",
-        // overflowY: "clip", ???
+        maxHeight: "75vh",
+
+        // HACK: right border
+        overflowX: "clip",
+        paddingRight: "5px",
       }}
     >
       {actionsToRender.metaHeader && renderAction("actionDisplayMetaHeader")}
