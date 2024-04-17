@@ -57,8 +57,8 @@ export const actionToggleEditWall = register({
 
     return (
       <Button
-        style={{ width: 'min-content' }}
         variant={appState.editingLinearElement ? 'outline' : 'soft'}
+        mt='2'
         color={appState.editingLinearElement ? ACCENT_COLOR : 'gray'}
         onClick={() => updateData(!appState.editingLinearElement)}
       >

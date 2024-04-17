@@ -4129,21 +4129,8 @@ class App extends React.Component<AppProps, AppState> {
     if (!isLinearElementType(nextActiveTool.type)) {
       this.setState({ suggestedBindings: [] });
     }
-    if (isWallTool(nextActiveTool) && !__DEBUG_DISABLE_APPLY_DEFAULTS) {
-      // VBRN for Wall always apply defaults
-      this.setState({
-        currentItemStrokeColor: COLOR_PALETTE.black,
-        currentItemBackgroundColor: COLOR_PALETTE.transparent,
-        currentItemFillStyle: "solid",
-        currentItemStrokeWidth: 2,
-        currentItemStrokeStyle: "solid",
-        currentItemRoundness: "sharp",
-        currentItemRoughness: ROUGHNESS.architect,
-        currentItemOpacity: 100,
-      });
-    }
     if (nextActiveTool.type === "image" && !__DEBUG_DISABLE_APPLY_DEFAULTS) {
-      // VBRN for Image always apply defaults
+      // VBRN for Image always apply defaults // TODO move this logic to `newElement.ts`
       this.setState({
         // currentItemRoundness: "sharp", // We decided do not apply that default...
         currentItemRoughness: ROUGHNESS.architect,

@@ -14,8 +14,8 @@ import App, {
   useExcalidrawElements,
 } from '../../../packages/excalidraw/components/App'
 import { BinaryFiles } from '../../../packages/excalidraw/types'
-import { getCameraMetas } from '../meta/selectors'
-import { CameraMeta } from '../meta/types'
+import { getCameraMetas, getSelectedSceneEls } from '../meta/selectors'
+import { CameraMeta, isWallToolOrWallDrawing } from '../meta/types'
 import { useMouse } from '../hooks/useMouse'
 import { getLastLineLength, numberToStr } from '../elements/math'
 import { LoadingMessage } from '../../../packages/excalidraw/components/LoadingMessage'
@@ -46,7 +46,10 @@ const ObjectiveInnerWrapper: FC<{ children: ReactNode }> = ({ children }) => {
   const { sceneId } = useParams()
   const isMyScene = useSelector(selectIsMyScene)
 
-  const showMeasurement = !!multiElement // TODO show when `appState.editingLinearElement`
+  // TODO show when editing liner element (when `appState.editingLinearElement` is set)
+  const showMeasurement =
+    !!multiElement &&
+    isWallToolOrWallDrawing(app.state.activeTool, getSelectedSceneEls(app.scene, app.state))
   const mouse = useMouse(showMeasurement)
 
   const lastPoint = multiElement?.points.at(-1) || [0, 0]
@@ -83,7 +86,7 @@ const ObjectiveInnerWrapper: FC<{ children: ReactNode }> = ({ children }) => {
     else {
       // HACK: clear history to prevent Undo to empty scene (when scene hasn't loaded yet)
       app.history.clear()
-      app.history.resumeRecording();
+      app.history.resumeRecording()
     }
 
     // HACK: set `viewMode` by actionManager, otherwise it won't work

@@ -1,16 +1,22 @@
 import { getElementAbsoluteCoords } from ".";
+import { __DEBUG_DISABLE_APPLY_DEFAULTS } from "../../../objective-app/objective-plus/constants";
 import { duplicateObjectiveEventHandler } from "../../../objective-app/objective/elements/events";
 import {
   duplicateMeta,
   getInitialMeta,
 } from "../../../objective-app/objective/meta/initial";
-import { ObjectiveKinds } from "../../../objective-app/objective/meta/types";
+import {
+  ObjectiveKinds,
+  isWall,
+} from "../../../objective-app/objective/meta/types";
+import { COLOR_PALETTE } from "../colors";
 import {
   DEFAULT_ELEMENT_PROPS,
   DEFAULT_FONT_FAMILY,
   DEFAULT_FONT_SIZE,
   DEFAULT_TEXT_ALIGN,
   DEFAULT_VERTICAL_ALIGN,
+  ROUGHNESS,
   VERTICAL_ALIGN,
 } from "../constants";
 import { getNewGroupIdsForDuplication } from "../groups";
@@ -403,6 +409,22 @@ export const newLinearElement = (
     points?: ExcalidrawLinearElement["points"];
   } & ElementConstructorOpts,
 ): NonDeleted<ExcalidrawLinearElement> => {
+  //
+  // VBRN apply new element defaults TODO two deferent tool: line and wall
+  const elementInitialOverrides =
+    isWall(opts) && !__DEBUG_DISABLE_APPLY_DEFAULTS
+      ? {
+          strokeColor: COLOR_PALETTE.black,
+          backgroundColor: COLOR_PALETTE.transparent,
+          fillStyle: "solid" as const,
+          strokeWidth: 2,
+          strokeStyle: "solid" as const,
+          roundness: null,
+          roughness: ROUGHNESS.architect,
+          opacity: 100,
+        }
+      : {};
+
   return {
     ..._newElementBase<ExcalidrawLinearElement>(opts.type, opts),
     points: opts.points || [],
@@ -411,12 +433,12 @@ export const newLinearElement = (
     endBinding: null,
     startArrowhead: opts.startArrowhead || null,
     endArrowhead: opts.endArrowhead || null,
-    //
-    // VBRN any line is wall // TODO two deferent tool: line and wall
-    customData:
-      opts.type === "line"
-        ? getInitialMeta(ObjectiveKinds.WALL, opts.customData)
-        : opts.customData,
+
+    customData: isWall(opts)
+      ? getInitialMeta(ObjectiveKinds.WALL, opts.customData)
+      : opts.customData,
+
+    ...elementInitialOverrides,
   };
 };
 

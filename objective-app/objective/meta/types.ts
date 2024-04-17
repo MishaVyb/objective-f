@@ -111,7 +111,6 @@ export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readon
     // ... TODO refactor other fields
   }>
 
-
   coreOpts?: Readonly<{
     isSnappedToWalls?: boolean
     isBoundsTakenFromBasis?: boolean
@@ -346,7 +345,8 @@ export const isWallElement = (
   el: MaybeExcalidrawElement | ObjectiveElement<LocationMeta>
 ): el is ObjectiveWallElement => isKindEl(el, ObjectiveKinds.WALL)
 
-/** TMP solution when any simple lien is Wall. */
+/** TMP solution when any simple line is Wall. */
+export const isWall = (arg?: { type?: string }) => arg?.type === 'line'
 export const isWallTool = (t: ActiveTool) => t.type === 'line'
 export const isWallToolOrWallDrawing = (t: ActiveTool, selected: readonly ExcalidrawElement[]) =>
   (!selected.length || (selected.length === 1 && selected[0].type === 'line')) && isWallTool(t)
