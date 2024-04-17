@@ -326,63 +326,61 @@ export const actionChangeMetaDescription = register({
 
     if (!singleMeta) return <></>
 
-    // BUG // FIXME
-    return <></>
-    // return (
-    //   <div>
-    //     <legend>{'Properties'}</legend>
-    //     <Dialog.Root onOpenChange={(open) => !open && updateData(textValue)}>
-    //       <Dialog.Trigger>
-    //         <Button variant={'soft'} color={'gray'}>
-    //           <Pencil1Icon />
-    //           {'Description'}
-    //         </Button>
-    //       </Dialog.Trigger>
+    return (
+      <div>
+        <legend>{'Properties'}</legend>
+        <Dialog.Root onOpenChange={(open) => !open && updateData(textValue)}>
+          <Dialog.Trigger>
+            <Button variant={'soft'} color={'gray'}>
+              <Pencil1Icon />
+              {'Description'}
+            </Button>
+          </Dialog.Trigger>
 
-    //       <Dialog.Content style={{ maxWidth: 450 }}>
-    //         <Dialog.Title>{app.actionManager.renderAction('actionDisplayMetaHeader')}</Dialog.Title>
-    //         <Dialog.Description size='2' mb='4'>
-    //           {'Edit description'}
-    //         </Dialog.Description>
+          <Dialog.Content style={{ maxWidth: 450 }}>
+            <Dialog.Title>{app.actionManager.renderAction('actionDisplayMetaHeader')}</Dialog.Title>
+            <Dialog.Description size='2' mb='4'>
+              {'Edit description'}
+            </Dialog.Description>
 
-    //         {/* <div className='panelColumn'>
-    //           {app.actionManager.renderAction('actionChangeMetaName')}
-    //         </div> */}
+            {/* <div className='panelColumn'>
+              {app.actionManager.renderAction('actionChangeMetaName')}
+            </div> */}
 
-    //         <TextArea
-    //           style={{
-    //             minHeight: 200,
-    //           }}
-    //           placeholder={`${singleMeta.kind} description...`}
-    //           value={textValue}
-    //           onChange={(e) => setTextValue(e.target.value)}
-    //           onKeyDown={(event) =>
-    //             event.key === KEYS.ENTER && focusNearestParent(event.target as any)
-    //           }
-    //         />
+            <TextArea
+              style={{
+                minHeight: 200,
+              }}
+              placeholder={`${singleMeta.kind} description...`}
+              value={textValue}
+              onChange={(e) => setTextValue(e.target.value)}
+              onKeyDown={(event) =>
+                event.key === KEYS.ENTER && focusNearestParent(event.target as any)
+              }
+            />
 
-    //         <Flex gap='3' mt='4' justify='end' align={'baseline'}>
-    //           <Dialog.Close>
-    //             {textValue !== singleMeta.description && (
-    //               <Button
-    //                 variant={'ghost'}
-    //                 color='gray'
-    //                 onClick={(e) => setTextValue(singleMeta.description || '')}
-    //               >
-    //                 Cancel
-    //               </Button>
-    //             )}
-    //           </Dialog.Close>
-    //           <Dialog.Close>
-    //             <Button highContrast variant={'soft'} color='gray'>
-    //               Ok
-    //             </Button>
-    //           </Dialog.Close>
-    //         </Flex>
-    //       </Dialog.Content>
-    //     </Dialog.Root>
-    //   </div>
-    // )
+            <Flex gap='3' mt='4' justify='end' align={'baseline'}>
+              {textValue !== singleMeta.description && (
+                <Dialog.Close>
+                  <Button
+                    variant={'ghost'}
+                    color='gray'
+                    onClick={(e) => setTextValue(singleMeta.description || '')}
+                  >
+                    Cancel
+                  </Button>
+                </Dialog.Close>
+              )}
+              <Dialog.Close>
+                <Button highContrast variant={'soft'} color='gray'>
+                  Ok
+                </Button>
+              </Dialog.Close>
+            </Flex>
+          </Dialog.Content>
+        </Dialog.Root>
+      </div>
+    )
   },
 })
 
