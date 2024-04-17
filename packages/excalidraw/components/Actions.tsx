@@ -25,6 +25,7 @@ import { trackEvent } from "../analytics";
 import {
   hasBoundTextElement,
   isInitializedImageElement,
+  isLinearElement,
   isTextElement,
 } from "../element/typeChecks";
 import clsx from "clsx";
@@ -171,7 +172,7 @@ export const SelectedShapeActions = ({
       isAllObjective && singleMetaKind === ObjectiveKinds.CAMERA,
 
     //
-    metaToggleEditWall: singleMeta?.kind === ObjectiveKinds.WALL,
+    metaToggleEditLine: targetElements.every((e) => isLinearElement(e)),
 
     // when only one camera selected:
     metaActionStoryboard:
@@ -187,6 +188,7 @@ export const SelectedShapeActions = ({
     strokeColor: isObjectiveTool
       ? showOBJStyle
       : isOnlyExcali ||
+        (metasSet.has(ObjectiveKinds.WALL) && showOBJStyle) ||
         (metasSet.has(ObjectiveKinds.LOCATION) && showOBJStyle) ||
         (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
 
@@ -199,6 +201,7 @@ export const SelectedShapeActions = ({
       ? showOBJStyle
       : isOnlyExcali ||
         // (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle) ||
+        (metasSet.has(ObjectiveKinds.WALL) && showOBJStyle) ||
         (metasSet.has(ObjectiveKinds.LOCATION) && showOBJStyle) ||
         (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
 
@@ -207,6 +210,7 @@ export const SelectedShapeActions = ({
       ? showOBJStyle
       : isOnlyExcali ||
         // (metasSet.has(ObjectiveKinds.LABEL) && showOBJStyle) ||
+        // (metasSet.has(ObjectiveKinds.WALL) && showOBJStyle) ||
         (metasSet.has(ObjectiveKinds.LOCATION) && showOBJStyle) ||
         (metasSet.has(ObjectiveKinds.POINTER) && showOBJStyle),
 
@@ -229,11 +233,13 @@ export const SelectedShapeActions = ({
     roundness: isObjectiveTool
       ? showOBJStyle
       : isOnlyExcali ||
+        (metasSet.has(ObjectiveKinds.WALL) && showOBJStyle) ||
         metas.every(
           (m) =>
             m.subkind === "cameraMovementPointer" ||
             m.subkind === "characterMovementPointer",
         ),
+
     arrowheads: isObjectiveTool
       ? showOBJStyle
       : isOnlyExcali ||
@@ -307,8 +313,8 @@ export const SelectedShapeActions = ({
       {actionsToRender.metaHeader && renderAction("actionDisplayMetaHeader")}
       {actionsToRender.metaName && renderAction("actionChangeMetaName")}
 
-      {actionsToRender.metaToggleEditWall &&
-        renderAction("actionToggleEditWall")}
+      {actionsToRender.metaToggleEditLine &&
+        renderAction("actionToggleEditLine")}
 
       {actionsToRender.metaCameraShot &&
         renderAction("actionChangeMetaCameraShot")}

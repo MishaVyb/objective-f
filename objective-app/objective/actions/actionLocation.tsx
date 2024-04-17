@@ -13,6 +13,7 @@ import { register } from './register'
 import { Share1Icon } from '@radix-ui/react-icons'
 import { LinearElementEditor } from '../../../packages/excalidraw/element/linearElementEditor'
 import { ACCENT_COLOR } from '../../objective-plus/constants'
+import { isLinearElement } from '../../../packages/excalidraw'
 
 /** Internal action called at `onPointerUpFromPointerDownEventHandler` */
 export const actionSnapLocation = register({
@@ -34,26 +35,24 @@ export const actionSnapLocation = register({
   },
 })
 
-export const actionToggleEditWall = register({
-  name: 'actionToggleEditWall',
+export const actionToggleEditLine = register({
+  name: 'actionToggleEditLine',
   trackEvent: false,
   perform: (elements, appState, value, app) => {
     const selectedElements = getSelectedSceneEls(app.scene, appState)
-    const wall = isWallElement(selectedElements[0]) ? selectedElements[0] : null
-
-    if (!wall) return false
+    const lineToEdit = selectedElements[0]
+    if (!isLinearElement(lineToEdit)) return false
 
     return {
       appState: {
         ...appState,
-        editingLinearElement: value ? new LinearElementEditor(wall, app.scene) : null,
+        editingLinearElement: value ? new LinearElementEditor(lineToEdit, app.scene) : null,
       },
       commitToHistory: false,
     }
   },
   PanelComponent: ({ elements, appState, updateData, appProps, app }) => {
     if (appState.activeTool.type !== 'selection') return <></>
-    appState.editingLinearElement
 
     return (
       <Button

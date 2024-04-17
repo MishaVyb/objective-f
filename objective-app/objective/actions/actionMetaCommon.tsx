@@ -87,7 +87,7 @@ export const actionDisplayMetaHeader = register({
           </Flex>
           <Callout.Root ml={'-1'} mr={'-1'}>
             {selected.length ? (
-              <Callout.Text m={'-2'}>{'Pres Esqape or Ender to finish'}</Callout.Text>
+              <Callout.Text m={'-2'}>{'Press Escape or Enter to finish'}</Callout.Text>
             ) : (
               <Callout.Text m={'-2'}>
                 {'Tap once to start draw'}

@@ -161,7 +161,7 @@ export type ActionName =
 
   // location
   | "actionSnapLocation"
-  | "actionToggleEditWall"
+  | "actionToggleEditLine"
 
   // internal:
   | "actionCreatePointer"
