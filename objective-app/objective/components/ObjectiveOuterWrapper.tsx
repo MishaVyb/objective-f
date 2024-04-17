@@ -21,7 +21,7 @@ import {
 } from '../../objective-plus/store/projects/reducer'
 import { isImageElement } from '../../../packages/excalidraw/element/typeChecks'
 import { ExcalidrawImperativeAPI } from '../../../packages/excalidraw/types'
-import { OBJECTIVE_LIB as OBJECTIVE_LIB_ITEMS } from '../lib'
+
 import { objectValues } from '../utils/types'
 
 import { DEFAULT_GRID_MODE, getGridMode } from './ObjectiveSettingsDialog'
@@ -31,6 +31,9 @@ import { deepCopyElement } from '../../../packages/excalidraw/element/newElement
 import { LocalData } from '../../../excalidraw-app/data/LocalData'
 import { useFilesFromLocalOrServer } from '../../objective-plus/store/projects/helpers'
 import { ERROR_REPR_DELTA_SEC, ObjectiveErrorCollout } from '../../objective-plus/components/errors'
+
+// import after all others
+import { OBJECTIVE_LIB as OBJECTIVE_LIB_ITEMS } from '../lib'
 
 /**
  * saving...

@@ -7,6 +7,7 @@ import { AnyObjectiveMeta, ObjectiveKinds, ObjectiveMeta, isCameraMeta, isObject
 type TMetaOverrides = Record<ObjectiveKinds, Partial<Omit<AnyObjectiveMeta, 'kind'>>>
 type TOptionalMetaOverrides = MarkOptional<TMetaOverrides, keyof TMetaOverrides>
 
+// ??? move that somewhere...
 const _DEFAULT_META_OVERRIDES: TOptionalMetaOverrides = {
   camera: {
     isInternalBasis: true,
@@ -15,6 +16,9 @@ const _DEFAULT_META_OVERRIDES: TOptionalMetaOverrides = {
   character: {
     isInternalBasis: true,
   },
+  light: {
+    isInternalBasis: true
+  }
 }
 
 /**

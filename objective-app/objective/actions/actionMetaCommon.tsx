@@ -102,8 +102,8 @@ export const actionDisplayMetaHeader = register({
     // other custom tools...
 
     if (
-      metaKind === ObjectiveKinds.CHARACTER
-      //  || metaKind === ObjectiveKinds.LIGHT // TODO
+      metaKind === ObjectiveKinds.CHARACTER ||
+      metaKind === ObjectiveKinds.LIGHT //
     )
       return (
         <Flex justify={'between'}>
@@ -339,9 +339,7 @@ export const actionChangeMetaDescription = register({
 
           <Dialog.Content style={{ maxWidth: 450 }}>
             <Dialog.Title>{app.actionManager.renderAction('actionDisplayMetaHeader')}</Dialog.Title>
-            <Dialog.Description size='2'>
-              {'Edit description'}
-            </Dialog.Description>
+            <Dialog.Description size='2'>{'Edit description'}</Dialog.Description>
 
             {/* <div className='panelColumn'>
               {app.actionManager.renderAction('actionChangeMetaName')}

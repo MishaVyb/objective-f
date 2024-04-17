@@ -154,7 +154,7 @@ export const SelectedShapeActions = ({
       isAllObjective &&
       singleMetaKind &&
       (metasSet.has(ObjectiveKinds.CAMERA) ||
-        // metasSet.has(ObjectiveKinds.LIGHT) // TODO
+        metasSet.has(ObjectiveKinds.LIGHT) ||
         metasSet.has(ObjectiveKinds.CHARACTER)),
 
     metaDescription:

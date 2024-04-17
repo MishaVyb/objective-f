@@ -41,10 +41,10 @@ import open_face from './light/open_face'
 import etc from './light/etc'
 import parik from './light/parik'
 //
-import frame_4 from './light/frame_4'
-import frame_8 from './light/frame_8'
-import frame_12 from './light/frame_12'
-import frame_20 from './light/frame_20'
+// import frame_4 from './light/frame_4'
+// import frame_8 from './light/frame_8'
+// import frame_12 from './light/frame_12'
+// import frame_20 from './light/frame_20'
 //
 import applebox from './light/applebox'
 import farm from './light/farm'
@@ -53,14 +53,15 @@ const createObj = (
   clipboardObj: ElementsClipboard,
   name: string,
   metaOverrides: Omit<Partial<ObjectiveMeta>, 'kind' | 'name'> = {},
-  elOverrides: Partial<ExcalidrawElement> = {}
+  elOverrides: Partial<ExcalidrawElement> = {},
 ): LibraryItem => {
   return createObjFromClipboard(
     clipboardObj,
     name,
     ObjectiveKinds.LIGHT,
     elOverrides,
-    metaOverrides
+    metaOverrides,
+    {addInternalBasis: true},
   )
 }
 
