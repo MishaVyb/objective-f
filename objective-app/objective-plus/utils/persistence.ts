@@ -1,3 +1,5 @@
+import { objectEntries } from '../../objective/utils/types'
+
 export enum LOCAL_STORAGE {
   AUTH = 'objective-beta:auth',
   PROJECTS = 'objective-beta:projects',
@@ -13,14 +15,17 @@ export function saveToLocalStorage<T>(key: string, value: T): T {
   return value
 }
 
-export function loadFromLocalStorage<T>(
-  key: string,
-  defaultValue: T,
-): T {
+export function loadFromLocalStorage<T>(key: string, fields: (keyof T)[], defaultValue: T): T {
   try {
+    const fieldsSet = new Set(fields)
     const value = localStorage.getItem(key)
     if (value === null) return defaultValue
-    return JSON.parse(value)
+
+    //@ts-ignore
+    return Object.fromEntries(
+      objectEntries(JSON.parse(value)).filter(([k, v]) => fieldsSet.has(k as keyof T))
+    )
+
   } catch (e) {
     console.warn(e)
     return defaultValue

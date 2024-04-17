@@ -6,23 +6,21 @@ import projectsReducer, { initialState as ProjectsInitialState } from './project
 
 const preloadedState = {
   auth: {
-    ...loadFromLocalStorage(LOCAL_STORAGE.AUTH, AuthInitialState),
-
-    // always takes default (not from local storage)
-    error: AuthInitialState.error,
-    pendingRequest: AuthInitialState.pendingRequest,
+    ...AuthInitialState,
+    ...loadFromLocalStorage(
+      LOCAL_STORAGE.AUTH,
+      ['user', 'access_token', 'token_type'],
+      AuthInitialState
+    ),
   },
 
-  // FIXME
-  // in case some fields are not local storage, we should merge load result with InitialState,
-  // so do not fall on underfined values where array is expected, etc.
   projects: {
-    ...loadFromLocalStorage(LOCAL_STORAGE.PROJECTS, ProjectsInitialState),
-
-    // always takes default (not from local storage)
-    error: ProjectsInitialState.error,
-    pendingRequest: ProjectsInitialState.pendingRequest,
-    initialSceneLoadingIsPending: ProjectsInitialState.initialSceneLoadingIsPending,
+    ...ProjectsInitialState,
+    ...loadFromLocalStorage(
+      LOCAL_STORAGE.PROJECTS,
+      ['currentScene', 'projects', 'scenes', 'toggledProjectId'],
+      ProjectsInitialState
+    ),
   },
 }
 
