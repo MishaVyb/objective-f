@@ -11,11 +11,13 @@ import {
 } from '../elements/newElement'
 import {
   getMetaSimple,
+  getMetasCommonValue,
   getObjectiveBasis,
   getObjectiveMetas,
   getObjectiveSingleMeta,
   getPointerIds,
   getPointers,
+  getSelectedCameraMetas,
   getSelectedObjectiveMetas,
   getSelectedSceneEls,
 } from '../meta/selectors'
@@ -290,12 +292,11 @@ export const actionChangeMetaName = register({
       null // default
     )
 
-    const singleMeta = getObjectiveSingleMeta(
-      app.scene.getSelectedElements({ selectedElementIds: appState.selectedElementIds })
-    )
-    const basis = getObjectiveBasis(singleMeta)
+    const metas = getSelectedCameraMetas(app.scene, appState)
+    const basisColor = getMetasCommonValue(metas, (m) => m.basis?.backgroundColor)
+
     const bgOpacity = '20' // from `00` up to `FF`
-    const bgColor = basis ? basis.backgroundColor + bgOpacity : null
+    const bgColor = basisColor ? basisColor + bgOpacity : null
     const showEyeButton = true // TODO handle depending on !!singleMeta.name
 
     return (

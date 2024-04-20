@@ -309,7 +309,7 @@ export const SelectedShapeActions = ({
     <div
       className="panelColumn"
       style={{
-        width: singleMeta?.kind === ObjectiveKinds.CAMERA ? 250 : 187,
+        width: singleMetaKind === ObjectiveKinds.CAMERA ? 250 : 187,
         maxHeight: "75vh",
 
         // HACK: right border

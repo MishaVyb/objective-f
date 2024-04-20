@@ -24,7 +24,7 @@ import {
 import { CameraFormat, CameraMeta, isAllElementsCameras, isCameraElement } from '../meta/types'
 
 import { register } from './register'
-import { AppClassProperties } from '../../../packages/excalidraw/types'
+import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
 import { Button, Code, Flex, IconButton, Select, Separator, Text } from '@radix-ui/themes'
 import { handleMetaRepresentation } from '../elements/metaRepr'
 import { mutateSelectedElsMeta } from '../elements/mutateElements'
@@ -91,6 +91,10 @@ export const actionChangeMetaCameraShot = register({
 
     return {
       elements: [...elements, ...newEls],
+      appState:
+        actionType === 'init' // open Shot List on `Add` button click
+          ? { ...appState, openSidebar: { name: 'ShotList', tab: 'ShotList' } }
+          : undefined,
       commitToHistory: true,
     }
   },
@@ -100,6 +104,7 @@ export const actionChangeMetaCameraShot = register({
     appState,
     updateData,
     appProps,
+    app,
   }: PanelComponentProps<TChangeShotActionValue>) => {
     if (!isAllElementsCameras(getSelectedElements(elements, appState))) return <></>
     const isShot = getFormValue<boolean>(
@@ -109,6 +114,8 @@ export const actionChangeMetaCameraShot = register({
       true,
       false
     )
+    const metas = getSelectedCameraMetas(app.scene, appState)
+    const basisColor = getMetasCommonValue(metas, (m) => getRadixColor(m)) || 'gray'
 
     return (
       <fieldset>
@@ -147,8 +154,7 @@ export const actionChangeMetaCameraShot = register({
           <Button
             size={'2'}
             variant={'surface'}
-            color={'gray'}
-            highContrast={true}
+            color={basisColor}
             onClick={() => updateData('init')}
             title={'Add to shotlist'}
           >

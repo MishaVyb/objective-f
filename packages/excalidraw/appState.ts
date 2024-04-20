@@ -74,7 +74,7 @@ export const getDefaultAppState = (): Omit<
     contextMenu: null,
     openMenu: null,
     openPopup: null,
-    openSidebar: null,
+    openSidebar: { name: "default", tab: "library" },
     openDialog: null,
     pasteDialog: { shown: false, data: null },
     previousSelectedElementIds: {},
