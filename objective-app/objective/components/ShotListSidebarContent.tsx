@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { FC, ReactNode } from 'react'
 
 import { useObjectiveCameras } from './ObjectiveInnerWrapper'
 import {
@@ -178,6 +178,12 @@ const AddCameraButton: FC<{ style?: any }> = ({ style }) => {
   )
 }
 
+const InfoItem: FC<{ title?: string; children: ReactNode }> = (props) => (
+  <Flex title={props.title} align={'center'} gap={'1'}>
+    {props.children}
+  </Flex>
+)
+
 const ShotListSidebarCameraElement: FC<{ camera: CameraMeta; isSelected: boolean }> = (props) => {
   const [open, setOpen] = React.useState(true) // TMP save this to AppStore
   const { camera } = props
@@ -234,83 +240,61 @@ const ShotListSidebarCameraElement: FC<{ camera: CameraMeta; isSelected: boolean
       </Flex>
 
       <Collapsible.Content>
-        <Flex direction={'column'} mt={'1'} height={'max-content'} gap={'3'}>
+        <Flex direction={'column'} mt={'1'} mb={'1'} height={'max-content'} gap={'1'}>
           {(camera.cameraFormat || camera.aspectRatio) && (
-            <Flex
-              style={{
-                minHeight: 40,
-                marginTop: -10,
-                marginBottom: -15,
-              }}
-              ml={'2'}
-              mr={'2'}
-              gap={'1'}
-              justify={'start'}
-            >
+            <Flex ml={'2'} mr={'2'} gap={'1'} justify={'start'}>
               {camera.cameraFormat && (
-                <Flex
+                <InfoItem
                   title={`${camera.cameraFormat.description} — ${formatStr!.x} x ${formatStr!.y}`}
-                  align={'center'}
-                  gap={'1'}
                 >
                   <MarginIcon />
                   <Text color={'gray'} size={'1'}>
                     {camera.cameraFormat.title}
                   </Text>
-                </Flex>
+                </InfoItem>
               )}
               {camera.cameraFormat && camera.aspectRatio && (
-                <Separator orientation={'vertical'} m={'2'} />
+                <Separator orientation={'vertical'} ml={'2'} mr={'2'} />
               )}
               {camera.aspectRatio && (
-                <Flex title={'Aspect ratio'} align={'center'} gap={'1'}>
+                <InfoItem title={'Aspect ratio'}>
                   <CropIcon />
                   <Text color={'gray'} size={'1'}>
                     {numberToStr(camera.aspectRatio)}
                   </Text>
-                </Flex>
+                </InfoItem>
               )}
             </Flex>
           )}
           {(camera.focalLength || camera.focusDistance) && (
-            <Flex
-              style={{
-                minHeight: 40,
-                marginTop: -10, //
-                marginBottom: -15,
-              }}
-              ml={'2'}
-              mr={'2'}
-              gap={'1'}
-              justify={'start'}
-            >
+            <Flex ml={'2'} mr={'2'} gap={'1'} justify={'start'}>
               {camera.focalLength && (
                 <>
-                  <Flex title={'Focal length'} align={'center'} gap={'1'}>
+                  <InfoItem title={'Focal length'}>
                     <FontFamilyIcon />
                     <Text color={'gray'} size={'1'}>
                       {numberToStr(camera.focalLength, { unit: 'mm' })}
                     </Text>
-                  </Flex>
-                  <Separator orientation={'vertical'} m={'2'} />
-                  <Flex title={'Lens angle'} align={'center'} gap={'1'}>
+                  </InfoItem>
+                  <Separator orientation={'vertical'} ml={'2'} mr={'2'} />
+                  <InfoItem title={'Lens angle'}>
                     <AngleIcon />
                     <Text color={'gray'} size={'1'}>
                       {numberToStr(getCameraLensAngleDeg(camera), { unit: '˚', roundVal: 0 })}
                     </Text>
-                  </Flex>
+                  </InfoItem>
                 </>
               )}
               {camera.focalLength && camera.focusDistance && (
-                <Separator orientation={'vertical'} m={'2'} />
+                <Separator orientation={'vertical'} ml={'2'} mr={'2'} />
               )}
               {camera.focusDistance && (
-                <Flex title={'Focus line distance'} align={'center'} gap={'1'}>
+                <InfoItem title={'Focus line distance'}>
                   <WidthIcon />
                   <Text color={'gray'} size={'1'}>
-                    {numberToStr(camera.focusDistance, { unit: 'm' })}
+                    {numberToStr(camera.focusDistance / 100, { unit: 'm' })}
                   </Text>
-                </Flex>
+                </InfoItem>
               )}
             </Flex>
           )}
@@ -318,8 +302,6 @@ const ShotListSidebarCameraElement: FC<{ camera: CameraMeta; isSelected: boolean
             <Text
               ml={'2'}
               mr={'2'}
-              // mt={'-1'}
-              mb={'-2'}
               size={'1'}
               title={'Description'}
               style={{ whiteSpace: 'pre-wrap' }}

@@ -262,9 +262,9 @@ export const actionStoryboard = register({
         {images.length ? (
           images.map((image) => (
             <fieldset key={image.id}>
-              <img style={{ width: '100%' }} src={image.dataURL} alt='' />
+              <img style={{ width: '100%', marginTop: 5 }} src={image.dataURL} alt='' />
 
-              <Flex gap={'1'} pb={'3'}>
+              <Flex gap={'1'}>
                 <IconButton
                   size={'2'}
                   variant={'surface'}
