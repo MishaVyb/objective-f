@@ -77,7 +77,7 @@ const RegisterPage: FC = () => {
       {/* <form> tag to handle Enter key down as submit action */}
       <form onSubmit={(e) => onFormSubmit(e)}>
         <ObjectiveCard extraClass={{ 'error-border': error }}>
-          <Heading ml={'1'} size={'3'} weight={'medium'}>
+          <Heading ml={'1'} size={'3'} weight={'medium'} mt={'-1'} mb={'-3'}>
             Create an account at Objective Plus
           </Heading>
 
@@ -113,7 +113,7 @@ const RegisterPage: FC = () => {
 
           {/* <Separator size={'4'} mt={'3'} /> */}
           <TextField.Root
-            mt={'3'}
+            mt={'1'}
             value={form.username}
             placeholder='Username'
             type='text'
@@ -140,7 +140,7 @@ const RegisterPage: FC = () => {
             </Select.Content>
           </Select.Root>
 
-          <Text size='2' mt={'3'} m={'1'}>
+          <Text size='2' m={'1'}>
             <Flex gap='2'>
               <Checkbox defaultChecked required /> I&apos;m ready to take part in beta testing.
             </Flex>
@@ -158,15 +158,15 @@ const RegisterPage: FC = () => {
           <Flex justify={'center'} align={'center'} pt={'2'} pr={'2'} gap={'2'}>
             <Spinner loading={loading}>
               <Button variant='surface' size={'2'} disabled={loading || !requiredFieldsAreFilled}>
-                {'Sign In'}
+                {'Sign Up'}
               </Button>
             </Spinner>
           </Flex>
 
           <Text mt={'5'} size={'1'} color={'gray'}>
-            Already have an account?
+            {'Already have an account?'}
             <Link ml={'1'} color={ACCENT_COLOR} onClick={() => navigate('/login')}>
-              Sign Up
+              {'Sign In'}
             </Link>
           </Text>
         </ObjectiveCard>

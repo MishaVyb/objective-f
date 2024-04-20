@@ -122,9 +122,11 @@ const reducer = createReducer(initialState, (builder) => {
   // auth - on reset auth (dispatched by loadlogout thunk)
   builder.addMatcher(
     (action): action is TResetAuth => resetAuth.match(action),
-    () => {
-      removeFromLocalStorage(LOCAL_STORAGE.AUTH)
-      return initialState
+    (store) => {
+      const logoutState = { ...initialState, user: store.user } // leave user info, but remove token
+      saveToLocalStorage(LOCAL_STORAGE.AUTH, logoutState)
+      removeFromLocalStorage(LOCAL_STORAGE.PROJECTS)
+      return logoutState
     }
   )
 })
