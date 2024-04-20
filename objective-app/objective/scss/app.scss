@@ -171,6 +171,23 @@
   }
 }
 
+.objective-meta-editor-description {
+
+  &:hover {
+    cursor: text;
+    background: var(--button-hover-bg) !important;
+  }
+
+  &:active {
+    background: var(--accent-4) !important;
+    // padding: 3px;
+    // border: 1px solid var(--button-active-border) !important;
+  }
+
+
+
+}
+
 .hidden {
   visibility: hidden;
 }

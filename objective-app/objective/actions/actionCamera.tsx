@@ -287,13 +287,13 @@ export const actionChangeMetaCameraVersion = register({
 
     return (
       <fieldset>
-        <legend>{'Shot version'}</legend>
+        <legend>{isShot ? 'Shot version / Movement' : 'Movement'}</legend>
 
         <Flex gap={'1'}>
           {isShot ? (
             <>
               <IconButton
-                size={'2'}
+                size={'1'}
                 variant={'soft'}
                 color={'gray'}
                 onClick={() => updateData('decraseShotVersion')}
@@ -302,7 +302,7 @@ export const actionChangeMetaCameraVersion = register({
                 <MinusIcon />
               </IconButton>
               <IconButton
-                size={'2'}
+                size={'1'}
                 variant={'soft'}
                 color={'gray'}
                 onClick={() => updateData('incraseShotVersion')}
@@ -315,7 +315,7 @@ export const actionChangeMetaCameraVersion = register({
           {singleMeta && (
             <>
               <Button
-                size={'2'}
+                size={'1'}
                 variant={'surface'}
                 color={'gray'}
                 onClick={() => updateData('moveFrom')}
@@ -326,7 +326,7 @@ export const actionChangeMetaCameraVersion = register({
               </Button>
 
               <Button
-                size={'2'}
+                size={'1'}
                 variant={'surface'}
                 color={'gray'}
                 onClick={() => updateData('moveTo')}

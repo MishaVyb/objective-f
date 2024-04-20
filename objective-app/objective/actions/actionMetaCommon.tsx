@@ -36,7 +36,16 @@ import {
 } from '../meta/types'
 import { getCameraMetaReprStr, getCameraVersionStr } from './actionCamera'
 import { arrangeElements } from '../elements/zindex'
-import { Button, Callout, Dialog, Flex, IconButton, Kbd, TextArea } from '@radix-ui/themes'
+import {
+  Blockquote,
+  Button,
+  Callout,
+  Dialog,
+  Flex,
+  IconButton,
+  Kbd,
+  TextArea,
+} from '@radix-ui/themes'
 import { EyeClosedIcon, EyeOpenIcon, Pencil1Icon, TransformIcon } from '@radix-ui/react-icons'
 import { getBoundTextElement } from '../../../packages/excalidraw/element/textElement'
 import { mutateElement } from '../../../packages/excalidraw'
@@ -328,13 +337,25 @@ export const actionChangeMetaDescription = register({
 
     return (
       <div>
-        <legend>{'Properties'}</legend>
+        <legend>{'Description'}</legend>
         <Dialog.Root onOpenChange={(open) => !open && updateData(textValue)}>
           <Dialog.Trigger>
-            <Button variant={'soft'} color={'gray'} size={'1'}>
-              <Pencil1Icon />
-              {'Description'}
-            </Button>
+            {singleMeta?.description ? (
+              <Blockquote
+                // color={getRadixColor(singleMeta, { default: ACCENT_COLOR })}
+                // color='gray'
+                style={{ padding: '5px' }}
+                className='objective-meta-editor-description'
+                size={'1'}
+              >
+                {singleMeta?.description}
+              </Blockquote>
+            ) : (
+              <Button variant={'outline'} color={'gray'} size={'1'}>
+                <Pencil1Icon />
+                {'Edit'}
+              </Button>
+            )}
           </Dialog.Trigger>
 
           <Dialog.Content style={{ maxWidth: 450 }}>
@@ -365,13 +386,13 @@ export const actionChangeMetaDescription = register({
                     color='gray'
                     onClick={(e) => setTextValue(singleMeta.description || '')}
                   >
-                    Cancel
+                    {'Cancel'}
                   </Button>
                 </Dialog.Close>
               )}
               <Dialog.Close>
                 <Button highContrast variant={'soft'} color='gray'>
-                  Ok
+                  {'Ok'}
                 </Button>
               </Dialog.Close>
             </Flex>

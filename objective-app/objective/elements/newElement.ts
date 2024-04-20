@@ -85,8 +85,8 @@ const CHARACTER_MOVEMENT_POINTER = (
 const LABEL_POINTER = (): Partial<ExcalidrawArrowElement> => ({
   customData: getInitialMeta(ObjectiveKinds.POINTER, { subkind: 'labelPointer' }),
   strokeColor: '#868e96',
-  strokeWidth: 1,
-  strokeStyle: 'dotted',
+  strokeWidth: 0.5,
+  strokeStyle: 'solid',
   startArrowhead: null,
   endArrowhead: null,
 })
@@ -94,8 +94,8 @@ const LABEL_POINTER = (): Partial<ExcalidrawArrowElement> => ({
 const STORYBOARD_POINTER = (): Partial<ExcalidrawArrowElement> => ({
   customData: getInitialMeta(ObjectiveKinds.POINTER, { subkind: 'storyboardPointer' }),
   strokeColor: '#868e96',
-  strokeWidth: 1,
-  strokeStyle: 'dotted',
+  strokeWidth: 0.5,
+  strokeStyle: 'solid',
   startArrowhead: null,
   endArrowhead: null,
 })
@@ -211,7 +211,7 @@ const getCameraLensFocusLine = (
   const [rightX, rightY] = LinearElementEditor.getPointAtIndexGlobalCoordinates(rightSide, 1)
   const pointsEnd = { x: rightX - leftX, y: rightY - leftY }
   return newLinearElement({
-    type: 'line',
+    type: 'arrow',
     ...overrides,
     //
     x: leftX,
@@ -233,7 +233,7 @@ const getCameraLensAngleSide = (
   const lineEnd = { x: distance, y: 0 }
 
   const element = newLinearElement({
-    type: 'line',
+    type: 'arrow',
     ...overrides,
     //
     x: basisCenter.x,

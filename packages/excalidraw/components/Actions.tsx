@@ -171,8 +171,12 @@ export const SelectedShapeActions = ({
     metaCameraDetails:
       isAllObjective && singleMetaKind === ObjectiveKinds.CAMERA,
 
-    //
-    metaToggleEditLine: targetElements.every((e) => isLinearElement(e)),
+    // wall and movement arrows
+    metaToggleEditLine:
+      isLinearElement(targetElements[0]) &&
+      (singleMeta?.kind === ObjectiveKinds.WALL ||
+        singleMeta?.subkind === "characterMovementPointer" ||
+        singleMeta?.subkind === "cameraMovementPointer"),
 
     // when only one camera selected:
     metaActionStoryboard:
@@ -311,6 +315,7 @@ export const SelectedShapeActions = ({
         // HACK: right border
         overflowX: "clip",
         paddingRight: "5px",
+        paddingLeft: "5px",
       }}
     >
       {actionsToRender.metaHeader && renderAction("actionDisplayMetaHeader")}

@@ -65,7 +65,7 @@ export const actionMoveCharacterToFrom = register({
           {singleMeta && (
             <Flex gap={'1'}>
               <Button
-                size={'2'}
+                size={'1'}
                 variant={'surface'}
                 color={'gray'}
                 onClick={() => updateData('moveFrom')}
@@ -76,7 +76,7 @@ export const actionMoveCharacterToFrom = register({
               </Button>
 
               <Button
-                size={'2'}
+                size={'1'}
                 variant={'surface'}
                 color={'gray'}
                 onClick={() => updateData('moveTo')}
