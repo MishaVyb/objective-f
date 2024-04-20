@@ -179,7 +179,7 @@ const AddCameraButton: FC<{ style?: any }> = ({ style }) => {
 }
 
 const ShotListSidebarCameraElement: FC<{ camera: CameraMeta; isSelected: boolean }> = (props) => {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = React.useState(true) // TMP save this to AppStore
   const { camera } = props
 
   const setAppState = useExcalidrawSetAppState()
@@ -234,9 +234,19 @@ const ShotListSidebarCameraElement: FC<{ camera: CameraMeta; isSelected: boolean
       </Flex>
 
       <Collapsible.Content>
-        <Flex direction={'column'} mt={'1'} height={'max-content'} gap={'1'}>
+        <Flex direction={'column'} mt={'1'} height={'max-content'} gap={'3'}>
           {(camera.cameraFormat || camera.aspectRatio) && (
-            <Flex style={{ minHeight: 40 }} ml={'2'} mr={'2'} gap={'1'} justify={'start'}>
+            <Flex
+              style={{
+                minHeight: 40,
+                marginTop: -10,
+                marginBottom: -15,
+              }}
+              ml={'2'}
+              mr={'2'}
+              gap={'1'}
+              justify={'start'}
+            >
               {camera.cameraFormat && (
                 <Flex
                   title={`${camera.cameraFormat.description} — ${formatStr!.x} x ${formatStr!.y}`}
@@ -263,7 +273,17 @@ const ShotListSidebarCameraElement: FC<{ camera: CameraMeta; isSelected: boolean
             </Flex>
           )}
           {(camera.focalLength || camera.focusDistance) && (
-            <Flex style={{ minHeight: 40 }} ml={'2'} mr={'2'} gap={'1'} justify={'start'}>
+            <Flex
+              style={{
+                minHeight: 40,
+                marginTop: -10, //
+                marginBottom: -15,
+              }}
+              ml={'2'}
+              mr={'2'}
+              gap={'1'}
+              justify={'start'}
+            >
               {camera.focalLength && (
                 <>
                   <Flex title={'Focal length'} align={'center'} gap={'1'}>
@@ -294,9 +314,19 @@ const ShotListSidebarCameraElement: FC<{ camera: CameraMeta; isSelected: boolean
               )}
             </Flex>
           )}
-          <Text ml={'2'} mr={'2'} title={'Description'} style={{ whiteSpace: 'pre-wrap' }}>
-            {camera.description}
-          </Text>
+          {camera.description && (
+            <Text
+              ml={'2'}
+              mr={'2'}
+              // mt={'-1'}
+              mb={'-2'}
+              size={'1'}
+              title={'Description'}
+              style={{ whiteSpace: 'pre-wrap' }}
+            >
+              {camera.description}
+            </Text>
+          )}
           {images.map((image) => (
             <img style={{ marginBottom: 5 }} key={image.id} src={image.dataURL} alt='' />
           ))}
