@@ -98,15 +98,25 @@ const LoginPage = () => {
               </Button>
             </Spinner>
           </Flex>
-          <Text mt={'5'} size={'1'} color={'gray'}>
+          <Text mt={'5'} size={'1'} color={'gray'} style={{ userSelect: 'none' }}>
             Not registered?
-            <Link ml={'1'} color={ACCENT_COLOR} onClick={() => navigate('/register')}>
+            <Link
+              className={'objective-link'}
+              ml={'1'}
+              color={ACCENT_COLOR}
+              onClick={() => navigate('/register')}
+            >
               Sign Up
             </Link>
           </Text>
-          <Text size={'1'} color={'gray'}>
+          <Text size={'1'} color={'gray'} style={{ userSelect: 'none' }}>
             Forgot password?
-            <Link ml={'1'} color={ACCENT_COLOR} onClick={() => navigate('/reset-password')}>
+            <Link
+              className={'objective-link'}
+              ml={'1'}
+              color={ACCENT_COLOR}
+              onClick={() => navigate('/reset-password')}
+            >
               Reset password
             </Link>
           </Text>

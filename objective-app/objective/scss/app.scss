@@ -172,7 +172,6 @@
 }
 
 .objective-meta-editor-description {
-
   &:hover {
     cursor: text;
     background: var(--button-hover-bg) !important;
@@ -183,9 +182,16 @@
     // padding: 3px;
     // border: 1px solid var(--button-active-border) !important;
   }
+}
 
-
-
+.objective-link {
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
+  &.toggled {
+    text-decoration: underline;
+  }
 }
 
 .hidden {
@@ -209,4 +215,3 @@
 .capitalize-first::first-letter {
   text-transform: uppercase;
 }
-

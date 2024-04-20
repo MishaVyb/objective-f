@@ -1,8 +1,4 @@
-import {
-  DotsVerticalIcon,
-  FilePlusIcon,
-  Pencil2Icon, TrashIcon
-} from '@radix-ui/react-icons'
+import { DotsVerticalIcon, FilePlusIcon, Pencil2Icon, TrashIcon } from '@radix-ui/react-icons'
 import {
   Button,
   Dialog,
@@ -188,7 +184,7 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
     <Flex justify={'between'}>
       <div
         style={{
-          width: '80%', // leave some space for options button
+          width: '90%', // leave some space for options button
         }}
         className={clsx('projects-toggled-item', { toggled: toggled })}
         onClick={onClick}

@@ -165,7 +165,12 @@ const RegisterPage: FC = () => {
 
           <Text mt={'5'} size={'1'} color={'gray'}>
             {'Already have an account?'}
-            <Link ml={'1'} color={ACCENT_COLOR} onClick={() => navigate('/login')}>
+            <Link
+              className={'objective-link'}
+              ml={'1'}
+              color={ACCENT_COLOR}
+              onClick={() => navigate('/login')}
+            >
               {'Sign In'}
             </Link>
           </Text>

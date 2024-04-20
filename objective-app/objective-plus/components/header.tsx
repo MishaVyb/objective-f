@@ -5,11 +5,20 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useSelector } from '../hooks/redux'
 import { selectIsAuthenticated, selectUser } from '../store/auth/reducer'
 import { ACCENT_COLOR } from '../constants'
+import clsx from 'clsx'
 
 export const ObjectiveLogo = () => {
   return (
     <Flex>
-      <Heading weight={'light'}>Objective</Heading>
+      <Heading
+        weight={'light'}
+        style={{
+          fontFamily: 'Cascadia',
+          opacity: '70%',
+        }}
+      >
+        {'Objective'}
+      </Heading>
       <Badge color={ACCENT_COLOR} m='2' size={'1'}>
         beta
       </Badge>
@@ -23,9 +32,10 @@ const NavLink: FC<{ to: string; children?: ReactNode }> = ({ to, children }) => 
 
   return (
     <RadixLink
-      style={{ cursor: 'pointer' }}
-      underline={location.pathname === to ? 'always' : 'auto'}
+      className={clsx('objective-link', { toggled: location.pathname === to })}
       onClick={() => navigate(to)}
+      // weight={'bold'}
+      // color={location.pathname === to ? ACCENT_COLOR : 'gray'}
     >
       {children}
     </RadixLink>
@@ -55,7 +65,7 @@ export const ObjectiveHeader: FC<{ renderLogo: boolean }> = ({ renderLogo }) => 
       )}
 
       {renderLogo && (
-        <Link to='/about'>
+        <Link to='/about' className={clsx('objective-link')}>
           <ObjectiveLogo />
         </Link>
       )}
