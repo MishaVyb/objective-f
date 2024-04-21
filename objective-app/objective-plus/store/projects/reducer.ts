@@ -1,6 +1,6 @@
 import { createReducer, createSelector } from '@reduxjs/toolkit'
 import { ExcalidrawElement } from '../../../../packages/excalidraw/element/types'
-import { LOCAL_STORAGE, saveToLocalStorage } from '../../utils/persistence'
+import { LOCAL_STORAGE, removeFromLocalStorage, saveToLocalStorage } from '../../utils/persistence'
 import { RootState } from '../store'
 import {
   TFulfilledAction,
@@ -22,6 +22,7 @@ import { selectAuth } from '../auth/reducer'
 import { AppState, BinaryFileData } from '../../../../packages/excalidraw/types'
 import { TRadixColor } from '../../../objective/UI/colors'
 import { ACCENT_COLOR } from '../../constants'
+import { TResetAuth, resetAuth } from '../auth/actions'
 
 export interface IBase {
   id: string
@@ -212,6 +213,16 @@ const reducer = createReducer(initialState, (builder) => {
   // NOTE
   // We do not handle any logic of saving Scenes to Redux Store / Local Browser Storage.
   // Just load it from backend and pas to Excalidraw directly.
+
+
+  // auth - on reset auth (dispatched by loadlogout thunk)
+  builder.addMatcher(
+    (action): action is TResetAuth => resetAuth.match(action),
+    () => {
+      removeFromLocalStorage(LOCAL_STORAGE.PROJECTS)
+      return initialState
+    }
+  )
 })
 
 export const selectIsPending = (state: RootState) => state.projects.pendingRequest

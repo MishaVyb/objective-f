@@ -31,18 +31,16 @@ export const MySceneShareOptions: FC<{ url?: string }> = (props) => {
   return (
     <>
       <Heading size={'3'} color={ACCENT_COLOR}>
-        Public scene.
+        Public scene
       </Heading>
 
-      <Separator size={'4'} mt={'3'} mb={'3'} />
+      <Separator size={'4'} mt={'1'} mb={'3'} />
 
       <Text as={'p'} size={'1'}>
         Everyone with a link <Strong>can view</Strong>, but can not edit this scene.{' '}
       </Text>
       <Flex gap={'1'} direction={'row'} justify={'between'} mt={'3'}>
-        <TextField.Root style={{ flexGrow: 1 }}>
-          <TextField.Root value={url} size='2' readOnly />
-        </TextField.Root>
+        <TextField.Root style={{ flexGrow: 1 }} value={url} size='2' readOnly />
         <IconButton variant={'outline'} color={'gray'} ml={'auto'}>
           <ClipboardCopyIcon onClick={() => navigator.clipboard.writeText(url)} />
         </IconButton>

@@ -125,7 +125,6 @@ const reducer = createReducer(initialState, (builder) => {
     (store) => {
       const logoutState = { ...initialState, user: store.user } // leave user info, but remove token
       saveToLocalStorage(LOCAL_STORAGE.AUTH, logoutState)
-      removeFromLocalStorage(LOCAL_STORAGE.PROJECTS)
       return logoutState
     }
   )
