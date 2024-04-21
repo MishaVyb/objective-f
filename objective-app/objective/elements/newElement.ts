@@ -103,7 +103,7 @@ const STORYBOARD_POINTER = (): Partial<ExcalidrawArrowElement> => ({
 const CAMERA_LENS_ANGLE_LINE = (): Partial<ExcalidrawArrowElement> => ({
   customData: getInitialMeta(ObjectiveKinds.POINTER, { subkind: 'cameraLensAngle' }),
   strokeWidth: 1,
-  strokeStyle: 'dashed',
+  // strokeStyle: 'dashed',
   startArrowhead: null,
   endArrowhead: null,
 })
@@ -217,8 +217,6 @@ const getCameraLensFocusLine = (
     x: leftX,
     y: leftY,
     points: [ensurePoint(pointsStart), ensurePoint(pointsEnd)],
-    strokeStyle: 'dotted',
-    opacity: 50,
   } as ExcalidrawArrowElement)
 }
 
