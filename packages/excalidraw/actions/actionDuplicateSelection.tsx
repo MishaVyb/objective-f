@@ -2,6 +2,7 @@ import { arrangeElements } from "../../../objective-app/objective/elements/zinde
 import {
   DuplicateHandlerOpts,
   duplicateObjectiveEventHandler,
+  duplicateObjectiveEventHandlerFilter,
 } from "../../../objective-app/objective/elements/events";
 import { Vector } from "../../../objective-app/objective/elements/math";
 import { ToolButton } from "../components/ToolButton";
@@ -118,11 +119,14 @@ export const duplicateElements = (
     return newElement;
   };
 
-  const idsOfElementsToDuplicate = arrayToMap(
-    getSelectedElements(sortedElements, appState, {
-      includeBoundTextElement: true,
-      includeElementsInFrames: true,
-    }),
+  const idsOfElementsToDuplicate = duplicateObjectiveEventHandlerFilter(
+    arrayToMap(
+      getSelectedElements(sortedElements, appState, {
+        includeBoundTextElement: true,
+        includeElementsInFrames: true,
+      }),
+    ),
+    app.scene,
   );
 
   // Ids of elements that have already been processed so we don't push them
@@ -259,11 +263,6 @@ export const duplicateElements = (
     ),
     {
       scene: app.scene,
-      //
-      // addPointerWith: opts?.addPointerWith,
-      // addPointerSubkind: opts?.addPointerSubkind,
-      // addPointerOverrides: opts?.addPointerOverrides,
-      // newElementsMeta: opts?.newElementsMeta,
       ...opts,
     },
   );

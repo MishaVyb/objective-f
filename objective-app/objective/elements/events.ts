@@ -1,6 +1,7 @@
 import App from '../../../packages/excalidraw/components/App'
 import { mutateElement, newElementWith } from '../../../packages/excalidraw/element/mutateElement'
 import {
+  ElementsMap,
   ExcalidrawArrowElement,
   ExcalidrawBindableElement,
   ExcalidrawElement,
@@ -22,6 +23,7 @@ import {
   getObjectiveSingleMeta,
   getMetaByObjectiveId,
   getPointerIds,
+  getMetaSimple,
 } from '../meta/selectors'
 import {
   AnyObjectiveMeta,
@@ -29,7 +31,8 @@ import {
   ObjectiveMeta,
   PointerMeta,
   isCameraMeta,
-  isKind
+  isKind,
+  isObjective,
 } from '../meta/types'
 import {
   actionSnapLocation,
@@ -48,6 +51,7 @@ import { mutateMeta } from './mutateElements'
 import { createMetaRepr, deleteMetaRepr } from './metaRepr'
 import Scene from '../../../packages/excalidraw/scene/Scene'
 import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
+import { getContainerElement } from '../../../packages/excalidraw/element/textElement'
 
 export type DuplicateHandlerOpts = {
   addPointerWith?: ObjectiveMeta
@@ -58,7 +62,41 @@ export type DuplicateHandlerOpts = {
 }
 
 /**
- * It's assumed that elements metas already copied properly by `duplicateAsInitialEventHandler`
+ * filters out element we do not copy directly: LABEL and LABEL_TEXT
+ * (because it wll be add as copied extraElements later)
+ */
+export const duplicateObjectiveEventHandlerFilter = (
+  selectedElements: ElementsMap,
+  scene: Scene
+) => {
+  const excludeElementIds = new Set<string>([])
+  const metasMap = new Map(getObjectiveMetas(selectedElements).map((m) => [m.id, m]))
+
+  for (const e of selectedElements.values()) {
+    if (!isObjective(e)) continue
+    const weekMeta = getMetaSimple(e)
+
+    if (isKind(weekMeta, ObjectiveKinds.LABEL) && metasMap.has(weekMeta.labelOf))
+      excludeElementIds.add(e.id)
+
+    if (isKind(weekMeta, ObjectiveKinds.LABEL_TEXT)) {
+      //@ts-ignore
+      const container = getContainerElement(e, scene.getNonDeletedElementsMap())
+      const containerWeekMeta = isObjective(container) ? getMetaSimple(container) : null
+      if (
+        isKind(containerWeekMeta, ObjectiveKinds.LABEL) &&
+        metasMap.has(containerWeekMeta.labelOf)
+      )
+        excludeElementIds.add(e.id)
+    }
+  }
+
+  for (const id of excludeElementIds) selectedElements.delete(id)
+  return selectedElements
+}
+
+/**
+ * It's assumed that elements metas already copied properly by `initial.duplicateMeta`
  * @param newElements new (cloned/copied) elements
  */
 export const duplicateObjectiveEventHandler = (

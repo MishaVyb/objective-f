@@ -418,13 +418,15 @@ import {
   isObjectiveHidden,
   isKindEl,
   isObjective,
-  isWallTool,
+  ensureArray,
+  ensureMap,
 } from "../../../objective-app/objective/meta/types";
 import { getInitialMeta } from "../../../objective-app/objective/meta/initial";
 import { actionToggleGridSnapMode } from "../../../objective-app/objective/actions/actionSettings";
 import {
   addElementsFromPasteOrLibraryHandler,
   duplicateObjectiveEventHandler,
+  duplicateObjectiveEventHandlerFilter,
   onPointerUpFromPointerDownEventHandler,
 } from "../../../objective-app/objective/elements/events";
 import { arrangeElements } from "../../../objective-app/objective/elements/zindex";
@@ -3129,7 +3131,14 @@ class App extends React.Component<AppProps, AppState> {
     retainSeed?: boolean;
     fitToContent?: boolean;
   }) => {
-    const elements = restoreElements(opts.elements, null, undefined);
+    let elements = restoreElements(opts.elements, null, undefined);
+
+    // VBRN
+    elements = ensureArray(
+      duplicateObjectiveEventHandlerFilter(ensureMap(elements), this.scene),
+    );
+    /////
+
     const [minX, minY, maxX, maxY] = getCommonBounds(elements);
 
     const elementsCenterX = distance(minX, maxX) / 2;
@@ -7324,6 +7333,7 @@ class App extends React.Component<AppProps, AppState> {
 
             // VBRN
             // BUG: Storyboard's POINT are pointing to previous camera, but related to new dragged...
+            // BUG: Creates extra label (that we do not needed)
             const extraNewElements = duplicateObjectiveEventHandler(
               nextElements.filter(
                 // handle only new elements

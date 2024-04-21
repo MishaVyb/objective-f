@@ -2,7 +2,14 @@ import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { randomId } from '../../../packages/excalidraw/random'
 import { MarkOptional, Mutable } from '../../../packages/excalidraw/utility-types'
 import { getMetaSimple } from './selectors'
-import { AnyObjectiveMeta, ObjectiveKinds, ObjectiveMeta, isCameraMeta, isObjective } from './types'
+import {
+  AnyObjectiveMeta,
+  ObjectiveKinds,
+  ObjectiveMeta,
+  isCameraMeta,
+  isKind,
+  isObjective,
+} from './types'
 
 type TMetaOverrides = Record<ObjectiveKinds, Partial<Omit<AnyObjectiveMeta, 'kind'>>>
 type TOptionalMetaOverrides = MarkOptional<TMetaOverrides, keyof TMetaOverrides>
@@ -17,8 +24,8 @@ const _DEFAULT_META_OVERRIDES: TOptionalMetaOverrides = {
     isInternalBasis: true,
   },
   light: {
-    isInternalBasis: true
-  }
+    isInternalBasis: true,
+  },
 }
 
 /**
@@ -70,7 +77,7 @@ export const duplicateMeta = (newElement: Mutable<ExcalidrawElement>) => {
   )
 
   // per kind:
-  if (isCameraMeta(weekMeta)) {
+  if (isCameraMeta(weekMeta))
     Object.assign(
       newElement.customData,
       getInitialMeta(ObjectiveKinds.CAMERA, {
@@ -86,5 +93,7 @@ export const duplicateMeta = (newElement: Mutable<ExcalidrawElement>) => {
         lensAngleRepr: weekMeta.lensAngleRepr,
       })
     )
-  }
+  if (isKind(weekMeta, ObjectiveKinds.LABEL) || isKind(weekMeta, ObjectiveKinds.LABEL_TEXT))
+    // @ts-ignore // HACK if we copy LABEL/LABEL_TEXT directly it's no Objective anymore
+    newElement.customData = {}
 }
