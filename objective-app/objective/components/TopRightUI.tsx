@@ -9,15 +9,21 @@ import {
   Popover,
   Select,
   Separator,
+  Spinner,
   Strong,
   Text,
   TextField,
 } from '@radix-ui/themes'
-import { FC, useRef, useState } from 'react'
+import { FC, useEffect, useRef, useState } from 'react'
 
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from '../../objective-plus/hooks/redux'
-import { loadCreateScene, loadSceneInitial } from '../../objective-plus/store/projects/actions'
+import {
+  loadCreateProject,
+  loadCreateScene,
+  loadProjects,
+  loadSceneInitial,
+} from '../../objective-plus/store/projects/actions'
 import {
   selectCurrentScene,
   selectIsOtherScene,
@@ -53,23 +59,32 @@ export const CopySceneDialog: FC<{ open: boolean; setOpen: (open: boolean) => vo
   open,
   setOpen,
 }) => {
+  const [isDuplicateLoading, setIsDuplicateLoading] = useState(false)
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const scene = useSelector(selectCurrentScene)
   const projects = useSelector(selectProjects)
   const [name, setName] = useState(`${scene?.name} (copy)`)
-  const [projectSelect, setProjectSelect] = useState(projects[0].id)
+  const [projectSelect, setProjectSelect] = useState(projects[0]?.id)
 
-  if (!scene || !projects) return <></>
+  useEffect(() => {
+    dispatch(loadProjects({}))
+      .unwrap()
+      .then((projects) => {
+        if (!projects.length) dispatch(loadCreateProject({ name: 'Untitled Project' }))
+      })
+  }, [dispatch])
+
+  if (!scene || !projects.length) return <></>
 
   const onDuplicate = () => {
-    setOpen(false)
+    setIsDuplicateLoading(true) // FIXME doesn't work
     dispatch(loadSceneInitial({ id: scene.id }))
       .unwrap()
       .then((scene) =>
         dispatch(loadCreateScene({ ...scene, project_id: projectSelect, name: name }))
           .unwrap()
-          .then((scene) => navigate(`/scenes/${scene.id}`))
+          .then((scene) => navigate('/projects'))
       )
   }
 
@@ -88,7 +103,7 @@ export const CopySceneDialog: FC<{ open: boolean; setOpen: (open: boolean) => vo
             placeholder='Enter scene name'
             onKeyUp={(e) => e.key === 'Enter' && onDuplicate()}
           />
-          <Select.Root defaultValue={projects[0].id} onValueChange={setProjectSelect}>
+          <Select.Root defaultValue={projects[0]?.id} onValueChange={setProjectSelect}>
             <Select.Trigger
               mt={'2'}
               style={{
@@ -114,11 +129,12 @@ export const CopySceneDialog: FC<{ open: boolean; setOpen: (open: boolean) => vo
               Cancel
             </Button>
           </Dialog.Close>
-          <Dialog.Close>
+
+          <Spinner loading={isDuplicateLoading}>
             <Button variant={'soft'} onClick={onDuplicate}>
               Duplicate
             </Button>
-          </Dialog.Close>
+          </Spinner>
         </Flex>
       </Dialog.Content>
     </Dialog.Root>
@@ -132,11 +148,13 @@ export const OtherSceneShareOptions = () => {
     <>
       <Heading size={'2'}>Protected scene.</Heading>
       <Text as={'p'} size={'1'}>
-        You can view, but can not edit this scene. Make{' '}
-        <Link weight={'regular'} onClick={() => setOpen(true)}>
-          a copy
-        </Link>{' '}
-        to continue with editing.
+        {'You can view, but can not edit this scene. '}
+        <br />
+        {'Make '}
+        <Link weight={'bold'} onClick={() => setOpen(true)} className='objective-link'>
+          {'copy '}
+        </Link>
+        {'to continue with editing.'}
       </Text>
       <CopySceneDialog open={open} setOpen={setOpen} />
     </>
@@ -163,7 +181,10 @@ const TopRightUI = () => {
             <PersonIcon width='16' height='16' />
           </IconButton>
         </Popover.Trigger>
-        <Popover.Content style={{ width: 360 }}>
+        <Popover.Content
+          style={{ width: 360 }}
+          align={'end'} //
+        >
           {isOtherScene ? <OtherSceneShareOptions /> : <MySceneShareOptions />}
         </Popover.Content>
       </Popover.Root>

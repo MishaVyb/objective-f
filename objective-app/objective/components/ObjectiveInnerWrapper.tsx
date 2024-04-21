@@ -102,20 +102,21 @@ const ObjectiveInnerWrapper: FC<{ children: ReactNode }> = ({ children }) => {
 
   /** saving scene on elements changes */
   useEffect(() => {
-    updateScenePersistence(
-      dispatch,
-      {
-        getFiles: () => app.files,
-        getSceneElements: () => elements,
+    if (isMyScene)
+      updateScenePersistence(
+        dispatch,
+        {
+          getFiles: () => app.files,
+          getSceneElements: () => elements,
 
-        // FIXME we should pass appState as dependency,
-        // but it will trigger updates for every scroll movement,
-        // therefore appState are updating only when elements have updated or every 10 sec on auto update timer
-        getAppState: () => app.state,
-      },
-      sceneId
-    )
-  }, [elements, app])
+          // FIXME we should pass appState as dependency,
+          // but it will trigger updates for every scroll movement,
+          // therefore appState are updating only when elements have updated or every 10 sec on auto update timer
+          getAppState: () => app.state,
+        },
+        sceneId
+      )
+  }, [elements, app, isMyScene])
 
   if (initialSceneLoading) return <LoadingMessage />
 
