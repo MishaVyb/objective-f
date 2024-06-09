@@ -17,19 +17,21 @@ import {
   resetAPIError,
   loadSceneContinuos,
   loadUpdateSceneContinuos,
+  setObjectivePlusStore,
 } from './actions'
 import { selectAuth } from '../auth/reducer'
 import { AppState, BinaryFileData } from '../../../../packages/excalidraw/types'
 import { TRadixColor } from '../../../objective/UI/colors'
 import { ACCENT_COLOR } from '../../constants'
 import { TResetAuth, resetAuth } from '../auth/actions'
+import { compareDates } from '../../../objective/utils/helpers'
 
 export interface IBase {
   id: string
   created_at: string
-  updated_at: string
-  updated_by: string
-  is_deleted: string
+  updated_at: string | null
+  updated_by: string | null
+  is_deleted: boolean
   user_id: string
 }
 
@@ -54,6 +56,14 @@ export interface IProject extends IBase {
   scenes: readonly ISceneSimplified[]
 }
 
+export type OrderMode =
+  | 'created'
+  | 'created.desc'
+  | 'updated'
+  | 'updated.desc'
+  | 'alphabetical'
+  | 'alphabetical.desc'
+
 export type APIError = {
   type: 'UserError' | 'ServerError' | 'InternalError' | 'ConnectionError' | 'UnknownError'
   message: string
@@ -67,10 +77,17 @@ export type APIError = {
 export interface IProjectsState {
   /** user's projects */
   projects: IProject[]
-  toggledProjectId: IProject['id'] | undefined // use URL Path param instead
+  toggledProjectId: IProject['id'] | undefined // TODO use URL Path param instead
+  projectsMeta?: {
+    order?: 'Last created' | 'Last openned' | 'Alphabetical'
+  }
 
   /** full scenes info for thumbnails render only (scene elements could be outdated) */
   scenes: ISceneFull[]
+  scenesMeta?: {
+    view?: 'list' | 'icons'
+    order?: OrderMode
+  }
 
   /** target scene to request full scene info and pass it to Excalidraw state */
   currentScene: ISceneSimplified | undefined
@@ -99,6 +116,12 @@ const reducer = createReducer(initialState, (builder) => {
     saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
       ...state,
       toggledProjectId: action.payload,
+    })
+  )
+  builder.addCase(setObjectivePlusStore, (state, action) =>
+    saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
+      ...state,
+      ...action.payload,
     })
   )
 
@@ -214,7 +237,6 @@ const reducer = createReducer(initialState, (builder) => {
   // We do not handle any logic of saving Scenes to Redux Store / Local Browser Storage.
   // Just load it from backend and pas to Excalidraw directly.
 
-
   // auth - on reset auth (dispatched by loadlogout thunk)
   builder.addMatcher(
     (action): action is TResetAuth => resetAuth.match(action),
@@ -224,6 +246,8 @@ const reducer = createReducer(initialState, (builder) => {
     }
   )
 })
+
+// TODO all selector should be with args or empty args () to avoid confusing
 
 export const selectIsPending = (state: RootState) => state.projects.pendingRequest
 export const selectContinuousSceneUpdateIsPending = (state: RootState) =>
@@ -241,15 +265,32 @@ export const selectProjects = createSelector(
 
 export const selectToggledProjectId = (state: RootState) =>
   state.projects.toggledProjectId || state.projects.projects[0]?.id
-
 export const selectToggledProject = (state: RootState) =>
   state.projects.projects.find((p) => p.id === state.projects.toggledProjectId) ||
   state.projects.projects[0]
+export const selectScenesMeta = () => (state: RootState) => state.projects.scenesMeta
 
 /** Select not deleted scenes of current toggled project */
 export const selectScenes = createSelector(
-  [selectToggledProject],
-  (project) => project?.scenes?.filter((s) => !s.is_deleted) || []
+  [selectToggledProject, selectScenesMeta()],
+  (project, meta) => {
+    return (project?.scenes?.filter((s) => !s.is_deleted) || []).sort((a, b) => {
+      if (meta?.order === 'alphabetical') return a.name.localeCompare(b.name)
+      if (meta?.order === 'updated') {
+        return compareDates(a.updated_at, b.updated_at, { nullFirst: true })
+      }
+      if (meta?.order === 'updated.desc') {
+        return compareDates(a.updated_at, b.updated_at, { desc: true })
+      }
+      if (meta?.order === 'created.desc') {
+        return compareDates(a.created_at, b.created_at)
+      }
+      if (meta?.order === 'created') {
+        return compareDates(a.created_at, b.created_at, { desc: true })
+      }
+      return compareDates(a.created_at, b.created_at) // default sorting
+    })
+  }
 )
 
 export const selectSceneFullInfo = (id: ISceneFull['id']) => (state: RootState) =>

@@ -39,3 +39,11 @@ export const __DEBUG_DISABLE_APPLY_DEFAULTS = Boolean(
 )
 
 export const APP_VERSION = getVersion()
+
+export const DATE_FORMAT_OPTS = {
+  hour: 'numeric',
+  minute: 'numeric',
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+} as Intl.DateTimeFormatOptions

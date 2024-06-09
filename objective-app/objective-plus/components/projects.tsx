@@ -152,7 +152,7 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
             </Button>
           </Dialog.Close>
           <Dialog.Close>
-            <Button variant={'soft'} onClick={() => onRename}>
+            <Button variant={'soft'} onClick={() => onRename()}>
               Update
             </Button>
           </Dialog.Close>
@@ -204,7 +204,7 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
   )
 }
 
-const ProjectsList = () => {
+const ProjectsSection = () => {
   const loading = useSelector(selectIsPending)
   const projects = useSelector(selectProjects)
   const dispatch = useDispatch()
@@ -246,4 +246,4 @@ const ProjectsList = () => {
   )
 }
 
-export default ProjectsList
+export default ProjectsSection

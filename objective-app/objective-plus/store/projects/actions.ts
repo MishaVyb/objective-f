@@ -14,7 +14,7 @@ import {
 } from '../../utils/objective-api'
 import { selectAuth } from '../auth/reducer'
 import { ThunkApiConfig, safeAsyncThunk } from '../helpers'
-import { IProject, ISceneFull } from './reducer'
+import { IProject, IProjectsState, ISceneFull } from './reducer'
 import { BinaryFileData } from '../../../../packages/excalidraw/types'
 
 // Responses
@@ -108,6 +108,11 @@ export type TAuthAsyncThunk = AsyncThunk<
   // Config types:
   ThunkApiConfig
 >
+/**
+ * Generic action that allowes to change any projects store value directly
+ * (without creating separate action+reducer for any small thing to do)
+ */
+export const setObjectivePlusStore = createAction<Partial<IProjectsState>>('projects/setStore')
 
 export type TPendingAction = ReturnType<TAuthAsyncThunk['pending']>
 export type TRejectedAction = ReturnType<TAuthAsyncThunk['rejected']>

@@ -18,7 +18,7 @@ const preloadedState = {
     ...ProjectsInitialState,
     ...loadFromLocalStorage(
       LOCAL_STORAGE.PROJECTS,
-      ['currentScene', 'projects', 'scenes', 'toggledProjectId'],
+      ['currentScene', 'projects', 'projectsMeta', 'toggledProjectId', 'scenes', 'scenesMeta'],
       ProjectsInitialState
     ),
   },
