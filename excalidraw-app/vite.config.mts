@@ -7,8 +7,10 @@ import checker from "vite-plugin-checker";
 
 // To load .env.local variables
 export const envVars = loadEnv("development", `../`);
+export const _RANDOM_HASH = Math.floor(Math.random() * 90000) + 10000;
 
 console.debug(envVars);
+console.debug("hash", _RANDOM_HASH);
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -24,6 +26,19 @@ export default defineConfig({
     outDir: "build",
     rollupOptions: {
       output: {
+        // Cache Busting
+        // https://stackoverflow.com/questions/68046410/how-to-force-vite-clearing-cache-in-vue3
+        entryFileNames: `[name]` + _RANDOM_HASH + `.js`,
+        chunkFileNames: `[name]` + _RANDOM_HASH + `.js`,
+        assetFileNames: `[name]` + _RANDOM_HASH + `.[ext]`,
+
+        // FIXME
+        // (!) Some chunks are larger than 500 kB after minification. Consider:
+        // - Using dynamic import() to code-split the application
+        // - Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+        // - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+        // Unknown input options: manualChunks. Allowed options: cach
+
         // Creating separate chunk for locales except for en and percentages.json so they
         // can be cached at runtime and not merged with
         // app precache. en.json and percentages.json are needed for first load
