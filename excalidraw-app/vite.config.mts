@@ -6,9 +6,9 @@ import { VitePWA } from "vite-plugin-pwa";
 import checker from "vite-plugin-checker";
 
 // To load .env.local variables
-export const envVars = loadEnv("development", `../`,);
+export const envVars = loadEnv("development", `../`);
 
-console.debug(envVars)
+console.debug(envVars);
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -45,11 +45,8 @@ export default defineConfig({
   plugins: [
     react(),
     checker({
-      typescript: false,
-      eslint:
-        envVars.VITE_APP_ENABLE_ESLINT === "false"
-          ? undefined
-          : { lintCommand: 'eslint "./**/*.{js,ts,tsx}"' },
+      typescript: false, // because VSCode does it's already
+      eslint: false, // because VSCode does it's already
       overlay: {
         initialIsOpen: envVars.VITE_APP_COLLAPSE_OVERLAY === "false",
         badgeStyle: "margin-bottom: 4rem; margin-left: 1rem",
