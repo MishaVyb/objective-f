@@ -7,6 +7,8 @@ import {
   Link2Icon,
   ListBulletIcon,
   Pencil2Icon,
+  TextAlignBottomIcon,
+  TextAlignTopIcon,
   TrashIcon,
 } from '@radix-ui/react-icons'
 import {
@@ -545,19 +547,36 @@ const ScenesSectionHeader: FC = () => {
                 <Text>{'Scenes Order'}</Text>
               </Select.Label>
               <Select.Item value='alphabetical'>
-                <Text>{'Alphabetical'}</Text>
+                <Flex gap={'1'} mr={'1'}>
+                  <Text>{'Alphabetical'}</Text>
+                  <TextAlignBottomIcon style={{ marginTop: 0 }} />
+                </Flex>
               </Select.Item>
+              <Select.Separator />
               <Select.Item value='created'>
-                <Text>{'Date Created'}</Text>
+                <Flex gap={'1'} mr={'1'}>
+                  <Text>{'Date Created'}</Text>
+                  <TextAlignTopIcon style={{ marginTop: 3 }} />
+                </Flex>
               </Select.Item>
               <Select.Item value='created.desc'>
-                <Text>{'Date Created (desc)'}</Text>
+                <Flex gap={'1'} mr={'1'}>
+                  <Text>{'Date Created'}</Text>
+                  <TextAlignBottomIcon style={{ marginTop: 0 }} />
+                </Flex>
               </Select.Item>
+              <Select.Separator />
               <Select.Item value='updated'>
-                <Text>{'Date Modified'}</Text>
+                <Flex gap={'1'} mr={'1'}>
+                  <Text>{'Date Modified'}</Text>
+                  <TextAlignTopIcon style={{ marginTop: 3 }} />
+                </Flex>
               </Select.Item>
               <Select.Item value='updated.desc'>
-                <Text>{'Date Modified (desc)'}</Text>
+                <Flex gap={'1'} mr={'1'}>
+                  <Text>{'Date Modified'}</Text>
+                  <TextAlignBottomIcon style={{ marginTop: 0 }} />
+                </Flex>
               </Select.Item>
             </Select.Group>
           </Select.Content>
@@ -609,7 +628,6 @@ const ScenesListAsTable: FC = () => {
   const scenes = useSelector(selectScenes)
   return (
     <>
-      <AddSceneItem />
       {scenes.length ? (
         <Table.Root
           className='scene-table'
@@ -646,6 +664,7 @@ const ScenesListAsTable: FC = () => {
           </Table.Body>
         </Table.Root>
       ) : null}
+      <AddSceneItem />
     </>
   )
 }

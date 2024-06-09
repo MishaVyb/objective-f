@@ -277,10 +277,10 @@ export const selectScenes = createSelector(
     return (project?.scenes?.filter((s) => !s.is_deleted) || []).sort((a, b) => {
       if (meta?.order === 'alphabetical') return a.name.localeCompare(b.name)
       if (meta?.order === 'updated') {
-        return compareDates(a.updated_at, b.updated_at, { nullFirst: true })
+        return compareDates(a.updated_at, b.updated_at, { desc: true })
       }
       if (meta?.order === 'updated.desc') {
-        return compareDates(a.updated_at, b.updated_at, { desc: true })
+        return compareDates(a.updated_at, b.updated_at, { nullFirst: true })
       }
       if (meta?.order === 'created.desc') {
         return compareDates(a.created_at, b.created_at)
