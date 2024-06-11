@@ -12,7 +12,7 @@ import UpdateProfile from '../pages/auth/profile-page/update-profile'
 import RegisterPage from '../pages/auth/register-page/register-page'
 import ResetPasswordPage from '../pages/auth/reset-password-page/reset-password-page'
 import NotFoundPage from '../pages/errors/not-found-page'
-import HomePage from '../pages/home'
+import ProjectsPage from '../pages/home'
 import { fetchErrorCheck } from '../utils/objective-api'
 import { ObjectiveHeader } from './header'
 import RouteDispatch from './route-dispatch'
@@ -78,10 +78,18 @@ const ObjectivePlusApp: FC = () => {
           <Route path='/error' element={<ScheckSentry />} />
           <Route path='/debug' element={<DebugPage />} />
           <Route
+            path='/projects/:projectId'
+            element={
+              <RouteDispatch loginRequired>
+                <ProjectsPage />
+              </RouteDispatch>
+            }
+          />
+          <Route
             path='/projects'
             element={
               <RouteDispatch loginRequired>
-                <HomePage />
+                <ProjectsPage />
               </RouteDispatch>
             }
           />

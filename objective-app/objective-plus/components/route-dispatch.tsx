@@ -1,7 +1,7 @@
 import { FC, ReactNode } from 'react'
 import { useSelector } from 'react-redux'
 import { Navigate, useLocation } from 'react-router-dom'
-import { selectIsAuthenticated, selectUser } from '../store/auth/reducer'
+import { selectIsAuthenticated, selectUserMe } from '../store/auth/reducer'
 
 interface IRouteDispatchProps {
   loginRequired?: boolean
@@ -9,7 +9,7 @@ interface IRouteDispatchProps {
 }
 
 const RouteDispatch: FC<IRouteDispatchProps> = ({ loginRequired, children }) => {
-  const user = useSelector(selectUser)
+  const user = useSelector(selectUserMe)
   const isAuth = useSelector(selectIsAuthenticated)
   const location = useLocation()
 

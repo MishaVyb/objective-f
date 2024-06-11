@@ -1,4 +1,5 @@
 import {
+  CardStackPlusIcon,
   DashboardIcon,
   DotsVerticalIcon,
   EnterIcon,
@@ -12,6 +13,7 @@ import {
   TrashIcon,
 } from '@radix-ui/react-icons'
 import {
+  Badge,
   Box,
   Button,
   Code,
@@ -45,13 +47,13 @@ import {
   ISceneFull,
   ISceneSimplified,
   OrderMode,
-  selectProjects,
+  selectMyProjects,
   selectSceneFullInfo,
   selectScenes,
   selectScenesMeta,
-  selectToggledProject,
+  selectProject,
 } from '../store/projects/reducer'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ACCENT_COLOR, DATE_FORMAT_OPTS } from '../constants'
 import { getDefaultAppState } from '../../../packages/excalidraw/appState'
 import { AppState, BinaryFileData } from '../../../packages/excalidraw/types'
@@ -62,6 +64,8 @@ import { getSceneVisibleFileIds, useFilesFromLocalOrServer } from '../store/proj
 import { isObjectiveHidden } from '../../objective/meta/types'
 import { CustomDropDownMenuItem } from '../UI'
 import { MySceneShareOptions } from '../../objective/components/TopRightUI'
+import { selectAuth, selectUser } from '../store/auth/reducer'
+import { loadUser } from '../store/auth/actions'
 
 const DEFAULT_SCENE_NAME = 'Untitled Scene'
 
@@ -88,7 +92,8 @@ const SceneCard: FC<{ children: ReactNode; className?: string; onClick?: () => v
 
 const AddSceneItem: FC = () => {
   const { state } = useLocation()
-  const project = useSelector(selectToggledProject)
+  const { projectId } = useParams()
+  const project = useSelector(selectProject(projectId))
   const dispatch = useDispatch()
   const [name, setName] = useState('')
   const [open, setOpen] = useState(state?.openAddSceneDialog || false)
@@ -307,6 +312,7 @@ const useSceneThumbnailURL = (scene: ISceneSimplified) => {
 
 const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
   const navigate = useNavigate()
+  const { projectId } = useParams()
   const dispatch = useDispatch()
   const sceneRef = useRef(null)
   const nameRef = useRef(null)
@@ -324,7 +330,7 @@ const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
   }
 
   const onClick = () => {
-    navigate(`/scenes/${scene.id}`)
+    navigate(`/scenes/${scene.id}`, { state: { projectId } })
   }
 
   // FIXME TIMEZONES
@@ -388,9 +394,11 @@ const SceneDropDownMenu: FC<{ scene: ISceneSimplified; onRename: () => void }> =
 }) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const projects = useSelector(selectProjects)
+  const projects = useSelector(selectMyProjects)
   const otherProjects = projects.filter((p) => p.id !== scene.project_id)
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
+  const auth = useSelector(selectAuth)
+  const isMyScene = scene.user_id === auth.user.id
 
   const onDelete = () => {
     dispatch(loadDeleteScene({ id: scene.id }))
@@ -419,6 +427,21 @@ const SceneDropDownMenu: FC<{ scene: ISceneSimplified; onRename: () => void }> =
       .then(() => dispatch(loadProjects({})))
   }
 
+  const onCopyTo = (p: IProject) => {
+    dispatch(loadSceneInitial({ id: scene.id }))
+      .unwrap()
+      .then((scene) =>
+        dispatch(loadCreateScene({ ...scene, name: scene.name, project_id: p.id }))
+          .unwrap()
+          .then(() => {
+            dispatch(loadProjects({}))
+            //
+            // TODO request only 1 scene and insert that scene into store
+            dispatch(loadScenes({}))
+          })
+      )
+  }
+
   const onExportClick = () => {
     // TMP solution
     const appStateOverrides: Partial<AppState> = {
@@ -436,34 +459,58 @@ const SceneDropDownMenu: FC<{ scene: ISceneSimplified; onRename: () => void }> =
           </IconButton>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content
-          style={{ minWidth: 180 }}
+          style={{ minWidth: 180, paddingTop: '5px', paddingBottom: '5px' }}
           size={'1'}
           variant={'soft'} //
           onCloseAutoFocus={(e) => e.preventDefault()}
         >
-          <CustomDropDownMenuItem Icon={Pencil2Icon} text={'Rename'} onClick={onRename} />
-          <CustomDropDownMenuItem
-            Icon={FilePlusIcon}
-            text={'Duplicate'}
-            onClick={onDuplicate} //
-          />
-          <DropdownMenu.Sub>
-            <DropdownMenu.SubTrigger disabled={!otherProjects.length}>
-              <Flex>
-                <EnterIcon style={{ marginTop: 2, marginRight: 7 }} />
-                <Text>{'Move To'}</Text>
-              </Flex>
-            </DropdownMenu.SubTrigger>
-            <DropdownMenu.SubContent sideOffset={10} alignOffset={1} style={{ minWidth: 100 }}>
-              {otherProjects.map((p) => (
-                <DropdownMenu.Item key={p.id} onClick={() => onMoveTo(p)}>
-                  {p.name}
-                </DropdownMenu.Item>
-              ))}
-            </DropdownMenu.SubContent>
-          </DropdownMenu.Sub>
+          {isMyScene && (
+            <CustomDropDownMenuItem Icon={Pencil2Icon} text={'Rename'} onClick={onRename} />
+          )}
+          {isMyScene && (
+            <>
+              <DropdownMenu.Separator />
+              <CustomDropDownMenuItem
+                Icon={FilePlusIcon}
+                text={'Duplicate'}
+                onClick={onDuplicate} //
+              />
 
-          <DropdownMenu.Separator />
+              <DropdownMenu.Sub>
+                <DropdownMenu.SubTrigger disabled={!otherProjects.length}>
+                  <Flex>
+                    <EnterIcon style={{ marginTop: 2, marginRight: 7 }} />
+                    <Text>{'Move To'}</Text>
+                  </Flex>
+                </DropdownMenu.SubTrigger>
+                <DropdownMenu.SubContent sideOffset={10} alignOffset={1} style={{ minWidth: 100 }}>
+                  {otherProjects.map((p) => (
+                    <DropdownMenu.Item key={p.id} onClick={() => onMoveTo(p)}>
+                      {p.name}
+                    </DropdownMenu.Item>
+                  ))}
+                </DropdownMenu.SubContent>
+              </DropdownMenu.Sub>
+            </>
+          )}
+          <>
+            <DropdownMenu.Sub>
+              <DropdownMenu.SubTrigger disabled={!otherProjects.length}>
+                <Flex>
+                  <CardStackPlusIcon style={{ marginTop: 2, marginRight: 7 }} />
+                  <Text>{'Copy To'}</Text>
+                </Flex>
+              </DropdownMenu.SubTrigger>
+              <DropdownMenu.SubContent sideOffset={10} alignOffset={1} style={{ minWidth: 100 }}>
+                {otherProjects.map((p) => (
+                  <DropdownMenu.Item key={p.id} onClick={() => onCopyTo(p)}>
+                    {p.name}
+                  </DropdownMenu.Item>
+                ))}
+              </DropdownMenu.SubContent>
+            </DropdownMenu.Sub>
+            <DropdownMenu.Separator />
+          </>
 
           <CustomDropDownMenuItem
             Icon={Link2Icon}
@@ -476,8 +523,15 @@ const SceneDropDownMenu: FC<{ scene: ISceneSimplified; onRename: () => void }> =
             text={'Export'}
             onClick={onExportClick} //
           />
-          <DropdownMenu.Separator />
-          <CustomDropDownMenuItem Icon={TrashIcon} text={'Delete'} color='red' onClick={onDelete} />
+          {isMyScene && <DropdownMenu.Separator />}
+          {isMyScene && (
+            <CustomDropDownMenuItem
+              Icon={TrashIcon}
+              text={'Delete'}
+              color='red'
+              onClick={onDelete}
+            />
+          )}
         </DropdownMenu.Content>
       </DropdownMenu.Root>
 
@@ -515,15 +569,28 @@ const SceneThumbnail: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
 }
 
 const ScenesSectionHeader: FC = () => {
-  const project = useSelector(selectToggledProject)
+  const { projectId } = useParams()
+  const project = useSelector(selectProject(projectId))
   const meta = useSelector(selectScenesMeta())
   const dispatch = useDispatch()
+
+  // TODO
+  // load other user
+  // const auth = useSelector(selectAuth)
+  // const isMyProject = project?.user_id === auth.user.id
+  // const user = useSelector(selectUser(project?.user_id))
+  // useEffect(() => {
+  //   if (!project) return
+  //   if (!user) dispatch(loadUser({ id: project.user_id }))
+  // }, [project, user])
+
   const onViewModeChange = (t: 'list' | 'icons') => {
     dispatch(setObjectivePlusStore({ scenesMeta: { ...meta, view: t } }))
   }
   const onOrderChange = (v: OrderMode) => {
     dispatch(setObjectivePlusStore({ scenesMeta: { ...meta, order: v } }))
   }
+
   return (
     <Flex style={{ width: '100%' }} justify={'between'}>
       <Heading
@@ -534,6 +601,7 @@ const ScenesSectionHeader: FC = () => {
         style={{ textDecoration: 'underline', textDecorationThickness: '2px' }}
       >
         {project?.name}
+        {/* TODO {user && <Badge>{user.username || user.email}</Badge>} */}
       </Heading>
       <Flex gap={'1'}>
         <Select.Root value={meta?.order} onValueChange={onOrderChange} size={'1'}>
@@ -611,7 +679,8 @@ const ScenesSectionHeader: FC = () => {
 }
 
 const ScenesSection = () => {
-  const project = useSelector(selectToggledProject)
+  const { projectId } = useParams()
+  const project = useSelector(selectProject(projectId))
   const meta = useSelector(selectScenesMeta())
 
   if (!project || project.is_deleted) return <></>
@@ -625,7 +694,9 @@ const ScenesSection = () => {
 }
 
 const ScenesListAsTable: FC = () => {
-  const scenes = useSelector(selectScenes)
+  const { projectId } = useParams()
+  const project = useSelector(selectProject(projectId))
+  const scenes = useSelector(selectScenes(project?.id))
   return (
     <>
       {scenes.length ? (
@@ -670,7 +741,9 @@ const ScenesListAsTable: FC = () => {
 }
 
 const ScenesListAsIcons: FC = () => {
-  const scenes = useSelector(selectScenes)
+  const { projectId } = useParams()
+  const project = useSelector(selectProject(projectId))
+  const scenes = useSelector(selectScenes(project?.id))
   return (
     <Flex
       wrap={'wrap'}

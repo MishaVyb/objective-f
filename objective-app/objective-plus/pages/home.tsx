@@ -2,13 +2,17 @@ import { Flex } from '@radix-ui/themes'
 import ProjectsSection from '../components/projects'
 import ScenesSection from '../components/scenes'
 
-const HomePage = () => {
+const ProjectsPage = () => {
   return (
-    <Flex>
+    <Flex
+      style={{
+        height: 'calc(100% - 40px)',
+      }}
+    >
       <ProjectsSection />
       <ScenesSection />
     </Flex>
   )
 }
 
-export default HomePage
+export default ProjectsPage

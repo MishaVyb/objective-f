@@ -27,7 +27,7 @@ import {
 import {
   selectCurrentScene,
   selectIsOtherScene,
-  selectProjects,
+  selectMyProjects,
 } from '../../objective-plus/store/projects/reducer'
 import { Sidebar } from '../../../packages/excalidraw'
 import { ACCENT_COLOR } from '../../objective-plus/constants'
@@ -63,7 +63,7 @@ export const CopySceneDialog: FC<{ open: boolean; setOpen: (open: boolean) => vo
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const scene = useSelector(selectCurrentScene)
-  const projects = useSelector(selectProjects)
+  const projects = useSelector(selectMyProjects)
   const [name, setName] = useState(`${scene?.name} (copy)`)
   const [projectSelect, setProjectSelect] = useState(projects[0]?.id)
 

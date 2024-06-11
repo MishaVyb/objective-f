@@ -1,7 +1,7 @@
 import { Button, Flex, Heading, IconButton, Link, Spinner, Text, TextField } from '@radix-ui/themes'
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from '../../../hooks/redux'
-import { loadLogin, loadUser, resetRequestStatusAction } from '../../../store/auth/actions'
+import { loadLogin, loadUserMe, resetRequestStatusAction } from '../../../store/auth/actions'
 import { selectAuthUserAPIErrors, selectAuthIsPending } from '../../../store/auth/reducer'
 
 import { EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
@@ -39,7 +39,7 @@ const LoginPage = () => {
     dispatch(loadLogin(form))
       .unwrap()
       .then(() => {
-        dispatch(loadUser())
+        dispatch(loadUserMe())
       })
   }
 

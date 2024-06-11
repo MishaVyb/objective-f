@@ -18,13 +18,16 @@ import {
   loadSceneContinuos,
   loadUpdateSceneContinuos,
   setObjectivePlusStore,
+  loadProject,
+  loadScene,
+  discardProject,
 } from './actions'
 import { selectAuth } from '../auth/reducer'
 import { AppState, BinaryFileData } from '../../../../packages/excalidraw/types'
 import { TRadixColor } from '../../../objective/UI/colors'
-import { ACCENT_COLOR } from '../../constants'
 import { TResetAuth, resetAuth } from '../auth/actions'
-import { compareDates } from '../../../objective/utils/helpers'
+import { orderBy } from '../../../objective/utils/helpers'
+import { mergeArraysById } from '../helpers'
 
 export interface IBase {
   id: string
@@ -79,7 +82,7 @@ export interface IProjectsState {
   projects: IProject[]
   toggledProjectId: IProject['id'] | undefined // TODO use URL Path param instead
   projectsMeta?: {
-    order?: 'Last created' | 'Last openned' | 'Alphabetical'
+    order?: OrderMode
   }
 
   /** full scenes info for thumbnails render only (scene elements could be outdated) */
@@ -112,16 +115,22 @@ export const initialState: IProjectsState = {
 
 const reducer = createReducer(initialState, (builder) => {
   // -------------------- Regular Actions -----------------------------------------------
+  builder.addCase(setObjectivePlusStore, (state, action) =>
+    saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
+      ...state,
+      ...action.payload,
+    })
+  )
   builder.addCase(toggleProject, (state, action) =>
     saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
       ...state,
       toggledProjectId: action.payload,
     })
   )
-  builder.addCase(setObjectivePlusStore, (state, action) =>
+  builder.addCase(discardProject, (state, action) =>
     saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
       ...state,
-      ...action.payload,
+      projects: state.projects.filter((p) => p.id !== action.payload),
     })
   )
 
@@ -142,19 +151,29 @@ const reducer = createReducer(initialState, (builder) => {
 
   // -------------------- Thunk Actions -----------------------------------------------
 
+  builder.addCase(loadProject.fulfilled, (state, action) =>
+    saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
+      ...state,
+      projects: mergeArraysById(state.projects, [action.payload]),
+    })
+  )
   builder.addCase(loadProjects.fulfilled, (state, action) =>
     saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
       ...state,
-      projects: action.payload,
+      projects: mergeArraysById(state.projects, action.payload),
     })
   )
-
   // Scenes REQUEST LIFECYCLE
-
+  builder.addCase(loadScene.fulfilled, (state, action) =>
+    saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
+      ...state,
+      scenes: mergeArraysById(state.scenes, [action.payload]),
+    })
+  )
   builder.addCase(loadScenes.fulfilled, (state, action) =>
     saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
       ...state,
-      scenes: action.payload,
+      scenes: mergeArraysById(state.scenes, action.payload),
     })
   )
 
@@ -257,41 +276,35 @@ export const selectInitialSceneLoadingIsPending = (state: RootState) =>
   state.projects.initialSceneLoadingIsPending
 
 export const selectError = (state: RootState) => state.projects.error
-
-export const selectProjects = createSelector(
-  (state: RootState) => state.projects,
-  (projects) => projects.projects.filter((p) => !p.is_deleted)
+export const selectProjectsMeta = () => (state: RootState) => state.projects.projectsMeta
+export const selectAllProjects = () => (state: RootState) => state.projects.projects
+export const selectMyProjects = createSelector(
+  [selectAllProjects(), selectProjectsMeta(), selectAuth],
+  (projects, meta, auth) =>
+    projects
+      .filter((p) => !p.is_deleted && p.user_id === auth.user.id)
+      .sort((a, b) => orderBy(meta?.order, a, b))
+)
+export const selectOtherProjects = createSelector(
+  [selectAllProjects(), selectProjectsMeta(), selectAuth],
+  (projects, meta, auth) =>
+    projects
+      .filter((p) => !p.is_deleted && p.user_id !== auth.user.id)
+      .sort((a, b) => orderBy(meta?.order, a, b))
 )
 
-export const selectToggledProjectId = (state: RootState) =>
-  state.projects.toggledProjectId || state.projects.projects[0]?.id
-export const selectToggledProject = (state: RootState) =>
-  state.projects.projects.find((p) => p.id === state.projects.toggledProjectId) ||
-  state.projects.projects[0]
+export const selectProject = (projectId: string | undefined) => (state: RootState) =>
+  state.projects.projects.find((p) => p.id === projectId)
+
 export const selectScenesMeta = () => (state: RootState) => state.projects.scenesMeta
 
 /** Select not deleted scenes of current toggled project */
-export const selectScenes = createSelector(
-  [selectToggledProject, selectScenesMeta()],
-  (project, meta) => {
-    return (project?.scenes?.filter((s) => !s.is_deleted) || []).sort((a, b) => {
-      if (meta?.order === 'alphabetical') return a.name.localeCompare(b.name)
-      if (meta?.order === 'updated') {
-        return compareDates(a.updated_at, b.updated_at, { desc: true })
-      }
-      if (meta?.order === 'updated.desc') {
-        return compareDates(a.updated_at, b.updated_at, { nullFirst: true })
-      }
-      if (meta?.order === 'created.desc') {
-        return compareDates(a.created_at, b.created_at)
-      }
-      if (meta?.order === 'created') {
-        return compareDates(a.created_at, b.created_at, { desc: true })
-      }
-      return compareDates(a.created_at, b.created_at) // default sorting
-    })
-  }
-)
+export const selectScenes = (projectId: string | undefined) =>
+  createSelector([selectProject(projectId), selectScenesMeta()], (project, meta) => {
+    return (project?.scenes?.filter((s) => !s.is_deleted) || []).sort((a, b) =>
+      orderBy(meta?.order, a, b)
+    )
+  })
 
 export const selectSceneFullInfo = (id: ISceneFull['id']) => (state: RootState) =>
   state.projects.scenes.find((s) => s.id === id)

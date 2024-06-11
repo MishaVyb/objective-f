@@ -6,6 +6,7 @@ import {
   fetchDeleteProject,
   fetchDeleteScene,
   fetchFile,
+  fetchProject,
   fetchProjects,
   fetchScene,
   fetchScenes,
@@ -57,6 +58,7 @@ export type TUpdateScenePayload = Partial<
 >
 
 // Thunk args (payloads + any extra arguments)
+export type TGetProjectThunkArg = Pick<IProject, 'id'>
 export type TGetProjectsThunkArg = TQueryBase
 export type TCreateProjectThunkArg = TCreateProjectPayload
 export type TUpdateProjectThunkArg = TUpdateProjectPayload & Pick<IProject, 'id'>
@@ -126,11 +128,21 @@ export const resetAPIError = createAction('projects/resetAPIError')
 export type TResetAPIError = ReturnType<typeof resetAPIError>
 
 export const toggleProject = createAction<IProject['id']>('projects/toggleProject')
+export const discardProject = createAction<IProject['id']>('projects/discardProject')
+
 export const setInitialSceneLoadingIsPending = createAction<boolean>(
   'projects/setInitialLoadingSceneStatus'
 )
 export const setContinuousSceneUpdateIsPending = createAction<boolean>(
   'projects/setContinuousSceneUpdateIsPending'
+)
+
+export const loadProject = createAsyncThunk<
+  TGetProjectResponse,
+  TGetProjectThunkArg,
+  ThunkApiConfig
+>('projects/loadProject', ({ id }, thunkApi) =>
+  safeAsyncThunk(thunkApi, () => fetchProject(id, selectAuth(thunkApi.getState())))
 )
 
 export const loadProjects = createAsyncThunk<
@@ -169,12 +181,21 @@ export const loadDeleteProject = createAsyncThunk<
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/** for Objective Plus logic (for generating thumbnail images) */
+export const loadScene = createAsyncThunk<TGetSceneResponse, TGetSceneThunkArg, ThunkApiConfig>(
+  'projects/loadScene',
+  (arg, thunkApi) =>
+    safeAsyncThunk(thunkApi, () => fetchScene(arg.id, selectAuth(thunkApi.getState())))
+)
+
+/** for Objective Plus logic (for generating thumbnail images) */
 export const loadScenes = createAsyncThunk<TGetScenesResponse, TGetScenesThunkArg, ThunkApiConfig>(
   'projects/loadScenes',
   (query, thunkApi) =>
     safeAsyncThunk(thunkApi, () => fetchScenes(query, selectAuth(thunkApi.getState())))
 )
 
+/** for ObjectiveOuterWrapper logic */
 export const loadSceneInitial = createAsyncThunk<
   TGetSceneResponse,
   TGetSceneThunkArg,
@@ -183,6 +204,7 @@ export const loadSceneInitial = createAsyncThunk<
   safeAsyncThunk(thunkApi, () => fetchScene(arg.id, selectAuth(thunkApi.getState())))
 )
 
+/** for ObjectiveOuterWrapper logic */
 export const loadSceneContinuos = createAsyncThunk<
   TGetSceneResponse,
   TGetSceneThunkArg,

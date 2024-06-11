@@ -218,11 +218,6 @@ const ObjectiveOuterWrapper: FC<{
     return () => clearInterval(interval)
   }, [loading, isMyScene, loadingScene, sceneId, excalidrawApi])
 
-  // in case scene opened by link, toggle scene project
-  useEffect(() => {
-    if (isMyScene && scene) dispatch(toggleProject(scene.project_id))
-  }, [isMyScene, scene, dispatch])
-
   if (userErrors.length)
     return <ObjectiveErrorCollout className='allert-callout-container-center' errors={userErrors} />
 

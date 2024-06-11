@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from '../../../hooks/redux'
 import {
   IUserCreatePayload,
   loadUpdateUser,
-  loadUser,
+  loadUserMe,
   resetRequestStatusAction,
 } from '../../../store/auth/actions'
 import {
@@ -15,12 +15,12 @@ import {
   initialState,
   selectAuthUserAPIErrors,
   selectAuthIsPending,
-  selectUser,
+  selectUserMe,
 } from '../../../store/auth/reducer'
 import ProfileNavbar from './profile-navbar'
 
 const UpdateProfile: FC = () => {
-  const user = useSelector(selectUser)
+  const user = useSelector(selectUserMe)
 
   const [form, setForm] = useState<IUserCreatePayload>({ password: '', ...initialState.user })
 
@@ -59,7 +59,7 @@ const UpdateProfile: FC = () => {
   const EyeIcon = showPassword ? EyeOpenIcon : EyeClosedIcon
 
   useEffect(() => {
-    dispatch(loadUser())
+    dispatch(loadUserMe())
   }, [dispatch])
 
   useEffect(() => {

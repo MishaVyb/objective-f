@@ -3,7 +3,7 @@ import { Badge, Flex, Heading, Link as RadixLink, Separator, Text, Tooltip } fro
 import { FC, ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useSelector } from '../hooks/redux'
-import { selectIsAuthenticated, selectUser } from '../store/auth/reducer'
+import { selectIsAuthenticated, selectUserMe } from '../store/auth/reducer'
 import { ACCENT_COLOR } from '../constants'
 import clsx from 'clsx'
 
@@ -44,7 +44,7 @@ const NavLink: FC<{ to: string; children?: ReactNode }> = ({ to, children }) => 
 
 export const ObjectiveHeader: FC<{ renderLogo: boolean }> = ({ renderLogo }) => {
   const isAuth = useSelector(selectIsAuthenticated)
-  const user = useSelector(selectUser)
+  const user = useSelector(selectUserMe)
 
   return (
     <Flex className='objective-header' pl={'5'} pr={'5'} align={'center'} justify={'between'}>

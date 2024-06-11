@@ -2,6 +2,7 @@ import { GetThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk'
 import { RootState } from './store'
 import { resetAuth } from './auth/actions'
 import { APIError } from './projects/reducer'
+import { ensureMap } from '../../objective/meta/types'
 
 export interface ThunkApiConfig {
   rejectValue: APIError
@@ -104,4 +105,15 @@ export const safeAsyncThunk = async <TResponse>(
       message: 'Something went wrong. Please, try again. ',
     })
   }
+}
+
+/** WARNING order is missing here*/
+export const mergeArraysById = <T extends { id: string }>(prev: Array<T>, next: Array<T>) => {
+  const prevMap = ensureMap(prev)
+  const nextMap = ensureMap(next)
+  const onlyPrevItems = []
+  for (const [k, v] of prevMap.entries()) {
+    if (!nextMap.has(k)) onlyPrevItems.push(v)
+  }
+  return [...onlyPrevItems, ...next]
 }

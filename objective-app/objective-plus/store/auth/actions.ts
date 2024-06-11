@@ -6,9 +6,10 @@ import {
   fetchRegister,
   fetchUpdateUser,
   fetchUser,
+  fetchUserMe,
 } from '../../utils/objective-api'
 import { ThunkApiConfig, safeAsyncThunk } from '../helpers'
-import { IAuthSimplified, ITokens, UserRoles, selectAuth } from './reducer'
+import { IAuthSimplified, ITokens, IUser, UserRoles, selectAuth } from './reducer'
 
 /** login */
 export interface IMakeLoginPayload {
@@ -21,9 +22,8 @@ export interface IUserCreatePayload extends IMakeLoginPayload {
   role?: UserRoles
   username?: string
 }
-
 export type IUserUpdatePayload = Partial<IUserCreatePayload>
-
+export type TGetUserThunkArg = Pick<IUser, 'id'>
 export type TAuthAsyncThunk = AsyncThunk<
   //
   // Returned: request Response
@@ -55,14 +55,20 @@ export const loadLogin = createAsyncThunk<ITokens, IMakeLoginPayload, ThunkApiCo
   (payload, thunkApi) => safeAsyncThunk(thunkApi, () => fetchLogin(payload))
 )
 
-export const loadUser = createAsyncThunk<IAuthSimplified, void, ThunkApiConfig>(
-  'auth/loadUser',
+export const loadUserMe = createAsyncThunk<IAuthSimplified, void, ThunkApiConfig>(
+  'auth/loadUserMe',
   (_, thunkApi) =>
     safeAsyncThunk(thunkApi, async () => ({
       //
       // HACK: `user` is a nested key inside `auth` store
-      user: await fetchUser(selectAuth(thunkApi.getState())),
+      user: await fetchUserMe(selectAuth(thunkApi.getState())),
     }))
+)
+
+export const loadUser = createAsyncThunk<IUser, TGetUserThunkArg, ThunkApiConfig>(
+  'auth/loadUserMe',
+  (arg, thunkApi) =>
+    safeAsyncThunk(thunkApi, async () => await fetchUser(arg.id, selectAuth(thunkApi.getState())))
 )
 
 export const loadRegister = createAsyncThunk<IAuthSimplified, IUserCreatePayload, ThunkApiConfig>(

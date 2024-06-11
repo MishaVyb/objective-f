@@ -1,3 +1,5 @@
+import { IProject, ISceneSimplified, OrderMode } from '../../objective-plus/store/projects/reducer'
+
 export const groupBy = <T extends Record<string, any>>(
   seq: readonly T[],
   field: keyof T
@@ -43,4 +45,25 @@ export const compareDates = (
     return a < b ? 1 : a > b ? -1 : 0
   }
   return a < b ? -1 : a > b ? 1 : 0
+}
+
+export const orderBy = (
+  order: OrderMode | undefined,
+  a: IProject | ISceneSimplified,
+  b: IProject | ISceneSimplified
+) => {
+  if (order === 'alphabetical') return a.name.localeCompare(b.name)
+  if (order === 'updated') {
+    return compareDates(a.updated_at, b.updated_at, { desc: true })
+  }
+  if (order === 'updated.desc') {
+    return compareDates(a.updated_at, b.updated_at, { nullFirst: true })
+  }
+  if (order === 'created.desc') {
+    return compareDates(a.created_at, b.created_at)
+  }
+  if (order === 'created') {
+    return compareDates(a.created_at, b.created_at, { desc: true })
+  }
+  return compareDates(a.created_at, b.created_at) // default sorting
 }

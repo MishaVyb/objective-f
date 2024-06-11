@@ -8,10 +8,12 @@ import {
   TRejectedAction,
   TResetAuth,
   TResetRequestStatusAction,
+  loadUser,
   resetAuth,
   resetRequestStatusAction,
 } from './actions'
 import { APIError } from '../projects/reducer'
+import { mergeArraysById } from '../helpers'
 
 export interface ITokens {
   /** no 'Bearer' prefix */
@@ -55,13 +57,19 @@ export interface RequestFailReason {
 }
 
 export interface IAuthState extends ITokens {
+  /** me */
   user: IUser
+
+  /** other users */
+  users: IUser[]
+
   error: APIError | undefined
   pendingRequest: boolean
 }
 
 export const initialState: IAuthState = {
   user: { id: '', email: '', username: '', role: undefined },
+  users: [],
   access_token: '',
   token_type: 'Bearer',
   error: undefined,
@@ -69,6 +77,13 @@ export const initialState: IAuthState = {
 }
 
 const reducer = createReducer(initialState, (builder) => {
+  builder.addCase(loadUser.fulfilled, (state, action) =>
+    saveToLocalStorage(LOCAL_STORAGE.AUTH, {
+      ...state,
+      users: mergeArraysById(state.users, [action.payload]),
+    })
+  )
+
   // COMMON REQUEST LIFECYCLE
   builder.addMatcher<TPendingAction>(
     (action): action is TPendingAction =>
@@ -103,12 +118,12 @@ const reducer = createReducer(initialState, (builder) => {
   )
 
   // AUTH:
-  // any success
+  // any success // FIXME separate reducer's functions
   builder.addMatcher<TFulfilledAction>(
     (action): action is TFulfilledAction =>
       action.type.startsWith('auth') &&
       action.type.endsWith('/fulfilled') &&
-      action.type.startsWith('auth/'),
+      !action.type.endsWith('/loadUserMe'), //  except getUser
     (state, action) => {
       if (action.payload) {
         return saveToLocalStorage(LOCAL_STORAGE.AUTH, { ...state, ...action.payload })
@@ -135,7 +150,10 @@ export const selectAuthUserAPIErrors = (state: RootState) =>
   state.auth.error?.type === 'UserError' ? state.auth.error.message : undefined
 
 export const selectAuth = (state: RootState) => state.auth
-export const selectUser = (state: RootState) => state.auth.user
+export const selectUserMe = (state: RootState) => state.auth.user
+/** get user Me or from Others */
+export const selectUser = (id: IUser['id'] | undefined) => (state: RootState) =>
+  state.auth.user.id === id ? state.auth.user : state.auth.users.find((v) => v.id === id)
 export const selectIsAuthenticated = (state: RootState) => !!state.auth.access_token
 export const selectAccessToken = (state: RootState) => state.auth.access_token
 

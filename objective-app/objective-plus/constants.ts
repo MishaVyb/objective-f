@@ -15,6 +15,7 @@ export enum ENDPOINTS {
   LOGIN = '/api/auth/jwt/login',
   LOGOUT = '/api/auth/jwt/logout',
   ME = '/api/users/me',
+  USERS = '/api/users',
 
   // projects
   PROJECTS = '/api/projects',

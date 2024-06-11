@@ -1,4 +1,12 @@
-import { DotsVerticalIcon, FilePlusIcon, Pencil2Icon, TrashIcon } from '@radix-ui/react-icons'
+import {
+  ClipboardCopyIcon,
+  Cross1Icon,
+  DotsVerticalIcon,
+  FilePlusIcon,
+  Link2Icon,
+  Pencil2Icon,
+  TrashIcon,
+} from '@radix-ui/react-icons'
 import {
   Button,
   Dialog,
@@ -9,30 +17,41 @@ import {
   Separator,
   Text,
   TextField,
-  Spinner,
+  ScrollArea,
+  Tabs,
+  Strong,
 } from '@radix-ui/themes'
 import clsx from 'clsx'
 import { FC, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from '../hooks/redux'
 import {
+  discardProject,
   loadCreateProject,
   loadDeleteProject,
+  loadProject,
   loadProjects,
+  loadScene,
   loadScenes,
   loadUpdateProject,
-  toggleProject,
 } from '../store/projects/actions'
 import {
   IProject,
-  selectProjects,
+  selectMyProjects,
   selectIsPending,
-  selectToggledProjectId,
+  selectProject,
+  selectAllProjects,
+  selectOtherProjects,
 } from '../store/projects/reducer'
 import { ACCENT_COLOR } from '../constants'
 import { CustomDropDownMenuItem } from '../UI'
+import { useNavigate, useParams } from 'react-router-dom'
+import { selectAuth } from '../store/auth/reducer'
+
+export const getProjectUrl = (id: IProject['id']) => `${window.location.host}/projects/${id}`
 
 const ProjectNewItem: FC = () => {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   const [name, setName] = useState('Untitled Project')
   const [open, setOpen] = useState(false)
 
@@ -41,10 +60,10 @@ const ProjectNewItem: FC = () => {
     dispatch(loadCreateProject({ name }))
       .unwrap()
       .then(
-        (v) =>
+        (project) =>
           dispatch(loadProjects({}))
             .unwrap()
-            .then(() => dispatch(toggleProject(v.id))) // select newly created project
+            .then(() => navigate(`/projects/${project.id}`)) // select newly created project
       )
   }
 
@@ -52,9 +71,12 @@ const ProjectNewItem: FC = () => {
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger>
         <Button
-          style={{ paddingRight: 30, opacity: '80%' }}
-          m='2'
-          variant={'ghost'}
+          style={{
+            opacity: '60%', //
+            width: '96%',
+          }}
+          mt='4'
+          variant={'outline'}
           radius={'none'}
         >
           <FilePlusIcon /> New Project
@@ -98,19 +120,26 @@ const ProjectNewItem: FC = () => {
 
 const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, toggled }) => {
   const dispatch = useDispatch()
-  const [open, setOpen] = useState(false)
+  const navigate = useNavigate()
+  const [isRenameOpen, setRenameOpen] = useState(false)
+  const [isMenuOpen, setMenuOpen] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
   const [name, setName] = useState(project.name)
+  const auth = useSelector(selectAuth)
+  const isMyProject = project.user_id === auth.user.id
+  const url = getProjectUrl(project.id)
 
   const onClick = () => {
-    dispatch(toggleProject(project.id))
+    navigate(`/projects/${project.id}`)
   }
 
   const onRenameActivate = () => {
-    setOpen(true)
+    setRenameOpen(true)
   }
 
   const onRename = () => {
-    setOpen(false)
+    setRenameOpen(false)
     dispatch(loadUpdateProject({ ...project, name: name || 'Untitled Project' }))
       .unwrap()
       .then(() => dispatch(loadProjects({})))
@@ -124,23 +153,23 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
 
   const renameDialogComponent = (
     <Dialog.Root //
-      open={open}
-      onOpenChange={setOpen}
+      open={isRenameOpen}
+      onOpenChange={setRenameOpen}
     >
       <Dialog.Content style={{ maxWidth: 450 }}>
-        <Dialog.Title color={ACCENT_COLOR}>Project</Dialog.Title>
+        <Dialog.Title color={ACCENT_COLOR}>{'Project'}</Dialog.Title>
         <Dialog.Description size='2' mb='4'>
-          Rename Project
+          {'Rename Project'}
         </Dialog.Description>
 
         <label>
           <Text as='div' size='1' mb='1' color={'gray'}>
-            Name
+            {'Name'}
           </Text>
           <TextField.Root
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder='Enter scene name'
+            placeholder='Enter project name'
             onKeyUp={(e) => e.key === 'Enter' && onRename()}
           />
         </label>
@@ -148,12 +177,12 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
         <Flex gap='3' mt='4' justify='end'>
           <Dialog.Close>
             <Button variant='soft' color='gray'>
-              Cancel
+              {'Cancel'}
             </Button>
           </Dialog.Close>
           <Dialog.Close>
             <Button variant={'soft'} onClick={() => onRename()}>
-              Update
+              {'Update'}
             </Button>
           </Dialog.Close>
         </Flex>
@@ -161,10 +190,32 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
     </Dialog.Root>
   )
 
+  const shareDialogComponent = (
+    <Dialog.Root open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+      <Dialog.Content style={{ width: 500, minHeight: 200 }}>
+        <Heading size={'3'} color={ACCENT_COLOR}>
+          {'Public project'}
+        </Heading>
+        <Separator size={'4'} mt={'1'} mb={'3'} />
+        <Text as={'p'} size={'1'}>
+          {'Everyone with a link '}
+          <Strong>{'can view'}</Strong>
+          {' any scene of that project, but can not edit them. '}
+        </Text>
+        <Flex gap={'1'} direction={'row'} justify={'between'} mt={'3'}>
+          <TextField.Root style={{ flexGrow: 1 }} value={url} size='2' readOnly />
+          <IconButton variant={'outline'} color={'gray'} ml={'auto'}>
+            <ClipboardCopyIcon onClick={() => navigator.clipboard.writeText(url)} />
+          </IconButton>
+        </Flex>
+      </Dialog.Content>
+    </Dialog.Root>
+  )
+
   const menu = (
-    <DropdownMenu.Root>
+    <DropdownMenu.Root onOpenChange={(v) => setMenuOpen(v)}>
       <DropdownMenu.Trigger>
-        <IconButton variant={'ghost'} type={'button'} mt={'1'} mr={'2'}>
+        <IconButton variant={'ghost'} type={'button'} mt={'1'} mr={'4'} radius={'none'}>
           <DotsVerticalIcon />
         </IconButton>
       </DropdownMenu.Trigger>
@@ -174,17 +225,48 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
         variant={'soft'} //
         onCloseAutoFocus={(e) => e.preventDefault()}
       >
-        <CustomDropDownMenuItem Icon={Pencil2Icon} text={'Rename'} onClick={onRenameActivate} />
+        <CustomDropDownMenuItem
+          Icon={Pencil2Icon}
+          text={'Rename'}
+          onClick={onRenameActivate} //
+        />
+        <CustomDropDownMenuItem
+          Icon={Link2Icon}
+          text={'Share'}
+          onClick={() => setShareDialogOpen(true)} //
+        />
         <DropdownMenu.Separator />
         <CustomDropDownMenuItem Icon={TrashIcon} text={'Delete'} color='red' onClick={onDelete} />
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   )
+
+  const onDiscardProject = () => {}
+
+  const discardProjectComponent = (
+    <IconButton
+      title='Discard project'
+      color={'gray'}
+      variant={'ghost'}
+      type={'button'}
+      mt={'1'}
+      mr={'4'}
+      radius={'none'} //
+      onClick={() => dispatch(discardProject(project.id))}
+    >
+      <Cross1Icon />
+    </IconButton>
+  )
+
   return (
-    <Flex justify={'between'}>
+    <Flex
+      justify={'between'}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <div
         style={{
-          width: '90%', // leave some space for options button
+          width: 'calc(100% - 45px)', // leave some space for options button
         }}
         className={clsx('projects-toggled-item', { toggled: toggled })}
         onClick={onClick}
@@ -198,52 +280,130 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
           {project.name}
         </Text>
       </div>
-      {toggled && menu}
-      {renameDialogComponent}
+      {isMyProject && (toggled || isHovered || isMenuOpen) && menu}
+      {isMyProject && renameDialogComponent}
+      {shareDialogComponent}
+      {!isMyProject && (toggled || isHovered) && discardProjectComponent}
     </Flex>
   )
 }
 
 const ProjectsSection = () => {
-  const loading = useSelector(selectIsPending)
-  const projects = useSelector(selectProjects)
   const dispatch = useDispatch()
-  const toggledProject = useSelector(selectToggledProjectId)
+  const navigate = useNavigate()
+  const loading = useSelector(selectIsPending)
 
+  const { projectId } = useParams()
+  const currentProject = useSelector(selectProject(projectId))
+
+  // [1] set projectId to path param, if it's not there
+  const allProjects = useSelector(selectAllProjects())
+  const defaultProject = allProjects[0] as IProject | undefined
+  useEffect(() => {
+    if (!projectId && defaultProject) navigate(`/projects/${defaultProject.id}`)
+  }, [projectId, defaultProject])
+
+  // [2] set tab depending on project from url
+  const auth = useSelector(selectAuth)
+  const isMyProject = currentProject?.user_id ? currentProject.user_id === auth.user.id : true
+  const [tabValue, setTabValue] = useState<'my_projects' | 'other_projects'>(
+    isMyProject ? 'my_projects' : 'other_projects'
+  )
+  const [isTabWasChangedByUser, setIsTabWasChangedByUser] = useState(false)
+  useEffect(() => {
+    if (isTabWasChangedByUser) return
+
+    if (isMyProject) setTabValue('my_projects')
+    else setTabValue('other_projects')
+  }, [isTabWasChangedByUser, isMyProject])
+
+  // FIXME
+  // here is might be double request for the same resource (for all scenes, and scene by id)
+  // bu it's needed for now to invalidate external (other user's) scene data stored at local storage
+
+  // load all user's projects
+  const myProjects = useSelector(selectMyProjects)
   useEffect(() => {
     dispatch(loadProjects({}))
       .unwrap()
       .then((projects) => {
+        // load full scenes info here for thumbnails render only
         dispatch(loadScenes({}))
       })
   }, [dispatch])
 
-  return (
-    <Flex
-      m='2'
-      style={{
-        height: '100vh',
-        width: '25vw', // // as scenes use `75vw`
-        minWidth: 140,
-      }}
-      className='objective-box'
-      direction={'column'} //
-      gap={'1'}
-    >
-      <Flex justify={'between'} p='1'>
-        <Heading ml={'2'} size={'2'} style={{ userSelect: 'none' }}>
-          Your Projects
-        </Heading>
-        <Spinner loading={loading} />
-      </Flex>
-      <Separator mt='1' mb='4' size={'4'} />
+  // load current project from path parameters
+  // (means it's other user project access via external link)
+  const otherProjects = useSelector(selectOtherProjects)
+  useEffect(() => {
+    if (projectId)
+      dispatch(loadProject({ id: projectId }))
+        .unwrap()
+        .then((project) => {
+          // // Load full scenes info here for thumbnails render only
+          project.scenes.forEach((scene) => dispatch(loadScene({ id: scene.id })))
+        })
+  }, [projectId, dispatch])
 
-      {projects.map((p) => (
-        <ProjectItem key={p.id} project={p} toggled={p.id === toggledProject} />
-      ))}
-      <ProjectNewItem />
-    </Flex>
+  return (
+    <Tabs.Root value={tabValue} style={{ height: '100%' }}>
+      <Tabs.List>
+        <Tabs.Trigger
+          value='my_projects'
+          onClick={() => {
+            setIsTabWasChangedByUser(true)
+            setTabValue('my_projects')
+          }}
+        >
+          {'My Projects'}
+        </Tabs.Trigger>
+        <Tabs.Trigger
+          value='other_projects'
+          onClick={() => {
+            setIsTabWasChangedByUser(true)
+            setTabValue('other_projects')
+          }}
+        >
+          {'Others'}
+        </Tabs.Trigger>
+      </Tabs.List>
+
+      <Flex
+        pl='2'
+        style={{
+          height: 'calc(100% - 50px)',
+          width: '25vw', // as scenes use `75vw`
+          minWidth: 140,
+        }}
+        className='objective-box'
+        direction={'column'}
+        gap={'1'}
+      >
+        <Tabs.Content
+          value='my_projects'
+          style={{
+            height: 'calc(100% - 20px)', //
+          }}
+        >
+          <ScrollArea mt={'2'} mb={'2'} scrollbars='vertical'>
+            {myProjects.map((p) => (
+              <ProjectItem key={p.id} project={p} toggled={p.id === currentProject?.id} />
+            ))}
+            <ProjectNewItem />
+          </ScrollArea>
+        </Tabs.Content>
+        <Tabs.Content value='other_projects' style={{ height: '100%' }}>
+          <ScrollArea mt={'2'} scrollbars='vertical'>
+            {otherProjects.map((p) => (
+              <ProjectItem key={p.id} project={p} toggled={p.id === currentProject?.id} />
+            ))}
+          </ScrollArea>
+        </Tabs.Content>
+      </Flex>
+    </Tabs.Root>
   )
+
+  return <Flex direction={'column'}></Flex>
 }
 
 export default ProjectsSection

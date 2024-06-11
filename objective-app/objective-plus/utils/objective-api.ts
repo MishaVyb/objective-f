@@ -11,6 +11,7 @@ import {
   TDeleteProjectResponse,
   TDeleteSceneResponse,
   TGetFileResponse,
+  TGetProjectResponse,
   TGetProjectsResponse,
   TGetProjectsThunkArg,
   TGetSceneResponse,
@@ -36,10 +37,20 @@ export const checkResponse = async <T>(response: Response): Promise<T> => {
 
 export const getAuthHeader = (auth: ITokens) => ({ Authorization: `Bearer ${auth.access_token}` })
 
-export const fetchUser = async (auth: IAuthFull) => {
+export const fetchUserMe = async (auth: IAuthFull) => {
   if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
   const res = await fetch(ROOT + ENDPOINTS.ME, {
+    method: 'GET',
+    headers: getAuthHeader(auth),
+  })
+  return await checkResponse<IUserResponse>(res)
+}
+
+export const fetchUser = async (id: IUser['id'], auth: IAuthFull) => {
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+
+  const res = await fetch(ROOT + ENDPOINTS.USERS + `/${id}`, {
     method: 'GET',
     headers: getAuthHeader(auth),
   })
@@ -97,6 +108,16 @@ export const fetchLogout = async (auth: ITokens) => {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const fetchProject = async (id: IProject['id'], auth: IAuthFull) => {
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+
+  const res = await fetch(ROOT + ENDPOINTS.PROJECTS + `/${id}`, {
+    method: 'GET',
+    headers: getAuthHeader(auth),
+  })
+  return await checkResponse<TGetProjectResponse>(res)
+}
 
 export const fetchProjects = async (query: TGetProjectsThunkArg, auth: IAuthFull) => {
   if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
