@@ -34,6 +34,7 @@ import { ERROR_REPR_DELTA_SEC, ObjectiveErrorCollout } from '../../objective-plu
 
 // import after all others
 import { OBJECTIVE_LIB as OBJECTIVE_LIB_ITEMS } from '../lib'
+import { getShotCameraMetas } from '../meta/selectors'
 
 /**
  * saving...
@@ -150,6 +151,11 @@ const ObjectiveOuterWrapper: FC<{
           if (getGridMode(serializedAppState) === -1) {
             serializedAppState.gridSizeConfig = DEFAULT_GRID_MODE.size
             serializedAppState.gridBoldLineFrequency = DEFAULT_GRID_MODE.freq
+          }
+          if (!isMyScene) {
+            if (getShotCameraMetas(serializedElements).length)
+              serializedAppState.openSidebar = { name: 'ShotList' }
+            else serializedAppState.openSidebar = null
           }
 
           excalidrawApi.updateScene({
