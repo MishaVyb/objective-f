@@ -38,20 +38,22 @@ export const useFilesFromLocalOrServer = () => {
           dispatch(loadFile({ sceneId: sceneId, fileId }))
             .unwrap()
             .then((value) => {
-              const newFiles = [
-                {
-                  ...value,
-                  created: new Date().getTime(), // ??? it seems that it works
-                },
-              ]
-              addFilesCallback(newFiles)
+              if (value) {
+                const newFiles = [
+                  {
+                    ...value,
+                    created: new Date().getTime(), // ??? it seems that it works
+                  },
+                ]
+                addFilesCallback(newFiles)
 
-              // this file uploaded from server successfully,
-              // so it's not errored anymore and avaliable for saving
-              LocalData.fileStorage.resetErroredFile(fileId)
-              LocalData.fileStorage.saveFiles({
-                files: Object.fromEntries(newFiles.map((f) => [f.id, f])),
-              })
+                // this file uploaded from server successfully,
+                // so it's not errored anymore and avaliable for saving
+                LocalData.fileStorage.resetErroredFile(fileId)
+                LocalData.fileStorage.saveFiles({
+                  files: Object.fromEntries(newFiles.map((f) => [f.id, f])),
+                })
+              }
             })
         }
       })

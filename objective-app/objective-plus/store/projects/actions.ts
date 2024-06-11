@@ -254,11 +254,18 @@ export const loadDeleteScene = createAsyncThunk<
   safeAsyncThunk(thunkApi, () => fetchDeleteScene(id, selectAuth(thunkApi.getState())))
 )
 
-export const loadFile = createAsyncThunk<TGetFileResponse, TGetFileThunkArg, ThunkApiConfig>(
+export const loadFile = createAsyncThunk<TGetFileResponse | null, TGetFileThunkArg, ThunkApiConfig>(
   'projects/loadFile',
   (arg, thunkApi) =>
-    safeAsyncThunk(thunkApi, () =>
-      fetchFile(arg.sceneId, arg.fileId, selectAuth(thunkApi.getState()))
+    safeAsyncThunk(
+      thunkApi,
+      () => fetchFile(arg.sceneId, arg.fileId, selectAuth(thunkApi.getState())),
+      {
+        _404: (thunkApi, response) => {
+          console.warn('Getting image from server fieled. Storyboard image is gone', response)
+          return null
+        },
+      }
     )
 )
 

@@ -16,7 +16,13 @@ Helper to make fetch request inside AsyncThunk's payloadCreator safely.
 */
 export const safeAsyncThunk = async <TResponse>(
   thunkApi: GetThunkAPI<ThunkApiConfig>,
-  callback: () => Promise<TResponse>
+  callback: () => Promise<TResponse>,
+  customHandlers?: {
+    _404?: (
+      thunkApi: GetThunkAPI<ThunkApiConfig>,
+      response: Response
+    ) => ReturnType<typeof thunkApi.rejectWithValue> | TResponse
+  }
 ) => {
   try {
     return await callback()
@@ -70,6 +76,7 @@ export const safeAsyncThunk = async <TResponse>(
       }
 
       if (response.status === 404) {
+        if (customHandlers?._404) return customHandlers?._404(thunkApi, response)
         return thunkApi.rejectWithValue({
           type: 'UserError',
           message: 'Not found. ',
