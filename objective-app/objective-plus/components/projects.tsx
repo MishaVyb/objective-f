@@ -20,6 +20,7 @@ import {
   ScrollArea,
   Tabs,
   Strong,
+  Spinner,
 } from '@radix-ui/themes'
 import clsx from 'clsx'
 import { FC, useEffect, useState } from 'react'
@@ -366,6 +367,16 @@ const ProjectsSection = () => {
         >
           {'Others'}
         </Tabs.Trigger>
+        <Flex
+          mt={'3'}
+          style={{
+            width: '100%',
+            // border: '1px dashed red', //
+          }}
+          justify={'end'}
+        >
+          {loading && <Spinner />}
+        </Flex>
       </Tabs.List>
 
       <Flex

@@ -99,11 +99,14 @@ const AddSceneItem: FC = () => {
   const [open, setOpen] = useState(state?.openAddSceneDialog || false)
   const nameInputRef = useRef<HTMLInputElement>(null)
   const meta = useSelector(selectScenesMeta())
+  const auth = useSelector(selectAuth)
+  const isMyProject = project?.user_id === auth.user.id
 
   // Excalidraw initialize appState from last openned scene (from local storage)
   const lastUsedAppState: RestoredAppState = getDefaultAppState()
 
   if (!project) return <></>
+  if (!isMyProject) return <></>
 
   const onOpenChange = (open: boolean) => {
     setOpen(open)
