@@ -17,6 +17,7 @@ import { selectAuth } from '../auth/reducer'
 import { ThunkApiConfig, safeAsyncThunk } from '../helpers'
 import { IProject, IProjectsState, ISceneFull } from './reducer'
 import { BinaryFileData } from '../../../../packages/excalidraw/types'
+import { MarkOptional } from '../../../../packages/excalidraw/utility-types'
 
 // Responses
 export type TGetProjectResponse = IProject
@@ -40,7 +41,10 @@ export type TQueryBase = {
 }
 
 export type TCreateProjectPayload = Pick<IProject, 'name'>
-export type TUpdateProjectPayload = Pick<IProject, 'name'>
+export type TUpdateProjectPayload = MarkOptional<
+  Pick<IProject, 'name' | 'is_deleted'>,
+  'name' | 'is_deleted'
+>
 
 export type TCreateScenePayload = Pick<ISceneFull, 'name' | 'project_id' | 'appState' | 'elements'>
 export type TUpdateScenePayload = Partial<
@@ -165,9 +169,9 @@ export const loadUpdateProject = createAsyncThunk<
   TUpdateProjectResponse,
   TUpdateProjectThunkArg,
   ThunkApiConfig
->('projects/loadUpdateProject', ({ id, name }, thunkApi) =>
+>('projects/loadUpdateProject', ({ id, name, is_deleted }, thunkApi) =>
   safeAsyncThunk(thunkApi, () =>
-    fetchUpdateProject(id, { name: name }, selectAuth(thunkApi.getState()))
+    fetchUpdateProject(id, { name, is_deleted }, selectAuth(thunkApi.getState()))
   )
 )
 

@@ -285,6 +285,13 @@ export const selectMyProjects = createSelector(
       .filter((p) => !p.is_deleted && p.user_id === auth.user.id)
       .sort((a, b) => orderBy(meta?.order, a, b))
 )
+export const selectMyDeletedProjects = createSelector(
+  [selectAllProjects(), selectProjectsMeta(), selectAuth],
+  (projects, meta, auth) =>
+    projects
+      .filter((p) => p.is_deleted && p.user_id === auth.user.id)
+      .sort((a, b) => orderBy(meta?.order, a, b))
+)
 export const selectOtherProjects = createSelector(
   [selectAllProjects(), selectProjectsMeta(), selectAuth],
   (projects, meta, auth) =>

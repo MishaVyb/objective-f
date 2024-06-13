@@ -17,6 +17,7 @@ import {
   TGetSceneResponse,
   TGetScenesResponse,
   TGetScenesThunkArg,
+  TUpdateProjectPayload,
   TUpdateProjectResponse,
   TUpdateScenePayload,
   TUpdateSceneResponse,
@@ -123,9 +124,11 @@ export const fetchProjects = async (query: TGetProjectsThunkArg, auth: IAuthFull
   if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
   const urlParams = new URLSearchParams()
-  if (query.is_deleted) urlParams.append('is_deleted', 'True')
+  if (query.is_deleted === true) urlParams.append('is_deleted', 'True')
+  if (query.is_deleted === false) urlParams.append('is_deleted', 'False')
+  const urlParamsStr = urlParams ? `?${urlParams}` : ''
 
-  const res = await fetch(ROOT + ENDPOINTS.PROJECTS + urlParams, {
+  const res = await fetch(ROOT + ENDPOINTS.PROJECTS + urlParamsStr, {
     method: 'GET',
     headers: getAuthHeader(auth),
   })
@@ -145,7 +148,7 @@ export const fetchCreateProject = async (body: TCreateProjectPayload, auth: IAut
 
 export const fetchUpdateProject = async (
   id: IProject['id'],
-  body: TCreateProjectPayload,
+  body: TUpdateProjectPayload,
   auth: IAuthFull
 ) => {
   if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
@@ -184,10 +187,12 @@ export const fetchScene = async (id: ISceneFull['id'], auth: IAuthFull) => {
 export const fetchScenes = async (query: TGetScenesThunkArg, auth: IAuthFull) => {
   if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
-  const urlParams = new URLSearchParams()
-  if (query.is_deleted) urlParams.append('is_deleted', 'True')
+    const urlParams = new URLSearchParams()
+    if (query.is_deleted === true) urlParams.append('is_deleted', 'True')
+    if (query.is_deleted === false) urlParams.append('is_deleted', 'False')
+    const urlParamsStr = urlParams ? `?${urlParams}` : ''
 
-  const res = await fetch(ROOT + ENDPOINTS.SCENES + urlParams, {
+  const res = await fetch(ROOT + ENDPOINTS.SCENES + urlParamsStr, {
     method: 'GET',
     headers: getAuthHeader(auth),
   })

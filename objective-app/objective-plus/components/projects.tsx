@@ -3,8 +3,10 @@ import {
   Cross1Icon,
   DotsVerticalIcon,
   FilePlusIcon,
+  HomeIcon,
   Link2Icon,
   Pencil2Icon,
+  ResetIcon,
   TrashIcon,
 } from '@radix-ui/react-icons'
 import {
@@ -42,6 +44,7 @@ import {
   selectProject,
   selectAllProjects,
   selectOtherProjects,
+  selectMyDeletedProjects,
 } from '../store/projects/reducer'
 import { ACCENT_COLOR } from '../constants'
 import { CustomDropDownMenuItem } from '../UI'
@@ -149,7 +152,11 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
   const onDelete = () => {
     dispatch(loadDeleteProject({ id: project.id }))
       .unwrap()
-      .then(() => dispatch(loadProjects({})))
+      .then(() => {
+        dispatch(loadProjects({ is_deleted: false }))
+        dispatch(loadProjects({ is_deleted: true }))
+        navigate('/projects')
+      })
   }
 
   const renameDialogComponent = (
@@ -242,8 +249,6 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
     </DropdownMenu.Root>
   )
 
-  const onDiscardProject = () => {}
-
   const discardProjectComponent = (
     <IconButton
       title='Discard project'
@@ -256,6 +261,27 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
       onClick={() => dispatch(discardProject(project.id))}
     >
       <Cross1Icon />
+    </IconButton>
+  )
+
+  const onRecover = () =>
+    dispatch(loadUpdateProject({ id: project.id, is_deleted: false }))
+      .unwrap()
+      .then(() => {
+        dispatch(loadProjects({}))
+      })
+  const recoverProjectComponent = (
+    <IconButton
+      title='Recover project'
+      color={'gray'}
+      variant={'ghost'}
+      type={'button'}
+      mt={'1'}
+      mr={'4'}
+      radius={'none'} //
+      onClick={onRecover}
+    >
+      <ResetIcon />
     </IconButton>
   )
 
@@ -281,13 +307,16 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
           {project.name}
         </Text>
       </div>
-      {isMyProject && (toggled || isHovered || isMenuOpen) && menu}
-      {isMyProject && renameDialogComponent}
-      {shareDialogComponent}
-      {!isMyProject && (toggled || isHovered) && discardProjectComponent}
+      {!project.is_deleted && isMyProject && (toggled || isHovered || isMenuOpen) && menu}
+      {!project.is_deleted && isMyProject && renameDialogComponent}
+      {!project.is_deleted && shareDialogComponent}
+      {!project.is_deleted && !isMyProject && (toggled || isHovered) && discardProjectComponent}
+      {project.is_deleted && (toggled || isHovered) && recoverProjectComponent}
     </Flex>
   )
 }
+
+export type ProjectsSectionTabs = 'my_projects' | 'other_projects' | 'deleted_projects'
 
 const ProjectsSection = () => {
   const dispatch = useDispatch()
@@ -307,13 +336,12 @@ const ProjectsSection = () => {
   // [2] set tab depending on project from url
   const auth = useSelector(selectAuth)
   const isMyProject = currentProject?.user_id ? currentProject.user_id === auth.user.id : true
-  const [tabValue, setTabValue] = useState<'my_projects' | 'other_projects'>(
+  const [tabValue, setTabValue] = useState<ProjectsSectionTabs>(
     isMyProject ? 'my_projects' : 'other_projects'
   )
   const [isTabWasChangedByUser, setIsTabWasChangedByUser] = useState(false)
   useEffect(() => {
     if (isTabWasChangedByUser) return
-
     if (isMyProject) setTabValue('my_projects')
     else setTabValue('other_projects')
   }, [isTabWasChangedByUser, isMyProject])
@@ -322,15 +350,17 @@ const ProjectsSection = () => {
   // here is might be double request for the same resource (for all scenes, and scene by id)
   // bu it's needed for now to invalidate external (other user's) scene data stored at local storage
 
-  // load all user's projects
+  // load all user's projects (incl deleted)
   const myProjects = useSelector(selectMyProjects)
+  const deletedProjects = useSelector(selectMyDeletedProjects)
   useEffect(() => {
-    dispatch(loadProjects({}))
+    dispatch(loadProjects({ is_deleted: false }))
       .unwrap()
       .then((projects) => {
         // load full scenes info here for thumbnails render only
         dispatch(loadScenes({}))
       })
+    dispatch(loadProjects({ is_deleted: true }))
   }, [dispatch])
 
   // load current project from path parameters
@@ -341,8 +371,9 @@ const ProjectsSection = () => {
       dispatch(loadProject({ id: projectId }))
         .unwrap()
         .then((project) => {
-          // // Load full scenes info here for thumbnails render only
-          project.scenes.forEach((scene) => dispatch(loadScene({ id: scene.id })))
+          // Load full scenes info here for thumbnails render only
+          if (!project.is_deleted)
+            project.scenes.forEach((scene) => dispatch(loadScene({ id: scene.id })))
         })
   }, [projectId, dispatch])
 
@@ -356,7 +387,8 @@ const ProjectsSection = () => {
             setTabValue('my_projects')
           }}
         >
-          {'My Projects'}
+          <HomeIcon />
+          <Text ml='2'>{'My'}</Text>
         </Tabs.Trigger>
         <Tabs.Trigger
           value='other_projects'
@@ -365,16 +397,19 @@ const ProjectsSection = () => {
             setTabValue('other_projects')
           }}
         >
-          {'Others'}
+          <Link2Icon />
+          <Text ml='2'>{'Others'}</Text>
         </Tabs.Trigger>
-        <Flex
-          mt={'3'}
-          style={{
-            width: '100%',
-            // border: '1px dashed red', //
+        <Tabs.Trigger
+          value='deleted_projects'
+          onClick={() => {
+            setIsTabWasChangedByUser(true)
+            setTabValue('deleted_projects')
           }}
-          justify={'end'}
         >
+          <TrashIcon color='red' />
+        </Tabs.Trigger>
+        <Flex mt={'3'} style={{ width: '100%' }} justify={'end'}>
           {loading && <Spinner />}
         </Flex>
       </Tabs.List>
@@ -384,7 +419,7 @@ const ProjectsSection = () => {
         style={{
           height: 'calc(100% - 50px)',
           width: '25vw', // as scenes use `75vw`
-          minWidth: 140,
+          minWidth: 270,
         }}
         className='objective-box'
         direction={'column'}
@@ -410,11 +445,16 @@ const ProjectsSection = () => {
             ))}
           </ScrollArea>
         </Tabs.Content>
+        <Tabs.Content value='deleted_projects' style={{ height: '100%' }}>
+          <ScrollArea mt={'2'} scrollbars='vertical'>
+            {deletedProjects.map((p) => (
+              <ProjectItem key={p.id} project={p} toggled={p.id === currentProject?.id} />
+            ))}
+          </ScrollArea>
+        </Tabs.Content>
       </Flex>
     </Tabs.Root>
   )
-
-  return <Flex direction={'column'}></Flex>
 }
 
 export default ProjectsSection

@@ -8,6 +8,7 @@ import {
   Link2Icon,
   ListBulletIcon,
   Pencil2Icon,
+  ResetIcon,
   TextAlignBottomIcon,
   TextAlignTopIcon,
   TrashIcon,
@@ -39,6 +40,7 @@ import {
   loadProjects,
   loadSceneInitial,
   loadScenes,
+  loadUpdateProject,
   loadUpdateScene,
   setObjectivePlusStore,
 } from '../store/projects/actions'
@@ -64,8 +66,7 @@ import { getSceneVisibleFileIds, useFilesFromLocalOrServer } from '../store/proj
 import { isObjectiveHidden } from '../../objective/meta/types'
 import { CustomDropDownMenuItem } from '../UI'
 import { MySceneShareOptions } from '../../objective/components/TopRightUI'
-import { selectAuth, selectUser } from '../store/auth/reducer'
-import { loadUser } from '../store/auth/actions'
+import { selectAuth } from '../store/auth/reducer'
 
 const DEFAULT_SCENE_NAME = 'Untitled Scene'
 
@@ -682,11 +683,46 @@ const ScenesSectionHeader: FC = () => {
 }
 
 const ScenesSection = () => {
+  const dispatch = useDispatch()
   const { projectId } = useParams()
   const project = useSelector(selectProject(projectId))
+  const auth = useSelector(selectAuth)
   const meta = useSelector(selectScenesMeta())
 
-  if (!project || project.is_deleted) return <></>
+  if (!project) return <></>
+
+  const isMyProject = project.user_id === auth.user.id
+  const onRecover = () =>
+    dispatch(loadUpdateProject({ id: project.id, is_deleted: false }))
+      .unwrap()
+      .then(() => {
+        dispatch(loadProjects({}))
+      })
+
+  if (project.is_deleted)
+    return (
+      <Flex
+        style={{
+          width: '100%',
+          height: '100%',
+        }}
+        justify={'center'}
+        align={'center'}
+        direction={'column'}
+        gap={'2'}
+      >
+        <Badge color='red'>
+          <TrashIcon />
+          {'This project has been deleted'}
+        </Badge>
+        {isMyProject && (
+          <Button variant='outline' color='gray' size='1' onClick={onRecover}>
+            <ResetIcon />
+            {'Recover'}
+          </Button>
+        )}
+      </Flex>
+    )
 
   return (
     <Box p={'5'} style={{ width: '100%' }}>
