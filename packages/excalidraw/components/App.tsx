@@ -8427,6 +8427,12 @@ class App extends React.Component<AppProps, AppState> {
       throw new Error(t("errors.imageInsertError"));
     }
 
+    console.info(
+      `Getting file from user input. Size MB. `,
+      imageFile.size / 1024 / 1025,
+      imageFile,
+    );
+
     const existingFileData = this.files[fileId];
     if (!existingFileData?.dataURL) {
       try {
@@ -8439,6 +8445,12 @@ class App extends React.Component<AppProps, AppState> {
           error,
         );
       }
+
+      console.info(
+        `Compress file from user input. Size MB. `,
+        imageFile.size / 1024 / 1025,
+        imageFile,
+      );
 
       if (imageFile.size > MAX_ALLOWED_FILE_BYTES) {
         throw new Error(

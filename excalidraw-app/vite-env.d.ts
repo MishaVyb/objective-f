@@ -40,6 +40,9 @@ interface ImportMetaEnv {
   PROD: string;
 
   // VBRN
+  VITE_APP_MAX_IMAGE_WIDTH_OR_HEIGHT: string;
+  VITE_APP_MAX_ALLOWED_FILE_BYTES: string;
+
   VITE_APP_OBJECTIVE_HOST: string;
   VITE_APP_OBJECTIVE_AUTO_SAVE_INTERVAL: string; // sec
   VITE_APP_OBJECTIVE_AUTO_LOAD_INTERVAL: string; // sec
