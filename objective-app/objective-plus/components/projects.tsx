@@ -50,8 +50,7 @@ import { ACCENT_COLOR } from '../constants'
 import { CustomDropDownMenuItem } from '../UI'
 import { useNavigate, useParams } from 'react-router-dom'
 import { selectAuth } from '../store/auth/reducer'
-
-export const getProjectUrl = (id: IProject['id']) => `${window.location.host}/projects/${id}`
+import { buildProjectUrl } from './app'
 
 const ProjectNewItem: FC = () => {
   const dispatch = useDispatch()
@@ -132,7 +131,7 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
   const [name, setName] = useState(project.name)
   const auth = useSelector(selectAuth)
   const isMyProject = project.user_id === auth.user.id
-  const url = getProjectUrl(project.id)
+  const url = buildProjectUrl(project.id)
 
   const onClick = () => {
     navigate(`/projects/${project.id}`)

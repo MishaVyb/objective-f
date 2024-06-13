@@ -18,7 +18,7 @@ import { ObjectiveHeader } from './header'
 import RouteDispatch from './route-dispatch'
 import DebugPage from '../pages/debug'
 import { ObjectiveErrorCollout } from './errors'
-import { selectNotUserAPIErrors } from '../store/projects/reducer'
+import { IProject, ISceneFull, selectNotUserAPIErrors } from '../store/projects/reducer'
 import { useSelector } from '../hooks/redux'
 import { useViewport } from '../../objective/hooks/useVieport'
 
@@ -33,6 +33,13 @@ const ScheckSentry: FC = () => {
 
   return <NotFoundPage />
 }
+
+export const getFullPath = () => window.location.href
+
+export const buildFullPath = (child: string) =>
+  window.location.protocol + '//' + window.location.host + child
+export const buildSceneUrl = (id: ISceneFull['id']) => buildFullPath(`/scenes/${id}`)
+export const buildProjectUrl = (id: IProject['id']) => buildFullPath(`/projects/${id}`)
 
 const ObjectivePlusApp: FC = () => {
   const location = useLocation()

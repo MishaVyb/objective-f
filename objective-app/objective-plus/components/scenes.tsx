@@ -69,6 +69,7 @@ import { CustomDropDownMenuItem } from '../UI'
 import { MySceneShareOptions } from '../../objective/components/TopRightUI'
 import { selectAuth } from '../store/auth/reducer'
 import { objectValues } from '../../objective/utils/types'
+import { buildSceneUrl } from './app'
 
 const DEFAULT_SCENE_NAME = 'Untitled Scene'
 
@@ -261,8 +262,6 @@ const AddSceneItem: FC = () => {
 
 // TODO
 const ScenesThumbnailsCache = new Map<ISceneFull['id'], SVGSVGElement>([])
-
-export const getSceneUrl = (id: ISceneFull['id']) => `${window.location.host}/scenes/${id}`
 
 const useSceneThumbnailURL = (scene: ISceneSimplified) => {
   const fetchFiles = useFilesFromLocalOrServer()
@@ -533,7 +532,7 @@ const SceneDropDownMenu: FC<{ scene: ISceneSimplified; onRename: () => void }> =
 
       <Dialog.Root open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
         <Dialog.Content style={{ width: 500, minHeight: 200 }}>
-          <MySceneShareOptions url={getSceneUrl(scene.id)} />
+          <MySceneShareOptions url={buildSceneUrl(scene.id)} />
         </Dialog.Content>
       </Dialog.Root>
     </div>

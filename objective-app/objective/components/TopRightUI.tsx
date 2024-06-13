@@ -32,9 +32,10 @@ import {
 } from '../../objective-plus/store/projects/reducer'
 import { Sidebar } from '../../../packages/excalidraw'
 import { ACCENT_COLOR } from '../../objective-plus/constants'
+import { getFullPath } from '../../objective-plus/components/app'
 
 export const MySceneShareOptions: FC<{ url?: string }> = (props) => {
-  const url = props.url || window.location.href
+  const url = props.url || getFullPath()
   return (
     <>
       <Heading size={'3'} color={ACCENT_COLOR}>
