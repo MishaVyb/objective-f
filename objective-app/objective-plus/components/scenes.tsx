@@ -35,11 +35,12 @@ import { FC, ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import EditableTextInput from '../UI/editable-text'
 import { useDispatch, useSelector } from '../hooks/redux'
 import {
+  loadCopyScene,
   loadCreateScene,
   loadDeleteScene,
+  loadProject,
   loadProjects,
-  loadSceneInitial,
-  loadScenes,
+  loadScene,
   loadUpdateProject,
   loadUpdateScene,
   setObjectivePlusStore,
@@ -67,6 +68,7 @@ import { isObjectiveHidden } from '../../objective/meta/types'
 import { CustomDropDownMenuItem } from '../UI'
 import { MySceneShareOptions } from '../../objective/components/TopRightUI'
 import { selectAuth } from '../store/auth/reducer'
+import { objectValues } from '../../objective/utils/types'
 
 const DEFAULT_SCENE_NAME = 'Untitled Scene'
 
@@ -122,6 +124,7 @@ const AddSceneItem: FC = () => {
         project_id: project?.id,
         appState: lastUsedAppState,
         elements: [],
+        files: [],
       })
     )
       .unwrap()
@@ -134,19 +137,17 @@ const AddSceneItem: FC = () => {
         dispatch(
           loadCreateScene({
             name: v.appState.name,
-            project_id: project?.id,
+            project_id: project.id,
             appState: v.appState,
             elements: v.elements,
-
-            // HACK
-            // files migrations from one scene to another works out of the box, as we have the
-            // same fileIds that shared among any scenes. So, when we use some ImageElement from
-            // another scene at new scene, it will point to the same fileId
-            // files: v.files,
+            files: objectValues(v.files),
           })
         )
           .unwrap()
-          .then(() => dispatch(loadProjects({})))
+          .then((scene) => {
+            dispatch(loadProject({ id: scene.project_id }))
+            dispatch(loadScene({ id: scene.id }))
+          })
       )
       .catch((error) => {
         if (error?.name === 'AbortError') {
@@ -411,18 +412,13 @@ const SceneDropDownMenu: FC<{ scene: ISceneSimplified; onRename: () => void }> =
   }
 
   const onDuplicate = () => {
-    dispatch(loadSceneInitial({ id: scene.id }))
+    // NOTE: do not change scene name here, used does it by himself if he wanna
+    dispatch(loadCopyScene({ id: scene.id }))
       .unwrap()
-      .then((scene) =>
-        dispatch(loadCreateScene({ ...scene, name: scene.name + ' [duplicate]' })) // TODO: counter
-          .unwrap()
-          .then(() => {
-            dispatch(loadProjects({}))
-            //
-            // TODO request only 1 scene and insert that scene into store
-            dispatch(loadScenes({}))
-          })
-      )
+      .then((scene) => {
+        dispatch(loadProject({ id: scene.project_id }))
+        dispatch(loadScene({ id: scene.id }))
+      })
   }
 
   const onMoveTo = (p: IProject) => {
@@ -432,18 +428,14 @@ const SceneDropDownMenu: FC<{ scene: ISceneSimplified; onRename: () => void }> =
   }
 
   const onCopyTo = (p: IProject) => {
-    dispatch(loadSceneInitial({ id: scene.id }))
+    dispatch(loadCopyScene({ id: scene.id, project_id: p.id }))
       .unwrap()
-      .then((scene) =>
-        dispatch(loadCreateScene({ ...scene, name: scene.name, project_id: p.id }))
+      .then((scene) => {
+        dispatch(loadProject({ id: scene.project_id }))
+        dispatch(loadScene({ id: scene.id }))
           .unwrap()
-          .then(() => {
-            dispatch(loadProjects({}))
-            //
-            // TODO request only 1 scene and insert that scene into store
-            dispatch(loadScenes({}))
-          })
-      )
+          .then((scene) => navigate(`/projects/${scene.project_id}`))
+      })
   }
 
   const onExportClick = () => {

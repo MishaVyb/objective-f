@@ -19,10 +19,11 @@ import { FC, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from '../../objective-plus/hooks/redux'
 import {
+  loadCopyScene,
   loadCreateProject,
-  loadCreateScene,
+  loadProject,
   loadProjects,
-  loadSceneInitial,
+  loadScene,
 } from '../../objective-plus/store/projects/actions'
 import {
   selectCurrentScene,
@@ -64,7 +65,7 @@ export const CopySceneDialog: FC<{ open: boolean; setOpen: (open: boolean) => vo
   const navigate = useNavigate()
   const scene = useSelector(selectCurrentScene)
   const projects = useSelector(selectMyProjects)
-  const [name, setName] = useState(`${scene?.name} (copy)`)
+  const [name, setName] = useState(`${scene?.name}`) // TODO add 'by username' here ???
   const [projectSelect, setProjectSelect] = useState(projects[0]?.id)
 
   useEffect(() => {
@@ -79,13 +80,15 @@ export const CopySceneDialog: FC<{ open: boolean; setOpen: (open: boolean) => vo
 
   const onDuplicate = () => {
     setIsDuplicateLoading(true) // FIXME doesn't work
-    dispatch(loadSceneInitial({ id: scene.id }))
+
+    dispatch(loadCopyScene({ id: scene.id, project_id: projectSelect, name }))
       .unwrap()
-      .then((scene) =>
-        dispatch(loadCreateScene({ ...scene, project_id: projectSelect, name: name }))
+      .then((scene) => {
+        dispatch(loadProject({ id: scene.project_id }))
           .unwrap()
-          .then((scene) => navigate('/projects'))
-      )
+          .then(() => navigate(`/projects/${scene.project_id}`))
+        dispatch(loadScene({ id: scene.id }))
+      })
   }
 
   return (

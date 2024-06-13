@@ -60,7 +60,10 @@ export interface IAuthState extends ITokens {
   /** me */
   user: IUser
 
-  /** other users */
+  /**
+   * other users
+   * @deprecated // UNUSED user info should be included into project/scene as nested object
+   * */
   users: IUser[]
 
   error: APIError | undefined
@@ -76,6 +79,7 @@ export const initialState: IAuthState = {
   pendingRequest: false,
 }
 
+// UNUSED user info should be included into project/scene as nested object
 const reducer = createReducer(initialState, (builder) => {
   builder.addCase(loadUser.fulfilled, (state, action) =>
     saveToLocalStorage(LOCAL_STORAGE.AUTH, {
@@ -151,7 +155,10 @@ export const selectAuthUserAPIErrors = (state: RootState) =>
 
 export const selectAuth = (state: RootState) => state.auth
 export const selectUserMe = (state: RootState) => state.auth.user
-/** get user Me or from Others */
+/**
+ * get user Me or from Others
+ * @deprecated // UNUSED user info should be included into project/scene as nested object
+ * */
 export const selectUser = (id: IUser['id'] | undefined) => (state: RootState) =>
   state.auth.user.id === id ? state.auth.user : state.auth.users.find((v) => v.id === id)
 export const selectIsAuthenticated = (state: RootState) => !!state.auth.access_token

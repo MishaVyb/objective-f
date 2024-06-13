@@ -48,6 +48,7 @@ export const fetchUserMe = async (auth: IAuthFull) => {
   return await checkResponse<IUserResponse>(res)
 }
 
+// UNUSED user info should be included into project/scene as nested object
 export const fetchUser = async (id: IUser['id'], auth: IAuthFull) => {
   if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
@@ -187,10 +188,10 @@ export const fetchScene = async (id: ISceneFull['id'], auth: IAuthFull) => {
 export const fetchScenes = async (query: TGetScenesThunkArg, auth: IAuthFull) => {
   if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
 
-    const urlParams = new URLSearchParams()
-    if (query.is_deleted === true) urlParams.append('is_deleted', 'True')
-    if (query.is_deleted === false) urlParams.append('is_deleted', 'False')
-    const urlParamsStr = urlParams ? `?${urlParams}` : ''
+  const urlParams = new URLSearchParams()
+  if (query.is_deleted === true) urlParams.append('is_deleted', 'True')
+  if (query.is_deleted === false) urlParams.append('is_deleted', 'False')
+  const urlParamsStr = urlParams ? `?${urlParams}` : ''
 
   const res = await fetch(ROOT + ENDPOINTS.SCENES + urlParamsStr, {
     method: 'GET',
@@ -208,6 +209,21 @@ export const fetchCreateScene = async (body: TCreateScenePayload, auth: IAuthFul
     body: JSON.stringify(body),
   })
   return await checkResponse<TCreateSceneResponse>(res)
+}
+
+export const fetchCopyScene = async (
+  id: ISceneFull['id'],
+  body: TUpdateScenePayload,
+  auth: IAuthFull
+) => {
+  if (__DEBUG_API_FREEZE_MS) await new Promise((r) => setTimeout(r, __DEBUG_API_FREEZE_MS))
+
+  const res = await fetch(ROOT + ENDPOINTS.SCENES + `/${id}/copy`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeader(auth) },
+    body: JSON.stringify(body),
+  })
+  return await checkResponse<TUpdateSceneResponse>(res)
 }
 
 export const fetchUpdateScene = async (

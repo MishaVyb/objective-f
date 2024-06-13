@@ -9,9 +9,10 @@ import { isInitializedImageElement } from '../../../../packages/excalidraw/eleme
 
 export const getSceneVisibleFileIds = (scene: ISceneFull) =>
   scene.elements
-    .filter(isInitializedImageElement)
-    .filter((e) => !e.isDeleted && e.opacity)
-    .map((e) => e.fileId)
+      .filter(isInitializedImageElement)
+      .filter((e) => !e.isDeleted && e.opacity)
+      .map((e) => e.fileId)
+  }
 
 export const useFilesFromLocalOrServer = () => {
   const dispatch = useDispatch()

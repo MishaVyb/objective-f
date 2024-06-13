@@ -1,5 +1,6 @@
 import { AsyncThunk, createAction, createAsyncThunk } from '@reduxjs/toolkit'
 import {
+  fetchCopyScene,
   fetchCreateFile,
   fetchCreateProject,
   fetchCreateScene,
@@ -46,7 +47,11 @@ export type TUpdateProjectPayload = MarkOptional<
   'name' | 'is_deleted'
 >
 
-export type TCreateScenePayload = Pick<ISceneFull, 'name' | 'project_id' | 'appState' | 'elements'>
+export type TCreateScenePayload = Pick<
+  ISceneFull,
+  'name' | 'project_id' | 'appState' | 'elements'
+> & { files: BinaryFileData[] }
+
 export type TUpdateScenePayload = Partial<
   Pick<
     ISceneFull,
@@ -72,6 +77,7 @@ export type TGetSceneThunkArg = Pick<ISceneFull, 'id'>
 export type TGetScenesThunkArg = TQueryBase
 export type TCreateSceneThunkArg = TCreateScenePayload
 export type TUpdateSceneThunkArg = TUpdateScenePayload & Pick<ISceneFull, 'id'>
+export type TCopySceneThunkArg = TUpdateScenePayload & Pick<ISceneFull, 'id'>
 export type TDeleteSceneThunkArg = Pick<ISceneFull, 'id'>
 
 export type TGetFileThunkArg = {
@@ -223,6 +229,14 @@ export const loadCreateScene = createAsyncThunk<
   ThunkApiConfig
 >('projects/loadCreateScene', (arg, thunkApi) =>
   safeAsyncThunk(thunkApi, () => fetchCreateScene(arg, selectAuth(thunkApi.getState())))
+)
+
+export const loadCopyScene = createAsyncThunk<
+  TCreateSceneResponse,
+  TCopySceneThunkArg,
+  ThunkApiConfig
+>('projects/loadCopyScene', ({ id, ...payload }, thunkApi) =>
+  safeAsyncThunk(thunkApi, () => fetchCopyScene(id, payload, selectAuth(thunkApi.getState())))
 )
 
 export const loadUpdateScene = createAsyncThunk<

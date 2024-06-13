@@ -65,6 +65,7 @@ export const loadUserMe = createAsyncThunk<IAuthSimplified, void, ThunkApiConfig
     }))
 )
 
+// UNUSED user info should be included into project/scene as nested object
 export const loadUser = createAsyncThunk<IUser, TGetUserThunkArg, ThunkApiConfig>(
   'auth/loadUserMe',
   (arg, thunkApi) =>
