@@ -154,26 +154,34 @@ const reducer = createReducer(initialState, (builder) => {
   builder.addCase(loadProject.fulfilled, (state, action) =>
     saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
       ...state,
-      projects: mergeArraysById(state.projects, [action.payload]),
+      projects: mergeArraysById(state.projects, [action.payload]).sort((a, b) =>
+        orderBy(undefined, a, b)
+      ),
     })
   )
   builder.addCase(loadProjects.fulfilled, (state, action) =>
     saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
       ...state,
-      projects: mergeArraysById(state.projects, action.payload),
+      projects: mergeArraysById(state.projects, action.payload).sort((a, b) =>
+        orderBy(undefined, a, b)
+      ),
     })
   )
   // Scenes REQUEST LIFECYCLE
   builder.addCase(loadScene.fulfilled, (state, action) =>
     saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
       ...state,
-      scenes: mergeArraysById(state.scenes, [action.payload]),
+      scenes: mergeArraysById(state.scenes, [action.payload]).sort((a, b) =>
+        orderBy(undefined, a, b)
+      ),
     })
   )
   builder.addCase(loadScenes.fulfilled, (state, action) =>
     saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
       ...state,
-      scenes: mergeArraysById(state.scenes, action.payload),
+      scenes: mergeArraysById(state.scenes, action.payload).sort((a, b) =>
+        orderBy(undefined, a, b)
+      ),
     })
   )
 

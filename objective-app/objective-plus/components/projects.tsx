@@ -51,6 +51,7 @@ import { CustomDropDownMenuItem } from '../UI'
 import { useNavigate, useParams } from 'react-router-dom'
 import { selectAuth } from '../store/auth/reducer'
 import { buildProjectUrl } from './app'
+import { useViewport } from '../../objective/hooks/useVieport'
 
 const ProjectNewItem: FC = () => {
   const dispatch = useDispatch()
@@ -318,21 +319,18 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
 export type ProjectsSectionTabs = 'my_projects' | 'other_projects' | 'deleted_projects'
 
 const ProjectsSection = () => {
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const { width } = useViewport()
+  const isSmallViewPort = width <= 576
+
+  const myProjects = useSelector(selectMyProjects)
+  const deletedProjects = useSelector(selectMyDeletedProjects)
+  const otherProjects = useSelector(selectOtherProjects)
   const loading = useSelector(selectIsPending)
 
   const { projectId } = useParams()
   const currentProject = useSelector(selectProject(projectId))
 
-  // [1] set projectId to path param, if it's not there
-  const allProjects = useSelector(selectAllProjects())
-  const defaultProject = allProjects[0] as IProject | undefined
-  useEffect(() => {
-    if (!projectId && defaultProject) navigate(`/projects/${defaultProject.id}`)
-  }, [projectId, defaultProject])
-
-  // [2] set tab depending on project from url
+  // [1] set tab depending on project from url
   const auth = useSelector(selectAuth)
   const isMyProject = currentProject?.user_id ? currentProject.user_id === auth.user.id : true
   const [tabValue, setTabValue] = useState<ProjectsSectionTabs>(
@@ -344,37 +342,6 @@ const ProjectsSection = () => {
     if (isMyProject) setTabValue('my_projects')
     else setTabValue('other_projects')
   }, [isTabWasChangedByUser, isMyProject])
-
-  // FIXME
-  // here is might be double request for the same resource (for all scenes, and scene by id)
-  // bu it's needed for now to invalidate external (other user's) scene data stored at local storage
-
-  // load all user's projects (incl deleted)
-  const myProjects = useSelector(selectMyProjects)
-  const deletedProjects = useSelector(selectMyDeletedProjects)
-  useEffect(() => {
-    dispatch(loadProjects({ is_deleted: false }))
-      .unwrap()
-      .then((projects) => {
-        // load full scenes info here for thumbnails render only
-        dispatch(loadScenes({}))
-      })
-    dispatch(loadProjects({ is_deleted: true }))
-  }, [dispatch])
-
-  // load current project from path parameters
-  // (means it's other user project access via external link)
-  const otherProjects = useSelector(selectOtherProjects)
-  useEffect(() => {
-    if (projectId)
-      dispatch(loadProject({ id: projectId }))
-        .unwrap()
-        .then((project) => {
-          // Load full scenes info here for thumbnails render only
-          if (!project.is_deleted)
-            project.scenes.forEach((scene) => dispatch(loadScene({ id: scene.id })))
-        })
-  }, [projectId, dispatch])
 
   return (
     <Tabs.Root value={tabValue} style={{ height: '100%' }}>
@@ -417,7 +384,7 @@ const ProjectsSection = () => {
         pl='2'
         style={{
           height: 'calc(100% - 50px)',
-          width: '25vw', // as scenes use `75vw`
+          width: isSmallViewPort ? '100vw' : '25vw', // as scenes use `75vw`
           minWidth: 270,
         }}
         className='objective-box'

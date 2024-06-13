@@ -14,6 +14,7 @@ import {
 } from './actions'
 import { APIError } from '../projects/reducer'
 import { mergeArraysById } from '../helpers'
+import { orderBy } from '../../../objective/utils/helpers'
 
 export interface ITokens {
   /** no 'Bearer' prefix */
@@ -84,7 +85,7 @@ const reducer = createReducer(initialState, (builder) => {
   builder.addCase(loadUser.fulfilled, (state, action) =>
     saveToLocalStorage(LOCAL_STORAGE.AUTH, {
       ...state,
-      users: mergeArraysById(state.users, [action.payload]),
+      users: mergeArraysById(state.users, [action.payload]).sort((a, b) => orderBy(undefined, a, b)),
     })
   )
 

@@ -70,6 +70,7 @@ import { MySceneShareOptions } from '../../objective/components/TopRightUI'
 import { selectAuth } from '../store/auth/reducer'
 import { objectValues } from '../../objective/utils/types'
 import { buildSceneUrl } from './app'
+import { useViewport } from '../../objective/hooks/useVieport'
 
 const DEFAULT_SCENE_NAME = 'Untitled Scene'
 
@@ -564,6 +565,8 @@ const SceneThumbnail: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
 }
 
 const ScenesSectionHeader: FC = () => {
+  const { width } = useViewport()
+  const isSmallViewPort = width <= 768
   const { projectId } = useParams()
   const project = useSelector(selectProject(projectId))
   const meta = useSelector(selectScenesMeta())
@@ -587,18 +590,26 @@ const ScenesSectionHeader: FC = () => {
   }
 
   return (
-    <Flex style={{ width: '100%' }} justify={'between'}>
+    <Flex
+      style={{ width: '100%' }}
+      justify={'between'}
+      direction={isSmallViewPort ? 'column' : 'row'}
+      align={'baseline'}
+    >
       <Heading
         color={ACCENT_COLOR}
         weight={'light'} //
-        ml={'5'}
+        ml={isSmallViewPort ? '2' : '5'}
         mb={'2'}
         style={{ textDecoration: 'underline', textDecorationThickness: '2px' }}
       >
         {project?.name}
         {/* TODO {user && <Badge>{user.username || user.email}</Badge>} */}
       </Heading>
-      <Flex gap={'1'}>
+      <Flex
+        ml={isSmallViewPort ? '2' : '5'} //
+        gap={'1'}
+      >
         <Select.Root value={meta?.order} onValueChange={onOrderChange} size={'1'}>
           <Select.Trigger
             placeholder={'Scenes Order'}
@@ -674,6 +685,8 @@ const ScenesSectionHeader: FC = () => {
 }
 
 const ScenesSection = () => {
+  const { width } = useViewport()
+  const isSmallViewPort = width <= 768
   const dispatch = useDispatch()
   const { projectId } = useParams()
   const project = useSelector(selectProject(projectId))
@@ -716,7 +729,7 @@ const ScenesSection = () => {
     )
 
   return (
-    <Box p={'5'} style={{ width: '100%' }}>
+    <Box p={isSmallViewPort ? '1' : '5'} style={{ width: '100%' }}>
       <ScenesSectionHeader />
       {meta?.view === 'list' ? <ScenesListAsTable /> : <ScenesListAsIcons />}
     </Box>
