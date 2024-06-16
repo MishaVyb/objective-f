@@ -26,7 +26,10 @@ const _METAS_CORE_DEFINITION: TOptionalMetaOverrides = {
     coreOpts: {
       isPushpinRotation: true,
       pushpinRotationShiftAngle: 1.5708, // 90˚
-      pushpinRotationShiftFactor: 3.5714,
+      //
+      // factor = default_basis_size / shift_in_points_if_size_is_default
+      pushpinRotationShiftFactor: 50 / 14,
+      pushpinRotationCenterShiftFactor: 50 / 13.5,
     },
   },
   character: {
@@ -34,7 +37,9 @@ const _METAS_CORE_DEFINITION: TOptionalMetaOverrides = {
     coreOpts: {
       isPushpinRotation: true,
       pushpinRotationShiftAngle: 0,
-      pushpinRotationShiftFactor: 3.125,
+      //
+      // factor = default_basis_size / shift_in_points_if_size_is_default
+      pushpinRotationShiftFactor: 50 / 16,
     },
   },
   light: {

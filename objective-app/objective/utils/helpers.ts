@@ -35,7 +35,7 @@ export const mapAndFilter = <ItemInput, ItemResult>(
     const resItem = mapFunction(current)
     if (filterFunction(resItem)) result.push(resItem)
     return result
-  }, new Array<ItemResult>(seq.length))
+  }, new Array<ItemResult>())
 
 export const mapOmitNone = <ItemInput, ItemResult>(
   seq: readonly ItemInput[],

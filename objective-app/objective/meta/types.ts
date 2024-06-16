@@ -125,6 +125,7 @@ export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readon
     isPushpinRotation?: boolean
     pushpinRotationShiftAngle?: number
     pushpinRotationShiftFactor?: number
+    pushpinRotationCenterShiftFactor?: number
   }>
 
   // TODO do not depends on Meta.kind -- it's too generic...

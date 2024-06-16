@@ -181,13 +181,16 @@ export const getObjectiveSingleMeta = <TMeta extends ObjectiveMeta>(
     kind?: TMeta['kind']
     includingDelited?: boolean
   }
-): Readonly<TMeta> | null => {
+): Readonly<TMeta> | undefined => {
   const metas = getObjectiveMetas<TMeta>(elements, opts)
   if (metas.length === 1) return metas[0]
-  return null
+  return undefined
 }
 
-/* if only ALL specified elements represent that single objective meta */
+/**
+ * The same as {@link getObjectiveSingleMeta}, but also it checks that ALL element are represent that
+ * single Objective Item.
+ * */
 export const getObjectiveSingleMetaStrict = <TMeta extends ObjectiveMeta>(
   elements: ElementsMapOrArray,
   opts?: {

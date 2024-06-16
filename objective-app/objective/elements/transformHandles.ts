@@ -15,9 +15,17 @@ export const getPushpinHandleDistance = (meta: ObjectiveMeta, zoomValue: Normali
  */
 export const getPushpinAng = (target: ElementsMapOrArray | ObjectiveMeta | undefined) => {
   if (!target) return undefined
-
   const meta = 'kind' in target ? target : getObjectiveSingleMetaStrict(target)
   if (meta?.coreOpts?.isPushpinRotation)
     return meta.basis!.angle + (meta.coreOpts.pushpinRotationShiftAngle || 0)
+  return undefined
+}
+/**
+ * @param target: selected elements or selected metas
+ */
+export const getPushpinAngNoShift = (target: ElementsMapOrArray | ObjectiveMeta | undefined) => {
+  if (!target) return undefined
+  const meta = 'kind' in target ? target : getObjectiveSingleMetaStrict(target)
+  if (meta?.coreOpts?.isPushpinRotation) return meta.basis!.angle
   return undefined
 }
