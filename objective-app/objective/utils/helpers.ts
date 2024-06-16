@@ -26,6 +26,22 @@ export const groupByV2 = <T extends Record<string, any>, K>(
   }, new Map<K, T[]>([]))
 }
 
+export const mapAndFilter = <ItemInput, ItemResult>(
+  seq: readonly ItemInput[],
+  mapFunction: (item: ItemInput) => ItemResult,
+  filterFunction: (item: ItemResult) => boolean
+): ItemResult[] =>
+  seq.reduce((result, current) => {
+    const resItem = mapFunction(current)
+    if (filterFunction(resItem)) result.push(resItem)
+    return result
+  }, new Array<ItemResult>(seq.length))
+
+export const mapOmitNone = <ItemInput, ItemResult>(
+  seq: readonly ItemInput[],
+  mapFunction: (item: ItemInput) => ItemResult | undefined
+): ItemResult[] => mapAndFilter(seq, mapFunction, (item) => !!item) as any as ItemResult[]
+
 /**
  * return a negative value if the first argument is less than the second argument
  */
