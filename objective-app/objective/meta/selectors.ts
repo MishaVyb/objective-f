@@ -194,11 +194,11 @@ export const getObjectiveSingleMetaStrict = <TMeta extends ObjectiveMeta>(
     kind?: TMeta['kind']
     includingDelited?: boolean
   }
-): Readonly<TMeta> | null => {
+): Readonly<TMeta> | undefined => {
   const elsSize = 'size' in elements ? elements.size : elements.length
   const meta = getObjectiveSingleMeta(elements, opts)
   if (meta && meta.elements.length === elsSize) return meta
-  return null
+  return undefined
 }
 
 /** Objective version for Excalidraw `getFormValue` */

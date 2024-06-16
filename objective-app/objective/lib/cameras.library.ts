@@ -2,7 +2,7 @@ import { ElementsClipboard } from '../../../packages/excalidraw/clipboard'
 import { COLOR_PALETTE } from '../../../packages/excalidraw/colors'
 import { LibraryItem, LibraryItems } from '../../../packages/excalidraw/types'
 import { ObjectiveKinds } from '../meta/types'
-import { createObjFromClipboard } from './helpers'
+import { getInitialObjectiveItem } from './objectiveInitial'
 
 const OBJ_COLOR_SHADE_INDEX = 2 // min: 0; max: 5
 const OBJ_COLORS = [
@@ -116,7 +116,7 @@ const CLIPBOARD = {
 } as any as ElementsClipboard
 
 const createObj = (primaryColor: string): LibraryItem => {
-  return createObjFromClipboard(CLIPBOARD, '', ObjectiveKinds.CAMERA, {
+  return getInitialObjectiveItem(CLIPBOARD, '', ObjectiveKinds.CAMERA, {
     backgroundColor: primaryColor,
   })
 }

@@ -1,9 +1,4 @@
-import {
-  getElementAbsoluteCoords,
-  newElement,
-  newLinearElement,
-  newTextElement,
-} from '../../../packages/excalidraw/element'
+import { newElement, newLinearElement, newTextElement } from '../../../packages/excalidraw/element'
 import {
   bindLinearElement,
   updateBoundElements,
@@ -24,15 +19,14 @@ import { getInitialMeta } from '../meta/initial'
 import { randomId } from '../../../packages/excalidraw/random'
 import { DEFAULT_FONT_SIZE } from '../../../packages/excalidraw/constants'
 import Scene from '../../../packages/excalidraw/scene/Scene'
-import { Vector, ensurePoint, ensureVector, getElementCenter } from './math'
-import { rotate } from '../../../packages/excalidraw/math'
-import { normalizeAngle } from '../../../packages/excalidraw/element/resizeElements'
-import { mutateElement } from '../../../packages/excalidraw'
+import { Vector, ensurePoint, getElementCenter } from './math'
 import { DEFAULT_FOCUS_DISTANCE, getCameraLensAngle } from '../actions/actionCamera'
 import { LinearElementEditor } from '../../../packages/excalidraw/element/linearElementEditor'
 import { rotateElementOnAngle } from './mutateElements'
 import { HEX_TO_COLOR } from '../UI/colors'
 import { COLOR_PALETTE } from '../../../packages/excalidraw/colors'
+import { getPushpinAng, getPushpinHandleDistance, getPushpinLineStart } from './transformHandles'
+import { NormalizedZoomValue } from '../../../packages/excalidraw/types'
 
 export const POINTER_COMMON = (): Partial<ExcalidrawArrowElement> => ({
   // locked: true, // ??? lock for label but not for images...
@@ -199,6 +193,33 @@ export const getCameraLensAngleElements = (
     // centerLine:
     // getCameraLensAngleSide(basis.angle, basisCenter, 0, distance, overrides)
   ]
+}
+
+export const getPushpinElements = (
+  meta: ObjectiveMeta,
+  opts: {
+    zoomValue: NormalizedZoomValue //
+    overrides?: Partial<ExcalidrawArrowElement>
+  }
+) => {
+  const lineStart = { x: 0, y: -getPushpinLineStart(meta) }
+  const lineEnd = { x: 0, y: -getPushpinHandleDistance(meta, opts.zoomValue) }
+  const basisCenter = getElementCenter(meta.basis!)
+
+  const element = newLinearElement({
+    type: 'arrow',
+    strokeWidth: 0.5,
+    // strokeStyle: 'dotted',
+    // strokeColor: ''
+    // startArrowhead: null,
+    // endArrowhead: null,
+    //
+    x: basisCenter.x,
+    y: basisCenter.y,
+    points: [ensurePoint(lineStart), ensurePoint(lineEnd)],
+  })
+  const pushpinLine = rotateElementOnAngle(element, basisCenter, getPushpinAng(meta)!)
+  return [pushpinLine]
 }
 
 const getCameraLensFocusLine = (

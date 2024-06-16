@@ -11,9 +11,11 @@ import {
   TransformHandleType,
   TransformHandle,
   MaybeTransformHandleType,
+  TRANSFORM_HANDLES_MARGIN_DEFAULT,
 } from "./transformHandles";
 import { AppState, Zoom } from "../types";
 import { Bounds } from "./bounds";
+import { ObjectiveMeta } from "../../../objective-app/objective/meta/types";
 
 const isInsideTransformHandle = (
   transformHandle: TransformHandle,
@@ -93,6 +95,9 @@ export const getTransformHandleTypeFromCoords = (
   scenePointerY: number,
   zoom: Zoom,
   pointerType: PointerType,
+  opts?: {
+    meta?: ObjectiveMeta; // VBRN
+  },
 ): MaybeTransformHandleType => {
   const transformHandles = getTransformHandlesFromCoords(
     [x1, y1, x2, y2, (x1 + x2) / 2, (y1 + y2) / 2],
@@ -100,6 +105,8 @@ export const getTransformHandleTypeFromCoords = (
     zoom,
     pointerType,
     OMIT_SIDES_FOR_MULTIPLE_ELEMENTS,
+    TRANSFORM_HANDLES_MARGIN_DEFAULT,
+    opts,
   );
 
   const found = Object.keys(transformHandles).find((key) => {

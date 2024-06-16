@@ -1,7 +1,7 @@
 import { ElementsClipboard } from '../../../packages/excalidraw/clipboard'
 import { LibraryItem, LibraryItems } from '../../../packages/excalidraw/types'
 import { ObjectiveKinds, ObjectiveMeta } from '../meta/types'
-import { createObjFromClipboard } from './helpers'
+import { getInitialObjectiveItem } from './objectiveInitial'
 import doorOpen from './location/door-open'
 import doorClose from './location/door-close'
 import window from './location/window'
@@ -20,7 +20,7 @@ const createObj = (
   name: string,
   metaOverrides: Omit<Partial<ObjectiveMeta>, 'kind' | 'name'>
 ): LibraryItem => {
-  return createObjFromClipboard(clipboardObj, name, ObjectiveKinds.LOCATION, {}, metaOverrides)
+  return getInitialObjectiveItem(clipboardObj, name, ObjectiveKinds.LOCATION, {}, metaOverrides)
 }
 
 export const LIB_LOCATION: LibraryItems = [

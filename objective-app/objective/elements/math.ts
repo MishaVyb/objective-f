@@ -33,6 +33,8 @@ export const radianToDegrees = (v: number | undefined, opts?: { round: boolean }
   return res
 }
 
+export const degreesToRadian = (a: number) => normalizeAngle((a * Math.PI) / 180)
+
 export const getAngRad = (a: PointType, b: PointType) => {
   a = ensureVector(a)
   b = ensureVector(b)

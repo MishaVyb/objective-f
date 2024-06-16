@@ -58,7 +58,9 @@ import { maxBindingGap } from "../element/collision";
 import { SuggestedBinding, SuggestedPointBinding } from "../element/binding";
 import {
   OMIT_SIDES_FOR_FRAME,
+  OMIT_SIDES_FOR_NOT_SCALEABLE,
   shouldShowBoundingBox,
+  TRANSFORM_HANDLES_MARGIN_DEFAULT,
   TransformHandles,
   TransformHandleType,
 } from "../element/transformHandles";
@@ -87,6 +89,9 @@ import {
   isElementInFrame,
 } from "../frame";
 import { renderObjectiveScene } from "../../../objective-app/objective/elements/renderScene";
+import { getPushpinAng } from "../../../objective-app/objective/elements/transformHandles";
+import { isElementsScalable } from "../../../objective-app/objective/elements/resizeElements";
+import { getObjectiveSingleMetaStrict } from "../../../objective-app/objective/meta/selectors";
 
 const strokeRectWithRotation = (
   context: CanvasRenderingContext2D,
@@ -677,7 +682,7 @@ const _renderInteractiveScene = ({
           selectedElements[0].angle,
         );
       }
-    } else if (selectedElements.length > 1 && !appState.isRotating) {
+    } else if (selectedElements.length > 1) {
       const dashedLinePadding =
         (DEFAULT_TRANSFORM_HANDLE_SPACING * 2) / appState.zoom.value;
       context.fillStyle = oc.white;
@@ -699,6 +704,14 @@ const _renderInteractiveScene = ({
       );
       context.lineWidth = lineWidth;
       context.setLineDash(initialLineDash);
+
+      const isScaleable = isElementsScalable(selectedElements);
+      const meta = getObjectiveSingleMetaStrict(selectedElements);
+      const pushpinAng = getPushpinAng(meta);
+      const isShowTranfromHandle = appState.isRotating
+        ? pushpinAng !== undefined
+        : true;
+
       const transformHandles = getTransformHandlesFromCoords(
         [x1, y1, x2, y2, (x1 + x2) / 2, (y1 + y2) / 2],
         0,
@@ -706,9 +719,18 @@ const _renderInteractiveScene = ({
         "mouse",
         isFrameSelected
           ? OMIT_SIDES_FOR_FRAME
-          : OMIT_SIDES_FOR_MULTIPLE_ELEMENTS,
+          : isScaleable
+          ? OMIT_SIDES_FOR_MULTIPLE_ELEMENTS
+          : OMIT_SIDES_FOR_NOT_SCALEABLE,
+        TRANSFORM_HANDLES_MARGIN_DEFAULT,
+        {
+          meta,
+        },
       );
-      if (selectedElements.some((element) => !element.locked)) {
+      if (
+        isShowTranfromHandle &&
+        selectedElements.some((element) => !element.locked)
+      ) {
         renderTransformHandles(
           context,
           renderConfig,

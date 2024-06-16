@@ -3,7 +3,7 @@ import { renderElement } from '../../../packages/excalidraw/renderer/renderEleme
 import { StaticSceneRenderConfig } from '../../../packages/excalidraw/scene/types'
 import { getObjectiveMetas } from '../meta/selectors'
 import { isCameraMeta, isObjectiveHidden } from '../meta/types'
-import { getCameraLensAngleElements } from './newElement'
+import { getCameraLensAngleElements, getPushpinElements } from './newElement'
 
 export const renderObjectiveScene = (
   {
@@ -23,6 +23,10 @@ export const renderObjectiveScene = (
   metas.forEach((m) => {
     if (isCameraMeta(m) && !isObjectiveHidden(m.basis!) && m.lensAngleRepr)
       extraEls.push(...getCameraLensAngleElements(m))
+
+    if (appState.selectedElementIds[m.basis!.id] && m.coreOpts?.isPushpinRotation) {
+      extraEls.push(...getPushpinElements(m, { zoomValue: appState.zoom.value }))
+    }
   })
 
   extraEls.forEach((e) =>

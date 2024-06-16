@@ -111,9 +111,20 @@ export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readon
     // ... TODO refactor other fields
   }>
 
+  // TODO move all core opts from root level into `meta.coreOpts` field
+  /**
+   * Core object options to determine deferent behavior on handleing actions, rendering, etc.
+   * It's static and always equals for any instance of specific meta kind.
+   * (like class attributes)
+   * @see {@link _METAS_CORE_DEFINITION}
+   * */
   coreOpts?: Readonly<{
     isSnappedToWalls?: boolean
     isBoundsTakenFromBasis?: boolean
+
+    isPushpinRotation?: boolean
+    pushpinRotationShiftAngle?: number
+    pushpinRotationShiftFactor?: number
   }>
 
   // TODO do not depends on Meta.kind -- it's too generic...

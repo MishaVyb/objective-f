@@ -8,28 +8,16 @@ import { LibraryItem } from '../../../packages/excalidraw/types'
 import { getInitialMeta } from '../meta/initial'
 import { ObjectiveElement, ObjectiveKinds, ObjectiveMeta } from '../meta/types'
 import { mutateElementMeta } from '../elements/mutateElements'
+import { getMetaSimple } from '../meta/selectors'
 
 const OBJ_COLOR_SHADE_INDEX = 2 // min: 0; max: 5
 const INTERNAL_INDEX_COLOR = COLOR_PALETTE.yellow[OBJ_COLOR_SHADE_INDEX]
 
-export const createObjFromClipboard = (
-  clipboardObj: ElementsClipboard,
-  name: string,
-  kind: ObjectiveKinds,
-  elOverrides: Partial<ExcalidrawElement>,
-  metaOverrides: Omit<Partial<ObjectiveMeta>, 'kind' | 'name'> = {},
-  opts?: {
-    addInternalBasis?: boolean
-  }
-): LibraryItem => {
-  const groupId = randomId()
-  const meta = getInitialMeta(kind, {
-    name: name,
-    // elementsRequiredLength: opts?.addInternalBasis ? clipboardObj.elements.length, // +1 TODO
-    ...metaOverrides,
-  })
-  let elements = clipboardObj.elements as ObjectiveElement[]
+type ObjectiveInitOpts = {
+  addInternalBasis?: boolean
+}
 
+const _objectivePreInit = (elements: ObjectiveElement[], opts: ObjectiveInitOpts) => {
   if (opts?.addInternalBasis) {
     const padding = 10
     const [minX, minY, maxX, maxY] = getCommonBounds(elements)
@@ -43,13 +31,27 @@ export const createObjFromClipboard = (
       opacity: 0,
       backgroundColor: INTERNAL_INDEX_COLOR,
       strokeColor: INTERNAL_INDEX_COLOR,
-      // locked: true,
     }) as any as ObjectiveElement
 
     elements = [autoBasisElement, ...elements]
   }
+  return elements
+}
 
-  elements = elements.map((el) => ({
+const _objectiveInit = (
+  elements: ObjectiveElement[],
+  name: string,
+  kind: ObjectiveKinds,
+  elOverrides: Partial<ExcalidrawElement>,
+  groupId: string,
+  metaOverrides: Omit<Partial<ObjectiveMeta>, 'kind' | 'name'>,
+  opts: ObjectiveInitOpts
+) => {
+  const meta = getInitialMeta(kind, {
+    name: name,
+    ...metaOverrides,
+  })
+  return elements.map((el) => ({
     ...el,
     ...elOverrides,
 
@@ -68,16 +70,54 @@ export const createObjFromClipboard = (
     groupIds: [groupId],
     isDeleted: false,
   })) as ObjectiveElement[]
+}
 
+const _objectivePostInit = (elements: ObjectiveElement[], opts: ObjectiveInitOpts) => {
   const elementsRequiredLength = elements.length
   elements.forEach((el) => mutateElementMeta(el, { elementsRequiredLength }))
+  return elements
+}
+
+const _objectiveValidate = (elements: ObjectiveElement[], opts: ObjectiveInitOpts) => {
+  elements.forEach((el) => {
+    const m = getMetaSimple(el)
+
+    if (m.coreOpts?.isPushpinRotation) {
+      if (el.angle) throw new Error('Angle should be 0 for isPushpinRotation. ')
+    }
+  })
+
+  return elements
+}
+
+/**
+ * Build Objective Item from raw Excalidraw elements
+ * - handle element props
+ * - call for getInitialMeta(...)
+ */
+export const getInitialObjectiveItem = (
+  clipboardObj: ElementsClipboard,
+  name: string,
+  kind: ObjectiveKinds,
+  elOverrides: Partial<ExcalidrawElement>,
+  metaOverrides: Omit<Partial<ObjectiveMeta>, 'kind' | 'name'> = {},
+  opts?: {
+    addInternalBasis?: boolean
+  }
+): LibraryItem => {
+  let elements = clipboardObj.elements as ObjectiveElement[]
+  const groupId = randomId()
+
+  elements = _objectivePreInit(elements, opts || {})
+  elements = _objectiveInit(elements, name, kind, elOverrides, groupId, metaOverrides, opts || {})
+  elements = _objectivePostInit(elements, opts || {})
+  elements = _objectiveValidate(elements, opts || {})
 
   return {
     status: 'unpublished',
     kind: kind,
     id: randomId(),
     elements: elements,
-
-    created: 0, // ???
+    created: 0,
   }
 }

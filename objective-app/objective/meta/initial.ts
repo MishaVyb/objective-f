@@ -1,6 +1,7 @@
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { randomId } from '../../../packages/excalidraw/random'
 import { MarkOptional, Mutable } from '../../../packages/excalidraw/utility-types'
+
 import { getMetaSimple } from './selectors'
 import {
   AnyObjectiveMeta,
@@ -14,14 +15,27 @@ import {
 type TMetaOverrides = Record<ObjectiveKinds, Partial<Omit<AnyObjectiveMeta, 'kind'>>>
 type TOptionalMetaOverrides = MarkOptional<TMetaOverrides, keyof TMetaOverrides>
 
-// ??? move that somewhere...
-const _DEFAULT_META_OVERRIDES: TOptionalMetaOverrides = {
+/**
+ * Metas Core Opts Delcaration.
+ * @see {@link ObjectiveMeta.coreOpts}
+ */
+const _METAS_CORE_DEFINITION: TOptionalMetaOverrides = {
   camera: {
     isInternalBasis: true,
     relatedImages: [],
+    coreOpts: {
+      isPushpinRotation: true,
+      pushpinRotationShiftAngle: 1.5708, // 90˚
+      pushpinRotationShiftFactor: 3.5714,
+    },
   },
   character: {
     isInternalBasis: true,
+    coreOpts: {
+      isPushpinRotation: true,
+      pushpinRotationShiftAngle: 0,
+      pushpinRotationShiftFactor: 3.125,
+    },
   },
   light: {
     isInternalBasis: true,
@@ -47,7 +61,7 @@ export const getInitialMeta = <T extends ObjectiveKinds>(
   basisIndex: 0,
   isInternalBasis: false,
   disableResize: true,
-  ..._DEFAULT_META_OVERRIDES[kind],
+  ..._METAS_CORE_DEFINITION[kind],
   ...overriddes,
 })
 

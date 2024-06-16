@@ -433,6 +433,7 @@ import { arrangeElements } from "../../../objective-app/objective/elements/zinde
 import {
   getCameraMetas,
   getObjectiveBasis,
+  getObjectiveSingleMetaStrict,
 } from "../../../objective-app/objective/meta/selectors";
 import {
   actionCreatePointer,
@@ -5166,6 +5167,9 @@ class App extends React.Component<AppProps, AppState> {
         scenePointerY,
         this.state.zoom,
         event.pointerType,
+        {
+          meta: getObjectiveSingleMetaStrict(selectedElements),
+        },
       );
       if (transformHandleType) {
         setCursor(
@@ -6166,6 +6170,9 @@ class App extends React.Component<AppProps, AppState> {
           pointerDownState.origin.y,
           this.state.zoom,
           event.pointerType,
+          {
+            meta: getObjectiveSingleMetaStrict(selectedElements),
+          },
         );
       }
       if (pointerDownState.resize.handleType) {

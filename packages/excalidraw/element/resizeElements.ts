@@ -57,6 +57,7 @@ import {
 } from "./textElement";
 import { LinearElementEditor } from "./linearElementEditor";
 import { isElementsScalable } from "../../../objective-app/objective/elements/resizeElements";
+import { getPushpinAng } from "../../../objective-app/objective/elements/transformHandles";
 
 export const normalizeAngle = (angle: number): number => {
   if (angle < 0) {
@@ -915,6 +916,15 @@ const rotateMultipleElements = (
 ) => {
   let centerAngle =
     (5 * Math.PI) / 2 + Math.atan2(pointerY - centerY, pointerX - centerX);
+
+  const selectedOriginalElements = new Map() as ElementsMap;
+  elements.forEach((e) => {
+    const orig = originalElements.get(e.id);
+    if (orig) selectedOriginalElements.set(orig.id, orig);
+  });
+  const pushpingAng = getPushpinAng(selectedOriginalElements);
+  if (pushpingAng) centerAngle -= pushpingAng;
+
   if (shouldRotateWithDiscreteAngle) {
     centerAngle += SHIFT_LOCKING_ANGLE / 2;
     centerAngle -= centerAngle % SHIFT_LOCKING_ANGLE;

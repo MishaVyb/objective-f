@@ -1,7 +1,7 @@
 import { ElementsClipboard } from '../../../packages/excalidraw/clipboard'
 import { LibraryItem, LibraryItems } from '../../../packages/excalidraw/types'
 import { ObjectiveKinds, ObjectiveMeta } from '../meta/types'
-import { createObjFromClipboard } from './helpers'
+import { getInitialObjectiveItem } from './objectiveInitial'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 //
 import skyPanel_1x2 from './light/skyPanel_1x2'
@@ -55,7 +55,7 @@ const createObj = (
   metaOverrides: Omit<Partial<ObjectiveMeta>, 'kind' | 'name'> = {},
   elOverrides: Partial<ExcalidrawElement> = {},
 ): LibraryItem => {
-  return createObjFromClipboard(
+  return getInitialObjectiveItem(
     clipboardObj,
     name,
     ObjectiveKinds.LIGHT,

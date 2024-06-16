@@ -10,6 +10,11 @@ import { InteractiveCanvasAppState, Zoom } from "../types";
 import { isTextElement } from ".";
 import { isFrameLikeElement, isLinearElement } from "./typeChecks";
 import { DEFAULT_TRANSFORM_HANDLE_SPACING } from "../constants";
+import {
+  getPushpinAng,
+  getPushpinHandleDistance,
+} from "../../../objective-app/objective/elements/transformHandles";
+import { ObjectiveMeta } from "../../../objective-app/objective/meta/types";
 
 export type TransformHandleDirection =
   | "n"
@@ -34,6 +39,7 @@ const transformHandleSizes: { [k in PointerType]: number } = {
   pen: 16,
   touch: 28,
 };
+const PUSHPIN_HANDLE_SIZE = 12;
 
 const ROTATION_RESIZE_HANDLE_GAP = 16;
 
@@ -50,6 +56,18 @@ export const OMIT_SIDES_FOR_FRAME = {
   n: true,
   w: true,
   rotation: true,
+};
+
+export const OMIT_SIDES_FOR_NOT_SCALEABLE = {
+  // VBRN
+  n: true,
+  s: true,
+  w: true,
+  e: true,
+  nw: true,
+  ne: true,
+  sw: true,
+  se: true,
 };
 
 const OMIT_SIDES_FOR_TEXT_ELEMENT = {
@@ -88,15 +106,24 @@ const generateTransformHandle = (
   return [xx - width / 2, yy - height / 2, width, height];
 };
 
+export const TRANSFORM_HANDLES_MARGIN_DEFAULT = 4;
 export const getTransformHandlesFromCoords = (
   [x1, y1, x2, y2, cx, cy]: [number, number, number, number, number, number],
   angle: number,
   zoom: Zoom,
   pointerType: PointerType,
   omitSides: { [T in TransformHandleType]?: boolean } = {},
-  margin = 4,
+  margin = TRANSFORM_HANDLES_MARGIN_DEFAULT,
+  opts?: {
+    /** single objective meta from selected elements */
+    meta?: ObjectiveMeta;
+  },
 ): TransformHandles => {
-  const size = transformHandleSizes[pointerType];
+  const pushpinAng = getPushpinAng(opts?.meta);
+  const size =
+    pushpinAng !== undefined // VBRN
+      ? PUSHPIN_HANDLE_SIZE
+      : transformHandleSizes[pointerType];
   const handleWidth = size / zoom.value;
   const handleHeight = size / zoom.value;
 
@@ -154,20 +181,27 @@ export const getTransformHandlesFromCoords = (
           cy,
           angle,
         ),
+    // rotation: undefined,
     rotation: omitSides.rotation
       ? undefined
       : generateTransformHandle(
           x1 + width / 2 - handleWidth / 2,
-          y1 -
-            dashedLineMargin -
-            handleMarginY +
-            centeringOffset -
-            ROTATION_RESIZE_HANDLE_GAP / zoom.value,
+          pushpinAng !== undefined // VBRN
+            ? y1 +
+                height / 2 -
+                handleHeight / 2 -
+                getPushpinHandleDistance(opts!.meta!, zoom.value)
+            : y1 -
+                dashedLineMargin -
+                handleMarginY +
+                centeringOffset -
+                ROTATION_RESIZE_HANDLE_GAP / zoom.value,
+
           handleWidth,
           handleHeight,
           cx,
           cy,
-          angle,
+          pushpinAng || 0,
         ),
   };
 
