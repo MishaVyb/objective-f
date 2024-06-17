@@ -31,11 +31,30 @@ import { groupBy } from '../utils/helpers'
 import { objectValues } from '../utils/types'
 
 /**
- * Get week meta reference without autopopulated fields. Simplified version of `getMeta`.
+ * Get week meta reference. Simplified version of {@link getMeta}.
  */
 export const getMetaSimple = <TMeta extends ObjectiveMeta>(
   el: ObjectiveElement<TMeta>
 ): WeekMeta<TMeta> => el.customData
+
+/**
+ * Get full meta reference.
+ */
+export const getMeta = <TMeta extends ObjectiveMeta>(el: ObjectiveElement<TMeta>): TMeta => {
+  if (!el.customData.elements.length)
+    throw new Error('Cannot get full meta info from week meta reference. ')
+  return el.customData
+}
+export const getMetaOrUndefined = <TMeta extends ObjectiveMeta>(
+  el: MaybeExcalidrawElement | ObjectiveElement<TMeta>
+): TMeta | undefined => {
+  if (!isObjective(el)) return undefined
+
+  if (!el.customData.elements.length)
+    throw new Error('Cannot get full meta info from week meta reference. ')
+
+  return el.customData as TMeta
+}
 
 /**
  * Any Objective is always a group of excalidraw element and it is always first group id.
@@ -141,6 +160,17 @@ export const extractObjectiveMetas = (opts?: {
         elements: els,
         basis,
       })
+
+      // EXPEREMENTAL
+      // set meta back ref for each objective element
+      els.forEach((e) => {
+        Object.assign(e.customData, {
+          ...meta,
+          elements: meta.elements.map((e) => _copyElementWithoutObjectiveMeta(e)),
+          basis: _copyElementWithoutObjectiveMeta(meta.basis!),
+        })
+      })
+
       resultMetas.push(meta)
     }
 
@@ -152,6 +182,8 @@ export const extractObjectiveMetas = (opts?: {
     typeof finalizeCallback
   ]
 }
+
+export const _copyElementWithoutObjectiveMeta = (e: ExcalidrawElement) => ({ ...e, customData: {} })
 
 export const _getMeta = <TMeta extends ObjectiveMeta>(
   el: ObjectiveElement<TMeta>,
@@ -344,12 +376,13 @@ export const getPointers = (
     .map((id) => elements.get(id))
     .filter((e): e is NonDeletedExcalidrawElement => !!e && e.isDeleted === false)
 
-// TODO cache (see original Scene implementation)
+// TODO move to ObjectiveMetaScene and impl cache (see original Scene implementation)
 export const getElementsByObjectiveId = (
   elements: readonly ExcalidrawElement[],
   id: ObjectiveMeta['id']
 ) => elements.filter((e) => isObjective(e) && getObjectiveId(e) === id)
 
+// TODO move to ObjectiveMetaScene and impl cache (see original Scene implementation)
 export const getMetaByObjectiveId = (
   elements: readonly ExcalidrawElement[],
   id: ObjectiveMeta['id']

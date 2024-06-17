@@ -110,6 +110,7 @@ export const duplicateObjectiveEventHandler = (
 
   metas.forEach((meta) => {
     if (opts?.newElementsMeta) mutateMeta(meta, opts.newElementsMeta)
+    meta = opts?.newElementsMeta ? { ...meta, ...opts.newElementsMeta } : meta
 
     if (opts?.addPointerWith)
       extraNewEls.push(

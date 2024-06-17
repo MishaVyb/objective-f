@@ -8,6 +8,7 @@ import { PointerDownState } from '../../../packages/excalidraw/types'
 import { getObjectiveMetas, getObjectiveSingleMetaStrict } from '../meta/selectors'
 import { ObjectiveMeta, isPure } from '../meta/types'
 import { mapOmitNone } from '../utils/helpers'
+import { ensureVector } from './math'
 import { getPushpinAng, getPushpinAngNoShift } from './transformHandles'
 
 // pure elements doesn't support disabling resize
@@ -18,6 +19,25 @@ export const isElementsScalable = (selectedEls: readonly NonDeletedExcalidrawEle
 
   // all element are not scalable if at least one meta has disableResize flag
   return !metas.some(isResizeDisabled)
+}
+
+export const getObjectiveRotationCenter = (
+  meta: ObjectiveMeta | undefined,
+  centerX: number,
+  centerY: number
+) => {
+  const factor = meta?.coreOpts?.pushpinRotationCenterShiftFactor
+  if (factor) {
+    const newRotattionCenter = rotate(
+      centerX - meta.basis!.width / factor,
+      centerY,
+      centerX,
+      centerY,
+      normalizeAngle(getPushpinAngNoShift(meta)!)
+    )
+    ;[centerX, centerY] = newRotattionCenter
+  }
+  return ensureVector([centerX, centerY])
 }
 
 export const rotateMultipleElementsObjectiveHandler = (
@@ -34,20 +54,7 @@ export const rotateMultipleElementsObjectiveHandler = (
   const selectedOriginalElements = mapOmitNone(elements, (e) => originalElements.get(e.id))
   const meta = getObjectiveSingleMetaStrict(selectedOriginalElements)
   const pushpingAng = getPushpinAng(meta)
-  if (pushpingAng) {
-    centerAngle -= pushpingAng
-    const centerShiftFactor = meta?.coreOpts?.pushpinRotationCenterShiftFactor
-    if (centerShiftFactor) {
-      const newRotattionCenter = rotate(
-        centerX - meta.basis!.width / centerShiftFactor,
-        centerY,
-        centerX,
-        centerY,
-        normalizeAngle(getPushpinAngNoShift(meta)!)
-      )
-      ;[centerX, centerY] = newRotattionCenter
-    }
-  }
-
-  return [centerX, centerY, centerAngle]
+  if (pushpingAng) centerAngle -= pushpingAng
+  const center = getObjectiveRotationCenter(meta, centerX, centerY)
+  return [center.x, center.y, centerAngle]
 }

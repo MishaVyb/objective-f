@@ -176,6 +176,10 @@ export type WeekMeta<TMeta extends ObjectiveMeta = ObjectiveMeta> = Omit<
   'elements' | 'elementIds' | 'basis' | 'id'
 >
 
+type _SupportsTurnMetaMixin = {
+  turnParentId?: ObjectiveMeta['id']
+}
+
 export type LabelMeta = ObjectiveMeta &
   Readonly<{
     kind: ObjectiveKinds.LABEL
@@ -214,23 +218,29 @@ export type LocationMeta = ObjectiveMeta &
 
 export type WallMeta = ObjectiveMeta & Readonly<{ kind: ObjectiveKinds.WALL }>
 
-export type CameraMeta = ObjectiveMeta & {
-  kind: ObjectiveKinds.CAMERA
+export type CameraMeta = ObjectiveMeta &
+  _SupportsTurnMetaMixin & {
+    kind: ObjectiveKinds.CAMERA
 
-  isShot?: boolean // is camera in shot list
-  shotNumber?: number // Cam 1 / Cam 2
-  shotVersion?: number // Cam 1-A / Cam 1-B
-  focalLength?: number // mm
-  focusDistance?: number // cm
-  cameraFormat?: CameraFormat // width (mm)
-  aspectRatio?: number // w/h
-  lensAngleRepr?: boolean
+    isShot?: boolean // is camera in shot list
+    shotNumber?: number // Cam 1 / Cam 2
+    shotVersion?: number // Cam 1-A / Cam 1-B
+    focalLength?: number // mm
+    focusDistance?: number // cm
+    cameraFormat?: CameraFormat // width (mm)
+    aspectRatio?: number // w/h
+    lensAngleRepr?: boolean
 
-  /**
-   * Storyboard images. Source `ExcalidrawImage.id` (not `fileId`).
-   */
-  relatedImages: readonly string[] // images id
-}
+    /**
+     * Storyboard images. Source `ExcalidrawImage.id` (not `fileId`).
+     */
+    relatedImages: readonly string[] // images id
+  }
+
+export type CharacterMeta = ObjectiveMeta &
+  _SupportsTurnMetaMixin & {
+    kind: ObjectiveKinds.CHARACTER
+  }
 
 export type CameraFormat = {
   title: string
@@ -248,6 +258,7 @@ export type ShotCameraMeta = CameraMeta & {
 // TODO https://www.typescriptlang.org/docs/handbook/2/types-from-types.html
 export type AnyObjectiveMeta = ObjectiveMeta &
   Pick<LabelMeta, 'labelOf'> &
+  Pick<_SupportsTurnMetaMixin, 'turnParentId'> &
   Pick<
     CameraMeta,
     | 'isShot'
@@ -352,6 +363,8 @@ export const isCameraMeta = (meta: MaybeMeta): meta is CameraMeta =>
   meta?.kind === ObjectiveKinds.CAMERA
 export const isCameraElement = (el: MaybeExcalidrawElement): el is CameraElement =>
   isCameraMeta(el?.customData)
+export const isSupportsTurn = (meta: MaybeMeta): meta is CameraMeta | CharacterMeta =>
+  isKind(meta, ObjectiveKinds.CAMERA) || isKind(meta, ObjectiveKinds.CHARACTER)
 
 export const isWallElement = (
   el: MaybeExcalidrawElement | ObjectiveElement<LocationMeta>

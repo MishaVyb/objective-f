@@ -12,7 +12,7 @@ import { isFrameLikeElement, isLinearElement } from "./typeChecks";
 import { DEFAULT_TRANSFORM_HANDLE_SPACING } from "../constants";
 import {
   getPushpinAng,
-  getPushpinHandleDistance,
+  getPushpinLineDistance,
 } from "../../../objective-app/objective/elements/transformHandles";
 import { ObjectiveMeta } from "../../../objective-app/objective/meta/types";
 
@@ -58,7 +58,7 @@ export const OMIT_SIDES_FOR_FRAME = {
   rotation: true,
 };
 
-export const OMIT_SIDES_FOR_NOT_SCALEABLE = {
+export const OMIT_SIDES_LEAVE_ANGLE = {
   // VBRN
   n: true,
   s: true,
@@ -181,7 +181,6 @@ export const getTransformHandlesFromCoords = (
           cy,
           angle,
         ),
-    // rotation: undefined,
     rotation: omitSides.rotation
       ? undefined
       : generateTransformHandle(
@@ -190,7 +189,7 @@ export const getTransformHandlesFromCoords = (
             ? y1 +
                 height / 2 -
                 handleHeight / 2 -
-                getPushpinHandleDistance(opts!.meta!, zoom.value)
+                getPushpinLineDistance(opts!.meta!, zoom.value)
             : y1 -
                 dashedLineMargin -
                 handleMarginY +

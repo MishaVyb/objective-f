@@ -52,6 +52,8 @@ import { shouldShowBoundingBox } from "./transformHandles";
 import { getBoundTextElement } from "./textElement";
 import { Mutable } from "../utility-types";
 import { ShapeCache } from "../scene/ShapeCache";
+import { ObjectiveMetas } from "../../../objective-app/objective/meta/types";
+import { isObjectiveElementHit } from "../../../objective-app/objective/elements/collision";
 
 const isElementDraggableFromInside = (
   element: NonDeletedExcalidrawElement,
@@ -80,6 +82,7 @@ export const hitTest = (
   x: number,
   y: number,
   elementsMap: ElementsMap,
+  objectiveScene: ObjectiveMetas,
 ): boolean => {
   // How many pixels off the shape boundary we still consider a hit
   const threshold = 10 / appState.zoom.value;
@@ -97,6 +100,17 @@ export const hitTest = (
     );
   }
 
+  if (
+    isObjectiveElementHit(
+      objectiveScene,
+      appState,
+      element,
+      frameNameBoundsCache,
+      point,
+    )
+  )
+    return true;
+
   const boundTextElement = getBoundTextElement(element, elementsMap);
   if (boundTextElement) {
     const isHittingBoundTextElement = hitTest(
@@ -106,6 +120,7 @@ export const hitTest = (
       x,
       y,
       elementsMap,
+      objectiveScene,
     );
     if (isHittingBoundTextElement) {
       return true;
@@ -126,6 +141,7 @@ export const isHittingElementBoundingBoxWithoutHittingElement = (
   x: number,
   y: number,
   elementsMap: ElementsMap,
+  objectiveScene: ObjectiveMetas,
 ): boolean => {
   const threshold = 10 / appState.zoom.value;
 
@@ -134,7 +150,15 @@ export const isHittingElementBoundingBoxWithoutHittingElement = (
   const boundTextElement = getBoundTextElement(element, elementsMap);
   if (
     boundTextElement &&
-    hitTest(boundTextElement, appState, frameNameBoundsCache, x, y, elementsMap)
+    hitTest(
+      boundTextElement,
+      appState,
+      frameNameBoundsCache,
+      x,
+      y,
+      elementsMap,
+      objectiveScene,
+    )
   ) {
     return false;
   }

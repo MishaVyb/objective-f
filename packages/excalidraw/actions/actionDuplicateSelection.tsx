@@ -37,6 +37,7 @@ import { AppClassProperties, AppState } from "../types";
 import { arrayToMap, getShortcutKey } from "../utils";
 import { register } from "./register";
 import { ActionResult } from "./types";
+import { rotateElementOnAngle } from "../../../objective-app/objective/elements/mutateElements";
 
 export const actionDuplicateSelection = register({
   name: "duplicateSelection",
@@ -86,6 +87,7 @@ export const duplicateElements = (
   // VBRN
   opts?: DuplicateHandlerOpts & {
     shift: Vector;
+    rotate?: { center: Vector; angle: number };
   },
 ): Partial<ActionResult> => {
   // ---------------------------------------------------------------------------
@@ -104,7 +106,7 @@ export const duplicateElements = (
       x: appState.gridSizeConfig / 2,
       y: appState.gridSizeConfig / 2,
     };
-    const newElement = duplicateElement(
+    let newElement = duplicateElement(
       appState.editingGroupId,
       groupIdMap,
       element,
@@ -113,6 +115,14 @@ export const duplicateElements = (
         y: element.y + shift.y,
       },
     );
+    if (opts?.rotate)
+      newElement = rotateElementOnAngle(
+        newElement,
+        opts.rotate.center,
+        opts.rotate.angle,
+      );
+    // VBRN
+
     oldIdToDuplicatedId.set(element.id, newElement.id);
     oldElements.push(element);
     newElements.push(newElement);

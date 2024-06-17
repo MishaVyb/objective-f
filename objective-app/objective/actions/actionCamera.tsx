@@ -8,6 +8,7 @@ import {
   EyeOpenIcon,
   MinusIcon,
   PlusIcon,
+  ReloadIcon,
 } from '@radix-ui/react-icons'
 import { getFormValue } from '../../../packages/excalidraw/actions/actionProperties'
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
@@ -24,15 +25,22 @@ import {
 import { CameraFormat, CameraMeta, isAllElementsCameras, isCameraElement } from '../meta/types'
 
 import { register } from './register'
-import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
+import { AppClassProperties } from '../../../packages/excalidraw/types'
 import { Button, Code, Flex, IconButton, Select, Separator, Text } from '@radix-ui/themes'
 import { handleMetaRepresentation } from '../elements/metaRepr'
 import { mutateSelectedElsMeta } from '../elements/mutateElements'
 import { duplicateElements } from '../../../packages/excalidraw/actions/actionDuplicateSelection'
-import { numberToStr, radianToDegrees } from '../elements/math'
+import {
+  degreesToRadian,
+  ensureVector,
+  getElementCenter,
+  numberToStr,
+  radianToDegrees,
+} from '../elements/math'
 import { getRadixColor } from '../UI/colors'
 import { EasyInput } from '../UI/InputEasyIn'
 import clsx from 'clsx'
+import { getObjectiveRotationCenter } from '../elements/resizeElements'
 
 type TChangeShotActionValue = 'init' | 'remove' | 'incraseShotNumber' | 'decraseShotNumber'
 
@@ -169,7 +177,12 @@ export const actionChangeMetaCameraShot = register({
 
 // NOTE
 // do not expose actions to init\remove shotVersion, as we handle it only be incrase\decrase version counter
-type TChangeVersionActionValue = 'moveTo' | 'moveFrom' | 'incraseShotVersion' | 'decraseShotVersion'
+type TChangeVersionActionValue =
+  | 'moveTo'
+  | 'moveFrom'
+  | 'rotateTo'
+  | 'incraseShotVersion'
+  | 'decraseShotVersion'
 
 export const actionChangeMetaCameraVersion = register({
   name: 'actionChangeMetaCameraVersion',
@@ -177,6 +190,7 @@ export const actionChangeMetaCameraVersion = register({
   perform: (elements, appState, actionType: TChangeVersionActionValue, app: AppClassProperties) => {
     const cameras = getSelectedCameraMetas(app.scene, appState)
     const singleCamera = cameras[0]
+    const basisCenter = getElementCenter(singleCamera.basis!)
 
     let newEls: ReturnType<typeof handleMetaRepresentation> = []
     let newCameraShotVers: number
@@ -242,7 +256,34 @@ export const actionChangeMetaCameraVersion = register({
           }),
           commitToHistory: true,
         }
-
+      case 'rotateTo':
+        // TODO
+        // if (!singleCamera.shotVersion) {
+        //   newCameraShotVers = 2
+        //   // RECURSIVE CALL
+        //   elements = actionChangeMetaCameraVersion.perform(elements, appState, 'rotateTo', app)
+        //     .elements!
+        // } else {
+        //   newCameraShotVers = singleCamera.shotVersion + 1
+        // }
+        // mutateSelectedElsMeta(app, {turnChildId: })
+        return {
+          ...duplicateElements(elements, appState, app, {
+            shift: { x: 0, y: 0 },
+            rotate: {
+              center: ensureVector(
+                getObjectiveRotationCenter(singleCamera, basisCenter.x, basisCenter.y)
+              ),
+              angle: degreesToRadian(10), // FIXME
+            },
+            newElementsMeta: {
+              turnParentId: singleCamera.id,
+              // shotVersion: newCameraShotVers, // FIXME
+              nameRepr: undefined,
+            },
+          }),
+          commitToHistory: true,
+        }
       case 'incraseShotVersion':
         newEls = handleMetaRepresentation(
           app.scene,
@@ -330,7 +371,6 @@ export const actionChangeMetaCameraVersion = register({
                 {'From'}
                 <EnterIcon />
               </Button>
-
               <Button
                 size={'1'}
                 variant={'surface'}
@@ -340,6 +380,17 @@ export const actionChangeMetaCameraVersion = register({
               >
                 <ExitIcon />
                 {'To'}
+              </Button>
+
+              <Button
+                size={'1'}
+                variant={'surface'}
+                color={'gray'}
+                onClick={() => updateData('rotateTo')}
+                title={'Move camera to'}
+              >
+                <ReloadIcon />
+                {'Turn'}
               </Button>
             </>
           )}

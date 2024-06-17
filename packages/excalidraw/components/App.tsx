@@ -4430,6 +4430,7 @@ class App extends React.Component<AppProps, AppState> {
         x,
         y,
         this.scene.getNonDeletedElementsMap(),
+        this.scene.getObjectiveMetas(),
       )
         ? allHitElements[allHitElements.length - 2]
         : elementWithHighestZIndex;
@@ -4465,6 +4466,7 @@ class App extends React.Component<AppProps, AppState> {
         x,
         y,
         this.scene.getNonDeletedElementsMap(),
+        this.scene.getObjectiveMetas(),
       ),
     ).filter((element) => {
       // hitting a frame's element from outside the frame is not considered a hit

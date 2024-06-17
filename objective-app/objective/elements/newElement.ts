@@ -25,7 +25,11 @@ import { LinearElementEditor } from '../../../packages/excalidraw/element/linear
 import { rotateElementOnAngle } from './mutateElements'
 import { HEX_TO_COLOR } from '../UI/colors'
 import { COLOR_PALETTE } from '../../../packages/excalidraw/colors'
-import { getPushpinAng, getPushpinHandleDistance, getPushpinLineStart } from './transformHandles'
+import {
+  getPushpinAng,
+  getPushpinHeadDemensions,
+  getPushpinLineDemensions,
+} from './transformHandles'
 import { NormalizedZoomValue } from '../../../packages/excalidraw/types'
 
 export const POINTER_COMMON = (): Partial<ExcalidrawArrowElement> => ({
@@ -201,25 +205,37 @@ export const getPushpinElements = (
     zoomValue: NormalizedZoomValue //
     overrides?: Partial<ExcalidrawArrowElement>
   }
-) => {
-  const lineStart = { x: 0, y: -getPushpinLineStart(meta) }
-  const lineEnd = { x: 0, y: -getPushpinHandleDistance(meta, opts.zoomValue) }
-  const basisCenter = getElementCenter(meta.basis!)
+) => [getPushpinLineElement(meta, opts.zoomValue), getPushpinHeadElement(meta, opts.zoomValue)]
 
-  const element = newLinearElement({
+export const getPushpinLineElement = (meta: ObjectiveMeta, zoomValue: NormalizedZoomValue) => {
+  const { start, end, center } = getPushpinLineDemensions(meta, zoomValue)
+  let pushpinLine = newLinearElement({
     type: 'arrow',
     strokeWidth: 0.5,
+    strokeColor: COLOR_PALETTE.blue[4],
     // strokeStyle: 'dotted',
-    // strokeColor: ''
     // startArrowhead: null,
     // endArrowhead: null,
     //
-    x: basisCenter.x,
-    y: basisCenter.y,
-    points: [ensurePoint(lineStart), ensurePoint(lineEnd)],
+    x: center.x,
+    y: center.y,
+    points: [ensurePoint(start), ensurePoint(end)],
   })
-  const pushpinLine = rotateElementOnAngle(element, basisCenter, getPushpinAng(meta)!)
-  return [pushpinLine]
+  return rotateElementOnAngle(pushpinLine, center, getPushpinAng(meta)!)
+}
+
+export const getPushpinHeadElement = (meta: ObjectiveMeta, zoomValue: NormalizedZoomValue) => {
+  const [rx, ry, rw, rh] = getPushpinHeadDemensions(meta, zoomValue)
+  return newElement({
+    type: 'ellipse',
+    strokeWidth: 0.5,
+    strokeColor: COLOR_PALETTE.blue[4],
+    backgroundColor: COLOR_PALETTE.white,
+    x: rx,
+    y: ry,
+    height: rw,
+    width: rh,
+  })
 }
 
 const getCameraLensFocusLine = (
