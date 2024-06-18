@@ -5427,6 +5427,7 @@ class App extends React.Component<AppProps, AppState> {
           scenePointerX,
           scenePointerY,
           elementsMap,
+          this.scene.getObjectiveMetas(),
         )
       ) {
         setCursor(this.interactiveCanvas, CURSOR_TYPE.MOVE);
@@ -5439,6 +5440,7 @@ class App extends React.Component<AppProps, AppState> {
           scenePointerX,
           scenePointerY,
           this.scene.getNonDeletedElementsMap(),
+          this.scene.getObjectiveMetas(),
         )
       ) {
         setCursor(this.interactiveCanvas, CURSOR_TYPE.MOVE);
@@ -8271,6 +8273,7 @@ class App extends React.Component<AppProps, AppState> {
             pointerDownState.origin.x,
             pointerDownState.origin.y,
             this.scene.getNonDeletedElementsMap(),
+            this.scene.getObjectiveMetas(),
           )) ||
           (!hitElement &&
             pointerDownState.hit.hasHitCommonBoundingBoxOfSelectedElements))
