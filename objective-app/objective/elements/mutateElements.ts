@@ -1,16 +1,4 @@
 import { mutateElement } from '../../../packages/excalidraw'
-import { getElementAbsoluteCoords } from '../../../packages/excalidraw/element'
-import { updateBoundElements } from '../../../packages/excalidraw/element/binding'
-import { normalizeAngle } from '../../../packages/excalidraw/element/resizeElements'
-import { getBoundTextElement } from '../../../packages/excalidraw/element/textElement'
-import { isArrowElement, isFrameLikeElement } from '../../../packages/excalidraw/element/typeChecks'
-import {
-  ElementsMap,
-  NonDeletedExcalidrawElement,
-} from '../../../packages/excalidraw/element/types'
-import { rotate } from '../../../packages/excalidraw/math'
-import Scene from '../../../packages/excalidraw/scene/Scene'
-import { PointerDownState } from '../../../packages/excalidraw/types'
 import { changeProperty } from '../../../packages/excalidraw/actions/actionProperties'
 import { newElementWith } from '../../../packages/excalidraw/element/mutateElement'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
@@ -21,7 +9,6 @@ import {
   isElementRelatedToMeta,
   isElementTarget,
 } from '../meta/types'
-import { Vector } from './math'
 
 /**
  * New propertries generic type. Where `T` is `ObjectiveMeta` or `ExcalidrawElement`.
@@ -77,12 +64,17 @@ export const mutateSelectedElsMeta = <TMeta extends ObjectiveMeta>(
     // No runtime type guard as we know for shore that *ALL* selected elements are Objective.
     .map((el) => mutateElementMeta(el as ObjectiveElement<TMeta>, newMeta))
 
-/** Mutate target meta */
+/**
+ * Mutate target.elements.customData property. Do not modify `target` meta values itself.
+ *
+ * @returns REFERENCE to new meta values
+ * */
 export const mutateMeta = <TMeta extends ObjectiveMeta>(target: TMeta, newMeta: Partial<TMeta>) => {
   // NOTE
   // As meta information are placed across each Objective primitive ExcalidrawElement
   // we update meta for Each element for target meta
   target.elements.forEach((el) => mutateElementMeta(el, newMeta as TMeta))
+  return { ...target, ...newMeta }
 }
 
 /**
@@ -149,72 +141,3 @@ export const changeElementProperty = <TElement extends ExcalidrawElement>(
   ),
   ...newElements,
 ]
-
-export const rotateElementOnAngle = <T extends ExcalidrawElement>(
-  element: T,
-  rotatePoint: Vector,
-  rotateAngle: number // radian
-) => {
-  const [x1, y1, x2, y2, cx, cy] = getElementAbsoluteCoords(element)
-  const [rotatedCX, rotatedCY] = rotate(cx, cy, rotatePoint.x, rotatePoint.y, rotateAngle)
-  mutateElement<ExcalidrawElement>(
-    element,
-    {
-      x: element.x + (rotatedCX - cx),
-      y: element.y + (rotatedCY - cy),
-      angle: normalizeAngle(rotateAngle),
-    },
-    false
-  )
-  return element
-}
-
-export const rotateMultipleElementsOnAngle = (
-  originalElements: PointerDownState['originalElements'],
-  elements: readonly NonDeletedExcalidrawElement[],
-  elementsMap: ElementsMap,
-  centerX: number,
-  centerY: number,
-  centerAngle: number
-) => {
-  elements
-    .filter((element) => !isFrameLikeElement(element))
-    .forEach((element) => {
-      const [x1, y1, x2, y2] = getElementAbsoluteCoords(element)
-      const cx = (x1 + x2) / 2
-      const cy = (y1 + y2) / 2
-      const origAngle = originalElements.get(element.id)?.angle ?? element.angle
-      const [rotatedCX, rotatedCY] = rotate(
-        cx,
-        cy,
-        centerX,
-        centerY,
-        centerAngle + origAngle - element.angle
-      )
-      mutateElement(
-        element,
-        {
-          x: element.x + (rotatedCX - cx),
-          y: element.y + (rotatedCY - cy),
-          angle: normalizeAngle(centerAngle + origAngle),
-        },
-        false
-      )
-      updateBoundElements(element, { simultaneouslyUpdated: elements })
-
-      const boundText = getBoundTextElement(element, elementsMap)
-      if (boundText && !isArrowElement(element)) {
-        mutateElement(
-          boundText,
-          {
-            x: boundText.x + (rotatedCX - cx),
-            y: boundText.y + (rotatedCY - cy),
-            angle: normalizeAngle(centerAngle + origAngle),
-          },
-          false
-        )
-      }
-    })
-
-  Scene.getScene(elements[0])?.informMutation()
-}

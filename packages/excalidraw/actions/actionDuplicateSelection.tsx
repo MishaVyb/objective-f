@@ -4,7 +4,6 @@ import {
   duplicateObjectiveEventHandler,
   duplicateObjectiveEventHandlerFilter,
 } from "../../../objective-app/objective/elements/events";
-import { Vector } from "../../../objective-app/objective/elements/math";
 import { ToolButton } from "../components/ToolButton";
 import { DuplicateIcon } from "../components/icons";
 import { duplicateElement, getNonDeletedElements } from "../element";
@@ -37,7 +36,6 @@ import { AppClassProperties, AppState } from "../types";
 import { arrayToMap, getShortcutKey } from "../utils";
 import { register } from "./register";
 import { ActionResult } from "./types";
-import { rotateElementOnAngle } from "../../../objective-app/objective/elements/mutateElements";
 
 export const actionDuplicateSelection = register({
   name: "duplicateSelection",
@@ -85,10 +83,7 @@ export const duplicateElements = (
   app: AppClassProperties,
 
   // VBRN
-  opts?: DuplicateHandlerOpts & {
-    shift: Vector;
-    rotate?: { center: Vector; angle: number };
-  },
+  opts?: DuplicateHandlerOpts,
 ): Partial<ActionResult> => {
   // ---------------------------------------------------------------------------
 
@@ -106,7 +101,7 @@ export const duplicateElements = (
       x: appState.gridSizeConfig / 2,
       y: appState.gridSizeConfig / 2,
     };
-    let newElement = duplicateElement(
+    const newElement = duplicateElement(
       appState.editingGroupId,
       groupIdMap,
       element,
@@ -115,14 +110,6 @@ export const duplicateElements = (
         y: element.y + shift.y,
       },
     );
-    if (opts?.rotate)
-      newElement = rotateElementOnAngle(
-        newElement,
-        opts.rotate.center,
-        opts.rotate.angle,
-      );
-    // VBRN
-
     oldIdToDuplicatedId.set(element.id, newElement.id);
     oldElements.push(element);
     newElements.push(newElement);
@@ -266,16 +253,14 @@ export const duplicateElements = (
   let finalElements = finalElementsReversed.reverse();
 
   // VBRN
-  const extraNewElements = duplicateObjectiveEventHandler(
-    finalElements.filter(
-      // handle only new elements // HACK do not use NonDeleted elements here!!!
-      (e) => !app.scene.getElementsMapIncludingDeleted().has(e.id),
-    ),
-    {
-      scene: app.scene,
-      ...opts,
-    },
+  // handle only new elements // HACK do not use NonDeleted elements here!!!
+  const newEls = finalElements.filter(
+    (e) => !app.scene.getElementsMapIncludingDeleted().has(e.id),
   );
+  const extraNewElements = duplicateObjectiveEventHandler(newEls, {
+    scene: app.scene,
+    ...opts,
+  });
   finalElements = arrangeElements(finalElements, extraNewElements);
   // VBRN
 

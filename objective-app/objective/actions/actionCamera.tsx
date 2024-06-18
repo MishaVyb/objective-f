@@ -274,7 +274,7 @@ export const actionChangeMetaCameraVersion = register({
               center: ensureVector(
                 getObjectiveRotationCenter(singleCamera, basisCenter.x, basisCenter.y)
               ),
-              angle: degreesToRadian(10), // FIXME
+              angle: singleCamera.basis!.angle + degreesToRadian(45),
             },
             newElementsMeta: {
               turnParentId: singleCamera.id,

@@ -1,14 +1,16 @@
 import { Button } from '@radix-ui/themes'
-import { normalizeAngle } from '../../../packages/excalidraw/element/resizeElements'
+import {
+  normalizeAngle,
+  rotateMultipleElements,
+} from '../../../packages/excalidraw/element/resizeElements'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import Scene from '../../../packages/excalidraw/scene/Scene'
 import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
 import { between } from '../elements/math'
 
-import { rotateMultipleElementsOnAngle } from '../elements/mutateElements'
 import { getLocationSnap } from '../elements/snapElements'
-import { getMetaSimple, getObjectiveSingleMeta, getSelectedSceneEls } from '../meta/selectors'
-import { LocationMeta, ObjectiveKinds, ObjectiveMeta, isKind, isKindEl, isObjective, isWallElement } from '../meta/types'
+import { getObjectiveSingleMeta, getSelectedSceneEls } from '../meta/selectors'
+import { LocationMeta, ObjectiveKinds, ObjectiveMeta } from '../meta/types'
 import { register } from './register'
 import { Share1Icon } from '@radix-ui/react-icons'
 import { LinearElementEditor } from '../../../packages/excalidraw/element/linearElementEditor'
@@ -87,10 +89,13 @@ export const performRotationLocationOnDragFinalize = (
     if (between(0.5 * PI, ang, PI)) ang = ang + PI
     else if (between(PI, ang, 1.5 * PI)) ang = ang - PI
 
-    rotateMultipleElementsOnAngle(
+    rotateMultipleElements(
       scene.getElementsMapIncludingDeleted(),
       selected,
       scene.getElementsMapIncludingDeleted(),
+      undefined,
+      undefined,
+      false,
       snap.basisCenter.x,
       snap.basisCenter.y,
       ang // rotate on that value

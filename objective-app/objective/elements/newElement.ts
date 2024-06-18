@@ -22,7 +22,7 @@ import Scene from '../../../packages/excalidraw/scene/Scene'
 import { Vector, ensurePoint, getElementCenter } from './math'
 import { DEFAULT_FOCUS_DISTANCE, getCameraLensAngle } from '../actions/actionCamera'
 import { LinearElementEditor } from '../../../packages/excalidraw/element/linearElementEditor'
-import { rotateElementOnAngle } from './mutateElements'
+
 import { HEX_TO_COLOR } from '../UI/colors'
 import { COLOR_PALETTE } from '../../../packages/excalidraw/colors'
 import {
@@ -31,6 +31,7 @@ import {
   getPushpinLineDemensions,
 } from './transformHandles'
 import { NormalizedZoomValue } from '../../../packages/excalidraw/types'
+import { rotateElementOnAngle } from './resizeElements'
 
 export const POINTER_COMMON = (): Partial<ExcalidrawArrowElement> => ({
   // locked: true, // ??? lock for label but not for images...

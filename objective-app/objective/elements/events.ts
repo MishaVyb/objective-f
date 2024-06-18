@@ -47,18 +47,24 @@ import { arrangeElements } from './zindex'
 import { Vector, getElementCenter } from './math'
 import { getDistance } from '../../../packages/excalidraw/gesture'
 import { actionCreatePointer, actionDeletePointer } from '../actions/actionMetaCommon'
-import { mutateMeta } from './mutateElements'
+
 import { createMetaRepr, deleteMetaRepr } from './metaRepr'
 import Scene from '../../../packages/excalidraw/scene/Scene'
 import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
 import { getContainerElement } from '../../../packages/excalidraw/element/textElement'
+import { mutateMeta } from './mutateElements'
+import { rotateMultipleElements } from '../../../packages/excalidraw/element/resizeElements'
 
 export type DuplicateHandlerOpts = {
+  shift?: Vector
+  rotate?: { center: Vector; angle: number }
+
+  newElementsMeta?: Partial<AnyObjectiveMeta>
+
   addPointerWith?: ObjectiveMeta
   addPointerSubkind?: PointerMeta['subkind']
   addPointerOverrides?: Partial<ExcalidrawArrowElement>
   addPointerReverseDirection?: boolean
-  newElementsMeta?: Partial<AnyObjectiveMeta>
 }
 
 /**
@@ -96,7 +102,16 @@ export const duplicateObjectiveEventHandlerFilter = (
 }
 
 /**
- * It's assumed that elements metas already copied properly by `initial.duplicateMeta`
+ * Objective logic on duplicate elements:
+ *
+ * Handle new elements:
+ * - adjust position & rotation (if needed)
+ *
+ * Add extra elements:
+ * - duplicate Pointers (if any)
+ * - duplicate Labels (if any)
+ *
+ * it's assumed that elements metas already copied properly by `initial.duplicateMeta`
  * @param newElements new (cloned/copied) elements
  */
 export const duplicateObjectiveEventHandler = (
@@ -106,11 +121,29 @@ export const duplicateObjectiveEventHandler = (
   }
 ) => {
   const extraNewEls: ExcalidrawElement[] = []
-  const metas = getObjectiveMetas(newElements) as Mutable<ObjectiveMeta>[]
 
+  const metas = getObjectiveMetas(newElements) as Mutable<ObjectiveMeta>[]
   metas.forEach((meta) => {
-    if (opts?.newElementsMeta) mutateMeta(meta, opts.newElementsMeta)
-    meta = opts?.newElementsMeta ? { ...meta, ...opts.newElementsMeta } : meta
+    if (opts?.newElementsMeta) meta = mutateMeta(meta, opts.newElementsMeta)
+
+    if (opts?.shift) {
+      // NOTE do nothing here with shift, as it's already applied at Excalidraw level at
+      // duplicateElements.duplicateAndOffsetElement
+    }
+    if (opts?.rotate) {
+      const center = getElementCenter(meta.basis!)
+      rotateMultipleElements(
+        new Map(),
+        meta.elements,
+        opts.scene!.getElementsMapIncludingDeleted(),
+        undefined,
+        undefined,
+        false,
+        center.x,
+        center.y,
+        opts.rotate.angle
+      )
+    }
 
     if (opts?.addPointerWith)
       extraNewEls.push(

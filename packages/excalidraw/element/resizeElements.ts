@@ -58,7 +58,7 @@ import {
 import { LinearElementEditor } from "./linearElementEditor";
 import {
   isElementsScalable,
-  rotateMultipleElementsObjectiveHandler,
+  getObjectiveItemRotationArgs,
 } from "../../../objective-app/objective/elements/resizeElements";
 
 export const normalizeAngle = (angle: number): number => {
@@ -906,27 +906,25 @@ export const resizeMultipleElements = (
   Scene.getScene(elementsAndUpdates[0].element)?.informMutation();
 };
 
-const rotateMultipleElements = (
+export const rotateMultipleElements = (
   originalElements: PointerDownState["originalElements"],
   elements: readonly NonDeletedExcalidrawElement[],
   elementsMap: ElementsMap,
-  pointerX: number,
-  pointerY: number,
+  pointerX: number | undefined,
+  pointerY: number | undefined,
   shouldRotateWithDiscreteAngle: boolean,
   centerX: number,
   centerY: number,
+  centerAngle?: number | undefined, // VBRN rotate on that angle, instead of getting it from pointerXY
 ) => {
-  let centerAngle =
-    (5 * Math.PI) / 2 + Math.atan2(pointerY - centerY, pointerX - centerX);
+  if (centerAngle === undefined)
+    centerAngle =
+      (5 * Math.PI) / 2 + Math.atan2(pointerY! - centerY, pointerX! - centerX);
 
   // VBRN
-  [centerX, centerY, centerAngle] = rotateMultipleElementsObjectiveHandler(
+  [centerX, centerY, centerAngle] = getObjectiveItemRotationArgs(
     originalElements,
     elements,
-    elementsMap,
-    pointerX,
-    pointerY,
-    shouldRotateWithDiscreteAngle,
     centerX,
     centerY,
     centerAngle,

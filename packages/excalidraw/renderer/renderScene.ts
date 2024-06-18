@@ -713,7 +713,7 @@ const _renderInteractiveScene = ({
       const meta = getObjectiveSingleMetaStrict(selectedElements);
       const pushpinAng = getPushpinAng(meta);
       const isShowTranfromHandle =
-        pushpinAng === undefined ? appState.isRotating : false;
+        pushpinAng === undefined ? !appState.isRotating : false;
       // VBRN
 
       const transformHandles = getTransformHandlesFromCoords(
