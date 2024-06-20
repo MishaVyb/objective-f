@@ -5,10 +5,10 @@ import { newElement } from '../../../packages/excalidraw/element'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { randomId, randomInteger } from '../../../packages/excalidraw/random'
 import { LibraryItem } from '../../../packages/excalidraw/types'
-import { getInitialMeta } from '../meta/initial'
-import { ObjectiveElement, ObjectiveKinds, ObjectiveMeta } from '../meta/types'
-import { mutateElementMeta } from '../elements/mutateElements'
-import { getMetaSimple } from '../meta/selectors'
+import { getInitialMeta } from '../meta/_initial'
+import { ObjectiveElement, ObjectiveKinds, ObjectiveMeta } from '../meta/_types'
+import { mutateElementMeta } from '../elements/_mutateElements'
+import { getMetaSimple } from '../meta/_selectors'
 
 const OBJ_COLOR_SHADE_INDEX = 2 // min: 0; max: 5
 const INTERNAL_INDEX_COLOR = COLOR_PALETTE.yellow[OBJ_COLOR_SHADE_INDEX]

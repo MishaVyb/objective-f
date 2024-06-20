@@ -1,7 +1,7 @@
 import { ElementsClipboard } from '../../../packages/excalidraw/clipboard'
 import { COLOR_PALETTE } from '../../../packages/excalidraw/colors'
 import { LibraryItem, LibraryItems } from '../../../packages/excalidraw/types'
-import { ObjectiveKinds } from '../meta/types'
+import { ObjectiveKinds } from '../meta/_types'
 import one from './characters/one'
 import two from './characters/two'
 

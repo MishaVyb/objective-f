@@ -8,7 +8,7 @@ import { getPerfectElementSize } from "./sizeHelpers";
 import { getBoundTextElement } from "./textElement";
 import { isArrowElement, isFrameLikeElement } from "./typeChecks";
 import { NonDeletedExcalidrawElement } from "./types";
-import { dragEventHandler } from "../../../objective-app/objective/elements/events";
+import { dragEventHandler } from "../../../objective-app/objective/elements/_events";
 
 export const dragSelectedElements = (
   pointerDownState: PointerDownState,

@@ -15,12 +15,12 @@ import { AppState } from "../types";
 import { Assert, SameType } from "../utility-types";
 import { randomInteger } from "../random";
 import { toBrandedType } from "../utils";
-import { arrangeElements } from "../../../objective-app/objective/elements/zindex";
-import { ObjectiveMetas } from "../../../objective-app/objective/meta/types";
+import { arrangeElements } from "../../../objective-app/objective/elements/_zIndex";
+import { ObjectiveMetas } from "../../../objective-app/objective/meta/_types";
 import {
   extractObjectiveMetas,
   groupByKind,
-} from "../../../objective-app/objective/meta/selectors";
+} from "../../../objective-app/objective/meta/_selectors";
 
 type ElementIdKey =
   | InstanceType<typeof LinearElementEditor>["elementId"]

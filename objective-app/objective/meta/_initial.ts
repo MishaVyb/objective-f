@@ -2,7 +2,7 @@ import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { randomId } from '../../../packages/excalidraw/random'
 import { MarkOptional, Mutable } from '../../../packages/excalidraw/utility-types'
 
-import { getMetaSimple } from './selectors'
+import { getMetaSimple } from './_selectors'
 import {
   AnyObjectiveMeta,
   ObjectiveKinds,
@@ -10,7 +10,7 @@ import {
   isCameraMeta,
   isKind,
   isObjective,
-} from './types'
+} from './_types'
 
 type TMetaOverrides = Record<ObjectiveKinds, Partial<Omit<AnyObjectiveMeta, 'kind'>>>
 type TOptionalMetaOverrides = MarkOptional<TMetaOverrides, keyof TMetaOverrides>

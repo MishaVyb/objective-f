@@ -45,14 +45,14 @@ import {
   ObjectiveKinds,
   isAllElementsObjective,
   isWallToolOrWallDrawing,
-} from "../../../objective-app/objective/meta/types";
+} from "../../../objective-app/objective/meta/_types";
 import { objectEntries } from "../../../objective-app/objective/utils/types";
 import { Button, Flex, Separator } from "@radix-ui/themes";
 import {
   ACCENT_COLOR,
   __DEBUG_EDITOR,
 } from "../../../objective-app/objective-plus/constants";
-import { getObjectiveMetas } from "../../../objective-app/objective/meta/selectors";
+import { getObjectiveMetas } from "../../../objective-app/objective/meta/_selectors";
 import { MixerHorizontalIcon } from "@radix-ui/react-icons";
 
 export const SelectedShapeActions = ({

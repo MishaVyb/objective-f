@@ -8,7 +8,7 @@ import {
   POINTER_COMMON,
   newMetaReprElement,
   newPointerBeetween,
-} from '../elements/newElement'
+} from '../elements/_newElement'
 import {
   getMetaSimple,
   getMetasCommonValue,
@@ -20,7 +20,7 @@ import {
   getSelectedCameraMetas,
   getSelectedObjectiveMetas,
   getSelectedSceneEls,
-} from '../meta/selectors'
+} from '../meta/_selectors'
 
 import { register } from './register'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
@@ -35,9 +35,9 @@ import {
   isObjective,
   isPure,
   isWallToolOrWallDrawing,
-} from '../meta/types'
+} from '../meta/_types'
 import { getCameraMetaReprStr, getCameraVersionStr } from './actionCamera'
-import { arrangeElements } from '../elements/zindex'
+import { arrangeElements } from '../elements/_zIndex'
 import {
   Blockquote,
   Button,
@@ -58,10 +58,10 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import { FC, ReactNode, useEffect, useState } from 'react'
 import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
-import { handleMetaRepresentation } from '../elements/metaRepr'
-import { mutateSelectedElsMeta, mutateMeta } from '../elements/mutateElements'
+import { handleMetaRepresentation } from '../elements/_metaRepr'
+import { mutateSelectedElsMeta, mutateMeta } from '../elements/_mutateElements'
 import clsx from 'clsx'
-import { isElementsScalable } from '../elements/resizeElements'
+import { isElementsScalable } from '../elements/_resizeElements'
 
 export const KbdLabel: FC<{ children: ReactNode; style?: any }> = ({ children, style }) => (
   <Kbd style={style}>

@@ -1,6 +1,6 @@
 import { ElementsClipboard } from '../../../packages/excalidraw/clipboard'
 import { LibraryItem, LibraryItems } from '../../../packages/excalidraw/types'
-import { ObjectiveKinds, ObjectiveMeta } from '../meta/types'
+import { ObjectiveKinds, ObjectiveMeta } from '../meta/_types'
 import { getInitialObjectiveItem } from './objectiveInitial'
 import doorOpen from './location/door-open'
 import doorClose from './location/door-close'

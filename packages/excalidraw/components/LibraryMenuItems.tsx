@@ -27,7 +27,7 @@ import Stack from "./Stack";
 
 import "./LibraryMenuItems.scss";
 import Spinner from "./Spinner";
-import { ObjectiveKinds } from "../../../objective-app/objective/meta/types";
+import { ObjectiveKinds } from "../../../objective-app/objective/meta/_types";
 import { WALL_IMAGE } from "../../../objective-app/objective/lib/location.library";
 
 import { useApp } from "./App";

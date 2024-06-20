@@ -11,30 +11,30 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
-import { POINTER_COMMON, newPointerBeetween } from '../elements/newElement'
+import { POINTER_COMMON, newPointerBeetween } from '../elements/_newElement'
 import {
   getObjectiveBasis,
   getCameraMetas,
   getShotCameraMetas,
   getPointers,
   getMetaByObjectiveId,
-} from '../meta/selectors'
+} from '../meta/_selectors'
 import {
   CameraMeta,
   ObjectiveImageElement,
   isDisplayed,
   isImageRelatedToCamera,
-} from '../meta/types'
-import { deleteEventHandler } from '../elements/events'
+} from '../meta/_types'
+import { deleteEventHandler } from '../elements/_events'
 
 import { register } from './register'
 import { Button, Flex, IconButton, Popover, Separator, Text } from '@radix-ui/themes'
 import { CameraIcon, CircleBackslashIcon, EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
 import { ImageIcon, TrashIcon } from '../../../packages/excalidraw/components/icons'
-import { changeElementMeta, changeElementProperty, mutateMeta } from '../elements/mutateElements'
-import { arrangeElements } from '../elements/zindex'
+import { changeElementMeta, changeElementProperty, mutateMeta } from '../elements/_mutateElements'
+import { arrangeElements } from '../elements/_zIndex'
 import { CameraBadge } from '../components/ShotListSidebarContent'
-import { useCamerasImages } from '../meta/hooks'
+import { useCamerasImages } from '../meta/_hooks'
 
 export const actionInitStoryboard = register({
   name: 'actionInitStoryboard',

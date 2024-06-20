@@ -14,10 +14,10 @@ import App, {
   useExcalidrawElements,
 } from '../../../packages/excalidraw/components/App'
 import { BinaryFiles } from '../../../packages/excalidraw/types'
-import { getCameraMetas, getSelectedSceneEls } from '../meta/selectors'
-import { CameraMeta, isWallToolOrWallDrawing } from '../meta/types'
+import { getCameraMetas, getSelectedSceneEls } from '../meta/_selectors'
+import { CameraMeta, isWallToolOrWallDrawing } from '../meta/_types'
 import { useMouse } from '../hooks/useMouse'
-import { getLastLineLength, numberToStr } from '../elements/math'
+import { getLastLineLength, numberToStr } from '../elements/_math'
 import { LoadingMessage } from '../../../packages/excalidraw/components/LoadingMessage'
 import { updateScenePersistence } from './ObjectiveOuterWrapper'
 import { useParams } from 'react-router-dom'

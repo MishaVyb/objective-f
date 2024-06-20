@@ -27,8 +27,8 @@ import {
   removeElementsFromFrame,
   replaceAllElementsInFrame,
 } from "../frame";
-import { isUngroupDissalawed } from "../../../objective-app/objective/elements/groups";
-import { getSelectedObjectiveMetas } from "../../../objective-app/objective/meta/selectors";
+import { isUngroupDissalawed } from "../../../objective-app/objective/elements/_groups";
+import { getSelectedObjectiveMetas } from "../../../objective-app/objective/meta/_selectors";
 
 const allElementsInSameGroup = (elements: readonly ExcalidrawElement[]) => {
   if (elements.length >= 2) {

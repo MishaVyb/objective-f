@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useApp, useExcalidrawElements } from '../../../packages/excalidraw/components/App'
 import { useExcalidrawFiles } from '../components/ObjectiveInnerWrapper'
-import { CameraMeta, ObjectiveImageElement } from './types'
+import { CameraMeta, ObjectiveImageElement } from './_types'
 import { InitializedExcalidrawImageElement } from '../../../packages/excalidraw/element/types'
 import { isInitializedImageElement } from '../../../packages/excalidraw/element/typeChecks'
 

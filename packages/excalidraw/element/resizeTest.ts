@@ -15,7 +15,7 @@ import {
 } from "./transformHandles";
 import { AppState, Zoom } from "../types";
 import { Bounds } from "./bounds";
-import { ObjectiveMeta } from "../../../objective-app/objective/meta/types";
+import { ObjectiveMeta } from "../../../objective-app/objective/meta/_types";
 
 const isInsideTransformHandle = (
   transformHandle: TransformHandle,

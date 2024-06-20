@@ -1,7 +1,7 @@
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { AppState } from '../../../packages/excalidraw/types'
-import { getMeta, isElementSelected } from './selectors'
-import { ObjectiveKinds, ObjectiveMeta, ObjectiveMetas, isObjective, isSupportsTurn } from './types'
+import { getMeta, isElementSelected } from './_selectors'
+import { ObjectiveKinds, ObjectiveMeta, ObjectiveMetas, isObjective, isSupportsTurn } from './_types'
 
 // TODO
 class ObjectiveMetaScene {}

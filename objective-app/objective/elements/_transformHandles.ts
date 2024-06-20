@@ -6,10 +6,10 @@ import {
 } from '../../../packages/excalidraw/element/transformHandles'
 import { ElementsMapOrArray } from '../../../packages/excalidraw/element/types'
 import { AppState, NormalizedZoomValue } from '../../../packages/excalidraw/types'
-import { scene_getTurnChildren, scene_getTurnParent } from '../meta/scene'
-import { getObjectiveSingleMetaStrict, isElementSelected } from '../meta/selectors'
-import { ObjectiveMeta, ObjectiveMetas, isSupportsTurn } from '../meta/types'
-import { getElementCenter } from './math'
+import { scene_getTurnChildren, scene_getTurnParent } from '../meta/_scene'
+import { getObjectiveSingleMetaStrict, isElementSelected } from '../meta/_selectors'
+import { ObjectiveMeta, ObjectiveMetas, isSupportsTurn } from '../meta/_types'
+import { getElementCenter } from './_math'
 
 const PUSHPIN_DISTANCE_MARGIN = 10
 

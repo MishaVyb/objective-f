@@ -5,7 +5,7 @@ import {
   useExcalidrawSetAppState,
 } from '../../../packages/excalidraw/components/App'
 import { AppState } from '../../../packages/excalidraw/types'
-import { numberToStr } from '../elements/math'
+import { numberToStr } from '../elements/_math'
 import { __DEBUG_EDITOR } from '../../objective-plus/constants'
 import { RestoredAppState } from '../../../packages/excalidraw/data/restore'
 

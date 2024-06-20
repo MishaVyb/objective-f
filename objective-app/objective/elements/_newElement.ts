@@ -12,14 +12,14 @@ import {
   ExcalidrawTextElementWithContainer,
   NonDeletedSceneElementsMap,
 } from '../../../packages/excalidraw/element/types'
-import { getObjectiveBasis, getPointerIds } from '../meta/selectors'
-import { CameraMeta, ObjectiveKinds, ObjectiveMeta, PointerMeta } from '../meta/types'
-import { getInitialMeta } from '../meta/initial'
+import { getObjectiveBasis, getPointerIds } from '../meta/_selectors'
+import { CameraMeta, ObjectiveKinds, ObjectiveMeta, PointerMeta } from '../meta/_types'
+import { getInitialMeta } from '../meta/_initial'
 
 import { randomId } from '../../../packages/excalidraw/random'
 import { DEFAULT_FONT_SIZE } from '../../../packages/excalidraw/constants'
 import Scene from '../../../packages/excalidraw/scene/Scene'
-import { Vector, ensurePoint, getElementCenter } from './math'
+import { Vector, ensurePoint, getElementCenter } from './_math'
 import { DEFAULT_FOCUS_DISTANCE, getCameraLensAngle } from '../actions/actionCamera'
 import { LinearElementEditor } from '../../../packages/excalidraw/element/linearElementEditor'
 
@@ -29,9 +29,9 @@ import {
   getPushpinAng,
   getPushpinHeadDemensions,
   getPushpinLineDemensions,
-} from './transformHandles'
+} from './_transformHandles'
 import { NormalizedZoomValue } from '../../../packages/excalidraw/types'
-import { rotateElementOnAngle } from './resizeElements'
+import { rotateElementOnAngle } from './_resizeElements'
 
 export const POINTER_COMMON = (): Partial<ExcalidrawArrowElement> => ({
   // locked: true, // ??? lock for label but not for images...

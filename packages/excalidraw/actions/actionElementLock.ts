@@ -1,5 +1,5 @@
-import { getObjectiveMetas } from "../../../objective-app/objective/meta/selectors";
-import { isObjectiveHidden } from "../../../objective-app/objective/meta/types";
+import { getObjectiveMetas } from "../../../objective-app/objective/meta/_selectors";
+import { isObjectiveHidden } from "../../../objective-app/objective/meta/_types";
 import { newElementWith } from "../element/mutateElement";
 import { isFrameLikeElement } from "../element/typeChecks";
 import { ExcalidrawElement } from "../element/types";

@@ -16,8 +16,8 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import { arrayToMap } from '../../../packages/excalidraw/utils'
 import { __DEBUG_DISABLE_ARRANGE } from '../../objective-plus/constants'
-import { getMetaSimple } from '../meta/selectors'
-import { ObjectiveKinds, isKindEl, isObjective, isSubkindEl } from '../meta/types'
+import { getMetaSimple } from '../meta/_selectors'
+import { ObjectiveKinds, isKindEl, isObjective, isSubkindEl } from '../meta/_types'
 
 // TODO
 // remember order tha user have applied for specific elements

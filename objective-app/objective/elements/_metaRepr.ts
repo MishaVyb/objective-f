@@ -10,10 +10,10 @@ import {
   ExcalidrawTextElementWithContainer,
 } from '../../../packages/excalidraw/element/types'
 import Scene from '../../../packages/excalidraw/scene/Scene'
-import { ObjectiveKinds, ObjectiveMeta, isKind } from '../meta/types'
-import { getObjectiveBasis, getPointerIds } from '../meta/selectors'
+import { ObjectiveKinds, ObjectiveMeta, isKind } from '../meta/_types'
+import { getObjectiveBasis, getPointerIds } from '../meta/_selectors'
 import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
-import { mutateMeta } from './mutateElements'
+import { mutateMeta } from './_mutateElements'
 import { arrayToMap } from '../../../packages/excalidraw/utils'
 
 type TNewReprConstructor = (

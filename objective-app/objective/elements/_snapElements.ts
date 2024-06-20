@@ -16,9 +16,9 @@ import {
   isTargetInsideLineArea,
   ensurePoint,
   getBasisPoints,
-} from './math'
-import { getObjectiveBasis, getObjectiveMetas } from '../meta/selectors'
-import { LocationMeta, isWallElement } from '../meta/types'
+} from './_math'
+import { getObjectiveBasis, getObjectiveMetas } from '../meta/_selectors'
+import { LocationMeta, isWallElement } from '../meta/_types'
 import { PointSnapLine } from '../../../packages/excalidraw/snapping'
 
 const LOCATION_SNAP_DISTANCE = 50

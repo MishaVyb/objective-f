@@ -12,7 +12,7 @@ import { ExcalidrawElement, NonDeleted } from "../element/types";
 import { SvgCache } from "../hooks/useLibraryItemSvg";
 import { useTransition } from "../hooks/useTransition";
 import { groupByV2 } from "../../../objective-app/objective/utils/helpers";
-import { getObjectiveSingleMeta } from "../../../objective-app/objective/meta/selectors";
+import { getObjectiveSingleMeta } from "../../../objective-app/objective/meta/_selectors";
 import { Flex, Separator } from "@radix-ui/themes";
 import * as HoverCard from "@radix-ui/react-hover-card";
 

@@ -1,10 +1,10 @@
-import { decomposeWall } from "../../objective-app/objective/elements/linerElementsEditor";
-import { snapDraggedElementsLocation } from "../../objective-app/objective/elements/snapElements";
+import { decomposeWall } from "../../objective-app/objective/elements/_linerElementsEditor";
+import { snapDraggedElementsLocation } from "../../objective-app/objective/elements/_snapElements";
 import {
 
   isLocationMeta,
   isWallElement,
-} from "../../objective-app/objective/meta/types";
+} from "../../objective-app/objective/meta/_types";
 import { TOOL_TYPE } from "./constants";
 import {
   Bounds,

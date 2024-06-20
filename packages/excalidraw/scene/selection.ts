@@ -2,7 +2,7 @@ import {
   MaybeMeta,
   isMeta,
   isNotSelectableOnGroupSelection,
-} from "../../../objective-app/objective/meta/types";
+} from "../../../objective-app/objective/meta/_types";
 
 import { getElementAbsoluteCoords, getElementBounds } from "../element";
 import { isElementInViewport } from "../element/sizeHelpers";

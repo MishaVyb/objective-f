@@ -1,14 +1,14 @@
 import { getElementAbsoluteCoords } from ".";
 import { __DEBUG_DISABLE_APPLY_DEFAULTS } from "../../../objective-app/objective-plus/constants";
-import { duplicateObjectiveEventHandler } from "../../../objective-app/objective/elements/events";
+import { duplicateObjectiveEventHandler } from "../../../objective-app/objective/elements/_events";
 import {
   duplicateMeta,
   getInitialMeta,
-} from "../../../objective-app/objective/meta/initial";
+} from "../../../objective-app/objective/meta/_initial";
 import {
   ObjectiveKinds,
   isWall,
-} from "../../../objective-app/objective/meta/types";
+} from "../../../objective-app/objective/meta/_types";
 import { COLOR_PALETTE } from "../colors";
 import {
   DEFAULT_ELEMENT_PROPS,

@@ -88,13 +88,13 @@ import {
   getTargetFrame,
   isElementInFrame,
 } from "../frame";
-import { renderObjectiveScene } from "../../../objective-app/objective/elements/renderScene";
-import { getPushpinAng } from "../../../objective-app/objective/elements/transformHandles";
-import { isElementsScalable } from "../../../objective-app/objective/elements/resizeElements";
+import { renderObjectiveScene } from "../../../objective-app/objective/elements/_renderScene";
+import { getPushpinAng } from "../../../objective-app/objective/elements/_transformHandles";
+import { isElementsScalable } from "../../../objective-app/objective/elements/_resizeElements";
 import {
   getObjectiveMetas,
   getObjectiveSingleMetaStrict,
-} from "../../../objective-app/objective/meta/selectors";
+} from "../../../objective-app/objective/meta/_selectors";
 
 const strokeRectWithRotation = (
   context: CanvasRenderingContext2D,

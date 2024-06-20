@@ -6,11 +6,11 @@ import { useDevice } from "./App";
 import "./LibraryUnit.scss";
 import { PlusIcon } from "./icons";
 import { Flex, Text, Tooltip } from "@radix-ui/themes";
-import { getMetaSimple } from "../../../objective-app/objective/meta/selectors";
+import { getMetaSimple } from "../../../objective-app/objective/meta/_selectors";
 import {
   ObjectiveElement,
   ObjectiveMeta,
-} from "../../../objective-app/objective/meta/types";
+} from "../../../objective-app/objective/meta/_types";
 
 //@ts-ignore
 export const LibraryUnitAsImage: FC<{

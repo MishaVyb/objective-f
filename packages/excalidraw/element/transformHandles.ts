@@ -13,8 +13,8 @@ import { DEFAULT_TRANSFORM_HANDLE_SPACING } from "../constants";
 import {
   getPushpinAng,
   getPushpinLineDistance,
-} from "../../../objective-app/objective/elements/transformHandles";
-import { ObjectiveMeta } from "../../../objective-app/objective/meta/types";
+} from "../../../objective-app/objective/elements/_transformHandles";
+import { ObjectiveMeta } from "../../../objective-app/objective/meta/_types";
 
 export type TransformHandleDirection =
   | "n"

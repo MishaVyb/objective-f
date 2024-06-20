@@ -16,7 +16,7 @@ import {
   PointerDownState,
 } from '../../../packages/excalidraw/types'
 import { Mutable } from '../../../packages/excalidraw/utility-types'
-import { newMetaReprElement, newPointerBeetween } from './newElement'
+import { newMetaReprElement, newPointerBeetween } from './_newElement'
 import {
   getObjectiveBasis,
   getObjectiveMetas,
@@ -24,7 +24,7 @@ import {
   getMetaByObjectiveId,
   getPointerIds,
   getMetaSimple,
-} from '../meta/selectors'
+} from '../meta/_selectors'
 import {
   AnyObjectiveMeta,
   ObjectiveKinds,
@@ -33,26 +33,26 @@ import {
   isCameraMeta,
   isKind,
   isObjective,
-} from '../meta/types'
+} from '../meta/_types'
 import {
   actionSnapLocation,
   performRotationLocationOnDragFinalize,
 } from '../actions/actionLocation'
 
-import { snapDraggedElementsLocation } from './snapElements'
+import { snapDraggedElementsLocation } from './_snapElements'
 import { getCameraMetaReprStr } from '../actions/actionCamera'
 import { AllExcalidrawElements } from '../../../packages/excalidraw/actions/types'
-import { arrangeElements } from './zindex'
+import { arrangeElements } from './_zIndex'
 
-import { Vector, getElementCenter } from './math'
+import { Vector, getElementCenter } from './_math'
 import { getDistance } from '../../../packages/excalidraw/gesture'
 import { actionCreatePointer, actionDeletePointer } from '../actions/actionMetaCommon'
 
-import { createMetaRepr, deleteMetaRepr } from './metaRepr'
+import { createMetaRepr, deleteMetaRepr } from './_metaRepr'
 import Scene from '../../../packages/excalidraw/scene/Scene'
 import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
 import { getContainerElement } from '../../../packages/excalidraw/element/textElement'
-import { mutateMeta } from './mutateElements'
+import { mutateMeta } from './_mutateElements'
 import { rotateMultipleElements } from '../../../packages/excalidraw/element/resizeElements'
 
 export type DuplicateHandlerOpts = {

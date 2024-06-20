@@ -1,6 +1,6 @@
 import { ElementsClipboard } from '../../../packages/excalidraw/clipboard'
 import { LibraryItem, LibraryItems } from '../../../packages/excalidraw/types'
-import { ObjectiveKinds } from '../meta/types'
+import { ObjectiveKinds } from '../meta/_types'
 import { getInitialObjectiveItem } from './objectiveInitial'
 
 import bottle from './props/bottle'

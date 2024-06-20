@@ -14,21 +14,21 @@ import { getFormValue } from '../../../packages/excalidraw/actions/actionPropert
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
-import { newMetaReprElement } from '../elements/newElement'
+import { newMetaReprElement } from '../elements/_newElement'
 
 import {
   getCameraMetas,
   getMetasCommonValue,
   getObjectiveSingleMeta,
   getSelectedCameraMetas,
-} from '../meta/selectors'
-import { CameraFormat, CameraMeta, isAllElementsCameras, isCameraElement } from '../meta/types'
+} from '../meta/_selectors'
+import { CameraFormat, CameraMeta, isAllElementsCameras, isCameraElement } from '../meta/_types'
 
 import { register } from './register'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
 import { Button, Code, Flex, IconButton, Select, Separator, Text } from '@radix-ui/themes'
-import { handleMetaRepresentation } from '../elements/metaRepr'
-import { mutateSelectedElsMeta } from '../elements/mutateElements'
+import { handleMetaRepresentation } from '../elements/_metaRepr'
+import { mutateSelectedElsMeta } from '../elements/_mutateElements'
 import { duplicateElements } from '../../../packages/excalidraw/actions/actionDuplicateSelection'
 import {
   degreesToRadian,
@@ -36,11 +36,11 @@ import {
   getElementCenter,
   numberToStr,
   radianToDegrees,
-} from '../elements/math'
+} from '../elements/_math'
 import { getRadixColor } from '../UI/colors'
 import { EasyInput } from '../UI/InputEasyIn'
 import clsx from 'clsx'
-import { getObjectiveRotationCenter } from '../elements/resizeElements'
+import { getObjectiveRotationCenter } from '../elements/_resizeElements'
 
 type TChangeShotActionValue = 'init' | 'remove' | 'incraseShotNumber' | 'decraseShotNumber'
 

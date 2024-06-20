@@ -34,7 +34,7 @@ import { ERROR_REPR_DELTA_SEC, ObjectiveErrorCollout } from '../../objective-plu
 
 // import after all others
 import { OBJECTIVE_LIB as OBJECTIVE_LIB_ITEMS } from '../lib'
-import { getShotCameraMetas } from '../meta/selectors'
+import { getShotCameraMetas } from '../meta/_selectors'
 
 /**
  * saving...

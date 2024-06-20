@@ -14,13 +14,13 @@ import {
   getBasisPoints,
   getLineFunc,
   getRectangleCoordinates,
-} from "../../../objective-app/objective/elements/math";
+} from "../../../objective-app/objective/elements/_math";
 import { Code, Flex, Separator, Tabs, Text } from "@radix-ui/themes";
 import {
   getObjectiveBasis,
   getObjectiveSingleMeta,
-} from "../../../objective-app/objective/meta/selectors";
-import { BasisElementType } from "../../../objective-app/objective/elements/snapElements";
+} from "../../../objective-app/objective/meta/_selectors";
+import { BasisElementType } from "../../../objective-app/objective/elements/_snapElements";
 import {
   objectEntries,
   objectKeys,

@@ -2,7 +2,7 @@ import { GetThunkAPI } from '@reduxjs/toolkit/dist/createAsyncThunk'
 import { RootState } from './store'
 import { resetAuth } from './auth/actions'
 import { APIError } from './projects/reducer'
-import { ensureMap } from '../../objective/meta/types'
+import { ensureMap } from '../../objective/meta/_types'
 
 export interface ThunkApiConfig {
   rejectValue: APIError

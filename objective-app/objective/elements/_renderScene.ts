@@ -2,10 +2,10 @@ import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { renderElement } from '../../../packages/excalidraw/renderer/renderElement'
 import { StaticSceneRenderConfig } from '../../../packages/excalidraw/scene/types'
 import { AppState } from '../../../packages/excalidraw/types'
-import { getObjectiveMetas } from '../meta/selectors'
-import { isCameraMeta, isObjectiveHidden } from '../meta/types'
-import { getCameraLensAngleElements, getPushpinElements } from './newElement'
-import { isPushbinHandlePotential } from './transformHandles'
+import { getObjectiveMetas } from '../meta/_selectors'
+import { isCameraMeta, isObjectiveHidden } from '../meta/_types'
+import { getCameraLensAngleElements, getPushpinElements } from './_newElement'
+import { isPushbinHandlePotential } from './_transformHandles'
 
 export const renderObjectiveScene = (
   {

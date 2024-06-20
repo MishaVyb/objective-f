@@ -10,10 +10,10 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import { rotate } from '../../../packages/excalidraw/math'
 import { PointerDownState } from '../../../packages/excalidraw/types'
-import { getObjectiveMetas, getObjectiveSingleMetaStrict } from '../meta/selectors'
-import { ObjectiveMeta, isPure } from '../meta/types'
-import { Vector, ensureVector } from './math'
-import { getPushpinAng, getPushpinAngNoShift } from './transformHandles'
+import { getObjectiveMetas, getObjectiveSingleMetaStrict } from '../meta/_selectors'
+import { ObjectiveMeta, isPure } from '../meta/_types'
+import { Vector, ensureVector } from './_math'
+import { getPushpinAng, getPushpinAngNoShift } from './_transformHandles'
 
 // pure elements doesn't support disabling resize
 export const isResizeDisabled = (meta: ObjectiveMeta) => !isPure(meta) && meta.disableResize

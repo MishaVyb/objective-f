@@ -3,14 +3,14 @@ import { shouldLock } from '../../../packages/excalidraw/actions/actionElementLo
 import { getBoundTextElement } from '../../../packages/excalidraw/element/textElement'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { arrayToMap } from '../../../packages/excalidraw/utils'
-import { META_REPR_CONTAINER_INITIAL } from '../elements/newElement'
+import { META_REPR_CONTAINER_INITIAL } from '../elements/_newElement'
 import {
   getInternalElementsSet,
   getObjectiveMetas,
   getPointerIds,
   getPointers,
-} from '../meta/selectors'
-import { isObjectiveHidden } from '../meta/types'
+} from '../meta/_selectors'
+import { isObjectiveHidden } from '../meta/_types'
 import { register } from './register'
 
 type TChangeOpacityObjective = {

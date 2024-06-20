@@ -52,8 +52,8 @@ import { shouldShowBoundingBox } from "./transformHandles";
 import { getBoundTextElement } from "./textElement";
 import { Mutable } from "../utility-types";
 import { ShapeCache } from "../scene/ShapeCache";
-import { ObjectiveMetas } from "../../../objective-app/objective/meta/types";
-import { isObjectiveElementHit } from "../../../objective-app/objective/elements/collision";
+import { ObjectiveMetas } from "../../../objective-app/objective/meta/_types";
+import { isObjectiveElementHit } from "../../../objective-app/objective/elements/_collision";
 
 const isElementDraggableFromInside = (
   element: NonDeletedExcalidrawElement,

@@ -14,7 +14,7 @@ import {
   isObjectiveHidden,
   isKindValue,
   isObjective,
-} from '../meta/types'
+} from '../meta/_types'
 import {
   ElementsMap,
   ExcalidrawElement,
@@ -33,7 +33,7 @@ import {
   actionChangeOpacityObjective,
   actionToggleElementLockObjective,
 } from '../actions/actionElements'
-import { getNotInternalElementsFromMeta } from '../meta/selectors'
+import { getNotInternalElementsFromMeta } from '../meta/_selectors'
 import { isBoundToContainer } from '../../../packages/excalidraw/element/typeChecks'
 
 const getElementTypesMap = (els: readonly ExcalidrawElement[] | ElementsMap) => {

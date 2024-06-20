@@ -59,7 +59,7 @@ import { LinearElementEditor } from "./linearElementEditor";
 import {
   isElementsScalable,
   getObjectiveItemRotationArgs,
-} from "../../../objective-app/objective/elements/resizeElements";
+} from "../../../objective-app/objective/elements/_resizeElements";
 
 export const normalizeAngle = (angle: number): number => {
   if (angle < 0) {

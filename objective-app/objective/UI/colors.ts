@@ -1,8 +1,8 @@
 import { Badge, Code } from '@radix-ui/themes'
 import { COLOR_PALETTE, ColorPickerColor } from '../../../packages/excalidraw/colors'
 import { objectEntries } from '../utils/types'
-import { ObjectiveMeta } from '../meta/types'
-import { getObjectiveBasis } from '../meta/selectors'
+import { ObjectiveMeta } from '../meta/_types'
+import { getObjectiveBasis } from '../meta/_selectors'
 
 export type TBadgeProps = Parameters<typeof Badge>[0]
 export type TBadgeColor = TBadgeProps['color']

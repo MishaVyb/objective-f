@@ -420,21 +420,21 @@ import {
   isObjective,
   ensureArray,
   ensureMap,
-} from "../../../objective-app/objective/meta/types";
-import { getInitialMeta } from "../../../objective-app/objective/meta/initial";
+} from "../../../objective-app/objective/meta/_types";
+import { getInitialMeta } from "../../../objective-app/objective/meta/_initial";
 import { actionToggleGridSnapMode } from "../../../objective-app/objective/actions/actionSettings";
 import {
   addElementsFromPasteOrLibraryHandler,
   duplicateObjectiveEventHandler,
   duplicateObjectiveEventHandlerFilter,
   onPointerUpFromPointerDownEventHandler,
-} from "../../../objective-app/objective/elements/events";
-import { arrangeElements } from "../../../objective-app/objective/elements/zindex";
+} from "../../../objective-app/objective/elements/_events";
+import { arrangeElements } from "../../../objective-app/objective/elements/_zIndex";
 import {
   getCameraMetas,
   getObjectiveBasis,
   getObjectiveSingleMetaStrict,
-} from "../../../objective-app/objective/meta/selectors";
+} from "../../../objective-app/objective/meta/_selectors";
 import {
   actionCreatePointer,
   actionToggleScalable,
@@ -443,7 +443,7 @@ import {
   __DEBUG_DISABLE_APPLY_DEFAULTS,
   __DEBUG_LOG_POINTER_CORDS,
 } from "../../../objective-app/objective-plus/constants";
-import { isGroupEditingDissalawed } from "../../../objective-app/objective/elements/groups";
+import { isGroupEditingDissalawed } from "../../../objective-app/objective/elements/_groups";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);

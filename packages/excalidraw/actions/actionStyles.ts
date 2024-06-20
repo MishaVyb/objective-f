@@ -28,8 +28,8 @@ import { ExcalidrawTextElement } from "../element/types";
 import {
   getInternalElementsSet,
   getSelectedSceneEls,
-} from "../../../objective-app/objective/meta/selectors";
-import { isObjective } from "../../../objective-app/objective/meta/types";
+} from "../../../objective-app/objective/meta/_selectors";
+import { isObjective } from "../../../objective-app/objective/meta/_types";
 
 // `copiedStyles` is exported only for tests.
 export let copiedStyles: string = "{}";

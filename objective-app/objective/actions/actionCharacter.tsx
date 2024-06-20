@@ -1,14 +1,14 @@
 import { EnterIcon, ExitIcon } from '@radix-ui/react-icons'
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
-import { getObjectiveSingleMeta, getSelectedSceneEls } from '../meta/selectors'
+import { getObjectiveSingleMeta, getSelectedSceneEls } from '../meta/_selectors'
 
 import { register } from './register'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
 import { Button, Flex } from '@radix-ui/themes'
-import { handleMetaRepresentation } from '../elements/metaRepr'
+import { handleMetaRepresentation } from '../elements/_metaRepr'
 import { duplicateElements } from '../../../packages/excalidraw/actions/actionDuplicateSelection'
-import { ObjectiveKinds, isKind } from '../meta/types'
+import { ObjectiveKinds, isKind } from '../meta/_types'
 
 type TChangeVersionActionValue = 'moveTo' | 'moveFrom'
 

@@ -6,8 +6,8 @@ import {
   useExcalidrawAppState,
   useExcalidrawSetAppState,
 } from '../../../packages/excalidraw/components/App'
-import { getObjectiveBasis, getSelectedCameraMetas } from '../meta/selectors'
-import { CameraElement, CameraMeta } from '../meta/types'
+import { getObjectiveBasis, getSelectedCameraMetas } from '../meta/_selectors'
+import { CameraElement, CameraMeta } from '../meta/_types'
 import * as Collapsible from '@radix-ui/react-collapsible'
 import {
   AngleIcon,
@@ -33,8 +33,8 @@ import { TBadgeProps, getRadixColor } from '../UI/colors'
 import { groupBy } from '../utils/helpers'
 import { distributeLibraryItemsOnSquareGrid } from '../../../packages/excalidraw/data/library'
 import { LIB_CAMERAS } from '../lib/cameras.library'
-import { numberToStr } from '../elements/math'
-import { useCameraImages } from '../meta/hooks'
+import { numberToStr } from '../elements/_math'
+import { useCameraImages } from '../meta/_hooks'
 
 const ShotListSidebarContent: FC = () => {
   const app = useApp()

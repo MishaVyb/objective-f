@@ -25,7 +25,7 @@ import {
   isKindEl,
   isObjective,
   isWallElement,
-} from './types'
+} from './_types'
 import { randomId } from '../../../packages/excalidraw/random'
 import { groupBy } from '../utils/helpers'
 import { objectValues } from '../utils/types'

@@ -1,10 +1,10 @@
 import { isHittingElementNotConsideringBoundingBox } from '../../../packages/excalidraw/element/collision'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { AppState, FrameNameBoundsCache, Point } from '../../../packages/excalidraw/types'
-import { scene_getTurnChildren, scene_getTurnParent } from '../meta/scene'
-import { getMeta } from '../meta/selectors'
-import { ObjectiveMetas, isObjective } from '../meta/types'
-import { getPushpinHeadElement } from './newElement'
+import { scene_getTurnChildren, scene_getTurnParent } from '../meta/_scene'
+import { getMeta } from '../meta/_selectors'
+import { ObjectiveMetas, isObjective } from '../meta/_types'
+import { getPushpinHeadElement } from './_newElement'
 
 export const isObjectiveElementHit = (
   objectiveScene: ObjectiveMetas,

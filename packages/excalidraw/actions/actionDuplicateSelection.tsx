@@ -1,9 +1,9 @@
-import { arrangeElements } from "../../../objective-app/objective/elements/zindex";
+import { arrangeElements } from "../../../objective-app/objective/elements/_zIndex";
 import {
   DuplicateHandlerOpts,
   duplicateObjectiveEventHandler,
   duplicateObjectiveEventHandlerFilter,
-} from "../../../objective-app/objective/elements/events";
+} from "../../../objective-app/objective/elements/_events";
 import { ToolButton } from "../components/ToolButton";
 import { DuplicateIcon } from "../components/icons";
 import { duplicateElement, getNonDeletedElements } from "../element";

@@ -100,7 +100,7 @@ import { __DEBUG_EDITOR } from "../../../objective-app/objective-plus/constants"
 import {
   getInternalElementsSet,
   getSelectedSceneEls,
-} from "../../../objective-app/objective/meta/selectors";
+} from "../../../objective-app/objective/meta/_selectors";
 
 const FONT_SIZE_RELATIVE_INCREASE_STEP = 0.1;
 

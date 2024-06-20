@@ -10,7 +10,7 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import { ActiveTool, BinaryFileData } from '../../../packages/excalidraw/types'
 import { arrayToMap } from '../../../packages/excalidraw/utils'
-import { Vector } from '../elements/math'
+import { Vector } from '../elements/_math'
 import { enumKeyTypeGuardFactory, enumValueTypeGuardFactory } from '../utils/types'
 
 export enum ObjectiveKinds {

@@ -8,7 +8,7 @@ import {
   ObjectiveMeta,
   isElementRelatedToMeta,
   isElementTarget,
-} from '../meta/types'
+} from '../meta/_types'
 
 /**
  * New propertries generic type. Where `T` is `ObjectiveMeta` or `ExcalidrawElement`.
