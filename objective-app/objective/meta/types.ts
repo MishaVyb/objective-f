@@ -177,6 +177,10 @@ export type WeekMeta<TMeta extends ObjectiveMeta = ObjectiveMeta> = Omit<
 >
 
 type _SupportsTurnMetaMixin = {
+  /**
+   * - all child turn's related to one parent (initial object)
+   * - turns order simple depends on elements order in Excalidraw scene (no custom order logic yet)
+   * */
   turnParentId?: ObjectiveMeta['id']
 }
 

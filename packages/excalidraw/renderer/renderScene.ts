@@ -932,6 +932,7 @@ const _renderStaticScene = ({
   scale,
   appState,
   renderConfig,
+  app,
 }: StaticSceneRenderConfig) => {
   if (canvas === null) {
     return;
@@ -1046,6 +1047,7 @@ const _renderStaticScene = ({
       scale,
       appState,
       renderConfig,
+      app,
     },
     context,
   );

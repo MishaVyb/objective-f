@@ -277,7 +277,7 @@ export const actionChangeMetaCameraVersion = register({
               angle: singleCamera.basis!.angle + degreesToRadian(45),
             },
             newElementsMeta: {
-              turnParentId: singleCamera.id,
+              turnParentId: singleCamera.turnParentId || singleCamera.id,
               // shotVersion: newCameraShotVers, // FIXME
               nameRepr: undefined,
             },

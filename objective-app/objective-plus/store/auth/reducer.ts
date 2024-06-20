@@ -85,7 +85,7 @@ const reducer = createReducer(initialState, (builder) => {
   builder.addCase(loadUser.fulfilled, (state, action) =>
     saveToLocalStorage(LOCAL_STORAGE.AUTH, {
       ...state,
-      users: mergeArraysById(state.users, [action.payload]).sort((a, b) => orderBy(undefined, a, b)),
+      users: mergeArraysById(state.users, [action.payload]),
     })
   )
 

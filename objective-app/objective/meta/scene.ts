@@ -1,6 +1,6 @@
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { AppState } from '../../../packages/excalidraw/types'
-import { getMeta } from './selectors'
+import { getMeta, isElementSelected } from './selectors'
 import { ObjectiveKinds, ObjectiveMeta, ObjectiveMetas, isObjective, isSupportsTurn } from './types'
 
 // TODO
@@ -33,7 +33,7 @@ export const scene_getTurnParent = (
 
   if (
     opts?.isSelected !== undefined &&
-    isElementSelectedStrict(_appState, turnParentItem.basis!) !== opts.isSelected
+    isElementSelected(_appState, turnParentItem.basis!) !== opts.isSelected
   )
     return
 
@@ -57,9 +57,6 @@ export const scene_getTurnChildren = (
     (m) =>
       isSupportsTurn(m) &&
       m.turnParentId === meta.id &&
-      (opts?.isSelected === undefined || isElementSelectedStrict(_appState, m.basis!))
+      (opts?.isSelected === undefined || isElementSelected(_appState, m.basis!))
   )
 }
-
-const isElementSelectedStrict = (appState: AppState, element: ExcalidrawElement) =>
-  Boolean(appState.selectedElementIds[element.id])

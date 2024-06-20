@@ -387,3 +387,6 @@ export const getMetaByObjectiveId = (
   elements: readonly ExcalidrawElement[],
   id: ObjectiveMeta['id']
 ) => getObjectiveSingleMeta(getElementsByObjectiveId(elements, id))
+
+export const isElementSelected = (appState: AppState, element: ExcalidrawElement) =>
+  Boolean(appState.selectedElementIds[element.id])

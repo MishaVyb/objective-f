@@ -949,14 +949,14 @@ export const rotateMultipleElements = (
         cy,
         centerX,
         centerY,
-        centerAngle + origAngle - element.angle,
+        centerAngle! + origAngle - element.angle,
       );
       mutateElement(
         element,
         {
           x: element.x + (rotatedCX - cx),
           y: element.y + (rotatedCY - cy),
-          angle: normalizeAngle(centerAngle + origAngle),
+          angle: normalizeAngle(centerAngle! + origAngle),
         },
         false,
       );
@@ -969,7 +969,7 @@ export const rotateMultipleElements = (
           {
             x: boundText.x + (rotatedCX - cx),
             y: boundText.y + (rotatedCY - cy),
-            angle: normalizeAngle(centerAngle + origAngle),
+            angle: normalizeAngle(centerAngle! + origAngle),
           },
           false,
         );

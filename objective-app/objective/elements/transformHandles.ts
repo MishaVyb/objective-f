@@ -5,9 +5,10 @@ import {
   TRANSFORM_HANDLES_MARGIN_DEFAULT,
 } from '../../../packages/excalidraw/element/transformHandles'
 import { ElementsMapOrArray } from '../../../packages/excalidraw/element/types'
-import { NormalizedZoomValue } from '../../../packages/excalidraw/types'
-import { getObjectiveSingleMetaStrict } from '../meta/selectors'
-import { ObjectiveMeta } from '../meta/types'
+import { AppState, NormalizedZoomValue } from '../../../packages/excalidraw/types'
+import { scene_getTurnChildren, scene_getTurnParent } from '../meta/scene'
+import { getObjectiveSingleMetaStrict, isElementSelected } from '../meta/selectors'
+import { ObjectiveMeta, ObjectiveMetas, isSupportsTurn } from '../meta/types'
 import { getElementCenter } from './math'
 
 const PUSHPIN_DISTANCE_MARGIN = 10
@@ -59,4 +60,40 @@ export const getPushpinHeadDemensions = (meta: ObjectiveMeta, zoomValue: Normali
   )
   const [rx, ry, rw, rh] = handle.rotation!
   return [rx, ry, rw, rh]
+}
+
+/** does Render Pushpin or/and does Handle pushpin as rotation handler on mouse hit */
+export const isPushbinHandlePotential = (
+  objectiveScene: ObjectiveMetas,
+  appState: AppState,
+  meta: ObjectiveMeta
+) => {
+  if (isSupportsTurn(meta)) {
+    if (meta.turnParentId) {
+      // looking for all parent's children
+      const parent = scene_getTurnParent(objectiveScene, appState, meta.basis!)
+      if (parent) {
+        const selectedChildren = scene_getTurnChildren(
+          objectiveScene,
+          appState,
+          parent.basis!, //
+          { isSelected: true }
+        )
+        // at least one of children is selected (including current meta) OR parent is selected
+        return selectedChildren.length || isElementSelected(appState, parent.basis!)
+      }
+    } else {
+      // probably current meta is parent
+      const selectedChildren = scene_getTurnChildren(
+        objectiveScene,
+        appState,
+        meta.basis!, //
+        { isSelected: true }
+      )
+      // at least one of children is selected OR current meta (parent) is selected
+      return selectedChildren.length || isElementSelected(appState, meta.basis!)
+    }
+  }
+
+  return false
 }
