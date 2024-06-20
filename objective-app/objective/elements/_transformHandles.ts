@@ -71,27 +71,27 @@ export const isPushbinHandlePotential = (
   if (isSupportsTurn(meta)) {
     if (meta.turnParentId) {
       // looking for all parent's children
-      const parent = scene_getTurnParent(objectiveScene, appState, meta.basis!)
+      const parent = scene_getTurnParent(objectiveScene, appState, meta)
       if (parent) {
         const selectedChildren = scene_getTurnChildren(
           objectiveScene,
           appState,
-          parent.basis!, //
+          parent, //
           { isSelected: true }
         )
         // at least one of children is selected (including current meta) OR parent is selected
-        return selectedChildren.length || isElementSelected(appState, parent.basis!)
+        return !!selectedChildren.length || isElementSelected(appState, parent.basis!)
       }
     } else {
       // probably current meta is parent
       const selectedChildren = scene_getTurnChildren(
         objectiveScene,
         appState,
-        meta.basis!, //
+        meta, //
         { isSelected: true }
       )
       // at least one of children is selected OR current meta (parent) is selected
-      return selectedChildren.length || isElementSelected(appState, meta.basis!)
+      return !!selectedChildren.length || isElementSelected(appState, meta.basis!)
     }
   }
 

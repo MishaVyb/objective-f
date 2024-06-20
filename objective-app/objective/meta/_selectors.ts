@@ -161,16 +161,6 @@ export const extractObjectiveMetas = (opts?: {
         basis,
       })
 
-      // EXPEREMENTAL
-      // set meta back ref for each objective element
-      els.forEach((e) => {
-        Object.assign(e.customData, {
-          ...meta,
-          elements: meta.elements.map((e) => _copyElementWithoutObjectiveMeta(e)),
-          basis: _copyElementWithoutObjectiveMeta(meta.basis!),
-        })
-      })
-
       resultMetas.push(meta)
     }
 

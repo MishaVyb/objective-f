@@ -6225,6 +6225,7 @@ class App extends React.Component<AppProps, AppState> {
             return true;
           }
         }
+        // VBRN
         // hitElement may already be set above, so check first
         pointerDownState.hit.element =
           pointerDownState.hit.element ??

@@ -176,7 +176,7 @@ export type WeekMeta<TMeta extends ObjectiveMeta = ObjectiveMeta> = Omit<
   'elements' | 'elementIds' | 'basis' | 'id'
 >
 
-type _SupportsTurnMetaMixin = {
+export type SupportsTurnMeta = {
   /**
    * - all child turn's related to one parent (initial object)
    * - turns order simple depends on elements order in Excalidraw scene (no custom order logic yet)
@@ -223,7 +223,7 @@ export type LocationMeta = ObjectiveMeta &
 export type WallMeta = ObjectiveMeta & Readonly<{ kind: ObjectiveKinds.WALL }>
 
 export type CameraMeta = ObjectiveMeta &
-  _SupportsTurnMetaMixin & {
+  SupportsTurnMeta & {
     kind: ObjectiveKinds.CAMERA
 
     isShot?: boolean // is camera in shot list
@@ -242,7 +242,7 @@ export type CameraMeta = ObjectiveMeta &
   }
 
 export type CharacterMeta = ObjectiveMeta &
-  _SupportsTurnMetaMixin & {
+  SupportsTurnMeta & {
     kind: ObjectiveKinds.CHARACTER
   }
 
@@ -262,7 +262,7 @@ export type ShotCameraMeta = CameraMeta & {
 // TODO https://www.typescriptlang.org/docs/handbook/2/types-from-types.html
 export type AnyObjectiveMeta = ObjectiveMeta &
   Pick<LabelMeta, 'labelOf'> &
-  Pick<_SupportsTurnMetaMixin, 'turnParentId'> &
+  Pick<SupportsTurnMeta, 'turnParentId'> &
   Pick<
     CameraMeta,
     | 'isShot'
