@@ -5,8 +5,9 @@ import { isElementSelected } from './_selectors'
 import {
   ObjectiveKinds,
   ObjectiveMeta,
-  ObjectiveMetas, isObjective,
-  isSupportsTurn
+  ObjectiveMetas,
+  isObjective,
+  isSupportsTurn,
 } from './_types'
 
 // TODO
@@ -59,6 +60,23 @@ export const scene_getTurnChildren = (
       m.turnParentId === meta.id &&
       (opts?.isSelected === undefined || isElementSelected(_appState, m.basis!))
   )
+}
+
+/** get all turns for this meta (parent + children) */
+export const scene_getTurns = (
+  _scene: ObjectiveMetas,
+  _appState: AppState,
+  meta: ObjectiveMeta,
+  opts?: {
+    isSelected?: boolean
+  }
+): ObjectiveMeta[] => {
+  const parent = scene_getTurnParent(_scene, _appState, meta, opts)
+  const children = scene_getTurnChildren(_scene, _appState, meta, opts)
+  if (parent) [parent, ...children]
+
+  // no Parent means meta is Parent itself
+  return children
 }
 
 export const scene_getMetaByElement = (

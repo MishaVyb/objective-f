@@ -444,6 +444,7 @@ import {
   __DEBUG_LOG_POINTER_CORDS,
 } from "../../../objective-app/objective-plus/constants";
 import { isGroupEditingDissalawed } from "../../../objective-app/objective/elements/_groups";
+import { handleSelectionOnPointerSingleMetaSelecttedEventListener } from "../../../objective-app/objective/elements/_transformHandles";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -5163,15 +5164,14 @@ class App extends React.Component<AppProps, AppState> {
         return;
       }
     } else if (selectedElements.length > 1 && !isOverScrollBar) {
+      const meta = getObjectiveSingleMetaStrict(selectedElements);
       const transformHandleType = getTransformHandleTypeFromCoords(
         getCommonBounds(selectedElements),
         scenePointerX,
         scenePointerY,
         this.state.zoom,
         event.pointerType,
-        {
-          meta: getObjectiveSingleMetaStrict(selectedElements),
-        },
+        { meta },
       );
       if (transformHandleType) {
         setCursor(
@@ -6150,6 +6150,17 @@ class App extends React.Component<AppProps, AppState> {
     if (this.state.activeTool.type === "selection") {
       const elements = this.scene.getNonDeletedElements();
       const selectedElements = this.scene.getSelectedElements(this.state);
+
+      // VBRN
+      const meta = getObjectiveSingleMetaStrict(selectedElements);
+      if (meta) {
+        handleSelectionOnPointerSingleMetaSelecttedEventListener(
+          this,
+          meta,
+          pointerDownState,
+        );
+      }
+
       if (selectedElements.length === 1 && !this.state.editingLinearElement) {
         const elementWithTransformHandleType =
           getElementWithTransformHandleType(
@@ -6167,16 +6178,17 @@ class App extends React.Component<AppProps, AppState> {
           pointerDownState.resize.handleType =
             elementWithTransformHandleType.transformHandleType;
         }
-      } else if (selectedElements.length > 1) {
+      } else if (
+        selectedElements.length > 1 &&
+        !pointerDownState.resize.handleType // VBRN might be already defined by Objective handler
+      ) {
         pointerDownState.resize.handleType = getTransformHandleTypeFromCoords(
           getCommonBounds(selectedElements),
           pointerDownState.origin.x,
           pointerDownState.origin.y,
           this.state.zoom,
           event.pointerType,
-          {
-            meta: getObjectiveSingleMetaStrict(selectedElements),
-          },
+          { meta },
         );
       }
       if (pointerDownState.resize.handleType) {
@@ -6225,7 +6237,6 @@ class App extends React.Component<AppProps, AppState> {
             return true;
           }
         }
-        // VBRN
         // hitElement may already be set above, so check first
         pointerDownState.hit.element =
           pointerDownState.hit.element ??

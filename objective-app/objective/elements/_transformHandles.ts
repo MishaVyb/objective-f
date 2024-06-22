@@ -5,11 +5,17 @@ import {
   TRANSFORM_HANDLES_MARGIN_DEFAULT,
 } from '../../../packages/excalidraw/element/transformHandles'
 import { ElementsMapOrArray } from '../../../packages/excalidraw/element/types'
-import { AppState, NormalizedZoomValue } from '../../../packages/excalidraw/types'
-import { scene_getTurnChildren, scene_getTurnParent } from '../meta/_scene'
+import {
+  AppClassProperties,
+  AppState,
+  NormalizedZoomValue,
+  PointerDownState,
+} from '../../../packages/excalidraw/types'
+import { scene_getTurnChildren, scene_getTurnParent, scene_getTurns } from '../meta/_scene'
 import { getObjectiveSingleMetaStrict, isElementSelected } from '../meta/_selectors'
 import { ObjectiveMeta, ObjectiveMetas, isSupportsTurn } from '../meta/_types'
-import { getElementCenter } from './_math'
+import { isObjectiveElementHit } from './_collision'
+import { ensurePoint, getElementCenter } from './_math'
 
 const PUSHPIN_DISTANCE_MARGIN = 10
 
@@ -96,4 +102,55 @@ export const isPushbinHandlePotential = (
   }
 
   return false
+}
+
+/**
+ * Handler when single meta selected.
+ */
+export const handleSelectionOnPointerSingleMetaSelecttedEventListener = (
+  app: AppClassProperties,
+  meta: ObjectiveMeta,
+  pointerDownState: PointerDownState // modified inside!
+) => {
+  const _scene = app.scene.getObjectiveMetas()
+  const turns = scene_getTurns(_scene, app.state, meta)
+
+  // Start rotattion on first Pushpin click (even if it's not selected)
+  //    - modifie pointerDownState in case
+  //    - select another elements in case
+  for (const turn of turns) {
+    const isHitPishpin = isObjectiveElementHit(
+      _scene,
+      app.state,
+      turn.basis!,
+      app.frameNameBoundsCache,
+      ensurePoint(pointerDownState.origin)
+    )
+
+    if (isHitPishpin) {
+      const els = app.scene.getNonDeletedElementsMap()
+      const nextSelectedEls = turn.elements.map((e) => els.get(e.id)!)
+
+      // SET ROTATION
+      // modify pointerDownState directly as the same object will be used at mouse event listeners
+      pointerDownState.resize.handleType = 'rotation'
+      pointerDownState.resize.center = getElementCenter(turn.basis!)
+      pointerDownState.hit.element = turn.basis!
+      pointerDownState.hit.allHitElements = nextSelectedEls
+      pointerDownState.hit.wasAddedToSelection = true
+
+      // SELECT CHILD
+      app.setState((prevState) => {
+        const nextSelectedElementIds = Object.fromEntries(
+          turn.elements.map((e) => [e.id, true])
+        ) as AppState['selectedElementIds']
+        return {
+          previousSelectedElementIds: prevState.selectedElementIds,
+          selectedElementIds: nextSelectedElementIds,
+          selectedGroupIds: { [turn.id]: true },
+        }
+      })
+      return nextSelectedEls
+    }
+  }
 }

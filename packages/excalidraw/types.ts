@@ -603,6 +603,8 @@ export type AppClassProperties = {
   state: App["state"];
   objectiveProps: App["objectiveProps"];
   actionManager: App["actionManager"];
+  frameNameBoundsCache: App["frameNameBoundsCache"];
+  setState: App["setState"];
 };
 
 export type PointerDownState = Readonly<{
