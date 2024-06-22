@@ -13,6 +13,7 @@ import {
 import Scene from '../../../packages/excalidraw/scene/Scene'
 import { AppState, Primitive } from '../../../packages/excalidraw/types'
 import {
+  AnyObjectiveMeta,
   CameraMeta,
   MaybeExcalidrawElement,
   ObjectiveElement,
@@ -36,25 +37,33 @@ import { objectValues } from '../utils/types'
 export const getMetaSimple = <TMeta extends ObjectiveMeta>(
   el: ObjectiveElement<TMeta>
 ): WeekMeta<TMeta> => el.customData
-
 /**
- * Get full meta reference.
+ * Get week meta reference. Simplified version of {@link getMeta}.
  */
-export const getMeta = <TMeta extends ObjectiveMeta>(el: ObjectiveElement<TMeta>): TMeta => {
-  if (!el.customData.elements.length)
-    throw new Error('Cannot get full meta info from week meta reference. ')
-  return el.customData
-}
-export const getMetaOrUndefined = <TMeta extends ObjectiveMeta>(
-  el: MaybeExcalidrawElement | ObjectiveElement<TMeta>
-): TMeta | undefined => {
-  if (!isObjective(el)) return undefined
+export const getMetaOrNone = <TMeta extends ObjectiveMeta>(
+  el: MaybeExcalidrawElement
+): WeekMeta<TMeta> | undefined =>
+  isObjective(el) ? (el.customData as any as WeekMeta<TMeta>) : undefined
 
-  if (!el.customData.elements.length)
-    throw new Error('Cannot get full meta info from week meta reference. ')
+// EXPEREMENTAL (unused)
+// /**
+//  * Get full meta reference.
+//  */
+// export const getMeta = <TMeta extends ObjectiveMeta>(el: ObjectiveElement<TMeta>): TMeta => {
+//   if (!el.customData.elements.length)
+//     throw new Error('Cannot get full meta info from week meta reference. ')
+//   return el.customData
+// }
+// export const getMetaOrUndefined = <TMeta extends ObjectiveMeta>(
+//   el: MaybeExcalidrawElement | ObjectiveElement<TMeta>
+// ): TMeta | undefined => {
+//   if (!isObjective(el)) return undefined
 
-  return el.customData as TMeta
-}
+//   if (!el.customData.elements.length)
+//     throw new Error('Cannot get full meta info from week meta reference. ')
+
+//   return el.customData as TMeta
+// }
 
 /**
  * Any Objective is always a group of excalidraw element and it is always first group id.
@@ -153,7 +162,6 @@ export const extractObjectiveMetas = (opts?: {
 
       // NOTE: new API for accessing basis, replacement for `getObjectdiveBasis`
       const basis = els && els[weekMeta.basisIndex || 0] // TODO basis validation ???
-
       const meta = _getMeta<TMeta>(e as ObjectiveElement<TMeta>, {
         id: getObjectiveId(e),
         elementIds: ids,
@@ -177,7 +185,10 @@ export const _copyElementWithoutObjectiveMeta = (e: ExcalidrawElement) => ({ ...
 
 export const _getMeta = <TMeta extends ObjectiveMeta>(
   el: ObjectiveElement<TMeta>,
-  autopopulatedFields: Pick<ObjectiveMeta, 'id' | 'elementIds' | 'elements' | 'basis'>
+  autopopulatedFields: Pick<
+    AnyObjectiveMeta,
+    'id' | 'elementIds' | 'elements' | 'basis' | 'turnParent'
+  >
 ): TMeta => {
   return { ...el.customData, ...autopopulatedFields }
 }

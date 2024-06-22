@@ -178,10 +178,16 @@ export type WeekMeta<TMeta extends ObjectiveMeta = ObjectiveMeta> = Omit<
 
 export type SupportsTurnMeta = {
   /**
+   * Is this meta a Child.
+   *
    * - all child turn's related to one parent (initial object)
    * - turns order simple depends on elements order in Excalidraw scene (no custom order logic yet)
    * */
   turnParentId?: ObjectiveMeta['id']
+  /**
+   * external relationship // EXPEREMENTAL
+   */
+  turnParent?: ObjectiveMeta
 }
 
 export type LabelMeta = ObjectiveMeta &
@@ -262,7 +268,7 @@ export type ShotCameraMeta = CameraMeta & {
 // TODO https://www.typescriptlang.org/docs/handbook/2/types-from-types.html
 export type AnyObjectiveMeta = ObjectiveMeta &
   Pick<LabelMeta, 'labelOf'> &
-  Pick<SupportsTurnMeta, 'turnParentId'> &
+  Pick<SupportsTurnMeta, 'turnParentId' | 'turnParent'> &
   Pick<
     CameraMeta,
     | 'isShot'

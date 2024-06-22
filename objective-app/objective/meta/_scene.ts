@@ -1,14 +1,12 @@
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { AppState } from '../../../packages/excalidraw/types'
 import { objectValues } from '../utils/types'
-import { getMeta, isElementSelected } from './_selectors'
+import { isElementSelected } from './_selectors'
 import {
   ObjectiveKinds,
   ObjectiveMeta,
-  ObjectiveMetas,
-  SupportsTurnMeta,
-  isObjective,
-  isSupportsTurn,
+  ObjectiveMetas, isObjective,
+  isSupportsTurn
 } from './_types'
 
 // TODO

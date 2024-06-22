@@ -15,20 +15,21 @@ export type ActionSource =
   | "api"
   | "internal"; // VBRN flag
 
+// VBRN
+export type ActionResultEnsure = {
+  elements?: readonly ExcalidrawElement[] | null;
+  appState?: MarkOptional<
+    AppState,
+    "offsetTop" | "offsetLeft" | "width" | "height"
+  > | null;
+  files?: BinaryFiles | null;
+  commitToHistory: boolean;
+  syncHistory?: boolean;
+  replaceFiles?: boolean;
+};
+
 /** if false, the action should be prevented */
-export type ActionResult =
-  | {
-      elements?: readonly ExcalidrawElement[] | null;
-      appState?: MarkOptional<
-        AppState,
-        "offsetTop" | "offsetLeft" | "width" | "height"
-      > | null;
-      files?: BinaryFiles | null;
-      commitToHistory: boolean;
-      syncHistory?: boolean;
-      replaceFiles?: boolean;
-    }
-  | false;
+export type ActionResult = ActionResultEnsure | false;
 
 /**
  * All current scene elements, including deleted. Verbose type alias to `readonly ExcalidrawElement[]`.

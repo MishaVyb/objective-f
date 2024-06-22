@@ -11,7 +11,7 @@ import {
   ReloadIcon,
 } from '@radix-ui/react-icons'
 import { getFormValue } from '../../../packages/excalidraw/actions/actionProperties'
-import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
+import { ActionResultEnsure, PanelComponentProps } from '../../../packages/excalidraw/actions/types'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
 import { newMetaReprElement } from '../elements/_newElement'
@@ -187,7 +187,12 @@ type TChangeVersionActionValue =
 export const actionChangeMetaCameraVersion = register({
   name: 'actionChangeMetaCameraVersion',
   trackEvent: false,
-  perform: (elements, appState, actionType: TChangeVersionActionValue, app: AppClassProperties) => {
+  perform: (
+    elements,
+    appState,
+    actionType: TChangeVersionActionValue,
+    app: AppClassProperties
+  ): ActionResultEnsure => {
     const cameras = getSelectedCameraMetas(app.scene, appState)
     const singleCamera = cameras[0]
     const basisCenter = getElementCenter(singleCamera.basis!)

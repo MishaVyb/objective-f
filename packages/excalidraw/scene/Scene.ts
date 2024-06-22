@@ -285,10 +285,7 @@ class Scene {
 
     this.elementsMap.clear();
     this.elements.forEach((element) => {
-      // VBRN
-      if (!("type" in element)) console.error("Invalid element: ", element); // TMP try to catch error
-      objectiveSet(element);
-      // VBRN
+      objectiveSet(element); // VBRN
 
       if (isFrameLikeElement(element)) {
         nextFrameLikes.push(element);
@@ -306,7 +303,22 @@ class Scene {
     this.informMutation();
 
     // VBRN
-    this.objectiveMetas = groupByKind(objectiveFinalize());
+    // TODO move to ObjectiveScene
+    const metas = objectiveFinalize();
+
+    // const metasMap = ensureMap(metas);
+    // // EXPERIMENTAL
+    // // populate external metaToMeta relationships
+    // // it makes not not useful when we accessing `someElement.meta.elements[0].meta`
+    // // at this point we dont have any autopopelated fields
+    // metas.forEach((meta) => {
+    //   if (isSupportsTurn(meta) && meta.turnParentId) {
+    //     meta.turnParent = metasMap.get(meta.turnParentId);
+    //   }
+    // });
+
+    this.objectiveMetas = groupByKind(metas);
+    //////////
   }
 
   informMutation() {

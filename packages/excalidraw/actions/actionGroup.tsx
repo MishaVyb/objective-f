@@ -64,11 +64,18 @@ const enableActionGroup = (
 export const actionGroup = register({
   name: "group",
   trackEvent: { category: "element" },
-  perform: (elements, appState, _, app) => {
-    const selectedElements = app.scene.getSelectedElements({
-      selectedElementIds: appState.selectedElementIds,
-      includeBoundTextElement: true,
-    });
+  perform: (
+    elements,
+    appState,
+    value: { affectedElements: ExcalidrawElement[] } | undefined,
+    app,
+  ) => {
+    const selectedElements =
+      value?.affectedElements ||
+      app.scene.getSelectedElements({
+        selectedElementIds: appState.selectedElementIds,
+        includeBoundTextElement: true,
+      });
     if (selectedElements.length < 2) {
       // nothing to group
       return { appState, elements, commitToHistory: false };

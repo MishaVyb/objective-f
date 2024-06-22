@@ -100,16 +100,16 @@ export const hitTest = (
     );
   }
 
-  if (
-    isObjectiveElementHit(
-      objectiveScene,
-      appState,
-      element,
-      frameNameBoundsCache,
-      point,
-    )
-  )
-    return true;
+  const objectiveHandlerResult = isObjectiveElementHit(
+    objectiveScene,
+    appState,
+    element,
+    frameNameBoundsCache,
+    point,
+  );
+  if (objectiveHandlerResult !== undefined) {
+    return objectiveHandlerResult;
+  }
 
   const boundTextElement = getBoundTextElement(element, elementsMap);
   if (boundTextElement) {

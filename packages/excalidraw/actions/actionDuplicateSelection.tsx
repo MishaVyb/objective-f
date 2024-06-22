@@ -36,6 +36,10 @@ import { AppClassProperties, AppState } from "../types";
 import { arrayToMap, getShortcutKey } from "../utils";
 import { register } from "./register";
 import { ActionResult } from "./types";
+import {
+  ensureArray,
+  ensureMap,
+} from "../../../objective-app/objective/meta/_types";
 
 export const actionDuplicateSelection = register({
   name: "duplicateSelection",
@@ -77,6 +81,16 @@ export const actionDuplicateSelection = register({
   ),
 });
 
+type TActionResultExtraInfo = {
+  // VBRN
+  /** all Scene elements before duplication */
+  prevEls: ExcalidrawElement[];
+  /** elements provided to duplicated */
+  affectedEls: ExcalidrawElement[];
+  newEls: ExcalidrawElement[];
+  extraNewEls: ExcalidrawElement[];
+};
+
 export const duplicateElements = (
   elements: readonly ExcalidrawElement[],
   appState: AppState,
@@ -84,7 +98,7 @@ export const duplicateElements = (
 
   // VBRN
   opts?: DuplicateHandlerOpts,
-): Partial<ActionResult> => {
+): Partial<ActionResult> & { extra: TActionResultExtraInfo } => {
   // ---------------------------------------------------------------------------
 
   // step (1)
@@ -257,11 +271,14 @@ export const duplicateElements = (
   const newEls = finalElements.filter(
     (e) => !app.scene.getElementsMapIncludingDeleted().has(e.id),
   );
-  const extraNewElements = duplicateObjectiveEventHandler(newEls, {
+  const newElsMap = ensureMap(newEls);
+  const prevEls = finalElements.filter((e) => !newElsMap.has(e.id));
+  const affectedEls = ensureArray(idsOfElementsToDuplicate);
+  const extraNewEls = duplicateObjectiveEventHandler(newEls, {
     scene: app.scene,
     ...opts,
   });
-  finalElements = arrangeElements(finalElements, extraNewElements);
+  finalElements = arrangeElements(finalElements, extraNewEls);
   // VBRN
 
   // ---------------------------------------------------------------------------
@@ -306,6 +323,12 @@ export const duplicateElements = (
         appState,
         null,
       ),
+    },
+    extra: {
+      prevEls,
+      affectedEls,
+      newEls,
+      extraNewEls,
     },
   };
 };
