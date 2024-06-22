@@ -14,7 +14,7 @@ import {
 import { scene_getTurnChildren, scene_getTurnParent, scene_getTurns } from '../meta/_scene'
 import { getObjectiveSingleMetaStrict, isElementSelected } from '../meta/_selectors'
 import { ObjectiveMeta, ObjectiveMetas, isSupportsTurn } from '../meta/_types'
-import { isObjectiveElementHit } from './_collision'
+import { isHintingPushpin } from './_collision'
 import { ensurePoint, getElementCenter } from './_math'
 
 const PUSHPIN_DISTANCE_MARGIN = 10
@@ -119,10 +119,10 @@ export const handleSelectionOnPointerSingleMetaSelecttedEventListener = (
   //    - modifie pointerDownState in case
   //    - select another elements in case
   for (const turn of turns) {
-    const isHitPishpin = isObjectiveElementHit(
+    const isHitPishpin = isHintingPushpin(
       _scene,
       app.state,
-      turn.basis!,
+      turn,
       app.frameNameBoundsCache,
       ensurePoint(pointerDownState.origin)
     )

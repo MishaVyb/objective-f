@@ -1,6 +1,6 @@
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { AppState } from '../../../packages/excalidraw/types'
-import { objectValues } from '../utils/types'
+import { objectEntries, objectValues } from '../utils/types'
 import { isElementSelected } from './_selectors'
 import {
   ObjectiveKinds,
@@ -84,6 +84,16 @@ export const scene_getTurns = (
   return scene_getTurnChildren(_scene, _appState, meta)
 }
 
+/** get all turns for this meta (parent + children) excluding itself */
+export const scene_getTurnsExcludingThis = (
+  _scene: ObjectiveMetas,
+  _appState: AppState,
+  meta: ObjectiveMeta,
+  opts?: {
+    isSelected?: boolean
+  }
+): ObjectiveMeta[] => scene_getTurns(_scene, _appState, meta, opts).filter((m) => m.id != meta.id)
+
 export const scene_getMetaByElement = (
   _scene: ObjectiveMetas,
   element: ExcalidrawElement
@@ -105,3 +115,14 @@ export const scene_getMetaByBasis = (
     if (res) return res
   }
 }
+
+export const scene_getAllMetas = (_scene: ObjectiveMetas): ObjectiveMeta[] => {
+  const result = []
+  for (const gr of objectValues(_scene)) result.push(...gr)
+  return result
+}
+
+export const scene_getMetaByNameReprId = (
+  _scene: ObjectiveMetas,
+  containerId: ObjectiveMeta['nameRepr']
+) => scene_getAllMetas(_scene).find((meta) => meta.nameRepr === containerId)

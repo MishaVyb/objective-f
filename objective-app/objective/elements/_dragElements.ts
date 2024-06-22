@@ -3,7 +3,6 @@ import { newElementWith } from '../../../packages/excalidraw/element/mutateEleme
 import {
   ExcalidrawBindableElement,
   ExcalidrawElement,
-  ExcalidrawEllipseElement,
   NonDeletedExcalidrawElement,
 } from '../../../packages/excalidraw/element/types'
 
@@ -12,13 +11,8 @@ import {
   BinaryFiles,
   PointerDownState,
 } from '../../../packages/excalidraw/types'
-import {
-  getObjectiveBasis,
-  getObjectiveMetas,
-  getObjectiveSingleMeta,
-  getPointerIds,
-} from '../meta/_selectors'
-import { ObjectiveKinds, isKind } from '../meta/_types'
+import { getObjectiveMetas, getObjectiveSingleMeta, getPointerIds } from '../meta/_selectors'
+import { ObjectiveKinds, ObjectiveMeta, isKind, isSupportsTurn } from '../meta/_types'
 import {
   actionSnapLocation,
   performRotationLocationOnDragFinalize,
@@ -31,6 +25,11 @@ import { arrangeElements } from './_zIndex'
 import { Vector, getElementCenter } from './_math'
 import { getDistance } from '../../../packages/excalidraw/gesture'
 import { actionCreatePointer, actionDeletePointer } from '../actions/actionMetaCommon'
+import {
+  scene_getAllMetas,
+  scene_getMetaByNameReprId,
+  scene_getTurnsExcludingThis,
+} from '../meta/_scene'
 
 const DRAG_META_LABEL_MAX_GAP = 100
 
@@ -44,8 +43,6 @@ export const dragEventHandler = (
   adjustedOffset: Vector,
   app: AppClassProperties
 ): Set<NonDeletedExcalidrawElement> => {
-  const allSceneMetas = getObjectiveMetas(app.scene.getElementsMapIncludingDeleted())
-
   // ORIGINAL ELEMENTS STATE // UNUSED
 
   // NOTE: be aware of using/mutating `selectedElements` directly, as Excalidraw may call for event
@@ -64,52 +61,80 @@ export const dragEventHandler = (
   const metasCurrent = getObjectiveMetas(selectedElements)
 
   metasCurrent.forEach((meta) => {
-    if (isKind(meta, ObjectiveKinds.LABEL)) {
-      const containerMeta = meta
-      const container = containerMeta.elements[0] as ExcalidrawBindableElement
-
-      const cameraMeta = allSceneMetas.find((meta) => meta.nameRepr === container.id)
-      const basis = getObjectiveBasis<ExcalidrawEllipseElement>(cameraMeta)
-      if (basis) {
-        const basisCenter = getElementCenter(basis)
-        const dist = getDistance([getElementCenter(container), basisCenter])
-
-        if (dist > DRAG_META_LABEL_MAX_GAP) {
-          app.actionManager.executeAction(actionCreatePointer, 'internal', {
-            targets: [container, basis],
-            subkind: 'labelPointer',
-          })
-        } else {
-          app.actionManager.executeAction(actionDeletePointer, 'internal', [container, basis])
-        }
-      }
-    }
-    //
-    // - handle name repr drag
-    else if (meta.nameRepr) {
-      const container = app.scene.getNonDeletedElement(meta.nameRepr) as ExcalidrawBindableElement
-      if (container) {
-        const basis = getObjectiveBasis<ExcalidrawBindableElement>(meta)
-        if (basis) {
-          // TODO
-          // drag container if camera is close to container, but there are pointer already
-          // FIXME handle label jump in that case with help of `adjustedOffset`
-          //
-          // const basisCenter = getElementCenter(basis)
-          // const currentDist = getDistance([getElementCenter(container), basisCenter])
-
-          if (
-            // currentDist < DRAG_META_LABEL_MAX_GAP ||
-            !getPointerIds(container, basis).size
-          ) {
-            elementsToUpdate.add(container)
-          }
-        }
-      }
-    }
+    dragLabelHandler(meta, elementsToUpdate, app)
+    dragNameReprHandler(meta, elementsToUpdate, app)
+    dragSupportsTurnHandler(meta, elementsToUpdate, app)
   })
 
   return elementsToUpdate
+}
+
+/** creates/deletes Pointer: MasterObject <---> Label */
+const dragLabelHandler = (
+  meta: ObjectiveMeta,
+  elementsToUpdate: Set<NonDeletedExcalidrawElement>,
+  app: AppClassProperties
+) => {
+  const scene = app.scene.getObjectiveMetas()
+
+  if (isKind(meta, ObjectiveKinds.LABEL)) {
+    const container = meta.basis as ExcalidrawBindableElement
+    const masterMeta = scene_getMetaByNameReprId(scene, container.id)
+    if (masterMeta) {
+      const basis = masterMeta.basis! as ExcalidrawBindableElement
+      const basisCenter = getElementCenter(basis)
+      const dist = getDistance([getElementCenter(container), basisCenter])
+
+      if (dist > DRAG_META_LABEL_MAX_GAP) {
+        app.actionManager.executeAction(actionCreatePointer, 'internal', {
+          targets: [container, basis],
+          subkind: 'labelPointer',
+        })
+      } else {
+        app.actionManager.executeAction(actionDeletePointer, 'internal', [container, basis])
+      }
+    }
+  }
+}
+
+/** drag Label alongside with Master Objective Item */
+const dragNameReprHandler = (
+  meta: ObjectiveMeta,
+  elementsToUpdate: Set<NonDeletedExcalidrawElement>,
+  app: AppClassProperties
+) => {
+  if (meta.nameRepr) {
+    const container = app.scene.getNonDeletedElement(meta.nameRepr) as ExcalidrawBindableElement
+    if (container) {
+      // TODO
+      // drag container if camera is close to container, but there are pointer already
+      // FIXME handle label jump in that case with help of `adjustedOffset`
+      //
+      // const basisCenter = getElementCenter(basis)
+      // const currentDist = getDistance([getElementCenter(container), basisCenter])
+
+      if (
+        // currentDist < DRAG_META_LABEL_MAX_GAP ||
+        !getPointerIds(container, meta.basis as ExcalidrawBindableElement).size
+      ) {
+        elementsToUpdate.add(container)
+      }
+    }
+  }
+}
+
+/** drag Parent/Child turns (and its Labels) alongside with current Objective Item */
+const dragSupportsTurnHandler = (
+  meta: ObjectiveMeta,
+  elementsToUpdate: Set<NonDeletedExcalidrawElement>,
+  app: AppClassProperties
+) => {
+  if (isSupportsTurn(meta)) {
+    const _scene = app.scene.getObjectiveMetas()
+    const turns = scene_getTurnsExcludingThis(_scene, app.state, meta)
+    turns.forEach((m) => m.elements.forEach((e) => elementsToUpdate.add(e)))
+    turns.forEach((m) => dragNameReprHandler(m, elementsToUpdate, app))
+  }
 }
 
 export const onPointerUpFromPointerDownEventHandler = (

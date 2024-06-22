@@ -70,24 +70,36 @@ export const isObjectiveBasisElementHit = (
     }
 
     // probably hinting Pushpin
-    const isPushpin = isPushbinHandlePotential(objectiveScene, appState, meta)
-    if (!isPushpin) {
-      if (meta.turnParentId) return false // prevent selecting child by NOT Pushpin
-      return undefined
-    }
-    const pushpin = getPushpinHeadElement(meta, appState.zoom.value)
-    const isPushpinHint = isHittingElementNotConsideringBoundingBox(
-      pushpin,
-      appState,
-      frameNameBoundsCache,
-      point
-    )
-    if (!isPushpinHint) {
-      if (meta.turnParentId) return false // prevent selecting child by NOT Pushpin
-      return undefined
-    }
-    return true // yep, Pushpin is hitting
+    return isHintingPushpin(objectiveScene, appState, meta, frameNameBoundsCache, point)
   }
 
   return undefined // handle by Excalidraw logic
+}
+
+export const isHintingPushpin = (
+  objectiveScene: ObjectiveMetas,
+  appState: AppState,
+  meta: ObjectiveMeta,
+  frameNameBoundsCache: FrameNameBoundsCache,
+  point: Point
+) => {
+  if (!isSupportsTurn(meta)) return undefined
+
+  const isPushpin = isPushbinHandlePotential(objectiveScene, appState, meta)
+  if (!isPushpin) {
+    if (meta.turnParentId) return false // prevent selecting child by NOT Pushpin
+    return undefined
+  }
+  const pushpin = getPushpinHeadElement(meta, appState.zoom.value)
+  const isPushpinHint = isHittingElementNotConsideringBoundingBox(
+    pushpin,
+    appState,
+    frameNameBoundsCache,
+    point
+  )
+  if (!isPushpinHint) {
+    if (meta.turnParentId) return false // prevent selecting child by NOT Pushpin
+    return undefined
+  }
+  return true // yep, Pushpin is hitting
 }
