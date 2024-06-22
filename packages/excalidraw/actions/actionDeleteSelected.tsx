@@ -1,4 +1,4 @@
-import { deleteEventHandler } from "../../../objective-app/objective/elements/_events";
+import { deleteEventHandler } from "../../../objective-app/objective/elements/_deleteElements";
 import { ToolButton } from "../components/ToolButton";
 import { TrashIcon } from "../components/icons";
 import { getNonDeletedElements } from "../element";

@@ -1,6 +1,6 @@
 import { getElementAbsoluteCoords } from ".";
 import { __DEBUG_DISABLE_APPLY_DEFAULTS } from "../../../objective-app/objective-plus/constants";
-import { duplicateObjectiveEventHandler } from "../../../objective-app/objective/elements/_events";
+import { duplicateObjectiveEventHandler } from "../../../objective-app/objective/elements/_duplicateElements";
 import {
   duplicateMeta,
   getInitialMeta,

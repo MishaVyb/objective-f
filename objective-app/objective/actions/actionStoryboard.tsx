@@ -25,7 +25,7 @@ import {
   isDisplayed,
   isImageRelatedToCamera,
 } from '../meta/_types'
-import { deleteEventHandler } from '../elements/_events'
+import { deleteEventHandler } from '../elements/_deleteElements'
 
 import { register } from './register'
 import { Button, Flex, IconButton, Popover, Separator, Text } from '@radix-ui/themes'

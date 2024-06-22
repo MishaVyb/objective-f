@@ -3,7 +3,7 @@ import {
   DuplicateHandlerOpts,
   duplicateObjectiveEventHandler,
   duplicateObjectiveEventHandlerFilter,
-} from "../../../objective-app/objective/elements/_events";
+} from "../../../objective-app/objective/elements/_duplicateElements";
 import { ToolButton } from "../components/ToolButton";
 import { DuplicateIcon } from "../components/icons";
 import { duplicateElement, getNonDeletedElements } from "../element";

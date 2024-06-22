@@ -424,11 +424,13 @@ import {
 import { getInitialMeta } from "../../../objective-app/objective/meta/_initial";
 import { actionToggleGridSnapMode } from "../../../objective-app/objective/actions/actionSettings";
 import {
-  addElementsFromPasteOrLibraryHandler,
   duplicateObjectiveEventHandler,
   duplicateObjectiveEventHandlerFilter,
+} from "../../../objective-app/objective/elements/_duplicateElements";
+import {
+  addElementsFromPasteOrLibraryHandler,
   onPointerUpFromPointerDownEventHandler,
-} from "../../../objective-app/objective/elements/_events";
+} from "../../../objective-app/objective/elements/_dragElements";
 import { arrangeElements } from "../../../objective-app/objective/elements/_zIndex";
 import {
   getCameraMetas,
