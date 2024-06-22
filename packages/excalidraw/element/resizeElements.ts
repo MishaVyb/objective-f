@@ -42,7 +42,7 @@ import {
   MaybeTransformHandleType,
   TransformHandleDirection,
 } from "./transformHandles";
-import { Point, PointerDownState } from "../types";
+import { AppClassProperties, Point, PointerDownState } from "../types";
 import Scene from "../scene/Scene";
 import {
   getApproxMinLineWidth,
@@ -59,6 +59,7 @@ import { LinearElementEditor } from "./linearElementEditor";
 import {
   isElementsScalable,
   getObjectiveItemRotationArgs,
+  transformElementsEventHandler,
 } from "../../../objective-app/objective/elements/_resizeElements";
 
 export const normalizeAngle = (angle: number): number => {
@@ -84,7 +85,24 @@ export const transformElements = (
   pointerY: number,
   centerX: number,
   centerY: number,
+  app: AppClassProperties,
 ) => {
+  // VBRN
+  ({ selectedElements } = transformElementsEventHandler(
+    originalElements,
+    transformHandleType,
+    selectedElements,
+    elementsMap,
+    shouldRotateWithDiscreteAngle,
+    shouldResizeFromCenter,
+    shouldMaintainAspectRatio,
+    pointerX,
+    pointerY,
+    centerX,
+    centerY,
+    app,
+  ));
+
   if (selectedElements.length === 1) {
     const [element] = selectedElements;
     if (transformHandleType === "rotation") {
@@ -908,7 +926,7 @@ export const resizeMultipleElements = (
 
 export const rotateMultipleElements = (
   originalElements: PointerDownState["originalElements"],
-  elements: readonly NonDeletedExcalidrawElement[],
+  elements: readonly NonDeletedExcalidrawElement[], // elements to affect
   elementsMap: ElementsMap,
   pointerX: number | undefined,
   pointerY: number | undefined,
@@ -921,7 +939,7 @@ export const rotateMultipleElements = (
     centerAngle =
       (5 * Math.PI) / 2 + Math.atan2(pointerY! - centerY, pointerX! - centerX);
 
-  // VBRN
+  // VBRN do it here, not at `transformElementsEventHandler` because we call rotateMultipleElements directly
   [centerX, centerY, centerAngle] = getObjectiveItemRotationArgs(
     originalElements,
     elements,

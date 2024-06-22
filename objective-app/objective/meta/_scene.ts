@@ -1,7 +1,7 @@
-import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
+import { ElementsMapOrArray, ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { AppState } from '../../../packages/excalidraw/types'
-import { objectEntries, objectValues } from '../utils/types'
-import { isElementSelected } from './_selectors'
+import { objectValues } from '../utils/types'
+import { getObjectiveMetas, isElementSelected } from './_selectors'
 import {
   ObjectiveKinds,
   ObjectiveMeta,
@@ -126,3 +126,8 @@ export const scene_getMetaByNameReprId = (
   _scene: ObjectiveMetas,
   containerId: ObjectiveMeta['nameRepr']
 ) => scene_getAllMetas(_scene).find((meta) => meta.nameRepr === containerId)
+
+export const scene_getMetasByElements = (_scene: ObjectiveMetas, elements: ElementsMapOrArray) => {
+  // ??? implement map: element -> meta, use Set to return single metas
+  return getObjectiveMetas(elements)
+}

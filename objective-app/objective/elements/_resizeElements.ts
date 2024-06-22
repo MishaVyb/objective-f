@@ -4,16 +4,46 @@ import {
   normalizeAngle,
   transformElements,
 } from '../../../packages/excalidraw/element/resizeElements'
+import { MaybeTransformHandleType } from '../../../packages/excalidraw/element/transformHandles'
 import {
+  ElementsMap,
   ExcalidrawElement,
   NonDeletedExcalidrawElement,
 } from '../../../packages/excalidraw/element/types'
 import { rotate } from '../../../packages/excalidraw/math'
-import { PointerDownState } from '../../../packages/excalidraw/types'
+import { AppClassProperties, PointerDownState } from '../../../packages/excalidraw/types'
+import { scene_getMetasByElements, scene_getTurnsExcludingThis } from '../meta/_scene'
 import { getObjectiveMetas, getObjectiveSingleMetaStrict } from '../meta/_selectors'
 import { ObjectiveMeta, isPure } from '../meta/_types'
 import { Vector, ensureVector } from './_math'
 import { getPushpinAng, getPushpinAngNoShift } from './_transformHandles'
+
+export const transformElementsEventHandler = (
+  originalElements: PointerDownState['originalElements'],
+  transformHandleType: MaybeTransformHandleType,
+  selectedElements: readonly NonDeletedExcalidrawElement[],
+  elementsMap: ElementsMap,
+  shouldRotateWithDiscreteAngle: boolean,
+  shouldResizeFromCenter: boolean,
+  shouldMaintainAspectRatio: boolean,
+  pointerX: number,
+  pointerY: number,
+  centerX: number,
+  centerY: number,
+  app: AppClassProperties
+) => {
+  const objectiveScene = app.scene.getObjectiveMetas()
+  const extraElsToAffect: ExcalidrawElement[] = []
+  const metas = scene_getMetasByElements(objectiveScene, selectedElements)
+  metas.forEach((m) => {
+    scene_getTurnsExcludingThis(objectiveScene, app.state, m).forEach((turn) =>
+      extraElsToAffect.push(...turn.elements)
+    )
+  })
+  return {
+    selectedElements: [...selectedElements, ...extraElsToAffect],
+  }
+}
 
 // pure elements doesn't support disabling resize
 export const isResizeDisabled = (meta: ObjectiveMeta) => !isPure(meta) && meta.disableResize
@@ -44,17 +74,15 @@ export const getObjectiveRotationCenter = (
   return ensureVector([centerX, centerY])
 }
 
-/**
- * @param originalElements could be empty map, in case we handle just  created programatecly elements
- */
+// REMOVE
 export const getObjectiveItemRotationArgs = (
   originalElements: PointerDownState['originalElements'],
-  elements: readonly NonDeletedExcalidrawElement[],
+  affectedElements: readonly NonDeletedExcalidrawElement[],
   centerX: number,
   centerY: number,
   centerAngle: number
 ): [number, number, number] => {
-  const selectedOriginalElements = elements.map((e) => originalElements.get(e.id) || e)
+  const selectedOriginalElements = affectedElements.map((e) => originalElements.get(e.id) || e)
   const meta = getObjectiveSingleMetaStrict(selectedOriginalElements)
 
   const pushpingAng = getPushpinAng(meta)
