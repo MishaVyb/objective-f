@@ -1,9 +1,8 @@
 import {
   MaybeMeta,
   isMeta,
-  isNotSelectableOnGroupSelection,
 } from "../../../objective-app/objective/meta/_types";
-
+import { isNotSelectableOnGroupSelection } from "../../../objective-app/objective/elements/_selection";
 import { getElementAbsoluteCoords, getElementBounds } from "../element";
 import { isElementInViewport } from "../element/sizeHelpers";
 import { isBoundToContainer, isFrameLikeElement } from "../element/typeChecks";

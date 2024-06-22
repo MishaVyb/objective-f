@@ -43,7 +43,7 @@ export const getMetaSimple = <TMeta extends ObjectiveMeta>(
 export const getMetaOrNone = <TMeta extends ObjectiveMeta>(
   el: MaybeExcalidrawElement
 ): WeekMeta<TMeta> | undefined =>
-  isObjective(el) ? (el.customData as any as WeekMeta<TMeta>) : undefined
+  isObjective(el) ? getMetaSimple<TMeta>(el as ObjectiveElement<TMeta>) : undefined
 
 // EXPEREMENTAL (unused)
 // /**

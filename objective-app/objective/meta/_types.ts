@@ -185,7 +185,8 @@ export type SupportsTurnMeta = {
    * */
   turnParentId?: ObjectiveMeta['id']
   /**
-   * external relationship // EXPEREMENTAL
+   * external relationship
+   * @deprecated // EXPEREMENTAL
    */
   turnParent?: ObjectiveMeta
 }
@@ -419,10 +420,6 @@ export const isDisplayed = (el: ExcalidrawElement) => (el.opacity > 5 ? true : f
 export const isObjectiveHidden = (el: ExcalidrawElement) =>
   //isObjective(el) && // FIXME storyboard image are not marked as Objective, so skip that condition
   el.opacity === 0 && el.locked
-
-export const isNotSelectableOnGroupSelection = (el: ExcalidrawElement) =>
-  // || isWallElement(el) // ???
-  isKindEl(el, ObjectiveKinds.LABEL) || isKindEl(el, ObjectiveKinds.POINTER)
 
 // ---------------------------------------------------------------------- helper functions
 
