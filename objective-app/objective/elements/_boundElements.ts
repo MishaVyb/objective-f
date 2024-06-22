@@ -1,6 +1,5 @@
 import { ElementsMapOrArray } from '../../../packages/excalidraw/element/types'
 import { getObjectiveSingleMetaStrict } from '../meta/_selectors'
-import { ObjectiveKinds } from '../meta/_types'
 
 export const getObjectiveCommonBounds = (elements: ElementsMapOrArray) => {
   const meta = getObjectiveSingleMetaStrict(elements)

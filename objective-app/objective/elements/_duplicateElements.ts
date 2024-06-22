@@ -27,6 +27,7 @@ import Scene from '../../../packages/excalidraw/scene/Scene'
 import { getContainerElement } from '../../../packages/excalidraw/element/textElement'
 import { mutateMeta } from './_mutateElements'
 import { rotateMultipleElements } from '../../../packages/excalidraw/element/resizeElements'
+import { duplicateMeta } from '../meta/_initial'
 
 export type DuplicateHandlerOpts = {
   shift?: Vector
@@ -77,6 +78,8 @@ export const duplicateObjectiveEventHandlerFilter = (
 /**
  * Objective logic on duplicate elements:
  *
+ * @param newElements new (cloned/copied) elements
+ *
  * Handle new elements:
  * - adjust position & rotation (if needed)
  *
@@ -84,8 +87,8 @@ export const duplicateObjectiveEventHandlerFilter = (
  * - duplicate Pointers (if any)
  * - duplicate Labels (if any)
  *
- * it's assumed that elements metas already copied properly by `initial.duplicateMeta`
- * @param newElements new (cloned/copied) elements
+ * it's assumed that elements metas already copied properly by duplicateMeta
+ * @see {@link duplicateMeta}
  */
 export const duplicateObjectiveEventHandler = (
   newElements: Mutable<ExcalidrawElement>[],

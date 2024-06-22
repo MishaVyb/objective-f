@@ -79,10 +79,11 @@ export const getInitialMeta = <T extends ObjectiveKinds>(
 export const duplicateMeta = (newElement: Mutable<ExcalidrawElement>) => {
   if (!isObjective(newElement)) return
   const weekMeta = getMetaSimple(newElement)
+  const newMeta = newElement.customData
 
   // common:
   Object.assign(
-    newElement.customData,
+    newMeta,
     getInitialMeta(weekMeta.kind, {
       name: weekMeta.name,
       description: weekMeta.description,
@@ -92,15 +93,16 @@ export const duplicateMeta = (newElement: Mutable<ExcalidrawElement>) => {
       // pass here TMP id in order to tell `duplicateObjectiveEventHandler` hat Object has nameRep.
       // So it will recreate Label with new id and provide that id here as well.
       nameRepr: weekMeta.nameRepr ? randomId() : undefined,
+      turnParentId: undefined, // dissociate any Turns
     })
   )
 
   // per kind:
   if (isCameraMeta(weekMeta))
     Object.assign(
-      newElement.customData,
+      newMeta,
       getInitialMeta(ObjectiveKinds.CAMERA, {
-        ...newElement.customData,
+        ...newMeta, // ???
 
         isShot: weekMeta.isShot,
         shotNumber: weekMeta.shotNumber, // do not incrase shot number atomatecly, user will do it by himself
@@ -112,6 +114,7 @@ export const duplicateMeta = (newElement: Mutable<ExcalidrawElement>) => {
         lensAngleRepr: weekMeta.lensAngleRepr,
       })
     )
+
   if (isKind(weekMeta, ObjectiveKinds.LABEL) || isKind(weekMeta, ObjectiveKinds.LABEL_TEXT))
     // @ts-ignore // HACK if we copy LABEL/LABEL_TEXT directly it's no Objective anymore
     newElement.customData = {}
