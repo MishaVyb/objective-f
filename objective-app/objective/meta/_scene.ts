@@ -25,15 +25,15 @@ export const scene_getMeta = (
 export const scene_getTurnParent = (
   _scene: ObjectiveMetas,
   _appState: AppState,
-  meta: ObjectiveMeta,
+  child: ObjectiveMeta,
   opts?: {
     isSelected?: boolean
   }
 ): ObjectiveMeta | undefined => {
-  if (!isSupportsTurn(meta)) return
-  if (!meta.turnParentId) return
+  if (!isSupportsTurn(child)) return
+  if (!child.turnParentId) return
 
-  const turnParentItem = scene_getMeta(_scene, meta.turnParentId, { kind: meta.kind })
+  const turnParentItem = scene_getMeta(_scene, child.turnParentId, { kind: child.kind })
   if (!turnParentItem) return
 
   if (
@@ -48,16 +48,16 @@ export const scene_getTurnParent = (
 export const scene_getTurnChildren = (
   _scene: ObjectiveMetas,
   _appState: AppState,
-  meta: ObjectiveMeta,
+  parent: ObjectiveMeta,
   opts?: {
     isSelected?: boolean
   }
 ): ObjectiveMeta[] => {
-  if (!isSupportsTurn(meta)) return []
-  return _scene[meta.kind].filter(
+  if (!isSupportsTurn(parent)) return []
+  return _scene[parent.kind].filter(
     (m) =>
       isSupportsTurn(m) &&
-      m.turnParentId === meta.id &&
+      m.turnParentId === parent.id &&
       (opts?.isSelected === undefined || isElementSelected(_appState, m.basis!))
   )
 }
@@ -71,12 +71,17 @@ export const scene_getTurns = (
     isSelected?: boolean
   }
 ): ObjectiveMeta[] => {
-  const parent = scene_getTurnParent(_scene, _appState, meta, opts)
-  const children = scene_getTurnChildren(_scene, _appState, meta, opts)
-  if (parent) [parent, ...children]
+  if (!isSupportsTurn(meta)) return []
 
-  // no Parent means meta is Parent itself
-  return children
+  // looking for all parent's children
+  if (meta.turnParentId) {
+    const parent = scene_getTurnParent(_scene, _appState, meta)
+    if (!parent) return []
+    return [parent, ...scene_getTurnChildren(_scene, _appState, parent, opts)]
+  }
+
+  // probably current meta is parent
+  return scene_getTurnChildren(_scene, _appState, meta)
 }
 
 export const scene_getMetaByElement = (
