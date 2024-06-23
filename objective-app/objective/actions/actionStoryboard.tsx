@@ -159,7 +159,7 @@ export const actionInitStoryboard = register({
 
 interface IPerformValue {
   camera: CameraMeta
-  image: ObjectiveImageElement
+  imageRef: ObjectiveImageElement // not current scene element, because it's taken for useMemo hook
   action: 'display' | 'unlink' | 'remove'
 }
 
@@ -169,9 +169,10 @@ export const actionStoryboard = register({
   perform: (
     elements,
     appState,
-    { camera, image, action }: IPerformValue,
+    { camera, imageRef, action }: IPerformValue,
     app: AppClassProperties
   ) => {
+    const image = app.scene.getNonDeletedElementsMap().get(imageRef.id)! as ExcalidrawImageElement
     const cameraBasis = getObjectiveBasis<ExcalidrawEllipseElement>(camera)
     const pointers = getPointers(app.scene.getNonDeletedElementsMap(), image, cameraBasis)
     const pointer = pointers[0] // TODO handle many pointers
@@ -224,7 +225,7 @@ export const actionStoryboard = register({
         break
       case 'remove':
         // [1] remove image
-        elements = deleteEventHandler(app, elements, [image])
+        elements = deleteEventHandler([image])
         break
     }
     return {
@@ -279,7 +280,7 @@ export const actionStoryboard = register({
                   size={'2'}
                   variant={'outline'}
                   color={'red'}
-                  onClick={() => updateData({ camera, image, action: 'unlink' })}
+                  onClick={() => updateData({ camera, imageRef: image, action: 'unlink' })}
                   title={'Remove image from storyboard'}
                 >
                   <CircleBackslashIcon />
@@ -290,7 +291,7 @@ export const actionStoryboard = register({
                   variant={'outline'}
                   color={'gray'}
                   highContrast
-                  onClick={() => updateData({ camera, image, action: 'remove' })}
+                  onClick={() => updateData({ camera, imageRef: image, action: 'remove' })}
                   title={'Delete image'}
                 >
                   <div className='ToolIcon__icon'>{TrashIcon}</div>
@@ -300,7 +301,7 @@ export const actionStoryboard = register({
                   size={'2'}
                   variant={'soft'}
                   color={'gray'}
-                  onClick={() => updateData({ camera, image, action: 'display' })}
+                  onClick={() => updateData({ camera, imageRef: image, action: 'display' })}
                   title={isDisplayed(image) ? 'Hide image on canvas' : 'Show image on canvas'}
                 >
                   {isDisplayed(image) ? <EyeOpenIcon /> : <EyeClosedIcon />}

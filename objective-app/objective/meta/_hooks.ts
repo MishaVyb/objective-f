@@ -5,6 +5,13 @@ import { CameraMeta, ObjectiveImageElement } from './_types'
 import { InitializedExcalidrawImageElement } from '../../../packages/excalidraw/element/types'
 import { isInitializedImageElement } from '../../../packages/excalidraw/element/typeChecks'
 
+/**
+ * @return WARNING
+ *    get not current scene elements, because it's taken for useMemo hook
+ *    any mutation won't be saved to scene, to get real image element,
+ *    use `scene.getElementsMap().get(imageRef.id)`
+ *
+ * */
 export const useCamerasImages = (cameras: readonly CameraMeta[]) => {
   const files = useExcalidrawFiles()
   const elements = useExcalidrawElements()

@@ -1,57 +1,69 @@
-import { mutateElement, newElementWith } from '../../../packages/excalidraw/element/mutateElement'
+import { mutateElement } from '../../../packages/excalidraw/element/mutateElement'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 
-import { AppClassProperties } from '../../../packages/excalidraw/types'
-import { getObjectiveMetas, getMetaByObjectiveId } from '../meta/_selectors'
+import { getObjectiveMetas, getCore } from '../meta/_selectors'
 import { ObjectiveKinds, ObjectiveMeta, isKind } from '../meta/_types'
 
 import { deleteMetaRepr } from './_metaRepr'
 import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
+import { scene_getMeta, scene_getTurnChildren } from '../meta/_scene'
+import { isBoundToContainer } from '../../../packages/excalidraw/element/typeChecks'
 
 /**
- * Objective Delete Event Handler
- * - called from Excalidraw
- * - or called directly on other Objective actions
- *
- * Implementation:
- * - mutate some original elements with `isDeleted: true`
- * - or create new element with `changeElementProperty` and extend elements list with that changed el.
- *
- * BOTH soultion works
+ * similar to original `deleteSelectedElements` Excalidraw impl
  */
-export const deleteEventHandler = (
-  app: AppClassProperties,
-  elements: readonly ExcalidrawElement[],
-  deletingElements: Set<ExcalidrawElement> | Array<ExcalidrawElement>
-) => {
-  // - Handle if deleting element not marked as deleted (in case direct call)
-  elements = elements.map((el) =>
-    el.isDeleted
-      ? el
-      : [...deletingElements].some((delitingEl) => delitingEl.id === el.id)
-      ? newElementWith(el, { isDeleted: true })
-      : el
-  )
+export const deleteSelectedElementsEventHandler = () => {
+  const { appState, scene } = getCore()
+  const delitingElements = new Set<ExcalidrawElement>()
 
-  // - Handle Excalidraw
-  elements = deleteExcalidrawElements(app, elements, deletingElements)
+  scene.getElementsIncludingDeleted().map((el) => {
+    if (appState.selectedElementIds[el.id]) {
+      delitingElements.add(el)
+    }
 
-  // - Handle Objective
-  const delitingMetas = getObjectiveMetas([...deletingElements], {
-    includingDelited: true,
+    // UNUSED ???
+    // if (el.frameId && framesToBeDeleted.has(el.frameId)) {
+    //   delitingElements.add(el);
+    //   return newElementWith(el, { isDeleted: true });
+    // }
+
+    if (isBoundToContainer(el) && appState.selectedElementIds[el.containerId]) {
+      delitingElements.add(el)
+    }
+    return el
   })
-  elements = deleteObjectiveMetas(app, elements, delitingMetas)
 
-  return elements
+  return deleteEventHandler(delitingElements)
 }
 
-export const deleteExcalidrawElements = (
-  app: AppClassProperties,
-  elements: readonly ExcalidrawElement[],
-  deletingElements: Set<ExcalidrawElement> | Array<ExcalidrawElement>
+/**
+ *
+ * @param deletingElements
+ * @returns all scene elements with mutations
+ */
+export const deleteEventHandler = (
+  deletingElements: Set<ExcalidrawElement> | readonly ExcalidrawElement[]
 ) => {
+  const { scene } = getCore()
+  deletingElements.forEach((e) => {
+    if (!e.isDeleted) mutateElement(e, { isDeleted: true })
+  })
+
+  deletePointers(deletingElements)
+
+  const delitingMetas = getObjectiveMetas([...deletingElements], { includingDelited: true })
+  deleteObjectiveMetas(delitingMetas)
+
+  // NOTE as we mutating scene elements directly, respond with just mutated scene elements
+  return scene.getElementsIncludingDeleted()
+}
+
+// elements might be Objective Items, might be simple Excalidraw (like Image)
+export const deletePointers = (
+  deletingElements: Set<ExcalidrawElement> | readonly ExcalidrawElement[]
+) => {
+  const { app, scene } = getCore()
   deletingElements.forEach((target) => {
-    // delete all pointers
     const pointers = target.boundElements?.reduce((pointers, el) => {
       if (el.type === 'arrow') {
         const element = app.scene.getElement(el.id)
@@ -62,27 +74,28 @@ export const deleteExcalidrawElements = (
       }
       return pointers
     }, [] as ExcalidrawElement[])
-    if (pointers) fixBindingsAfterDeletion(elements, pointers)
+    if (pointers?.length) fixBindingsAfterDeletion(scene.getElementsIncludingDeleted(), pointers)
   })
-  return elements
 }
 
-export const deleteObjectiveMetas = (
-  app: AppClassProperties,
-  elements: readonly ExcalidrawElement[],
-  delitingMetas: readonly Readonly<ObjectiveMeta>[]
-) => {
+export const deleteObjectiveMetas = (delitingMetas: readonly Readonly<ObjectiveMeta>[]) => {
+  const { scene, oScene, appState } = getCore()
+
   delitingMetas.forEach((target) => {
     if (isKind(target, ObjectiveKinds.LABEL)) {
-      // is case of deleting repr container itself
-      const labelOfMeta = getMetaByObjectiveId(elements, target.labelOf)
-      if (labelOfMeta) deleteMetaRepr(app.scene, labelOfMeta, 'nameRepr')
+      // delete repr container itself
+      const labelOfMeta = scene_getMeta(oScene, target.labelOf)
+      if (labelOfMeta) deleteMetaRepr(scene, labelOfMeta, 'nameRepr')
     } else {
       // delete repr container (if meta has repr)
-      deleteMetaRepr(app.scene, target, 'nameRepr')
+      deleteMetaRepr(scene, target, 'nameRepr')
     }
 
-    // .... other handlers per Objective kind
+    // delete turns (if any)
+    scene_getTurnChildren(oScene, appState, target).forEach((child) => {
+      deleteMetaRepr(scene, child, 'nameRepr')
+      deletePointers(child.elements)
+      child.elements.forEach((e) => mutateElement(e, { isDeleted: true }))
+    })
   })
-  return elements
 }

@@ -1,4 +1,4 @@
-import { deleteEventHandler } from "../../../objective-app/objective/elements/_deleteElements";
+import { deleteSelectedElementsEventHandler } from "../../../objective-app/objective/elements/_deleteElements";
 import { ToolButton } from "../components/ToolButton";
 import { TrashIcon } from "../components/icons";
 import { getNonDeletedElements } from "../element";
@@ -11,12 +11,11 @@ import { getElementsInGroup } from "../groups";
 import { t } from "../i18n";
 import { KEYS } from "../keys";
 import { getSelectedElements, isSomeElementSelected } from "../scene";
-import { AppClassProperties, AppState } from "../types";
+import { AppState } from "../types";
 import { updateActiveTool } from "../utils";
 import { register } from "./register";
 
 const deleteSelectedElements = (
-  app: AppClassProperties,
   elements: readonly ExcalidrawElement[],
   appState: AppState,
 ) => {
@@ -26,34 +25,25 @@ const deleteSelectedElements = (
       appState,
     ).map((el) => el.id),
   );
-  // VBRN Collect all deliting elements and provide them to Objective delete handler
-  const delitingElements = new Set<ExcalidrawElement>();
-  //
+  elements = deleteSelectedElementsEventHandler();
   return {
-    elements: deleteEventHandler(
-      app,
-      elements.map((el) => {
-        if (appState.selectedElementIds[el.id]) {
-          delitingElements.add(el);
-          return newElementWith(el, { isDeleted: true });
-        }
+    elements: elements.map((el) => {
+      if (appState.selectedElementIds[el.id]) {
+        return newElementWith(el, { isDeleted: true });
+      }
 
-        if (el.frameId && framesToBeDeleted.has(el.frameId)) {
-          delitingElements.add(el);
-          return newElementWith(el, { isDeleted: true });
-        }
+      if (el.frameId && framesToBeDeleted.has(el.frameId)) {
+        return newElementWith(el, { isDeleted: true });
+      }
 
-        if (
-          isBoundToContainer(el) &&
-          appState.selectedElementIds[el.containerId]
-        ) {
-          delitingElements.add(el);
-          return newElementWith(el, { isDeleted: true });
-        }
-        return el;
-      }),
-      delitingElements,
-    ),
+      if (
+        isBoundToContainer(el) &&
+        appState.selectedElementIds[el.containerId]
+      ) {
+        return newElementWith(el, { isDeleted: true });
+      }
+      return el;
+    }),
     appState: {
       ...appState,
       selectedElementIds: {},
@@ -156,7 +146,7 @@ export const actionDeleteSelected = register({
       };
     }
     let { elements: nextElements, appState: nextAppState } =
-      deleteSelectedElements(app, elements, appState);
+      deleteSelectedElements(elements, appState);
     fixBindingsAfterDeletion(
       nextElements,
       elements.filter(({ id }) => appState.selectedElementIds[id]),

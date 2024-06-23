@@ -20,7 +20,10 @@ export const scene_getMeta = (
   opts?: {
     kind?: ObjectiveKinds
   }
-) => (opts?.kind ? _scene[opts?.kind].find((m) => m.id === id) : undefined)
+) =>
+  opts?.kind
+    ? _scene[opts?.kind].find((m) => m.id === id)
+    : scene_getAllMetas(_scene).find((m) => m.id === id)
 
 export const scene_getTurnParent = (
   _scene: ObjectiveMetas,
