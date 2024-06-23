@@ -11,7 +11,7 @@ import {
   NonDeletedExcalidrawElement,
 } from '../../../packages/excalidraw/element/types'
 import Scene from '../../../packages/excalidraw/scene/Scene'
-import { AppState, Primitive } from '../../../packages/excalidraw/types'
+import { AppClassProperties, AppState, Primitive } from '../../../packages/excalidraw/types'
 import {
   AnyObjectiveMeta,
   CameraMeta,
@@ -30,6 +30,16 @@ import {
 import { randomId } from '../../../packages/excalidraw/random'
 import { groupBy } from '../utils/helpers'
 import { objectValues } from '../utils/types'
+
+let _APP: AppClassProperties
+export const setApp = (app: AppClassProperties) => (_APP = app)
+export const getApp = () => _APP
+export const getCore = () => ({
+  app: _APP,
+  appState: _APP.state,
+  scene: _APP.scene,
+  oScene: _APP.scene.getObjectiveMetas(),
+})
 
 /**
  * Get week meta reference. Simplified version of {@link getMeta}.

@@ -85,7 +85,6 @@ export const transformElements = (
   pointerY: number,
   centerX: number,
   centerY: number,
-  app: AppClassProperties,
 ) => {
   // VBRN
   ({ selectedElements } = transformElementsEventHandler(
@@ -100,7 +99,6 @@ export const transformElements = (
     pointerY,
     centerX,
     centerY,
-    app,
   ));
 
   if (selectedElements.length === 1) {

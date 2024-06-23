@@ -436,6 +436,7 @@ import {
   getCameraMetas,
   getObjectiveBasis,
   getObjectiveSingleMetaStrict,
+  setApp,
 } from "../../../objective-app/objective/meta/_selectors";
 import {
   actionCreatePointer,
@@ -677,6 +678,7 @@ class App extends React.Component<AppProps, AppState> {
       width: window.innerWidth,
       height: window.innerHeight,
     };
+    setApp(this); // VBRN
 
     // NOTE
     // Do not store `objectiveProps` in State, as it's just props from component above and we
@@ -9390,7 +9392,6 @@ class App extends React.Component<AppProps, AppState> {
         resizeY,
         pointerDownState.resize.center.x,
         pointerDownState.resize.center.y,
-        this,
       )
     ) {
       this.maybeSuggestBindingForAll(selectedElements);

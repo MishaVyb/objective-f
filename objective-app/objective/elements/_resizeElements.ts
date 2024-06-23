@@ -11,9 +11,9 @@ import {
   NonDeletedExcalidrawElement,
 } from '../../../packages/excalidraw/element/types'
 import { rotate } from '../../../packages/excalidraw/math'
-import { AppClassProperties, PointerDownState } from '../../../packages/excalidraw/types'
+import { PointerDownState } from '../../../packages/excalidraw/types'
 import { scene_getMetasByElements, scene_getTurnsExcludingThis } from '../meta/_scene'
-import { getObjectiveMetas, getObjectiveSingleMetaStrict } from '../meta/_selectors'
+import { getCore, getObjectiveMetas, getObjectiveSingleMetaStrict } from '../meta/_selectors'
 import { ObjectiveMeta, isPure } from '../meta/_types'
 import { Vector, ensureVector } from './_math'
 import { getPushpinAng, getPushpinAngNoShift } from './_transformHandles'
@@ -29,17 +29,23 @@ export const transformElementsEventHandler = (
   pointerX: number,
   pointerY: number,
   centerX: number,
-  centerY: number,
-  app: AppClassProperties
+  centerY: number
 ) => {
-  const objectiveScene = app.scene.getObjectiveMetas()
+  const { app, oScene } = getCore()
   const extraElsToAffect: ExcalidrawElement[] = []
-  const metas = scene_getMetasByElements(objectiveScene, selectedElements)
-  metas.forEach((m) => {
-    scene_getTurnsExcludingThis(objectiveScene, app.state, m).forEach((turn) =>
-      extraElsToAffect.push(...turn.elements)
-    )
-  })
+  const metas = scene_getMetasByElements(oScene, selectedElements)
+  const isStrcitOneMetaSelected = !!getObjectiveSingleMetaStrict(selectedElements)
+
+  // rotate other Turns alongside with current meta, if it's classic Excalidraw group rotation
+  // (so more than one metas selected)
+  if (!isStrcitOneMetaSelected) {
+    metas.forEach((m) => {
+      scene_getTurnsExcludingThis(oScene, app.state, m).forEach((turn) =>
+        extraElsToAffect.push(...turn.elements)
+      )
+    })
+  }
+
   return {
     selectedElements: [...selectedElements, ...extraElsToAffect],
   }

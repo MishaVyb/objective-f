@@ -12,7 +12,12 @@ import {
   PointerDownState,
 } from '../../../packages/excalidraw/types'
 import { scene_getTurnChildren, scene_getTurnParent, scene_getTurns } from '../meta/_scene'
-import { getObjectiveSingleMetaStrict, isElementSelected } from '../meta/_selectors'
+import {
+  getCore,
+  getObjectiveSingleMetaStrict,
+  getSelectedSceneEls,
+  isElementSelected,
+} from '../meta/_selectors'
 import { ObjectiveMeta, ObjectiveMetas, isSupportsTurn } from '../meta/_types'
 import { isHintingPushpin } from './_collision'
 import { ensurePoint, getElementCenter } from './_math'
@@ -74,6 +79,11 @@ export const isPushbinHandlePotential = (
   appState: AppState,
   meta: ObjectiveMeta
 ) => {
+  const { scene } = getCore()
+  const selectedElements = getSelectedSceneEls(scene, appState)
+  const isStrcitOneMetaSelected = !!getObjectiveSingleMetaStrict(selectedElements)
+  if (!isStrcitOneMetaSelected) return false
+
   if (isSupportsTurn(meta)) {
     if (meta.turnParentId) {
       // looking for all parent's children

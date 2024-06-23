@@ -131,3 +131,7 @@ export const scene_getMetasByElements = (_scene: ObjectiveMetas, elements: Eleme
   // ??? implement map: element -> meta, use Set to return single metas
   return getObjectiveMetas(elements)
 }
+
+export const scene_getSelectedMetas = (_scene: ObjectiveMetas, _appState: AppState) => {
+  return scene_getAllMetas(_scene).filter((m) => isElementSelected(_appState, m.basis!))
+}
