@@ -12,14 +12,14 @@ import {
   ExcalidrawTextElementWithContainer,
   NonDeletedSceneElementsMap,
 } from '../../../packages/excalidraw/element/types'
-import { getObjectiveBasis, getPointerIds } from '../meta/_selectors'
+import { getCore, getObjectiveBasis, getPointerIds } from '../meta/_selectors'
 import { CameraMeta, ObjectiveKinds, ObjectiveMeta, PointerMeta } from '../meta/_types'
 import { getInitialMeta } from '../meta/_initial'
 
 import { randomId } from '../../../packages/excalidraw/random'
 import { DEFAULT_FONT_SIZE } from '../../../packages/excalidraw/constants'
 import Scene from '../../../packages/excalidraw/scene/Scene'
-import { Vector, ensurePoint, getElementCenter } from './_math'
+import { Vector, ensurePoint, ensureVector, getElementCenter } from './_math'
 import { DEFAULT_FOCUS_DISTANCE, getCameraLensAngle } from '../actions/actionCamera'
 import { LinearElementEditor } from '../../../packages/excalidraw/element/linearElementEditor'
 
@@ -31,7 +31,10 @@ import {
   getPushpinLineDemensions,
 } from './_transformHandles'
 import { NormalizedZoomValue } from '../../../packages/excalidraw/types'
-import { rotateElementOnAngle } from './_resizeElements'
+import { getObjectiveRotationCenter, rotateElementOnAngle } from './_resizeElements'
+import { scene_getNextTurn } from '../meta/_scene'
+import { rotate } from '../../../packages/excalidraw/math'
+import { normalizeAngle } from '../../../packages/excalidraw/element/resizeElements'
 
 export const POINTER_COMMON = (): Partial<ExcalidrawArrowElement> => ({
   // locked: true, // ??? lock for label but not for images...
@@ -210,11 +213,12 @@ export const getPushpinElements = (
 ) => [
   getPushpinLineElement(meta, opts.zoomValue),
   ...getPushpinHeadElements(meta, opts.zoomValue, opts.number),
+  ...getPushpinArrowElements(meta, opts.zoomValue),
 ]
 
 export const getPushpinLineElement = (meta: ObjectiveMeta, zoomValue: NormalizedZoomValue) => {
   const { start, end, center } = getPushpinLineDemensions(meta, zoomValue)
-  let pushpinLine = newLinearElement({
+  const pushpinLine = newLinearElement({
     type: 'arrow',
     strokeWidth: 0.5 / zoomValue,
     strokeColor: COLOR_PALETTE.blue[4],
@@ -227,6 +231,99 @@ export const getPushpinLineElement = (meta: ObjectiveMeta, zoomValue: Normalized
     points: [ensurePoint(start), ensurePoint(end)],
   })
   return rotateElementOnAngle(pushpinLine, center, getPushpinAng(meta)!)
+}
+
+export const getPushpinArrowElements = (meta: ObjectiveMeta, zoomValue: NormalizedZoomValue) => {
+  const PI = Math.PI
+  const { oScene, appState } = getCore()
+  const nextMeta = scene_getNextTurn(oScene, appState, meta)
+  if (!nextMeta) return []
+
+  // absolute
+  const angDiff = normalizeAngle(nextMeta.basis!.angle - meta.basis!.angle)
+  if (angDiff < 0.1 || 2 * PI - 0.1 < angDiff) return []
+
+  const angMiddle = angDiff > PI ? 2 * PI - (2 * PI - angDiff) / 2 : angDiff / 2
+  const basisCenter = getElementCenter(meta.basis!)
+  const rotationCenter = getObjectiveRotationCenter(meta, basisCenter.x, basisCenter.y)
+  const shiftStartEnd = 45
+  const shiftMiddle = 45
+  const angMiddleNorm = angMiddle > PI ? normalizeAngle(2 * PI - angMiddle) : angMiddle
+  const shiftMiddleNorm = angMiddleNorm > 1 ? shiftMiddle / angMiddleNorm : shiftMiddle
+
+  let angStartShift = 0
+  if (angDiff < 0.4 || PI * 2 - 0.4 < angDiff) angStartShift = 0 // no shift on small angles
+  else if (angDiff < PI / 2) angStartShift = 0.05
+  else if (angDiff < PI) angStartShift = 0.1
+  else if (angDiff < PI * 1.5) angStartShift = -0.1
+  else if (angDiff < PI * 2) angStartShift = -0.05
+
+  let angEndShiftCoef = 1
+  if (angDiff < 0.4 || PI * 2 - 0.4 < angDiff) angEndShiftCoef = 1 // no shift on small angles
+  else if (angDiff < PI / 2) angEndShiftCoef = 0.9
+  else if (angDiff < PI) angEndShiftCoef = 0.95
+  else if (angDiff < PI * 1.5) angEndShiftCoef = 1.02
+  else if (angDiff < PI * 2) angEndShiftCoef = 1.01
+
+  const centerAbsolute = {
+    x: rotationCenter.x + shiftStartEnd,
+    y: rotationCenter.y,
+  }
+  const startAbsolute = ensureVector(
+    rotate(
+      centerAbsolute.x,
+      centerAbsolute.y,
+      rotationCenter.x,
+      rotationCenter.y,
+      angStartShift //
+    )
+  )
+  const middleAbsolute = ensureVector(
+    rotate(
+      rotationCenter.x + shiftMiddleNorm,
+      rotationCenter.y,
+      rotationCenter.x,
+      rotationCenter.y,
+      angDiff > PI ? 2 * PI - (2 * Math.PI - angDiff) / 2 : angDiff / 2
+    )
+  )
+  const endAbsolute = ensureVector(
+    rotate(
+      centerAbsolute.x,
+      centerAbsolute.y,
+      rotationCenter.x,
+      rotationCenter.y,
+      angDiff * angEndShiftCoef //
+    )
+  )
+
+  // relative
+  const start = { x: 0, y: 0 }
+  const middle = {
+    x: middleAbsolute.x - centerAbsolute.x,
+    y: middleAbsolute.y - centerAbsolute.y,
+  }
+  const end = {
+    x: endAbsolute.x - centerAbsolute.x,
+    y: endAbsolute.y - centerAbsolute.y,
+  }
+
+  let pushpinArrow = newLinearElement({
+    type: 'arrow',
+    strokeWidth: 0.5,
+    strokeColor: COLOR_PALETTE.blue[4],
+    roundness: { type: 2 },
+    // endArrowhead: 'arrow',
+    endArrowhead: 'triangle',
+    x: startAbsolute.x,
+    y: startAbsolute.y,
+    points: [ensurePoint(start), ensurePoint(middle), ensurePoint(end)],
+  })
+
+  // NOTE
+  // we do not consider meta rotation itself at calculation above, so rotate result on meta angle
+  pushpinArrow = rotateElementOnAngle(pushpinArrow, rotationCenter, meta.basis!.angle)
+  return [pushpinArrow]
 }
 
 export const getPushpinHeadElements = (
@@ -249,11 +346,11 @@ export const getPushpinHeadElements = (
     newTextElement({
       text: number ? String(number) : '',
       x: rx + 3 / zoomValue,
-      y: ry,
-      fontSize: 10 / zoomValue,
+      y: ry + 1 / zoomValue,
+      fontSize: 9 / zoomValue,
       fontFamily: 2,
-      strokeColor: COLOR_PALETTE.black,
-      opacity: 75,
+      strokeColor: COLOR_PALETTE.blue[4],
+      opacity: 100,
     }),
   ]
 }

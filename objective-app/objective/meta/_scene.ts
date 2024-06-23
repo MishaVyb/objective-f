@@ -94,7 +94,7 @@ export const scene_getTurns = (
   return []
 }
 
-// TODO CACHE (populate that once on every render loop and use populated value)
+// TODO CACHE (populate map[meta.id, value] that once on every render loop and use populated value)
 export const scene_getTurnNumber = (
   _scene: ObjectiveMetas,
   _appState: AppState,
@@ -107,6 +107,19 @@ export const scene_getTurnNumber = (
     (turn) => turn.id === meta.id
   )
   return index === -1 ? undefined : index + 1
+}
+
+export const scene_getNextTurn = (
+  _scene: ObjectiveMetas,
+  _appState: AppState,
+  meta: ObjectiveMeta,
+  opts?: {
+    isSelected?: boolean
+  }
+) => {
+  const turns = scene_getTurns(_scene, _appState, meta, opts)
+  const index = turns.findIndex((turn) => turn.id === meta.id)
+  return index === -1 ? undefined : turns[index + 1]
 }
 
 /** get all turns for this meta (parent + children) excluding itself */
