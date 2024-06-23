@@ -279,7 +279,6 @@ export const exportToCanvas = async (
       embedsValidationStatus: new Map(),
       elementsPendingErasure: new Set(),
     },
-    app: undefined, // VBRN // FIXME
   });
 
   tempScene.destroy();

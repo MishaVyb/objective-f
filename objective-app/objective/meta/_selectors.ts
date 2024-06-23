@@ -31,14 +31,21 @@ import { randomId } from '../../../packages/excalidraw/random'
 import { groupBy } from '../utils/helpers'
 import { objectValues } from '../utils/types'
 
-let _APP: AppClassProperties
-export const setApp = (app: AppClassProperties) => (_APP = app)
-export const getApp = () => _APP
+let _APP: AppClassProperties | undefined
+export const setCore = (app: AppClassProperties) => (_APP = app)
 export const getCore = () => ({
+  app: _APP!,
+  appState: _APP!.state,
+  scene: _APP!.scene,
+  oScene: _APP!.scene.getObjectiveMetas(),
+})
+
+/** in same places App is not available (for example in utils.export) */
+export const getCoreSafe = () => ({
   app: _APP,
-  appState: _APP.state,
-  scene: _APP.scene,
-  oScene: _APP.scene.getObjectiveMetas(),
+  appState: _APP?.state,
+  scene: _APP?.scene,
+  oScene: _APP?.scene.getObjectiveMetas(),
 })
 
 /**

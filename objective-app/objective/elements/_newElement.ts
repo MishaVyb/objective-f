@@ -205,14 +205,18 @@ export const getPushpinElements = (
   opts: {
     zoomValue: NormalizedZoomValue //
     overrides?: Partial<ExcalidrawArrowElement>
+    number?: number
   }
-) => [getPushpinLineElement(meta, opts.zoomValue), getPushpinHeadElement(meta, opts.zoomValue)]
+) => [
+  getPushpinLineElement(meta, opts.zoomValue),
+  ...getPushpinHeadElements(meta, opts.zoomValue, opts.number),
+]
 
 export const getPushpinLineElement = (meta: ObjectiveMeta, zoomValue: NormalizedZoomValue) => {
   const { start, end, center } = getPushpinLineDemensions(meta, zoomValue)
   let pushpinLine = newLinearElement({
     type: 'arrow',
-    strokeWidth: 0.5,
+    strokeWidth: 0.5 / zoomValue,
     strokeColor: COLOR_PALETTE.blue[4],
     // strokeStyle: 'dotted',
     // startArrowhead: null,
@@ -225,18 +229,33 @@ export const getPushpinLineElement = (meta: ObjectiveMeta, zoomValue: Normalized
   return rotateElementOnAngle(pushpinLine, center, getPushpinAng(meta)!)
 }
 
-export const getPushpinHeadElement = (meta: ObjectiveMeta, zoomValue: NormalizedZoomValue) => {
+export const getPushpinHeadElements = (
+  meta: ObjectiveMeta,
+  zoomValue: NormalizedZoomValue,
+  number?: number
+) => {
   const [rx, ry, rw, rh] = getPushpinHeadDemensions(meta, zoomValue)
-  return newElement({
-    type: 'ellipse',
-    strokeWidth: 0.5,
-    strokeColor: COLOR_PALETTE.blue[4],
-    backgroundColor: COLOR_PALETTE.white,
-    x: rx,
-    y: ry,
-    height: rw,
-    width: rh,
-  })
+  return [
+    newElement({
+      type: 'ellipse',
+      strokeWidth: 0.5 / zoomValue,
+      strokeColor: COLOR_PALETTE.blue[4],
+      backgroundColor: COLOR_PALETTE.white,
+      x: rx,
+      y: ry,
+      height: rw,
+      width: rh,
+    }),
+    newTextElement({
+      text: number ? String(number) : '',
+      x: rx + 3 / zoomValue,
+      y: ry,
+      fontSize: 10 / zoomValue,
+      fontFamily: 2,
+      strokeColor: COLOR_PALETTE.black,
+      opacity: 75,
+    }),
+  ]
 }
 
 const getCameraLensFocusLine = (

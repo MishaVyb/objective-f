@@ -65,7 +65,10 @@ export const scene_getTurnChildren = (
   )
 }
 
-/** get all turns for this meta (parent + children) */
+/**
+ * get all turns for this meta (parent + children)
+ * @returns [] if no turns for this meta (do not return self meta in that case)
+ */
 export const scene_getTurns = (
   _scene: ObjectiveMetas,
   _appState: AppState,
@@ -84,7 +87,26 @@ export const scene_getTurns = (
   }
 
   // probably current meta is parent
-  return scene_getTurnChildren(_scene, _appState, meta)
+  const children = scene_getTurnChildren(_scene, _appState, meta)
+  if (children.length) return [meta, ...children] // yep, its parent
+
+  // meta has not child turns and it's not child itself
+  return []
+}
+
+// TODO CACHE (populate that once on every render loop and use populated value)
+export const scene_getTurnNumber = (
+  _scene: ObjectiveMetas,
+  _appState: AppState,
+  meta: ObjectiveMeta,
+  opts?: {
+    isSelected?: boolean
+  }
+) => {
+  const index = scene_getTurns(_scene, _appState, meta, opts).findIndex(
+    (turn) => turn.id === meta.id
+  )
+  return index === -1 ? undefined : index + 1
 }
 
 /** get all turns for this meta (parent + children) excluding itself */

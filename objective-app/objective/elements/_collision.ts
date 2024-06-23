@@ -4,7 +4,7 @@ import { AppState, FrameNameBoundsCache, Point } from '../../../packages/excalid
 import { scene_getMetaByBasis, scene_getTurnChildren } from '../meta/_scene'
 import { getMetaOrNone } from '../meta/_selectors'
 import { ObjectiveMeta, ObjectiveMetas, WeekMeta, isSupportsTurn } from '../meta/_types'
-import { getPushpinHeadElement } from './_newElement'
+import { getPushpinHeadElements } from './_newElement'
 import { isPushbinHandlePotential } from './_transformHandles'
 
 export const isObjectiveElementHit = (
@@ -90,7 +90,7 @@ export const isHintingPushpin = (
     if (meta.turnParentId) return false // prevent selecting child by NOT Pushpin
     return undefined
   }
-  const pushpin = getPushpinHeadElement(meta, appState.zoom.value)
+  const [pushpin, number] = getPushpinHeadElements(meta, appState.zoom.value)
   const isPushpinHint = isHittingElementNotConsideringBoundingBox(
     pushpin,
     appState,

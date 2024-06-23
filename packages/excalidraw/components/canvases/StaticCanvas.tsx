@@ -2,11 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import { renderStaticScene } from "../../renderer/renderScene";
 import { isShallowEqual } from "../../utils";
-import type {
-  AppClassProperties,
-  AppState,
-  StaticCanvasAppState,
-} from "../../types";
+import type { AppState, StaticCanvasAppState } from "../../types";
 import type {
   RenderableElementsMap,
   StaticCanvasRenderConfig,
@@ -16,7 +12,6 @@ import type {
   NonDeletedSceneElementsMap,
 } from "../../element/types";
 import { isRenderThrottlingEnabled } from "../../reactUtils";
-import { useApp } from "../App";
 
 type StaticCanvasProps = {
   canvas: HTMLCanvasElement;
@@ -34,7 +29,6 @@ type StaticCanvasProps = {
 const StaticCanvas = (props: StaticCanvasProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const isComponentMounted = useRef(false);
-  const app = useApp(); // VBRN
 
   useEffect(() => {
     const wrapper = wrapperRef.current;
@@ -81,7 +75,6 @@ const StaticCanvas = (props: StaticCanvasProps) => {
         visibleElements: props.visibleElements,
         appState: props.appState,
         renderConfig: props.renderConfig,
-        app,
       },
       isRenderThrottlingEnabled(),
     );

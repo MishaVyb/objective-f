@@ -72,8 +72,6 @@ export type StaticSceneRenderConfig = {
   scale: number;
   appState: StaticCanvasAppState;
   renderConfig: StaticCanvasRenderConfig;
-
-  app: AppClassProperties | undefined; // VBRN
 };
 
 export type InteractiveSceneRenderConfig = {
