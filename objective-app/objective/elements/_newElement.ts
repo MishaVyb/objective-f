@@ -58,7 +58,7 @@ const CAMERA_MOVEMENT_POINTER = (
     name: 'Camera Movement',
   }),
   strokeColor: ref.backgroundColor,
-  strokeWidth: 4,
+  strokeWidth: 2,
   strokeStyle: 'solid',
   roundness: {
     type: 2,
@@ -75,7 +75,7 @@ const CHARACTER_MOVEMENT_POINTER = (
     name: 'Character Movement',
   }),
   strokeColor: ref.backgroundColor,
-  strokeWidth: 4,
+  strokeWidth: 2,
   strokeStyle: 'dashed',
   roundness: {
     type: 2,
