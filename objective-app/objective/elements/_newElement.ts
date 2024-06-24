@@ -374,7 +374,11 @@ export const getPushpinArrowElements = (meta: ObjectiveMeta) => {
 
   // NOTE
   // we do not consider meta rotation itself at calculation above, so rotate result on meta angle
-  pushpinArrow = rotateElementOnAngle(pushpinArrow, rotationCenter, meta.basis!.angle)
+  pushpinArrow = rotateElementOnAngle(
+    pushpinArrow,
+    rotationCenter,
+    normalizeAngle(meta.basis!.angle - PI / 2 + (meta.coreOpts?.pushpinRotationShiftAngle || 0))
+  )
   return [pushpinArrow]
 }
 

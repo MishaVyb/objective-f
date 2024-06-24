@@ -1,6 +1,5 @@
-import { EnterIcon, ExitIcon } from '@radix-ui/react-icons'
+import { EnterIcon, ExitIcon, ReloadIcon } from '@radix-ui/react-icons'
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
-import { getSelectedElements } from '../../../packages/excalidraw/scene'
 import { getObjectiveSingleMeta, getSelectedSceneEls } from '../meta/_selectors'
 
 import { register } from './register'
@@ -9,17 +8,21 @@ import { Button, Flex } from '@radix-ui/themes'
 import { handleMetaRepresentation } from '../elements/_metaRepr'
 import { duplicateElements } from '../../../packages/excalidraw/actions/actionDuplicateSelection'
 import { ObjectiveKinds, isKind } from '../meta/_types'
+import { degreesToRadian, ensureVector, getElementCenter } from '../elements/_math'
+import { getObjectiveRotationCenter } from '../elements/_resizeElements'
+import { mutateElement } from '../../../packages/excalidraw'
 
-type TChangeVersionActionValue = 'moveTo' | 'moveFrom'
+type TChangeVersionActionValue = 'moveTo' | 'moveFrom' | 'rotateTo'
 
 export const actionMoveCharacterToFrom = register({
   name: 'actionMoveCharacterToFrom',
   trackEvent: false,
   perform: (elements, appState, actionType: TChangeVersionActionValue, app: AppClassProperties) => {
+    let newEls: ReturnType<typeof handleMetaRepresentation> = []
     const character = getObjectiveSingleMeta(getSelectedSceneEls(app.scene, appState))
     if (!character || !isKind(character, ObjectiveKinds.CHARACTER)) return false
 
-    let newEls: ReturnType<typeof handleMetaRepresentation> = []
+    const basisCenter = getElementCenter(character.basis!)
 
     switch (actionType) {
       case 'moveTo':
@@ -39,6 +42,33 @@ export const actionMoveCharacterToFrom = register({
             addPointerSubkind: 'characterMovementPointer',
             addPointerReverseDirection: true,
           }),
+          commitToHistory: true,
+        }
+      case 'rotateTo':
+        const res = duplicateElements(elements, appState, app, {
+          shift: { x: 0, y: 0 },
+          rotate: {
+            center: ensureVector(
+              getObjectiveRotationCenter(
+                character,
+                basisCenter.x,
+                basisCenter.y, //
+                { force: true }
+              )
+            ),
+            angle: character.basis!.angle + degreesToRadian(45),
+          },
+          newElementsMeta: {
+            turnParentId: character.turnParentId || character.id,
+            nameRepr: undefined,
+          },
+        })
+        if (!res) return false
+        res.extra.newEls.forEach((e) => mutateElement(e, { backgroundColor: 'transparent' }))
+        res.extra.extraNewEls.forEach((e) => mutateElement(e, { backgroundColor: 'transparent' }))
+        return {
+          elements: res.elements,
+          appState: res.appState,
           commitToHistory: true,
         }
     }
@@ -84,6 +114,17 @@ export const actionMoveCharacterToFrom = register({
               >
                 <ExitIcon />
                 {'To'}
+              </Button>
+
+              <Button
+                size={'1'}
+                variant={'surface'}
+                color={'gray'}
+                onClick={() => updateData('rotateTo')}
+                title={'Add turn'}
+              >
+                <ReloadIcon />
+                {'Turn'}
               </Button>
             </Flex>
           )}

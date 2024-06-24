@@ -397,7 +397,7 @@ export const actionChangeMetaCameraVersion = register({
                 variant={'surface'}
                 color={'gray'}
                 onClick={() => updateData('rotateTo')}
-                title={'Move camera to'}
+                title={'Add turn'}
               >
                 <ReloadIcon />
                 {'Turn'}

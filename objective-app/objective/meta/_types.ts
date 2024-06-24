@@ -331,6 +331,8 @@ export const isKind = <T extends ObjectiveKinds>(
   kind: T
 ): arg is T extends ObjectiveKinds.CAMERA
   ? CameraMeta
+  : T extends ObjectiveKinds.CHARACTER
+  ? CharacterMeta
   : T extends ObjectiveKinds.LABEL
   ? LabelMeta
   : ObjectiveMeta<T> => {
