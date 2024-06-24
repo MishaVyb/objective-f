@@ -2,10 +2,13 @@ import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { renderElement } from '../../../packages/excalidraw/renderer/renderElement'
 import { StaticSceneRenderConfig } from '../../../packages/excalidraw/scene/types'
 import { AppState } from '../../../packages/excalidraw/types'
-import { scene_getTurnNumber } from '../meta/_scene'
 import { getCoreSafe, getObjectiveMetas } from '../meta/_selectors'
 import { isCameraMeta, isObjectiveHidden } from '../meta/_types'
-import { getCameraLensAngleElements, getPushpinElements } from './_newElement'
+import {
+  getCameraLensAngleElements,
+  getPushpinArrowElements,
+  getPushpinElements,
+} from './_newElement'
 import { isPushbinHandlePotential } from './_transformHandles'
 
 export const renderObjectiveScene = (
@@ -34,12 +37,9 @@ export const renderObjectiveScene = (
     // pushpin
     if (oScene) {
       if (isPushbinHandlePotential(oScene, appState as AppState, meta)) {
-        extraEls.push(
-          ...getPushpinElements(meta, {
-            zoomValue: appState.zoom.value,
-            number: scene_getTurnNumber(oScene, appState as AppState, meta),
-          })
-        )
+        extraEls.push(...getPushpinElements(meta))
+      } else {
+        extraEls.push(...getPushpinArrowElements(meta))
       }
     }
   })

@@ -12,7 +12,7 @@ import {
   ExcalidrawTextElementWithContainer,
   NonDeletedSceneElementsMap,
 } from '../../../packages/excalidraw/element/types'
-import { getCore, getObjectiveBasis, getPointerIds } from '../meta/_selectors'
+import { getCore, getObjectiveBasis, getPointerIds, isElementSelected } from '../meta/_selectors'
 import { CameraMeta, ObjectiveKinds, ObjectiveMeta, PointerMeta } from '../meta/_types'
 import { getInitialMeta } from '../meta/_initial'
 
@@ -30,9 +30,8 @@ import {
   getPushpinHeadDemensions,
   getPushpinLineDemensions,
 } from './_transformHandles'
-import { NormalizedZoomValue } from '../../../packages/excalidraw/types'
 import { getObjectiveRotationCenter, rotateElementOnAngle } from './_resizeElements'
-import { scene_getNextTurn } from '../meta/_scene'
+import { scene_getNextTurn, scene_getTurnNumber, scene_getTurns } from '../meta/_scene'
 import { rotate } from '../../../packages/excalidraw/math'
 import { normalizeAngle } from '../../../packages/excalidraw/element/resizeElements'
 
@@ -203,26 +202,31 @@ export const getCameraLensAngleElements = (
   ]
 }
 
+const PUSHPIN_ACTIVE_COLOR = '#3c2a8c'
+const PUSHPIN_BG_ACTIVE_COLOR = '#5654a8'
+
 export const getPushpinElements = (
   meta: ObjectiveMeta,
-  opts: {
-    zoomValue: NormalizedZoomValue //
+  opts?: {
     overrides?: Partial<ExcalidrawArrowElement>
-    number?: number
   }
 ) => [
-  getPushpinLineElement(meta, opts.zoomValue),
-  ...getPushpinHeadElements(meta, opts.zoomValue, opts.number),
-  ...getPushpinArrowElements(meta, opts.zoomValue),
+  getPushpinLineElement(meta),
+  ...getPushpinHeadElements(meta),
+  ...getPushpinArrowElements(meta),
 ]
 
-export const getPushpinLineElement = (meta: ObjectiveMeta, zoomValue: NormalizedZoomValue) => {
+export const getPushpinLineElement = (meta: ObjectiveMeta) => {
+  const { oScene, appState } = getCore()
+  const zoomValue = appState.zoom.value
+  const isSelected = isElementSelected(appState, meta.basis!)
+
   const { start, end, center } = getPushpinLineDemensions(meta, zoomValue)
   const pushpinLine = newLinearElement({
     customData: getInitialMeta(ObjectiveKinds.PUSHPIN),
     type: 'arrow',
-    strokeWidth: 0.5 / zoomValue,
-    strokeColor: COLOR_PALETTE.blue[4],
+    strokeWidth: 0.7 / zoomValue,
+    strokeColor: isSelected ? PUSHPIN_ACTIVE_COLOR : COLOR_PALETTE.black,
     // strokeStyle: 'dotted',
     // startArrowhead: null,
     // endArrowhead: null,
@@ -234,9 +238,14 @@ export const getPushpinLineElement = (meta: ObjectiveMeta, zoomValue: Normalized
   return rotateElementOnAngle(pushpinLine, center, getPushpinAng(meta)!)
 }
 
-export const getPushpinArrowElements = (meta: ObjectiveMeta, zoomValue: NormalizedZoomValue) => {
+export const getPushpinArrowElements = (meta: ObjectiveMeta) => {
   const PI = Math.PI
   const { oScene, appState } = getCore()
+  const zoomValue = appState.zoom.value
+  const total = scene_getTurns(oScene, appState, meta)
+  const number = scene_getTurnNumber(oScene, appState, meta) || 0
+  const isSelected = isElementSelected(appState, meta.basis!)
+
   const nextMeta = scene_getNextTurn(oScene, appState, meta)
   if (!nextMeta) return []
 
@@ -244,30 +253,30 @@ export const getPushpinArrowElements = (meta: ObjectiveMeta, zoomValue: Normaliz
   const angDiff = normalizeAngle(nextMeta.basis!.angle - meta.basis!.angle)
   if (angDiff < 0.1 || 2 * PI - 0.1 < angDiff) return []
 
-  const angMiddle = angDiff > PI ? 2 * PI - (2 * PI - angDiff) / 2 : angDiff / 2
   const basisCenter = getElementCenter(meta.basis!)
   const rotationCenter = getObjectiveRotationCenter(meta, basisCenter.x, basisCenter.y)
-  const shiftStartEnd = 45
-  const shiftMiddle = 45
-  const angMiddleNorm = angMiddle > PI ? normalizeAngle(2 * PI - angMiddle) : angMiddle
-  const shiftMiddleNorm = angMiddleNorm > 1 ? shiftMiddle / angMiddleNorm : shiftMiddle
+
+  const tooManyTurns = 4
+  const pointShiftXOffset = total.length < tooManyTurns ? 32 : 27
+  const pointerShiftXCoef = number < tooManyTurns ? number : tooManyTurns
+  const pointShiftX = pointShiftXOffset + pointerShiftXCoef * 6
 
   let angStartShift = 0
-  if (angDiff < 0.4 || PI * 2 - 0.4 < angDiff) angStartShift = 0 // no shift on small angles
-  else if (angDiff < PI / 2) angStartShift = 0.05
-  else if (angDiff < PI) angStartShift = 0.1
-  else if (angDiff < PI * 1.5) angStartShift = -0.1
-  else if (angDiff < PI * 2) angStartShift = -0.05
+  // if (angDiff < 0.4 || PI * 2 - 0.4 < angDiff) angStartShift = 0 // no shift on small angles
+  // else if (angDiff < PI / 2) angStartShift = 0.05
+  // else if (angDiff < PI) angStartShift = 0.1
+  // else if (angDiff < PI * 1.5) angStartShift = -0.1
+  // else if (angDiff < PI * 2) angStartShift = -0.05
 
   let angEndShiftCoef = 1
-  if (angDiff < 0.4 || PI * 2 - 0.4 < angDiff) angEndShiftCoef = 1 // no shift on small angles
-  else if (angDiff < PI / 2) angEndShiftCoef = 0.9
-  else if (angDiff < PI) angEndShiftCoef = 0.95
-  else if (angDiff < PI * 1.5) angEndShiftCoef = 1.02
-  else if (angDiff < PI * 2) angEndShiftCoef = 1.01
+  // if (angDiff < 0.4 || PI * 2 - 0.4 < angDiff) angEndShiftCoef = 1 // no shift on small angles
+  // else if (angDiff < PI / 2) angEndShiftCoef = 0.9
+  // else if (angDiff < PI) angEndShiftCoef = 0.99
+  // else if (angDiff < PI * 1.5) angEndShiftCoef = 1.01
+  // else if (angDiff < PI * 2) angEndShiftCoef = 1.01
 
   const centerAbsolute = {
-    x: rotationCenter.x + shiftStartEnd,
+    x: rotationCenter.x + pointShiftX,
     y: rotationCenter.y,
   }
   const startAbsolute = ensureVector(
@@ -279,15 +288,56 @@ export const getPushpinArrowElements = (meta: ObjectiveMeta, zoomValue: Normaliz
       angStartShift //
     )
   )
-  const middleAbsolute = ensureVector(
-    rotate(
-      rotationCenter.x + shiftMiddleNorm,
-      rotationCenter.y,
-      rotationCenter.x,
-      rotationCenter.y,
-      angDiff > PI ? 2 * PI - (2 * Math.PI - angDiff) / 2 : angDiff / 2
+
+  const _getMiddlePoint = (_masterAng: number, _coef: number, _shift: number) => {
+    const angMiddle =
+      _masterAng > PI ? 2 * PI - ((2 * PI - _masterAng) * _coef) / 2 : (_masterAng * _coef) / 2
+
+    // const _angMiddleNorm = angMiddle > PI ? normalizeAngle(2 * PI - angMiddle) : angMiddle
+    // const _shiftMiddleNorm = _xShift
+    const _middleAbsolute = ensureVector(
+      rotate(
+        rotationCenter.x + _shift,
+        rotationCenter.y,
+        rotationCenter.x,
+        rotationCenter.y,
+        angMiddle
+      )
     )
-  )
+    const _middle = {
+      x: _middleAbsolute.x - centerAbsolute.x,
+      y: _middleAbsolute.y - centerAbsolute.y,
+    }
+    return ensurePoint(_middle)
+  }
+
+  let middlePoints: (readonly [number, number])[] = []
+
+  // very very small angles
+  if (angDiff < 0.2 || PI * 2 - 0.2 < angDiff) middlePoints = []
+  // small angles
+  else if (angDiff < 0.4 || PI * 2 - 0.4 < angDiff)
+    middlePoints = [
+      _getMiddlePoint(angDiff, 1, pointShiftX), //
+    ]
+  // 0-90˚ or 270-360˚
+  else if (angDiff < PI / 2 || (PI * 1.5 < angDiff && angDiff < PI * 2))
+    middlePoints = [
+      _getMiddlePoint(angDiff, 0.75, pointShiftX),
+      _getMiddlePoint(angDiff, 1.25, pointShiftX),
+    ]
+  // 90-180˚ or 180-270˚
+  else
+    middlePoints = [
+      _getMiddlePoint(angDiff, 0.25, pointShiftX),
+      _getMiddlePoint(angDiff, 0.5, pointShiftX),
+      _getMiddlePoint(angDiff, 0.75, pointShiftX),
+      _getMiddlePoint(angDiff, 1, pointShiftX),
+      _getMiddlePoint(angDiff, 1.25, pointShiftX),
+      _getMiddlePoint(angDiff, 1.5, pointShiftX),
+      _getMiddlePoint(angDiff, 1.75, pointShiftX),
+    ]
+
   const endAbsolute = ensureVector(
     rotate(
       centerAbsolute.x,
@@ -300,10 +350,6 @@ export const getPushpinArrowElements = (meta: ObjectiveMeta, zoomValue: Normaliz
 
   // relative
   const start = { x: 0, y: 0 }
-  const middle = {
-    x: middleAbsolute.x - centerAbsolute.x,
-    y: middleAbsolute.y - centerAbsolute.y,
-  }
   const end = {
     x: endAbsolute.x - centerAbsolute.x,
     y: endAbsolute.y - centerAbsolute.y,
@@ -316,13 +362,14 @@ export const getPushpinArrowElements = (meta: ObjectiveMeta, zoomValue: Normaliz
       },
     }),
     type: 'arrow',
-    strokeWidth: 0.5 / zoomValue,
-    strokeColor: COLOR_PALETTE.blue[4],
+    strokeWidth: 0.7 / zoomValue,
+    strokeColor: isSelected ? PUSHPIN_ACTIVE_COLOR : COLOR_PALETTE.black,
     roundness: { type: 2 },
+    // startArrowhead: 'bar',
     endArrowhead: 'triangle',
     x: startAbsolute.x,
     y: startAbsolute.y,
-    points: [ensurePoint(start), ensurePoint(middle), ensurePoint(end)],
+    points: [ensurePoint(start), ...middlePoints, ensurePoint(end)],
   })
 
   // NOTE
@@ -331,19 +378,19 @@ export const getPushpinArrowElements = (meta: ObjectiveMeta, zoomValue: Normaliz
   return [pushpinArrow]
 }
 
-export const getPushpinHeadElements = (
-  meta: ObjectiveMeta,
-  zoomValue: NormalizedZoomValue,
-  number?: number
-) => {
+export const getPushpinHeadElements = (meta: ObjectiveMeta) => {
+  const { oScene, appState } = getCore()
+  const zoomValue = appState.zoom.value
+  const isSelected = isElementSelected(appState, meta.basis!)
+  const number = scene_getTurnNumber(oScene, appState, meta)
   const [rx, ry, rw, rh] = getPushpinHeadDemensions(meta, zoomValue)
   return [
     newElement({
       customData: getInitialMeta(ObjectiveKinds.PUSHPIN),
       type: 'ellipse',
-      strokeWidth: 0.5 / zoomValue,
-      strokeColor: COLOR_PALETTE.blue[4],
-      backgroundColor: COLOR_PALETTE.white,
+      strokeWidth: 0.7 / zoomValue,
+      strokeColor: isSelected ? PUSHPIN_ACTIVE_COLOR : COLOR_PALETTE.black,
+      backgroundColor: isSelected && number ? PUSHPIN_BG_ACTIVE_COLOR : COLOR_PALETTE.white,
       x: rx,
       y: ry,
       height: rw,
@@ -356,7 +403,7 @@ export const getPushpinHeadElements = (
       y: ry + 1 / zoomValue,
       fontSize: 9 / zoomValue,
       fontFamily: 2,
-      strokeColor: COLOR_PALETTE.blue[4],
+      strokeColor: isSelected ? COLOR_PALETTE.white : COLOR_PALETTE.black,
       opacity: 100,
     }),
   ]
