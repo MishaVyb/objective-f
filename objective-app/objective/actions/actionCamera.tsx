@@ -277,7 +277,12 @@ export const actionChangeMetaCameraVersion = register({
             shift: { x: 0, y: 0 },
             rotate: {
               center: ensureVector(
-                getObjectiveRotationCenter(singleCamera, basisCenter.x, basisCenter.y)
+                getObjectiveRotationCenter(
+                  singleCamera,
+                  basisCenter.x,
+                  basisCenter.y, //
+                  { force: true }
+                )
               ),
               angle: singleCamera.basis!.angle + degreesToRadian(45),
             },

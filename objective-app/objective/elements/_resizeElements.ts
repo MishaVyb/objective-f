@@ -12,7 +12,11 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import { rotate } from '../../../packages/excalidraw/math'
 import { PointerDownState } from '../../../packages/excalidraw/types'
-import { scene_getMetasByElements, scene_getTurnsExcludingThis } from '../meta/_scene'
+import {
+  scene_getMetasByElements,
+  scene_getTurns,
+  scene_getTurnsExcludingThis,
+} from '../meta/_scene'
 import { getCore, getObjectiveMetas, getObjectiveSingleMetaStrict } from '../meta/_selectors'
 import { ObjectiveMeta, isPure } from '../meta/_types'
 import { Vector, ensureVector } from './_math'
@@ -64,10 +68,15 @@ export const isElementsScalable = (selectedEls: readonly NonDeletedExcalidrawEle
 export const getObjectiveRotationCenter = (
   meta: ObjectiveMeta | undefined,
   centerX: number,
-  centerY: number
+  centerY: number,
+  opts?: { force?: boolean }
 ) => {
-  const factor = meta?.coreOpts?.pushpinRotationCenterShiftFactor
-  if (factor) {
+  if (!meta) return ensureVector([centerX, centerY])
+
+  const { oScene, appState } = getCore()
+  const factor = meta.coreOpts?.pushpinRotationCenterShiftFactor
+  const turns = scene_getTurns(oScene, appState, meta)
+  if (factor && (turns.length || opts?.force)) {
     const newRotattionCenter = rotate(
       centerX - meta.basis!.width / factor,
       centerY,
