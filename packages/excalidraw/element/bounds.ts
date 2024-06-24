@@ -26,7 +26,11 @@ import { LinearElementEditor } from "./linearElementEditor";
 import { Mutable } from "../utility-types";
 import { ShapeCache } from "../scene/ShapeCache";
 import Scene from "../scene/Scene";
-import { getObjectiveCommonBounds } from "../../../objective-app/objective/elements/_boundElements";
+import {
+  getObjectiveArrowheadSize,
+  getObjectiveCommonBounds,
+} from "../../../objective-app/objective/elements/_bounds";
+import { isObjective } from "../../../objective-app/objective/meta/_types";
 
 export type RectangleBox = {
   x: number;
@@ -508,15 +512,18 @@ const getFreeDrawElementAbsoluteCoords = (
 };
 
 /** @returns number in pixels */
-export const getArrowheadSize = (arrowhead: Arrowhead): number => {
+export const getArrowheadSize = (
+  arrowhead: Arrowhead,
+  element: ExcalidrawElement, // VBRN
+): number => {
   switch (arrowhead) {
     case "arrow":
-      return 25;
+      return element.strokeWidth < 4 ? 20 : 25;
     case "diamond":
     case "diamond_outline":
       return 12;
     default:
-      return 15;
+      return element.strokeWidth < 4 ? 10 : 15;
   }
 };
 
@@ -584,7 +591,9 @@ export const getArrowheadPoints = (
   const nx = (x2 - x1) / distance;
   const ny = (y2 - y1) / distance;
 
-  const size = getArrowheadSize(arrowhead);
+  let size = getArrowheadSize(arrowhead, element);
+  if (isObjective(element))
+    size = getObjectiveArrowheadSize(arrowhead, element) || size;
 
   let length = 0;
 

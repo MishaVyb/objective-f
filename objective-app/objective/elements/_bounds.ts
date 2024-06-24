@@ -1,5 +1,6 @@
-import { ElementsMapOrArray } from '../../../packages/excalidraw/element/types'
-import { getObjectiveSingleMetaStrict } from '../meta/_selectors'
+import { Arrowhead, ElementsMapOrArray } from '../../../packages/excalidraw/element/types'
+import { getMetaSimple, getObjectiveSingleMetaStrict } from '../meta/_selectors'
+import { ObjectiveElement } from '../meta/_types'
 
 export const getObjectiveCommonBounds = (elements: ElementsMapOrArray) => {
   const meta = getObjectiveSingleMetaStrict(elements)
@@ -14,3 +15,6 @@ export const getObjectiveCommonBounds = (elements: ElementsMapOrArray) => {
   }
   return elements
 }
+
+export const getObjectiveArrowheadSize = (arrowhead: Arrowhead, element: ObjectiveElement) =>
+  getMetaSimple(element).excalidrawExtra?.arrowheadSize

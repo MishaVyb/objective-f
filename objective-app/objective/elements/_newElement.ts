@@ -219,6 +219,7 @@ export const getPushpinElements = (
 export const getPushpinLineElement = (meta: ObjectiveMeta, zoomValue: NormalizedZoomValue) => {
   const { start, end, center } = getPushpinLineDemensions(meta, zoomValue)
   const pushpinLine = newLinearElement({
+    customData: getInitialMeta(ObjectiveKinds.PUSHPIN),
     type: 'arrow',
     strokeWidth: 0.5 / zoomValue,
     strokeColor: COLOR_PALETTE.blue[4],
@@ -309,11 +310,15 @@ export const getPushpinArrowElements = (meta: ObjectiveMeta, zoomValue: Normaliz
   }
 
   let pushpinArrow = newLinearElement({
+    customData: getInitialMeta(ObjectiveKinds.PUSHPIN, {
+      excalidrawExtra: {
+        arrowheadSize: 7 / zoomValue, //
+      },
+    }),
     type: 'arrow',
-    strokeWidth: 0.5,
+    strokeWidth: 0.5 / zoomValue,
     strokeColor: COLOR_PALETTE.blue[4],
     roundness: { type: 2 },
-    // endArrowhead: 'arrow',
     endArrowhead: 'triangle',
     x: startAbsolute.x,
     y: startAbsolute.y,
@@ -334,6 +339,7 @@ export const getPushpinHeadElements = (
   const [rx, ry, rw, rh] = getPushpinHeadDemensions(meta, zoomValue)
   return [
     newElement({
+      customData: getInitialMeta(ObjectiveKinds.PUSHPIN),
       type: 'ellipse',
       strokeWidth: 0.5 / zoomValue,
       strokeColor: COLOR_PALETTE.blue[4],
@@ -344,6 +350,7 @@ export const getPushpinHeadElements = (
       width: rh,
     }),
     newTextElement({
+      customData: getInitialMeta(ObjectiveKinds.PUSHPIN),
       text: number ? String(number) : '',
       x: rx + 3 / zoomValue,
       y: ry + 1 / zoomValue,
@@ -365,6 +372,7 @@ const getCameraLensFocusLine = (
   const [rightX, rightY] = LinearElementEditor.getPointAtIndexGlobalCoordinates(rightSide, 1)
   const pointsEnd = { x: rightX - leftX, y: rightY - leftY }
   return newLinearElement({
+    customData: getInitialMeta(ObjectiveKinds.CAMERA_LENS),
     type: 'arrow',
     ...overrides,
     //
@@ -385,6 +393,7 @@ const getCameraLensAngleSide = (
   const lineEnd = { x: distance, y: 0 }
 
   const element = newLinearElement({
+    customData: getInitialMeta(ObjectiveKinds.CAMERA_LENS),
     type: 'arrow',
     ...overrides,
     //

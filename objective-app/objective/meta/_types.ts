@@ -35,6 +35,10 @@ export enum ObjectiveKinds {
   LABEL = 'label',
   /** internal: text that bound to label container*/
   LABEL_TEXT = 'labelText',
+  /** internal: exists only at render context */
+  CAMERA_LENS = 'cameraLens',
+  /** internal: exists only at render context */
+  PUSHPIN = 'pushpin',
 }
 
 export const isKindKey = enumKeyTypeGuardFactory(ObjectiveKinds)
@@ -127,6 +131,10 @@ export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readon
     pushpinRotationShiftFactor?: number
     pushpinRotationCenterShiftFactor?: number
   }>
+
+  excalidrawExtra?: {
+    arrowheadSize?: number
+  }
 
   // TODO do not depends on Meta.kind -- it's too generic...
   // other configuration, like
