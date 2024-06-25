@@ -389,6 +389,8 @@ export const isCameraElement = (el: MaybeExcalidrawElement): el is CameraElement
   isCameraMeta(el?.customData)
 export const isSupportsTurn = (meta: MaybeMeta): meta is CameraMeta | CharacterMeta =>
   isKind(meta, ObjectiveKinds.CAMERA) || isKind(meta, ObjectiveKinds.CHARACTER)
+export const isSupportsMoveToFrom = (meta: MaybeMeta): meta is CameraMeta | CharacterMeta =>
+  isKind(meta, ObjectiveKinds.CAMERA) || isKind(meta, ObjectiveKinds.CHARACTER)
 
 export const isWallElement = (
   el: MaybeExcalidrawElement | ObjectiveElement<LocationMeta>

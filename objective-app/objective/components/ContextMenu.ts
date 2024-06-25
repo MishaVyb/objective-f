@@ -44,8 +44,25 @@ import {
   getObjectiveSingleMetaStrict,
 } from '../meta/_selectors'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
-import { WeekMeta, isObjective, isSupportsTurn } from '../meta/_types'
+import {
+  ObjectiveKinds,
+  WeekMeta,
+  isCameraMeta,
+  isKind,
+  isObjective,
+  isSupportsTurn,
+} from '../meta/_types'
 import { actionDeleteSelectedTurn } from '../../../packages/excalidraw/actions/actionDeleteSelected'
+import {
+  actionCameraAddTurn,
+  actionCameraMoveFrom,
+  actionCameraMoveTo,
+} from '../actions/actionCamera'
+import {
+  actionCharacterAddTurn,
+  actionCharacterMoveFrom,
+  actionCharacterMoveTo,
+} from '../actions/actionCharacter'
 
 export const getObjectiveContextMenuItems = (
   type: 'canvas' | 'element',
@@ -119,6 +136,21 @@ export const getObjectiveContextMenuItems = (
     // actionPaste, // not needed here as we hit element
     actionSelectAllElementsInFrame,
     actionRemoveAllElementsFromFrame,
+    CONTEXT_MENU_SEPARATOR,
+    ...(isCameraMeta(singleMetaStrict)
+      ? [
+          actionCameraMoveFrom,
+          actionCameraMoveTo,
+          actionCameraAddTurn, //
+        ]
+      : []),
+    ...(isKind(singleMetaStrict, ObjectiveKinds.CHARACTER)
+      ? [
+          actionCharacterMoveFrom,
+          actionCharacterMoveTo,
+          actionCharacterAddTurn, //
+        ]
+      : []),
     CONTEXT_MENU_SEPARATOR,
     singleMetaStrict ? null : actionCopyAsPng,
     // actionCopyAsSvg, // too specific option, PNG is enough

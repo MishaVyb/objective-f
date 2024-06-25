@@ -40,6 +40,7 @@ import {
 import { getCameraMetaReprStr, getCameraVersionStr } from './actionCamera'
 import { arrangeElements } from '../elements/_zIndex'
 import {
+  Badge,
   Blockquote,
   Button,
   Callout,
@@ -63,7 +64,7 @@ import { handleMetaRepresentation } from '../elements/_metaRepr'
 import { mutateSelectedElsMeta, mutateMeta } from '../elements/_mutateElements'
 import clsx from 'clsx'
 import { isElementsScalable } from '../elements/_resizeElements'
-import { scene_getSelectedMetas } from '../meta/_scene'
+import { scene_getSelectedMetas, scene_getTurnNumber } from '../meta/_scene'
 
 export const KbdLabel: FC<{ children: ReactNode; style?: any }> = ({ children, style }) => (
   <Kbd style={style}>
@@ -78,6 +79,7 @@ export const actionDisplayMetaHeader = register({
     return false // No perform action, actually
   },
   PanelComponent: ({ elements, appState, updateData, appProps, app }: PanelComponentProps) => {
+    const { oScene } = getCore()
     const metaKind = getFormValue(
       elements,
       appState,
@@ -85,6 +87,8 @@ export const actionDisplayMetaHeader = register({
       true,
       null
     )
+    const singleMeta = getObjectiveSingleMeta(getSelectedSceneEls(app.scene, app.state))
+    const turnNumber = singleMeta && scene_getTurnNumber(oScene, appState, singleMeta)
 
     // Objective tools
     const selected = getSelectedSceneEls(app.scene, appState)
@@ -112,19 +116,12 @@ export const actionDisplayMetaHeader = register({
         </Flex>
       )
     }
-    // other custom tools...
 
     if (
+      metaKind === ObjectiveKinds.CAMERA ||
       metaKind === ObjectiveKinds.CHARACTER ||
-      metaKind === ObjectiveKinds.LIGHT //
-    )
-      return (
-        <Flex justify={'between'}>
-          <KbdLabel>{metaKind}</KbdLabel>
-        </Flex>
-      )
-
-    if (metaKind === ObjectiveKinds.CAMERA) {
+      metaKind === ObjectiveKinds.LIGHT
+    ) {
       const shotNumber = getFormValue(
         elements,
         appState,
@@ -140,12 +137,19 @@ export const actionDisplayMetaHeader = register({
         null
       )
       return (
-        <Flex justify={'between'}>
+        <Flex justify={'between'} gap={'1'}>
           <KbdLabel>{metaKind}</KbdLabel>
           {shotNumber ? (
             <KbdLabel style={{ minWidth: 30 }}>
               {shotVersion ? `${shotNumber}-${getCameraVersionStr(shotVersion)}` : `${shotNumber}`}
             </KbdLabel>
+          ) : null}
+          <div style={{ width: '100%' }}></div>
+          {turnNumber ? (
+            <Badge color={'gray'}>
+              {'Turn '}
+              {turnNumber}
+            </Badge>
           ) : null}
         </Flex>
       )

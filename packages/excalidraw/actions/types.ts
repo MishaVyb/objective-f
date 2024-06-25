@@ -148,10 +148,16 @@ export type ActionName =
   | "actionChangeMetaDescription"
   | "actionChangeMetaCameraShot"
   | "actionChangeMetaCameraVersion" // includes Move To/From
+  | "cameraMoveTo"
+  | "cameraMoveFrom"
+  | "cameraAddTurn"
   | "actionChangeCameraDetails"
 
   // characters:
-  | "actionMoveCharacterToFrom"
+  | "actionCharacterMovement"
+  | "characterMoveTo"
+  | "characterMoveFrom"
+  | "characterAddTurn"
 
   // images:
   | "actionInitStoryboard"

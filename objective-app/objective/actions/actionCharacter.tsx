@@ -12,10 +12,10 @@ import { degreesToRadian, ensureVector, getElementCenter } from '../elements/_ma
 import { getObjectiveRotationCenter } from '../elements/_resizeElements'
 import { mutateElement } from '../../../packages/excalidraw'
 
-type TChangeVersionActionValue = 'moveTo' | 'moveFrom' | 'rotateTo'
+type TChangeVersionActionValue = 'moveTo' | 'moveFrom' | 'addTurn'
 
-export const actionMoveCharacterToFrom = register({
-  name: 'actionMoveCharacterToFrom',
+export const actionCharacterMovement = register({
+  name: 'actionCharacterMovement',
   trackEvent: false,
   perform: (elements, appState, actionType: TChangeVersionActionValue, app: AppClassProperties) => {
     let newEls: ReturnType<typeof handleMetaRepresentation> = []
@@ -44,7 +44,7 @@ export const actionMoveCharacterToFrom = register({
           }),
           commitToHistory: true,
         }
-      case 'rotateTo':
+      case 'addTurn':
         const res = duplicateElements(elements, appState, app, {
           shift: { x: 0, y: 0 },
           rotate: {
@@ -120,7 +120,7 @@ export const actionMoveCharacterToFrom = register({
                 size={'1'}
                 variant={'surface'}
                 color={'gray'}
-                onClick={() => updateData('rotateTo')}
+                onClick={() => updateData('addTurn')}
                 title={'Add turn'}
               >
                 <ReloadIcon />
@@ -132,4 +132,26 @@ export const actionMoveCharacterToFrom = register({
       </fieldset>
     )
   },
+})
+
+export const actionCharacterMoveFrom = register({
+  ...actionCharacterMovement,
+  name: 'characterMoveFrom',
+  contextItemLabel: 'Move from',
+  perform: (elements, appState, actionType: TChangeVersionActionValue, app: AppClassProperties) =>
+    actionCharacterMovement.perform(elements, appState, 'moveFrom', app),
+})
+export const actionCharacterMoveTo = register({
+  ...actionCharacterMovement,
+  name: 'characterMoveTo',
+  contextItemLabel: 'Move to',
+  perform: (elements, appState, actionType: TChangeVersionActionValue, app: AppClassProperties) =>
+    actionCharacterMovement.perform(elements, appState, 'moveTo', app),
+})
+export const actionCharacterAddTurn = register({
+  ...actionCharacterMovement,
+  name: 'characterAddTurn',
+  contextItemLabel: 'Add turn',
+  perform: (elements, appState, actionType: TChangeVersionActionValue, app: AppClassProperties) =>
+    actionCharacterMovement.perform(elements, appState, 'addTurn', app),
 })

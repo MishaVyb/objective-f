@@ -180,7 +180,7 @@ export const actionChangeMetaCameraShot = register({
 type TChangeVersionActionValue =
   | 'moveTo'
   | 'moveFrom'
-  | 'rotateTo'
+  | 'addTurn'
   | 'incraseShotVersion'
   | 'decraseShotVersion'
 
@@ -261,17 +261,19 @@ export const actionChangeMetaCameraVersion = register({
           }),
           commitToHistory: true,
         }
-      case 'rotateTo':
-        // TODO
-        // if (!singleCamera.shotVersion) {
-        //   newCameraShotVers = 2
-        //   // RECURSIVE CALL
-        //   elements = actionChangeMetaCameraVersion.perform(elements, appState, 'rotateTo', app)
-        //     .elements!
-        // } else {
-        //   newCameraShotVers = singleCamera.shotVersion + 1
-        // }
-        // mutateSelectedElsMeta(app, {turnChildId: })
+      case 'addTurn':
+        if (!singleCamera.shotVersion) {
+          newCameraShotVers = 2
+          // RECURSIVE CALL
+          elements = actionChangeMetaCameraVersion.perform(
+            elements,
+            appState,
+            'incraseShotVersion',
+            app
+          ).elements!
+        } else {
+          newCameraShotVers = singleCamera.shotVersion + 1
+        }
         return {
           ...duplicateElements(elements, appState, app, {
             shift: { x: 0, y: 0 },
@@ -288,7 +290,7 @@ export const actionChangeMetaCameraVersion = register({
             },
             newElementsMeta: {
               turnParentId: singleCamera.turnParentId || singleCamera.id,
-              // shotVersion: newCameraShotVers, // FIXME
+              shotVersion: newCameraShotVers, // FIXME
               nameRepr: undefined,
             },
           }),
@@ -396,11 +398,11 @@ export const actionChangeMetaCameraVersion = register({
                 size={'1'}
                 variant={'surface'}
                 color={'gray'}
-                onClick={() => updateData('rotateTo')}
+                onClick={() => updateData('addTurn')}
                 title={'Add turn'}
               >
                 <ReloadIcon />
-                {'Turn'}
+                {isShot ? '' : 'Turn'}
               </Button>
             </>
           )}
@@ -408,6 +410,28 @@ export const actionChangeMetaCameraVersion = register({
       </fieldset>
     )
   },
+})
+
+export const actionCameraMoveFrom = register({
+  ...actionChangeMetaCameraVersion,
+  name: 'cameraMoveFrom',
+  contextItemLabel: 'Move from',
+  perform: (elements, appState, actionType: TChangeVersionActionValue, app: AppClassProperties) =>
+    actionChangeMetaCameraVersion.perform(elements, appState, 'moveFrom', app),
+})
+export const actionCameraMoveTo = register({
+  ...actionChangeMetaCameraVersion,
+  name: 'cameraMoveTo',
+  contextItemLabel: 'Move to',
+  perform: (elements, appState, actionType: TChangeVersionActionValue, app: AppClassProperties) =>
+    actionChangeMetaCameraVersion.perform(elements, appState, 'moveTo', app),
+})
+export const actionCameraAddTurn = register({
+  ...actionChangeMetaCameraVersion,
+  name: 'cameraAddTurn',
+  contextItemLabel: 'Add turn',
+  perform: (elements, appState, actionType: TChangeVersionActionValue, app: AppClassProperties) =>
+    actionChangeMetaCameraVersion.perform(elements, appState, 'addTurn', app),
 })
 
 /** https://en.wikipedia.org/wiki/Image_sensor_format */

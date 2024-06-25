@@ -309,7 +309,13 @@ export const SelectedShapeActions = ({
     <div
       className="panelColumn"
       style={{
-        width: singleMetaKind === ObjectiveKinds.CAMERA ? 250 : 187,
+        width:
+          // everything that supports NAME editor
+          singleMetaKind === ObjectiveKinds.CAMERA ||
+          singleMetaKind === ObjectiveKinds.CHARACTER ||
+          singleMetaKind === ObjectiveKinds.LIGHT
+            ? 250
+            : 187,
         maxHeight: "75vh",
 
         // HACK: right border
@@ -332,7 +338,7 @@ export const SelectedShapeActions = ({
         renderAction("actionChangeCameraDetails")}
 
       {actionsToRender.metaCharacterActions &&
-        renderAction("actionMoveCharacterToFrom")}
+        renderAction("actionCharacterMovement")}
 
       {actionsToRender.metaActionStoryboard && renderAction("actionStoryboard")}
 
