@@ -35,6 +35,8 @@ import { distributeLibraryItemsOnSquareGrid } from '../../../packages/excalidraw
 import { LIB_CAMERAS } from '../lib/cameras.library'
 import { numberToStr } from '../elements/_math'
 import { useCameraImages } from '../meta/_hooks'
+import { useSelector } from '../../objective-plus/hooks/redux'
+import { selectIsMyScene } from '../../objective-plus/store/projects/reducer'
 
 const ShotListSidebarContent: FC = () => {
   const app = useApp()
@@ -44,6 +46,7 @@ const ShotListSidebarContent: FC = () => {
   const selectedCameras = getSelectedCameraMetas(app.scene, appState)
   const selectedCamera = selectedCameras.length === 1 ? selectedCameras[0] : null
   const isNoShotCamerasSelected = selectedCameras.length && selectedCameras.every((c) => !c.isShot)
+  const isMyScene = useSelector(selectIsMyScene)
 
   // TODO ??? add internal meta.cameraKey attribute to handle cameras manual ordering
   return (
@@ -72,16 +75,18 @@ const ShotListSidebarContent: FC = () => {
           </div>
         )
       })}
-      {isNoShotCamerasSelected ? (
-        <AddCameraButton />
-      ) : (
-        <NewCameraButton
-          style={{
-            marginTop: cameras.length ? 'auto' : 10,
-            marginBottom: 10,
-          }}
-        />
-      )}
+      {isMyScene ? (
+        isNoShotCamerasSelected ? (
+          <AddCameraButton />
+        ) : (
+          <NewCameraButton
+            style={{
+              marginTop: cameras.length ? 'auto' : 10,
+              marginBottom: 10,
+            }}
+          />
+        )
+      ) : null}
     </Flex>
   )
 }
