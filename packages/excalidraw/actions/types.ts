@@ -142,6 +142,7 @@ export type ActionName =
   | "actionDisplayMetaHeader"
   | "actionChangeMetaName"
   | "actionToggleScalable"
+  | "deleteSelectedTurn"
 
   // cameras:
   | "actionChangeMetaDescription"

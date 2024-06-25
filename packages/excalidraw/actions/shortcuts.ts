@@ -18,6 +18,7 @@ export type ShortcutName =
       | "actionToggleScalable" // VBRN
       | "selectAll"
       | "deleteSelectedElements"
+      | "deleteSelectedTurn" // VBRN
       | "duplicateSelection"
       | "sendBackward"
       | "bringForward"
@@ -56,6 +57,7 @@ const shortcutMap: Record<ShortcutName, string[]> = {
   actionToggleScalable: [getShortcutKey("Alt+T")], // VBRN
   selectAll: [getShortcutKey("CtrlOrCmd+A")],
   deleteSelectedElements: [getShortcutKey("Delete")],
+  deleteSelectedTurn: [getShortcutKey("Delete")],
   duplicateSelection: [
     getShortcutKey("CtrlOrCmd+D"),
     getShortcutKey(`Alt+${t("helpDialog.drag")}`),

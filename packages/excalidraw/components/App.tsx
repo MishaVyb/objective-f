@@ -437,7 +437,6 @@ import {
   getCameraMetas,
   getObjectiveBasis,
   getObjectiveSingleMetaStrict,
-  setCore,
 } from "../../../objective-app/objective/meta/_selectors";
 import { actionCreatePointer } from "../../../objective-app/objective/actions/actionMetaCommon";
 import {
@@ -677,7 +676,6 @@ class App extends React.Component<AppProps, AppState> {
       width: window.innerWidth,
       height: window.innerHeight,
     };
-    setCore(this); // VBRN
 
     // NOTE
     // Do not store `objectiveProps` in State, as it's just props from component above and we
@@ -9178,7 +9176,7 @@ class App extends React.Component<AppProps, AppState> {
             left,
             items: this.getContextMenuItems(
               type,
-              isHittingCommonBoundBox
+              isHittingCommonBoundBox // VBRN
                 ? selectedElements
                 : element
                 ? [element]

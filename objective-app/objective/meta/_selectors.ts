@@ -33,6 +33,7 @@ import { objectValues } from '../utils/types'
 
 let _APP: AppClassProperties | undefined
 export const setCore = (app: AppClassProperties) => (_APP = app)
+export const unsetCore = () => (_APP = undefined)
 export const getCore = () => ({
   app: _APP!,
   appState: _APP!.state,

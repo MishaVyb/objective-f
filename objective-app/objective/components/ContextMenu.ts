@@ -12,11 +12,9 @@ import {
 } from '../../../packages/excalidraw/components/ContextMenu'
 import {
   actionBindText,
-  actionBringForward,
   actionBringToFront,
   actionCopy,
   actionCopyAsPng,
-  actionCopyAsSvg,
   actionCopyStyles,
   actionCut,
   actionDeleteSelected,
@@ -27,7 +25,6 @@ import {
   actionLink,
   actionPasteStyles,
   actionSelectAll,
-  actionSendBackward,
   actionSendToBack,
   actionToggleElementLock,
   actionToggleGridMode,
@@ -40,8 +37,15 @@ import {
 } from '../../../packages/excalidraw/actions'
 import { actionToggleScalable } from '../actions/actionMetaCommon'
 import { actionToggleGridSnapMode } from '../actions/actionSettings'
-import { getCore, getObjectiveMetas } from '../meta/_selectors'
+import {
+  getCore,
+  getMetaSimple,
+  getObjectiveMetas,
+  getObjectiveSingleMetaStrict,
+} from '../meta/_selectors'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
+import { WeekMeta, isObjective, isSupportsTurn } from '../meta/_types'
+import { actionDeleteSelectedTurn } from '../../../packages/excalidraw/actions/actionDeleteSelected'
 
 export const getObjectiveContextMenuItems = (
   type: 'canvas' | 'element',
@@ -57,7 +61,6 @@ export const getObjectiveContextMenuItems = (
     if (appState.viewModeEnabled) {
       return [
         actionCopyAsPng,
-        actionCopyAsSvg,
         CONTEXT_MENU_SEPARATOR,
         actionToggleGridMode,
         actionToggleGridSnapMode,
@@ -70,7 +73,6 @@ export const getObjectiveContextMenuItems = (
       actionPaste,
       CONTEXT_MENU_SEPARATOR,
       actionCopyAsPng,
-      actionCopyAsSvg,
       copyText,
       CONTEXT_MENU_SEPARATOR,
       actionSelectAll,
@@ -86,28 +88,40 @@ export const getObjectiveContextMenuItems = (
 
   // element contextMenu
   // -------------------------------------------------------------------------
-  const metas = getObjectiveMetas(hitElements)
+  let metas: readonly WeekMeta[]
+  let singleMetaStrict: WeekMeta | undefined
+  if (hitElements.length === 1 && isObjective(hitElements[0])) {
+    // Objective Item is not selected, but is hitting, we got 1 element at this point
+    metas = [getMetaSimple(hitElements[0])]
+    singleMetaStrict = getMetaSimple(hitElements[0])
+  }
+  //
+  else {
+    // one or many Objective Items are selected, we got all its elements at this point
+    metas = getObjectiveMetas(hitElements)
+    singleMetaStrict = getObjectiveSingleMetaStrict(hitElements)
+  }
+
+  const isChildTurn =
+    singleMetaStrict && isSupportsTurn(singleMetaStrict) && singleMetaStrict.turnParentId
   const disableFlip = metas.some((meta) => meta?.coreOpts?.disableFlip)
   const disableResizeAlways = metas.some((meta) => meta?.coreOpts?.disableResizeAlways)
 
+  console.log({ singleMeta: singleMetaStrict, metas, hitElements })
+
   if (appState.viewModeEnabled) {
-    return [
-      actionCopy,
-      copyText,
-      actionCopyAsPng,
-      actionCopyAsSvg, //
-    ]
+    return [actionCopy, copyText, actionCopyAsPng]
   }
 
   return [
     actionCut,
     actionCopy,
-    actionPaste,
+    // actionPaste, // not needed here as we hit element
     actionSelectAllElementsInFrame,
     actionRemoveAllElementsFromFrame,
     CONTEXT_MENU_SEPARATOR,
-    actionCopyAsPng,
-    actionCopyAsSvg,
+    singleMetaStrict ? null : actionCopyAsPng,
+    // actionCopyAsSvg, // too specific option, PNG is enough
     copyText,
     CONTEXT_MENU_SEPARATOR,
     actionCopyStyles,
@@ -120,8 +134,8 @@ export const getObjectiveContextMenuItems = (
     actionWrapTextInContainer,
     actionUngroup,
     CONTEXT_MENU_SEPARATOR,
-    actionSendBackward,
-    actionBringForward,
+    // actionSendBackward, // too specific option, global sentToBack/Front is enough
+    // actionBringForward, // too specific option, global sentToBack/Front is enough
     actionSendToBack,
     actionBringToFront,
     ...(disableFlip
@@ -133,10 +147,10 @@ export const getObjectiveContextMenuItems = (
         ]),
     CONTEXT_MENU_SEPARATOR,
     actionToggleLinearEditor,
-    actionLink,
+    isChildTurn ? null : actionLink, // not specific for child turns
     actionDuplicateSelection,
     actionToggleElementLock,
     CONTEXT_MENU_SEPARATOR,
-    actionDeleteSelected,
+    isChildTurn ? actionDeleteSelectedTurn : actionDeleteSelected,
   ]
 }

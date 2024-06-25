@@ -90,7 +90,7 @@ export const isHintingPushpin = (
     if (meta.turnParentId) return false // prevent selecting child by NOT Pushpin
     return undefined
   }
-  const [pushpin, number] = getPushpinHeadElements(meta, appState.zoom.value)
+  const [pushpin, number] = getPushpinHeadElements(meta)
   const isPushpinHint = isHittingElementNotConsideringBoundingBox(
     pushpin,
     appState,

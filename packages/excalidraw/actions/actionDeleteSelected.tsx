@@ -183,3 +183,10 @@ export const actionDeleteSelected = register({
     />
   ),
 });
+
+// VBRN
+export const actionDeleteSelectedTurn = register({
+  ...actionDeleteSelected,
+  name: "deleteSelectedTurn",
+  contextItemLabel: "Delete Turn",
+});

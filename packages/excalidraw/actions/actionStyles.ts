@@ -112,7 +112,7 @@ export const actionPasteStyles = register({
             opacity: elementStylesToCopyFrom?.opacity,
             roughness: elementStylesToCopyFrom?.roughness,
             roundness: isObjective(element)
-              ? undefined // VBRN do not copy past roundness for Objective
+              ? element.roundness // VBRN do not copy past roundness for Objective
               : elementStylesToCopyFrom.roundness
               ? canApplyRoundnessTypeToElement(
                   elementStylesToCopyFrom.roundness.type,

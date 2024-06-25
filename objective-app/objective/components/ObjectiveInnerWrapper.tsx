@@ -14,7 +14,7 @@ import App, {
   useExcalidrawElements,
 } from '../../../packages/excalidraw/components/App'
 import { BinaryFiles } from '../../../packages/excalidraw/types'
-import { getCameraMetas, getSelectedSceneEls } from '../meta/_selectors'
+import { getCameraMetas, getSelectedSceneEls, setCore, unsetCore } from '../meta/_selectors'
 import { CameraMeta, isWallToolOrWallDrawing } from '../meta/_types'
 import { useMouse } from '../hooks/useMouse'
 import { getLastLineLength, numberToStr } from '../elements/_math'
@@ -39,6 +39,14 @@ export const useExcalidrawFiles = () => useContext(ExcalidrawFilesContext)
 const ObjectiveInnerWrapper: FC<{ children: ReactNode }> = ({ children }) => {
   const dispatch = useDispatch()
   const app = useApp() as App
+
+  useEffect(() => {
+    setCore(app)
+    return () => {
+      unsetCore()
+    }
+  }, [app])
+
   const { multiElement } = useExcalidrawAppState()
   const elements = useExcalidrawElements()
 
