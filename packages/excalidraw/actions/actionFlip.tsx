@@ -20,11 +20,20 @@ import {
 import { updateFrameMembershipOfSelectedElements } from "../frame";
 import { ColumnSpacingIcon, RowSpacingIcon } from "@radix-ui/react-icons";
 import { IconButton } from "@radix-ui/themes";
+import {
+  getObjectiveMetas,
+  getSelectedSceneEls,
+} from "../../../objective-app/objective/meta/_selectors";
 
 export const actionFlipHorizontal = register({
   name: "flipHorizontal",
   trackEvent: { category: "element" },
   perform: (elements, appState, _, app) => {
+    // VBRN
+    const metas = getObjectiveMetas(getSelectedSceneEls(app.scene, app.state));
+    const disableFlip = metas.some((meta) => meta?.coreOpts?.disableFlip);
+    if (disableFlip) return false;
+
     return {
       elements: updateFrameMembershipOfSelectedElements(
         flipSelectedElements(
@@ -59,6 +68,11 @@ export const actionFlipVertical = register({
   name: "flipVertical",
   trackEvent: { category: "element" },
   perform: (elements, appState, _, app) => {
+    // VBRN
+    const metas = getObjectiveMetas(getSelectedSceneEls(app.scene, app.state));
+    const disableFlip = metas.some((meta) => meta?.coreOpts?.disableFlip);
+    if (disableFlip) return false;
+
     return {
       elements: updateFrameMembershipOfSelectedElements(
         flipSelectedElements(

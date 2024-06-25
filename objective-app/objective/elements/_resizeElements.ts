@@ -56,7 +56,8 @@ export const transformElementsEventHandler = (
 }
 
 // pure elements doesn't support disabling resize
-export const isResizeDisabled = (meta: ObjectiveMeta) => !isPure(meta) && meta.disableResize
+export const isResizeDisabled = (meta: ObjectiveMeta) =>
+  (!isPure(meta) && meta.disableResize) || meta?.coreOpts?.disableResizeAlways
 
 export const isElementsScalable = (selectedEls: readonly NonDeletedExcalidrawElement[]) => {
   const metas = getObjectiveMetas(selectedEls)

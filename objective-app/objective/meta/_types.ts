@@ -128,8 +128,11 @@ export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readon
 
     isPushpinRotation?: boolean
     pushpinRotationShiftAngle?: number
-    pushpinRotationShiftFactor?: number
+    pushpinRotationShiftFactor?: number // factor = default_basis_size / shift_in_points_if_size_is_default
     pushpinRotationCenterShiftFactor?: number
+
+    disableResizeAlways?: boolean
+    disableFlip?: boolean
   }>
 
   excalidrawExtra?: {

@@ -38,6 +38,7 @@ export const getCore = () => ({
   appState: _APP!.state,
   scene: _APP!.scene,
   oScene: _APP!.scene.getObjectiveMetas(),
+  objectiveProps: _APP!.objectiveProps,
 })
 
 /** in same places App is not available (for example in utils.export) */
@@ -46,6 +47,7 @@ export const getCoreSafe = () => ({
   appState: _APP?.state,
   scene: _APP?.scene,
   oScene: _APP?.scene.getObjectiveMetas(),
+  objectiveProps: _APP?.objectiveProps,
 })
 
 /**

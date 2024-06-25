@@ -10,6 +10,7 @@ import {
   newPointerBeetween,
 } from '../elements/_newElement'
 import {
+  getCore,
   getMetaSimple,
   getMetasCommonValue,
   getObjectiveBasis,
@@ -62,6 +63,7 @@ import { handleMetaRepresentation } from '../elements/_metaRepr'
 import { mutateSelectedElsMeta, mutateMeta } from '../elements/_mutateElements'
 import clsx from 'clsx'
 import { isElementsScalable } from '../elements/_resizeElements'
+import { scene_getSelectedMetas } from '../meta/_scene'
 
 export const KbdLabel: FC<{ children: ReactNode; style?: any }> = ({ children, style }) => (
   <Kbd style={style}>
@@ -423,6 +425,12 @@ export const actionToggleScalable = register({
   },
 
   PanelComponent: ({ elements, appState, updateData, app }: PanelComponentProps) => {
+    const { oScene } = getCore()
+    const disableResizeAlways = scene_getSelectedMetas(oScene, appState).some(
+      (meta) => meta?.coreOpts?.disableResizeAlways
+    )
+    if (disableResizeAlways) return <></>
+
     const isScalable = isElementsScalable(getSelectedSceneEls(app.scene, appState))
     return (
       <IconButton

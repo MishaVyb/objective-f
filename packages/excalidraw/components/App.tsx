@@ -8,6 +8,7 @@ import { RoughCanvas } from "roughjs/bin/canvas";
 import rough from "roughjs/bin/rough";
 import { exportToBlob } from "../../utils/export";
 import {
+  actionAddToLibrary,
   actionBindText,
   actionBringForward,
   actionBringToFront,
@@ -31,6 +32,7 @@ import {
   actionToggleGridMode,
   actionToggleLinearEditor,
   actionToggleObjectsSnapMode,
+  actionToggleStats,
   actionToggleZenMode,
   actionUnbindText,
   actionUngroup,
@@ -422,7 +424,6 @@ import {
   ensureMap,
 } from "../../../objective-app/objective/meta/_types";
 import { getInitialMeta } from "../../../objective-app/objective/meta/_initial";
-import { actionToggleGridSnapMode } from "../../../objective-app/objective/actions/actionSettings";
 import {
   duplicateObjectiveEventHandler,
   duplicateObjectiveEventHandlerFilter,
@@ -438,16 +439,14 @@ import {
   getObjectiveSingleMetaStrict,
   setCore,
 } from "../../../objective-app/objective/meta/_selectors";
-import {
-  actionCreatePointer,
-  actionToggleScalable,
-} from "../../../objective-app/objective/actions/actionMetaCommon";
+import { actionCreatePointer } from "../../../objective-app/objective/actions/actionMetaCommon";
 import {
   __DEBUG_DISABLE_APPLY_DEFAULTS,
   __DEBUG_LOG_POINTER_CORDS,
 } from "../../../objective-app/objective-plus/constants";
 import { isGroupEditingDissalawed } from "../../../objective-app/objective/elements/_groups";
 import { handleSelectionOnPointerSingleMetaSelecttedEventListener } from "../../../objective-app/objective/elements/_transformHandles";
+import { getObjectiveContextMenuItems } from "../../../objective-app/objective/components/ContextMenu";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -9174,7 +9173,18 @@ class App extends React.Component<AppProps, AppState> {
       },
       () => {
         this.setState({
-          contextMenu: { top, left, items: this.getContextMenuItems(type) },
+          contextMenu: {
+            top,
+            left,
+            items: this.getContextMenuItems(
+              type,
+              isHittingCommonBoundBox
+                ? selectedElements
+                : element
+                ? [element]
+                : [],
+            ),
+          },
         });
       },
     );
@@ -9416,7 +9426,12 @@ class App extends React.Component<AppProps, AppState> {
 
   private getContextMenuItems = (
     type: "canvas" | "element",
+    /** single hitElement or all selected elements if their common bounding box was hitted */
+    hitElements: readonly ExcalidrawElement[],
   ): ContextMenuItems => {
+    return getObjectiveContextMenuItems(type, hitElements);
+
+    // eslint-disable-next-line no-unreachable
     const options: ContextMenuItems = [];
 
     options.push(actionCopyAsPng, actionCopyAsSvg);
@@ -9425,19 +9440,13 @@ class App extends React.Component<AppProps, AppState> {
     // -------------------------------------------------------------------------
 
     if (type === "canvas") {
-      // VBRN
-      const extraItems = this.objectiveProps.isMyScene
-        ? [actionToggleViewMode] //
-        : [];
-
       if (this.state.viewModeEnabled) {
         return [
           ...options,
           actionToggleGridMode,
-          actionToggleGridSnapMode,
           actionToggleZenMode,
-          // actionToggleStats, // VBRN disable
-          ...extraItems,
+          actionToggleViewMode,
+          actionToggleStats,
         ];
       }
 
@@ -9452,11 +9461,10 @@ class App extends React.Component<AppProps, AppState> {
         actionUnlockAllElements,
         CONTEXT_MENU_SEPARATOR,
         actionToggleGridMode,
-        actionToggleGridSnapMode,
         actionToggleObjectsSnapMode,
         actionToggleZenMode,
-        // actionToggleStats, // VBRN disable
-        ...extraItems,
+        actionToggleViewMode,
+        actionToggleStats,
       ];
     }
 
@@ -9480,15 +9488,14 @@ class App extends React.Component<AppProps, AppState> {
       CONTEXT_MENU_SEPARATOR,
       actionCopyStyles,
       actionPasteStyles,
-      actionToggleScalable, // VBRN
       CONTEXT_MENU_SEPARATOR,
       actionGroup,
       actionUnbindText,
       actionBindText,
       actionWrapTextInContainer,
       actionUngroup,
-      // CONTEXT_MENU_SEPARATOR, // VBRN disable
-      // actionAddToLibrary, // VBRN disable
+      CONTEXT_MENU_SEPARATOR,
+      actionAddToLibrary,
       CONTEXT_MENU_SEPARATOR,
       actionSendBackward,
       actionBringForward,
