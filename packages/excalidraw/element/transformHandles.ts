@@ -183,19 +183,26 @@ export const getTransformHandlesFromCoords = (
         ),
     rotation: omitSides.rotation
       ? undefined
+      : pushpinAng === undefined
+      ? generateTransformHandle(
+          x1 + width / 2 - handleWidth / 2,
+          y1 -
+            dashedLineMargin -
+            handleMarginY +
+            centeringOffset -
+            ROTATION_RESIZE_HANDLE_GAP / zoom.value,
+          handleWidth,
+          handleHeight,
+          cx,
+          cy,
+          angle,
+        )
       : generateTransformHandle(
           x1 + width / 2 - handleWidth / 2,
-          pushpinAng !== undefined // VBRN
-            ? y1 +
-                height / 2 -
-                handleHeight / 2 -
-                getPushpinLineDistance(opts!.meta!, zoom.value)
-            : y1 -
-                dashedLineMargin -
-                handleMarginY +
-                centeringOffset -
-                ROTATION_RESIZE_HANDLE_GAP / zoom.value,
-
+          y1 +
+            height / 2 -
+            handleHeight / 2 -
+            getPushpinLineDistance(opts!.meta!, zoom.value),
           handleWidth,
           handleHeight,
           cx,

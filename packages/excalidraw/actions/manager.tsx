@@ -95,13 +95,12 @@ export class ActionManager {
           ),
       );
 
-    // VBRN 'Delete' and 'Delete Turn' has the same shortcut and its OK
-    // if (data.length !== 1) {
-    //   if (data.length > 1) {
-    //     console.warn("Canceling as multiple actions match this shortcut", data);
-    //   }
-    //   return false;
-    // }
+    if (data.length !== 1) {
+      if (data.length > 1) {
+        // VBRN 'Delete' and 'Delete Turn' has the same shortcut and its OK
+        // console.warn("Canceling as multiple actions match this shortcut", data);
+      } else return false;
+    }
 
     const action = data[0];
 
