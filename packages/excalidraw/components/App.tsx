@@ -448,6 +448,7 @@ import { handleSelectionOnPointerSingleMetaSelecttedEventListener } from "../../
 import { getObjectiveContextMenuItems } from "../../../objective-app/objective/components/ContextMenu";
 import { isElementsScalable } from "../../../objective-app/objective/elements/_resizeElements";
 import { getObjectiveCursorOnHoverNotSelectedEls } from "../../../objective-app/objective/elements/_cursor";
+import { isHintingPushpin } from "../../../objective-app/objective/elements/_collision";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -9142,7 +9143,15 @@ class App extends React.Component<AppProps, AppState> {
         selectedElements,
       );
 
-    const type = element || isHittingCommonBoundBox ? "element" : "canvas";
+    // VBRN
+    const singleMeta = this.scene.oScene.getSelectedSingleMetaStrict();
+    const isPushpinHit =
+      !isHittingCommonBoundBox &&
+      singleMeta &&
+      isHintingPushpin(singleMeta, [x, y]);
+
+    const type =
+      element || isHittingCommonBoundBox || isPushpinHit ? "element" : "canvas";
 
     const container = this.excalidrawContainerRef.current!;
     const { top: offsetTop, left: offsetLeft } =
@@ -9180,7 +9189,7 @@ class App extends React.Component<AppProps, AppState> {
             left,
             items: this.getContextMenuItems(
               type,
-              isHittingCommonBoundBox // VBRN
+              isHittingCommonBoundBox || isPushpinHit // VBRN
                 ? selectedElements
                 : element
                 ? [element]

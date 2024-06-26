@@ -146,9 +146,9 @@ class Scene {
   private versionNonce: number | undefined;
 
   // VBRN
-  public objectiveScene: ObjectiveMetaScene;
+  public oScene: ObjectiveMetaScene;
   constructor(app: App | undefined) {
-    this.objectiveScene = new ObjectiveMetaScene(app, this);
+    this.oScene = new ObjectiveMetaScene(app, this);
   }
 
   getElementsMapIncludingDeleted() {
@@ -270,7 +270,7 @@ class Scene {
 
   replaceAllElements(nextElements: ElementsMapOrArray, mapElementIds = true) {
     const [objectiveSceneSet, objectiveSceneFinalize] =
-      this.objectiveScene._reaplaceAllElementsHook(); // VBRN
+      this.oScene._reaplaceAllElementsHook(); // VBRN
 
     this.elements =
       // ts doesn't like `Array.isArray` of `instanceof Map`

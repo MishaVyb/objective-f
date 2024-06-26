@@ -181,6 +181,7 @@ export class ObjectiveMetaScene {
     return this.getTurns(meta, opts).filter((m) => m.id != meta.id)
   }
 
+  // TODO cache
   getSelectedMetas() {
     const metas: ObjectiveMeta[] = []
     const metaIds = new Set<ObjectiveMeta['id']>([])
@@ -195,5 +196,16 @@ export class ObjectiveMetaScene {
       }
     })
     return metas
+  }
+  getSelectedSingleMeta<TMeta extends ObjectiveMeta = ObjectiveMeta>(): TMeta | undefined {
+    const metas = this.getSelectedMetas()
+    if (metas.length === 1) return metas[0] as TMeta
+    return undefined
+  }
+  getSelectedSingleMetaStrict<TMeta extends ObjectiveMeta = ObjectiveMeta>(): TMeta | undefined {
+    const selectedEls = getSelectedSceneEls(this.eScene, this.app.state)
+    const meta = this.getSelectedSingleMeta<TMeta>()
+    if (meta && meta.elements.length === selectedEls.length) return meta
+    return undefined
   }
 }

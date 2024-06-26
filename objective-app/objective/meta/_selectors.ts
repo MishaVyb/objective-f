@@ -40,7 +40,7 @@ export const getCore = () => ({
   app: _APP!,
   appState: _APP!.state,
   scene: _APP!.scene,
-  oScene: _APP!.scene.objectiveScene,
+  oScene: _APP!.scene.oScene,
   objectiveProps: _APP!.objectiveProps,
 })
 
@@ -49,7 +49,7 @@ export const getCoreSafe = () => ({
   app: _APP,
   appState: _APP?.state,
   scene: _APP?.scene,
-  oScene: _APP?.scene.objectiveScene,
+  oScene: _APP?.scene.oScene,
   objectiveProps: _APP?.objectiveProps,
 })
 
