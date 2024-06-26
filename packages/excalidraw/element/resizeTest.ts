@@ -12,10 +12,12 @@ import {
   TransformHandle,
   MaybeTransformHandleType,
   TRANSFORM_HANDLES_MARGIN_DEFAULT,
+  OMIT_SIDES_LEAVE_ANGLE,
 } from "./transformHandles";
 import { AppState, Zoom } from "../types";
 import { Bounds } from "./bounds";
 import { ObjectiveMeta } from "../../../objective-app/objective/meta/_types";
+import { isElementsScalable } from "../../../objective-app/objective/elements/_resizeElements";
 
 const isInsideTransformHandle = (
   transformHandle: TransformHandle,
@@ -95,8 +97,9 @@ export const getTransformHandleTypeFromCoords = (
   scenePointerY: number,
   zoom: Zoom,
   pointerType: PointerType,
-  opts?: {
-    meta?: ObjectiveMeta; // VBRN
+  opts: {
+    meta: ObjectiveMeta | undefined;
+    scaleable: boolean;
   },
 ): MaybeTransformHandleType => {
   const transformHandles = getTransformHandlesFromCoords(
@@ -104,7 +107,7 @@ export const getTransformHandleTypeFromCoords = (
     0,
     zoom,
     pointerType,
-    OMIT_SIDES_FOR_MULTIPLE_ELEMENTS,
+    opts.scaleable ? OMIT_SIDES_FOR_MULTIPLE_ELEMENTS : OMIT_SIDES_LEAVE_ANGLE, // VBRN
     TRANSFORM_HANDLES_MARGIN_DEFAULT,
     opts,
   );
@@ -138,6 +141,9 @@ export const getCursorForResizingElement = (resizingElement: {
   transformHandleType: MaybeTransformHandleType;
 }): string => {
   const { element, transformHandleType } = resizingElement;
+  if (transformHandleType === "ne") {
+    console.log(transformHandleType);
+  }
   const shouldSwapCursors =
     element && Math.sign(element.height) * Math.sign(element.width) === -1;
   let cursor = null;

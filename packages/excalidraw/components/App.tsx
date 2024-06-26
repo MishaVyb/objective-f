@@ -446,6 +446,7 @@ import {
 import { isGroupEditingDissalawed } from "../../../objective-app/objective/elements/_groups";
 import { handleSelectionOnPointerSingleMetaSelecttedEventListener } from "../../../objective-app/objective/elements/_transformHandles";
 import { getObjectiveContextMenuItems } from "../../../objective-app/objective/components/ContextMenu";
+import { isElementsScalable } from "../../../objective-app/objective/elements/_resizeElements";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -5172,7 +5173,7 @@ class App extends React.Component<AppProps, AppState> {
         scenePointerY,
         this.state.zoom,
         event.pointerType,
-        { meta },
+        { meta, scaleable: isElementsScalable(selectedElements) },
       );
       if (transformHandleType) {
         setCursor(
@@ -6189,7 +6190,7 @@ class App extends React.Component<AppProps, AppState> {
           pointerDownState.origin.y,
           this.state.zoom,
           event.pointerType,
-          { meta },
+          { meta, scaleable: isElementsScalable(selectedElements) },
         );
       }
       if (pointerDownState.resize.handleType) {
