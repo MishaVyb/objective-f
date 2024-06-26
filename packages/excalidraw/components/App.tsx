@@ -447,6 +447,7 @@ import { isGroupEditingDissalawed } from "../../../objective-app/objective/eleme
 import { handleSelectionOnPointerSingleMetaSelecttedEventListener } from "../../../objective-app/objective/elements/_transformHandles";
 import { getObjectiveContextMenuItems } from "../../../objective-app/objective/components/ContextMenu";
 import { isElementsScalable } from "../../../objective-app/objective/elements/_resizeElements";
+import { getObjectiveCursorOnHoverNotSelectedEls } from "../../../objective-app/objective/elements/_cursor";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -5256,7 +5257,14 @@ class App extends React.Component<AppProps, AppState> {
               activeEmbeddable: { element: hitElement, state: "hover" },
             });
           } else {
-            setCursor(this.interactiveCanvas, CURSOR_TYPE.MOVE);
+            const objectiveCursor = getObjectiveCursorOnHoverNotSelectedEls(
+              scenePointer,
+              hitElement,
+            );
+            setCursor(
+              this.interactiveCanvas,
+              objectiveCursor || CURSOR_TYPE.MOVE, // VBRN
+            );
             if (this.state.activeEmbeddable?.state === "hover") {
               this.setState({ activeEmbeddable: null });
             }

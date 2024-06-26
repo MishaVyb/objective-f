@@ -391,6 +391,8 @@ export const isSupportsTurn = (meta: MaybeMeta): meta is CameraMeta | CharacterM
   isKind(meta, ObjectiveKinds.CAMERA) || isKind(meta, ObjectiveKinds.CHARACTER)
 export const isSupportsMoveToFrom = (meta: MaybeMeta): meta is CameraMeta | CharacterMeta =>
   isKind(meta, ObjectiveKinds.CAMERA) || isKind(meta, ObjectiveKinds.CHARACTER)
+export const isChildTurn = (meta: MaybeMeta): meta is CameraMeta | CharacterMeta =>
+  isSupportsTurn(meta) && Boolean(meta.turnParentId)
 
 export const isWallElement = (
   el: MaybeExcalidrawElement | ObjectiveElement<LocationMeta>
