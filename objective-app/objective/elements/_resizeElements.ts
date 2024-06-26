@@ -12,11 +12,6 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import { rotate } from '../../../packages/excalidraw/math'
 import { PointerDownState } from '../../../packages/excalidraw/types'
-import {
-  scene_getMetasByElements,
-  scene_getTurns,
-  scene_getTurnsExcludingThis,
-} from '../meta/_scene'
 import { getCore, getObjectiveMetas, getObjectiveSingleMetaStrict } from '../meta/_selectors'
 import { ObjectiveMeta, isPure } from '../meta/_types'
 import { Vector, ensureVector } from './_math'
@@ -37,16 +32,14 @@ export const transformElementsEventHandler = (
 ) => {
   const { app, oScene } = getCore()
   const extraElsToAffect: ExcalidrawElement[] = []
-  const metas = scene_getMetasByElements(oScene, selectedElements)
+  const metas = getObjectiveMetas(selectedElements)
   const isStrcitOneMetaSelected = !!getObjectiveSingleMetaStrict(selectedElements)
 
   // rotate other Turns alongside with current meta, if it's classic Excalidraw group rotation
   // (so more than one metas selected)
   if (!isStrcitOneMetaSelected) {
     metas.forEach((m) => {
-      scene_getTurnsExcludingThis(oScene, app.state, m).forEach((turn) =>
-        extraElsToAffect.push(...turn.elements)
-      )
+      oScene.getTurnsExcludingThis(m).forEach((turn) => extraElsToAffect.push(...turn.elements))
     })
   }
 
@@ -72,11 +65,11 @@ export const getObjectiveRotationCenter = (
   centerY: number,
   opts?: { force?: boolean }
 ) => {
+  const { oScene } = getCore()
   if (!meta) return ensureVector([centerX, centerY])
 
-  const { oScene, appState } = getCore()
   const factor = meta.coreOpts?.pushpinRotationCenterShiftFactor
-  const turns = scene_getTurns(oScene, appState, meta)
+  const turns = oScene.getTurns(meta)
   if (factor && (turns.length || opts?.force)) {
     const newRotattionCenter = rotate(
       centerX - meta.basis!.width / factor,

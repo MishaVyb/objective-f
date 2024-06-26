@@ -6,7 +6,6 @@ import { ObjectiveKinds, ObjectiveMeta, isKind } from '../meta/_types'
 
 import { deleteMetaRepr } from './_metaRepr'
 import { fixBindingsAfterDeletion } from '../../../packages/excalidraw/element/binding'
-import { scene_getMeta, scene_getTurnChildren } from '../meta/_scene'
 import { isBoundToContainer } from '../../../packages/excalidraw/element/typeChecks'
 
 /**
@@ -84,7 +83,7 @@ export const deleteObjectiveMetas = (delitingMetas: readonly Readonly<ObjectiveM
   delitingMetas.forEach((target) => {
     if (isKind(target, ObjectiveKinds.LABEL)) {
       // delete repr container itself
-      const labelOfMeta = scene_getMeta(oScene, target.labelOf)
+      const labelOfMeta = oScene.getMeta(target.labelOf)
       if (labelOfMeta) deleteMetaRepr(scene, labelOfMeta, 'nameRepr')
     } else {
       // delete repr container (if meta has repr)
@@ -92,7 +91,7 @@ export const deleteObjectiveMetas = (delitingMetas: readonly Readonly<ObjectiveM
     }
 
     // delete turns (if any)
-    scene_getTurnChildren(oScene, appState, target).forEach((child) => {
+    oScene.getTurnChildren(target).forEach((child) => {
       deleteMetaRepr(scene, child, 'nameRepr')
       deletePointers(child.elements)
       child.elements.forEach((e) => mutateElement(e, { isDeleted: true }))

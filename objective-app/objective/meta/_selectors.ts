@@ -16,11 +16,13 @@ import {
   AnyObjectiveMeta,
   CameraMeta,
   MaybeExcalidrawElement,
+  MetasMap,
   ObjectiveElement,
   ObjectiveKinds,
   ObjectiveMeta,
-  ObjectiveMetas,
+  ObjectiveMetasGroups,
   ObjectiveWallElement,
+  ReadonlyMetasMap,
   ShotCameraMeta,
   WeekMeta,
   isKindEl,
@@ -38,7 +40,7 @@ export const getCore = () => ({
   app: _APP!,
   appState: _APP!.state,
   scene: _APP!.scene,
-  oScene: _APP!.scene.getObjectiveMetas(),
+  oScene: _APP!.scene.objectiveScene,
   objectiveProps: _APP!.objectiveProps,
 })
 
@@ -47,7 +49,7 @@ export const getCoreSafe = () => ({
   app: _APP,
   appState: _APP?.state,
   scene: _APP?.scene,
-  oScene: _APP?.scene.getObjectiveMetas(),
+  oScene: _APP?.scene.objectiveScene,
   objectiveProps: _APP?.objectiveProps,
 })
 
@@ -128,10 +130,12 @@ export const getObjectiveMetas = <TMeta extends ObjectiveMeta>(
 ): readonly Readonly<TMeta>[] => {
   const [add, finalize] = extractObjectiveMetas(opts)
   elements.forEach(add)
-  return finalize<TMeta>()
+  return [...finalize<TMeta>().values()]
 }
 
-/** callbacks factory for `getObjectiveMetas`, could be used directly  */
+/**
+ * LOW-LEVEL API
+ * */
 export const extractObjectiveMetas = (opts?: {
   kind?: ObjectiveKinds
   includingDelited?: boolean
@@ -166,8 +170,8 @@ export const extractObjectiveMetas = (opts?: {
     return true
   }
 
-  const finalizeCallback = <TMeta extends ObjectiveMeta>(): readonly Readonly<TMeta>[] => {
-    const resultMetas = []
+  const finalizeCallback = <TMeta extends ObjectiveMeta>(): ReadonlyMetasMap<TMeta> => {
+    const resultMetas = new Map([]) as MetasMap<TMeta>
     for (const e of uniqueMetaElement) {
       const weekMeta = getMetaSimple(e)
       const els = elementsByGroups.get(getObjectiveId(e))
@@ -189,7 +193,7 @@ export const extractObjectiveMetas = (opts?: {
         basis,
       })
 
-      resultMetas.push(meta)
+      resultMetas.set(meta.id, meta)
     }
 
     return resultMetas
@@ -213,7 +217,7 @@ export const _getMeta = <TMeta extends ObjectiveMeta>(
   return { ...el.customData, ...autopopulatedFields }
 }
 
-export const groupByKind = (metas: readonly Readonly<ObjectiveMeta>[]): ObjectiveMetas => {
+export const groupByKind = (metas: readonly Readonly<ObjectiveMeta>[]): ObjectiveMetasGroups => {
   const map = groupBy(metas, 'kind')
 
   // Set default [] // NOTE: enum value used as key at ObjectiveMetas

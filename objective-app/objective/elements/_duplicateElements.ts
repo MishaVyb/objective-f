@@ -157,7 +157,6 @@ export const duplicateObjectiveEventHandler = (
           )
         )
 
-      meta.relatedImages = []
     } else {
       // all other meta kinds
       if (meta.nameRepr)

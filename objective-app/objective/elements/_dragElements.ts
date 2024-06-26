@@ -11,7 +11,12 @@ import {
   BinaryFiles,
   PointerDownState,
 } from '../../../packages/excalidraw/types'
-import { getObjectiveMetas, getObjectiveSingleMeta, getPointerIds } from '../meta/_selectors'
+import {
+  getCore,
+  getObjectiveMetas,
+  getObjectiveSingleMeta,
+  getPointerIds,
+} from '../meta/_selectors'
 import { ObjectiveKinds, ObjectiveMeta, isKind, isSupportsTurn } from '../meta/_types'
 import {
   actionSnapLocation,
@@ -25,11 +30,6 @@ import { arrangeElements } from './_zIndex'
 import { Vector, getElementCenter } from './_math'
 import { getDistance } from '../../../packages/excalidraw/gesture'
 import { actionCreatePointer, actionDeletePointer } from '../actions/actionMetaCommon'
-import {
-  scene_getAllMetas,
-  scene_getMetaByNameReprId,
-  scene_getTurnsExcludingThis,
-} from '../meta/_scene'
 
 const DRAG_META_LABEL_MAX_GAP = 100
 
@@ -75,11 +75,11 @@ const dragLabelHandler = (
   elementsToUpdate: Set<NonDeletedExcalidrawElement>,
   app: AppClassProperties
 ) => {
-  const scene = app.scene.getObjectiveMetas()
+  const { oScene } = getCore()
 
   if (isKind(meta, ObjectiveKinds.LABEL)) {
     const container = meta.basis as ExcalidrawBindableElement
-    const masterMeta = scene_getMetaByNameReprId(scene, container.id)
+    const masterMeta = oScene.getMetaByNameReprId(container.id)
     if (masterMeta) {
       const basis = masterMeta.basis! as ExcalidrawBindableElement
       const basisCenter = getElementCenter(basis)
@@ -129,9 +129,9 @@ const dragSupportsTurnHandler = (
   elementsToUpdate: Set<NonDeletedExcalidrawElement>,
   app: AppClassProperties
 ) => {
+  const { oScene } = getCore()
   if (isSupportsTurn(meta)) {
-    const _scene = app.scene.getObjectiveMetas()
-    const turns = scene_getTurnsExcludingThis(_scene, app.state, meta)
+    const turns = oScene.getTurnsExcludingThis(meta)
     turns.forEach((m) => m.elements.forEach((e) => elementsToUpdate.add(e)))
     turns.forEach((m) => dragNameReprHandler(m, elementsToUpdate, app))
   }

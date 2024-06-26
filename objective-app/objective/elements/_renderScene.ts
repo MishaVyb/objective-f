@@ -27,7 +27,7 @@ export const renderObjectiveScene = (
   const metas = getObjectiveMetas(elementsMap)
   const extraEls: ExcalidrawElement[] = []
 
-  const { oScene } = getCoreSafe()
+  const { app } = getCoreSafe()
 
   metas.forEach((meta) => {
     // lens angle & focus lines
@@ -35,8 +35,8 @@ export const renderObjectiveScene = (
       extraEls.push(...getCameraLensAngleElements(meta))
 
     // pushpin
-    if (oScene) {
-      if (isPushbinHandlePotential(oScene, appState as AppState, meta)) {
+    if (app) {
+      if (isPushbinHandlePotential(meta)) {
         extraEls.push(...getPushpinElements(meta))
       } else {
         extraEls.push(...getPushpinArrowElements(meta))

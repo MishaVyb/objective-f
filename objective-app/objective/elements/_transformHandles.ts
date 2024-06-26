@@ -11,14 +11,13 @@ import {
   NormalizedZoomValue,
   PointerDownState,
 } from '../../../packages/excalidraw/types'
-import { scene_getTurnChildren, scene_getTurnParent, scene_getTurns } from '../meta/_scene'
 import {
   getCore,
   getObjectiveSingleMetaStrict,
   getSelectedSceneEls,
   isElementSelected,
 } from '../meta/_selectors'
-import { ObjectiveMeta, ObjectiveMetas, isSupportsTurn } from '../meta/_types'
+import { ObjectiveMeta, isSupportsTurn } from '../meta/_types'
 import { isHintingPushpin } from './_collision'
 import { ensurePoint, getElementCenter } from './_math'
 
@@ -74,12 +73,8 @@ export const getPushpinHeadDemensions = (meta: ObjectiveMeta, zoomValue: Normali
 }
 
 /** does Render Pushpin or/and does Handle pushpin as rotation handler on mouse hit */
-export const isPushbinHandlePotential = (
-  objectiveScene: ObjectiveMetas,
-  appState: AppState,
-  meta: ObjectiveMeta
-) => {
-  const { scene } = getCore()
+export const isPushbinHandlePotential = (meta: ObjectiveMeta) => {
+  const { scene, oScene, appState } = getCore()
   const selectedElements = getSelectedSceneEls(scene, appState)
   const isStrcitOneMetaSelected = !!getObjectiveSingleMetaStrict(selectedElements)
   if (!isStrcitOneMetaSelected) return false
@@ -87,25 +82,15 @@ export const isPushbinHandlePotential = (
   if (isSupportsTurn(meta)) {
     if (meta.turnParentId) {
       // looking for all parent's children
-      const parent = scene_getTurnParent(objectiveScene, appState, meta)
+      const parent = oScene.getTurnParent(meta)
       if (parent) {
-        const selectedChildren = scene_getTurnChildren(
-          objectiveScene,
-          appState,
-          parent, //
-          { isSelected: true }
-        )
+        const selectedChildren = oScene.getTurnChildren(parent, { isSelected: true })
         // at least one of children is selected (including current meta) OR parent is selected
         return !!selectedChildren.length || isElementSelected(appState, parent.basis!)
       }
     } else {
       // probably current meta is parent
-      const selectedChildren = scene_getTurnChildren(
-        objectiveScene,
-        appState,
-        meta, //
-        { isSelected: true }
-      )
+      const selectedChildren = oScene.getTurnChildren(meta, { isSelected: true })
       // at least one of children is selected OR current meta (parent) is selected
       return !!selectedChildren.length || isElementSelected(appState, meta.basis!)
     }
@@ -122,20 +107,14 @@ export const handleSelectionOnPointerSingleMetaSelecttedEventListener = (
   meta: ObjectiveMeta,
   pointerDownState: PointerDownState // modified inside!
 ) => {
-  const _scene = app.scene.getObjectiveMetas()
-  const turns = scene_getTurns(_scene, app.state, meta)
+  const { oScene } = getCore()
+  const turns = oScene.getTurns(meta)
 
   // Start rotattion on first Pushpin click (even if it's not selected)
   //    - modifie pointerDownState in case
   //    - select another elements in case
   for (const turn of turns) {
-    const isHitPishpin = isHintingPushpin(
-      _scene,
-      app.state,
-      turn,
-      app.frameNameBoundsCache,
-      ensurePoint(pointerDownState.origin)
-    )
+    const isHitPishpin = isHintingPushpin(turn, ensurePoint(pointerDownState.origin))
 
     if (isHitPishpin) {
       const els = app.scene.getNonDeletedElementsMap()

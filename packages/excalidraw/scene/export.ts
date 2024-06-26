@@ -61,7 +61,7 @@ const SVG_EXPORT_TAG = `<!-- svg-source:excalidraw -->`;
 const __createSceneForElementsHack__ = (
   elements: readonly ExcalidrawElement[],
 ) => {
-  const scene = new Scene();
+  const scene = new Scene(undefined);
   // we can't duplicate elements to regenerate ids because we need the
   // orig ids when embedding. So we do another hack of not mapping element
   // ids to Scene instances so that we don't override the editor elements

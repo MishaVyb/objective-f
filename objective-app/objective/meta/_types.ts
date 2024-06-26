@@ -44,7 +44,8 @@ export enum ObjectiveKinds {
 export const isKindKey = enumKeyTypeGuardFactory(ObjectiveKinds)
 export const isKindValue = enumValueTypeGuardFactory(ObjectiveKinds)
 
-export type ObjectiveMetas = Omit<
+/** metas per kind */
+export type ObjectiveMetasGroups = Omit<
   Record<ObjectiveKinds, readonly ObjectiveMeta[]>,
   'camera' | 'wall' | 'pointer' | 'label'
 > & {
@@ -94,49 +95,50 @@ export type MaybeExcalidrawElement<T extends ExcalidrawElement = ExcalidrawEleme
   | null
 export type MaybeMeta<T extends ObjectiveMeta = ObjectiveMeta> = T | WeekMeta<T> | undefined | null
 
-export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readonly<{
+export type _ObjectiveMetaBase<Kind extends ObjectiveKinds = ObjectiveKinds> = {
   //
   // CONSTANT (INITIAL) FIELDS
 
   kind: Kind
   subkind?: ObjectiveSubkinds
   basisIndex: number
-  libraryImg?: Readonly<{
-    src: string
-    title: string
-    w: number
-    h: number
-  }>
+  libraryImg?: {
+    readonly src: string
+    readonly title: string
+    readonly w: number
+    readonly h: number
+  }
 
-  library?: Readonly<{
-    groupTitle?: string // or meta.kind
-    mainTitle?: string // or meta.name
-    subTitle?: string
+  library?: {
+    readonly groupTitle?: string // or meta.kind
+    readonly mainTitle?: string // or meta.name
+    readonly subTitle?: string
     // ... TODO refactor other fields
-  }>
+  }
 
   // TODO move all core opts from root level into `meta.coreOpts` field
+  // TODO as separate Readonly<> Type
   /**
    * Core object options to determine deferent behavior on handleing actions, rendering, etc.
    * It's static and always equals for any instance of specific meta kind.
    * (like class attributes)
    * @see {@link _METAS_CORE_DEFINITION}
    * */
-  coreOpts?: Readonly<{
-    isSnappedToWalls?: boolean
-    isBoundsTakenFromBasis?: boolean
+  coreOpts?: {
+    readonly isSnappedToWalls?: boolean
+    readonly isBoundsTakenFromBasis?: boolean
 
-    isPushpinRotation?: boolean
-    pushpinRotationShiftAngle?: number
-    pushpinRotationShiftFactor?: number // factor = default_basis_size / shift_in_points_if_size_is_default
-    pushpinRotationCenterShiftFactor?: number
+    readonly isPushpinRotation?: boolean
+    readonly pushpinRotationShiftAngle?: number
+    readonly pushpinRotationShiftFactor?: number // factor = default_basis_size / shift_in_points_if_size_is_default
+    readonly pushpinRotationCenterShiftFactor?: number
 
-    disableResizeAlways?: boolean
-    disableFlip?: boolean
-  }>
+    readonly disableResizeAlways?: boolean
+    readonly disableFlip?: boolean
+  }
 
   excalidrawExtra?: {
-    arrowheadSize?: number
+    readonly arrowheadSize?: number
   }
 
   // TODO do not depends on Meta.kind -- it's too generic...
@@ -179,7 +181,20 @@ export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readon
   //
   /** HACK: as TS support for internal Excalidraw properties for IFrames. Objective do not use that. */
   generationData?: MagicCacheData
-}>
+}
+
+export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readonly<
+  _ObjectiveMetaBase<Kind>
+>
+
+export type MetasMap<TMeta extends ObjectiveMeta = ObjectiveMeta> = Map<
+  ObjectiveMeta['id'],
+  TMeta //
+>
+export type ReadonlyMetasMap<TMeta extends ObjectiveMeta = ObjectiveMeta> = ReadonlyMap<
+  ObjectiveMeta['id'],
+  TMeta
+>
 
 /** simple meta without autopopulated fields */
 export type WeekMeta<TMeta extends ObjectiveMeta = ObjectiveMeta> = Omit<
@@ -202,80 +217,76 @@ export type SupportsTurnMeta = {
   turnParent?: ObjectiveMeta
 }
 
-export type LabelMeta = ObjectiveMeta &
-  Readonly<{
-    kind: ObjectiveKinds.LABEL
-    /** back ref main Objective meta id that has this meta as represention */
-    labelOf: ObjectiveMeta['id']
+export type LabelMeta = _ObjectiveMetaBase & {
+  kind: ObjectiveKinds.LABEL
+  /** back ref main Objective meta id that has this meta as represention */
+  readonly labelOf: ObjectiveMeta['id']
+  name: never
+  nameRepr: never
+  description: never
+}
 
-    name: never
-    nameRepr: never
-    description: never
-  }>
+export type PointerMeta = _ObjectiveMetaBase & {
+  kind: ObjectiveKinds.POINTER
+  subkind?:
+    | 'labelPointer'
+    | 'storyboardPointer'
+    | 'cameraMovementPointer'
+    | 'characterMovementPointer'
+    | 'cameraLensAngle'
 
-export type PointerMeta = ObjectiveMeta &
-  Readonly<{
-    kind: ObjectiveKinds.POINTER
-    subkind?:
-      | 'labelPointer'
-      | 'storyboardPointer'
-      | 'cameraMovementPointer'
-      | 'characterMovementPointer'
-      | 'cameraLensAngle'
-
-    // pointerOf: do not populate back ref as we take it from parent `element.boundElements`
-    name: never
-    nameRepr: never
-    description: never
-  }>
-
+  // pointerOf: do not populate back ref as we take it from parent `element.boundElements`
+  name: never
+  nameRepr: never
+  description: never
+}
 /** It's always "arrow" ExcalidrawElement */
 export type PointerElement = ObjectiveElement<PointerMeta>
 
-export type LocationMeta = ObjectiveMeta &
-  Readonly<{
-    kind: ObjectiveKinds.LOCATION
-    subkind: 'window' | 'doorClosed' | 'doorOpen'
-  }>
+export type LocationMeta = _ObjectiveMetaBase & {
+  kind: ObjectiveKinds.LOCATION
+  subkind: 'window' | 'doorClosed' | 'doorOpen'
+}
+// export type LocationMeta = Readonly<_LocationMeta>
 
-export type WallMeta = ObjectiveMeta & Readonly<{ kind: ObjectiveKinds.WALL }>
+export type WallMeta = ObjectiveMeta & { kind: ObjectiveKinds.WALL }
 
-export type CameraMeta = ObjectiveMeta &
-  SupportsTurnMeta & {
-    kind: ObjectiveKinds.CAMERA
+export type _CameraExtraMeta = {
+  kind: ObjectiveKinds.CAMERA
 
-    isShot?: boolean // is camera in shot list
-    shotNumber?: number // Cam 1 / Cam 2
-    shotVersion?: number // Cam 1-A / Cam 1-B
-    focalLength?: number // mm
-    focusDistance?: number // cm
-    cameraFormat?: CameraFormat // width (mm)
-    aspectRatio?: number // w/h
-    lensAngleRepr?: boolean
+  isShot?: boolean // is camera in shot list
+  shotNumber?: number // Cam 1 / Cam 2
+  shotVersion?: number // Cam 1-A / Cam 1-B
+  focalLength?: number // mm
+  focusDistance?: number // cm
+  cameraFormat?: CameraFormat // width (mm)
+  aspectRatio?: number // w/h
+  lensAngleRepr?: boolean
 
-    /**
-     * Storyboard images. Source `ExcalidrawImage.id` (not `fileId`).
-     */
-    relatedImages: readonly string[] // images id
-  }
+  /**
+   * Storyboard images. Source `ExcalidrawImage.id` (not `fileId`).
+   */
+  relatedImages: readonly string[] // images id
+}
+export type CameraMeta = ObjectiveMeta & SupportsTurnMeta & Readonly<_CameraExtraMeta>
+export type ShotCameraMeta = CameraMeta & {
+  isShot: true
+  shotNumber: number // Cam A / Cam B
+  shotVersion: number // Cam A-1 / Cam A-2
+}
 
 export type CharacterMeta = ObjectiveMeta &
   SupportsTurnMeta & {
     kind: ObjectiveKinds.CHARACTER
   }
 
-export type CameraFormat = {
+export type _CameraFormat = {
   title: string
   description: string
   demensions: Vector
   isDefault?: boolean
 }
-
-export type ShotCameraMeta = CameraMeta & {
-  isShot: true
-  shotNumber: number // Cam A / Cam B
-  shotVersion: number // Cam A-1 / Cam A-2
-}
+export type CameraFormat = Readonly<_CameraFormat>
 
 // TODO https://www.typescriptlang.org/docs/handbook/2/types-from-types.html
 export type AnyObjectiveMeta = ObjectiveMeta &
@@ -306,19 +317,15 @@ export interface ObjectiveImageElement
   extends InitializedExcalidrawImageElement,
     Omit<BinaryFileData, 'id'> {}
 
-// HACK
-// Extend both ExcalidrawElement and ExcalidrawFrameElement, otherwise TS is confused about Frame,
-// and complains ObjectiveElement hos no `name` property.
-export type _ObjectiveElement<TMeta extends ObjectiveMeta = ObjectiveMeta> = Omit<
-  ExcalidrawElement,
-  'customData'
-> &
-  Omit<ExcalidrawFrameElement, 'customData'> & { customData: TMeta }
+export type _ObjectiveElement<TMeta extends ObjectiveMeta = ObjectiveMeta> =
+  // HACK
+  // Extend both ExcalidrawElement and ExcalidrawFrameElement, otherwise TS is confused about Frame,
+  // and complains ObjectiveElement hos no `name` property.
+  Omit<ExcalidrawElement, 'customData'> &
+    Omit<ExcalidrawFrameElement, 'customData'> & { readonly customData: TMeta }
 
 /** Readonly `ExcalidrawElement` with explicity meta (customData) type. */
-export type ObjectiveElement<TMeta extends ObjectiveMeta = ObjectiveMeta> = Readonly<
-  _ObjectiveElement<TMeta>
->
+export type ObjectiveElement<TMeta extends ObjectiveMeta = ObjectiveMeta> = _ObjectiveElement<TMeta>
 export type ObjectiveWallElement = ExcalidrawLinearElement & { customData: WallMeta }
 
 export const isMeta = (meta: MaybeMeta): meta is ObjectiveMeta => !!meta?.kind
@@ -451,12 +458,19 @@ const __test = () => {
   const maybe = {} as MaybeExcalidrawElement
   const obj = {} as ObjectiveElement
   const wall = {} as ObjectiveWallElement
-  const metas = {} as ObjectiveMetas
+  const metas = {} as ObjectiveMetasGroups
   const week = {} as WeekMeta
+  const loc = {} as LocationMeta
 
   const typeGuard = (el: ExcalidrawElement): el is ObjectiveElement => {
     return true
   }
+  // if (meta.libraryImg) meta.libraryImg.h = 123
+  const func = (m: CameraMeta) => {}
+
+  // func(loc)
+
+  // isSupportsTurn(element)
 
   // @ts-ignore
   isMeta(element)

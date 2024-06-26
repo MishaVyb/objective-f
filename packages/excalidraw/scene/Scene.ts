@@ -16,11 +16,8 @@ import { Assert, SameType } from "../utility-types";
 import { randomInteger } from "../random";
 import { toBrandedType } from "../utils";
 import { arrangeElements } from "../../../objective-app/objective/elements/_zIndex";
-import { ObjectiveMetas } from "../../../objective-app/objective/meta/_types";
-import {
-  extractObjectiveMetas,
-  groupByKind,
-} from "../../../objective-app/objective/meta/_selectors";
+import { ObjectiveMetaScene } from "../../../objective-app/objective/meta/_scene";
+import App from "../components/App";
 
 type ElementIdKey =
   | InstanceType<typeof LinearElementEditor>["elementId"]
@@ -148,11 +145,10 @@ class Scene {
   };
   private versionNonce: number | undefined;
 
-  private objectiveMetas = {} as ObjectiveMetas;
-
-  /** none deleted */
-  getObjectiveMetas() {
-    return this.objectiveMetas;
+  // VBRN
+  public objectiveScene: ObjectiveMetaScene;
+  constructor(app: App | undefined) {
+    this.objectiveScene = new ObjectiveMetaScene(app, this);
   }
 
   getElementsMapIncludingDeleted() {
@@ -273,8 +269,8 @@ class Scene {
   }
 
   replaceAllElements(nextElements: ElementsMapOrArray, mapElementIds = true) {
-    // VBRN
-    const [objectiveSet, objectiveFinalize] = extractObjectiveMetas();
+    const [objectiveSceneSet, objectiveSceneFinalize] =
+      this.objectiveScene._reaplaceAllElementsHook(); // VBRN
 
     this.elements =
       // ts doesn't like `Array.isArray` of `instanceof Map`
@@ -285,7 +281,7 @@ class Scene {
 
     this.elementsMap.clear();
     this.elements.forEach((element) => {
-      objectiveSet(element); // VBRN
+      objectiveSceneSet(element); // VBRN
 
       if (isFrameLikeElement(element)) {
         nextFrameLikes.push(element);
@@ -302,23 +298,7 @@ class Scene {
 
     this.informMutation();
 
-    // VBRN
-    // TODO move to ObjectiveScene
-    const metas = objectiveFinalize();
-
-    // const metasMap = ensureMap(metas);
-    // // EXPERIMENTAL
-    // // populate external metaToMeta relationships
-    // // it makes not not useful when we accessing `someElement.meta.elements[0].meta`
-    // // at this point we dont have any autopopelated fields
-    // metas.forEach((meta) => {
-    //   if (isSupportsTurn(meta) && meta.turnParentId) {
-    //     meta.turnParent = metasMap.get(meta.turnParentId);
-    //   }
-    // });
-
-    this.objectiveMetas = groupByKind(metas);
-    //////////
+    objectiveSceneFinalize(); // VBRN
   }
 
   informMutation() {

@@ -1,47 +1,23 @@
 import { isHittingElementNotConsideringBoundingBox } from '../../../packages/excalidraw/element/collision'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
-import { AppState, FrameNameBoundsCache, Point } from '../../../packages/excalidraw/types'
-import { scene_getMetaByBasis, scene_getTurnChildren } from '../meta/_scene'
-import { getMetaOrNone } from '../meta/_selectors'
-import { ObjectiveMeta, ObjectiveMetas, WeekMeta, isSupportsTurn } from '../meta/_types'
+import { Point } from '../../../packages/excalidraw/types'
+import { getCore, getMetaOrNone } from '../meta/_selectors'
+import { ObjectiveMeta, WeekMeta, isSupportsTurn } from '../meta/_types'
 import { getPushpinHeadElements } from './_newElement'
 import { isPushbinHandlePotential } from './_transformHandles'
 
-export const isObjectiveElementHit = (
-  objectiveScene: ObjectiveMetas,
-  appState: AppState,
-  element: ExcalidrawElement,
-  frameNameBoundsCache: FrameNameBoundsCache,
-  point: Point
-) => {
-  const meta = scene_getMetaByBasis(objectiveScene, element)
+export const isObjectiveElementHit = (element: ExcalidrawElement, point: Point) => {
+  const { oScene } = getCore()
+  const meta = oScene.getMetaByBasis(element)
   if (meta) {
     // handle hitting of this element as Objective basis
-    return isObjectiveBasisElementHit(
-      objectiveScene,
-      appState,
-      meta,
-      frameNameBoundsCache,
-      point //
-    )
+    return isObjectiveBasisElementHit(meta, point)
   } else {
     // handle hitting of this element as any other objective element (not basis)
-    return isObjectiveNotBasisElementHit(
-      objectiveScene,
-      appState,
-      getMetaOrNone(element),
-      frameNameBoundsCache,
-      point
-    )
+    return isObjectiveNotBasisElementHit(getMetaOrNone(element), point)
   }
 }
-export const isObjectiveNotBasisElementHit = (
-  objectiveScene: ObjectiveMetas,
-  appState: AppState,
-  meta: WeekMeta | undefined,
-  frameNameBoundsCache: FrameNameBoundsCache,
-  point: Point
-) => {
+export const isObjectiveNotBasisElementHit = (meta: WeekMeta | undefined, point: Point) => {
   if (!meta) return undefined
   if (isSupportsTurn(meta)) {
     if (meta.turnParentId) return false // prevent selecting child by NOT Pushpin
@@ -49,43 +25,33 @@ export const isObjectiveNotBasisElementHit = (
   return undefined
 }
 
-export const isObjectiveBasisElementHit = (
-  objectiveScene: ObjectiveMetas,
-  appState: AppState,
-  meta: ObjectiveMeta,
-  frameNameBoundsCache: FrameNameBoundsCache,
-  point: Point
-) => {
+export const isObjectiveBasisElementHit = (meta: ObjectiveMeta, point: Point) => {
+  const { oScene, appState, app } = getCore()
   if (isSupportsTurn(meta)) {
     // probably hinting on of the child, so select Parent in that case
-    const children = scene_getTurnChildren(objectiveScene, appState, meta)
+    const children = oScene.getTurnChildren(meta)
     for (const child of children) {
       const isChildHint = isHittingElementNotConsideringBoundingBox(
         child.basis!,
         appState,
-        frameNameBoundsCache,
+        app.frameNameBoundsCache,
         point
       )
       if (isChildHint) return true
     }
 
     // probably hinting Pushpin
-    return isHintingPushpin(objectiveScene, appState, meta, frameNameBoundsCache, point)
+    return isHintingPushpin(meta, point)
   }
 
   return undefined // handle by Excalidraw logic
 }
 
-export const isHintingPushpin = (
-  objectiveScene: ObjectiveMetas,
-  appState: AppState,
-  meta: ObjectiveMeta,
-  frameNameBoundsCache: FrameNameBoundsCache,
-  point: Point
-) => {
+export const isHintingPushpin = (meta: ObjectiveMeta, point: Point) => {
+  const { app, appState } = getCore()
   if (!isSupportsTurn(meta)) return undefined
 
-  const isPushpin = isPushbinHandlePotential(objectiveScene, appState, meta)
+  const isPushpin = isPushbinHandlePotential(meta)
   if (!isPushpin) {
     if (meta.turnParentId) return false // prevent selecting child by NOT Pushpin
     return undefined
@@ -94,7 +60,7 @@ export const isHintingPushpin = (
   const isPushpinHint = isHittingElementNotConsideringBoundingBox(
     pushpin,
     appState,
-    frameNameBoundsCache,
+    app.frameNameBoundsCache,
     point
   )
   if (!isPushpinHint) {

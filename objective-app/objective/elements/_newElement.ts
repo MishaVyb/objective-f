@@ -31,7 +31,6 @@ import {
   getPushpinLineDemensions,
 } from './_transformHandles'
 import { getObjectiveRotationCenter, rotateElementOnAngle } from './_resizeElements'
-import { scene_getNextTurn, scene_getTurnNumber, scene_getTurns } from '../meta/_scene'
 import { rotate } from '../../../packages/excalidraw/math'
 import { normalizeAngle } from '../../../packages/excalidraw/element/resizeElements'
 
@@ -217,7 +216,7 @@ export const getPushpinElements = (
 ]
 
 export const getPushpinLineElement = (meta: ObjectiveMeta) => {
-  const { oScene, appState } = getCore()
+  const { appState } = getCore()
   const zoomValue = appState.zoom.value
   const isSelected = isElementSelected(appState, meta.basis!)
 
@@ -242,11 +241,11 @@ export const getPushpinArrowElements = (meta: ObjectiveMeta) => {
   const PI = Math.PI
   const { oScene, appState } = getCore()
   const zoomValue = appState.zoom.value
-  const total = scene_getTurns(oScene, appState, meta)
-  const number = scene_getTurnNumber(oScene, appState, meta) || 0
+  const total = oScene.getTurns(meta)
+  const number = oScene.getTurnNumber(meta) || 0
   const isSelected = isElementSelected(appState, meta.basis!)
 
-  const nextMeta = scene_getNextTurn(oScene, appState, meta)
+  const nextMeta = oScene.getNextTurn(meta)
   if (!nextMeta) return []
 
   // absolute
@@ -386,7 +385,7 @@ export const getPushpinHeadElements = (meta: ObjectiveMeta) => {
   const { oScene, appState } = getCore()
   const zoomValue = appState.zoom.value
   const isSelected = isElementSelected(appState, meta.basis!)
-  const number = scene_getTurnNumber(oScene, appState, meta)
+  const number = oScene.getTurnNumber(meta)
   const [rx, ry, rw, rh] = getPushpinHeadDemensions(meta, zoomValue)
   return [
     newElement({

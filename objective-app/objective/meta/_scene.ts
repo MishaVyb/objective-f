@@ -1,175 +1,202 @@
-import { ElementsMapOrArray, ExcalidrawElement } from '../../../packages/excalidraw/element/types'
+import App from '../../../packages/excalidraw/components/App'
+import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
+import Scene from '../../../packages/excalidraw/scene/Scene'
 import { AppState } from '../../../packages/excalidraw/types'
-import { objectValues } from '../utils/types'
-import { getObjectiveMetas, isElementSelected } from './_selectors'
 import {
-  ObjectiveKinds,
+  extractObjectiveMetas,
+  getObjectiveId,
+  getSelectedSceneEls,
+  groupByKind,
+  isElementSelected,
+} from './_selectors'
+import {
   ObjectiveMeta,
-  ObjectiveMetas,
+  ObjectiveMetasGroups,
+  ReadonlyMetasMap,
   isObjective,
   isSupportsTurn,
 } from './_types'
 
-// TODO
-/** Objective CRUD repository. Abstraction above row elements list.  */
-class ObjectiveMetaScene {}
-
-export const scene_getMeta = (
-  _scene: ObjectiveMetas,
-  id: ObjectiveMeta['id'],
-  opts?: {
-    kind?: ObjectiveKinds
-  }
-) =>
-  opts?.kind
-    ? _scene[opts?.kind].find((m) => m.id === id)
-    : scene_getAllMetas(_scene).find((m) => m.id === id)
-
-export const scene_getTurnParent = (
-  _scene: ObjectiveMetas,
-  _appState: AppState,
-  child: ObjectiveMeta,
-  opts?: {
-    isSelected?: boolean
-  }
-): ObjectiveMeta | undefined => {
-  if (!isSupportsTurn(child)) return
-  if (!child.turnParentId) return
-
-  const turnParentItem = scene_getMeta(_scene, child.turnParentId, { kind: child.kind })
-  if (!turnParentItem) return
-
-  if (
-    opts?.isSelected !== undefined &&
-    isElementSelected(_appState, turnParentItem.basis!) !== opts.isSelected
-  )
-    return
-
-  return turnParentItem
-}
-
-export const scene_getTurnChildren = (
-  _scene: ObjectiveMetas,
-  _appState: AppState,
-  parent: ObjectiveMeta,
-  opts?: {
-    isSelected?: boolean
-  }
-): ObjectiveMeta[] => {
-  if (!isSupportsTurn(parent)) return []
-  return _scene[parent.kind].filter(
-    (m) =>
-      isSupportsTurn(m) &&
-      m.turnParentId === parent.id &&
-      (opts?.isSelected === undefined || isElementSelected(_appState, m.basis!))
-  )
-}
-
 /**
- * get all turns for this meta (parent + children)
- * @returns [] if no turns for this meta (do not return self meta in that case)
- */
-export const scene_getTurns = (
-  _scene: ObjectiveMetas,
-  _appState: AppState,
-  meta: ObjectiveMeta,
-  opts?: {
-    isSelected?: boolean
+ * Objective read-only repository.
+ * Provides access for Meta's over low-level Objective selectors.
+ * */
+export class ObjectiveMetaScene {
+  /** NOTE: always present, even if there no App, see `__createSceneForElementsHack__` */
+  private eScene: Scene
+  /** WARNING: undefined at Export context or after App unmount */
+  private app: App
+  /** WARNING: undefined at Export context or after App unmount */
+  private appState: AppState
+  private created_at?: string
+
+  private metasGroup = {} as ObjectiveMetasGroups
+  private metasMap = new Map([]) as ReadonlyMetasMap
+
+  constructor(app: App | undefined, eScene: Scene) {
+    this.app = app as App
+    this.appState = app?.state as AppState
+    this.eScene = eScene
   }
-): ObjectiveMeta[] => {
-  if (!isSupportsTurn(meta)) return []
 
-  // looking for all parent's children
-  if (meta.turnParentId) {
-    const parent = scene_getTurnParent(_scene, _appState, meta)
-    if (!parent) return []
-    return [parent, ...scene_getTurnChildren(_scene, _appState, parent, opts)]
+  _reaplaceAllElementsHook() {
+    const [set, finalize] = extractObjectiveMetas()
+    //
+    // some extra logic... cache...
+
+    const objectiveSceneSet = (el: ExcalidrawElement) => {
+      set(el)
+    }
+    const objectiveSceneFinalize = () => {
+      const metasMap = finalize()
+      this.metasMap = metasMap
+      this.metasGroup = groupByKind([...metasMap.values()])
+    }
+
+    //// @ts-ignore
+    return [objectiveSceneSet, objectiveSceneFinalize] as [
+      typeof objectiveSceneSet,
+      typeof objectiveSceneFinalize
+    ]
   }
 
-  // probably current meta is parent
-  const children = scene_getTurnChildren(_scene, _appState, meta)
-  if (children.length) return [meta, ...children] // yep, its parent
-
-  // meta has not child turns and it's not child itself
-  return []
-}
-
-// TODO CACHE (populate map[meta.id, value] that once on every render loop and use populated value)
-export const scene_getTurnNumber = (
-  _scene: ObjectiveMetas,
-  _appState: AppState,
-  meta: ObjectiveMeta,
-  opts?: {
-    isSelected?: boolean
+  getMetasMap() {
+    return this.metasMap
   }
-) => {
-  const index = scene_getTurns(_scene, _appState, meta, opts).findIndex(
-    (turn) => turn.id === meta.id
-  )
-  return index === -1 ? undefined : index + 1
-}
-
-export const scene_getNextTurn = (
-  _scene: ObjectiveMetas,
-  _appState: AppState,
-  meta: ObjectiveMeta,
-  opts?: {
-    isSelected?: boolean
+  getMetasGroups() {
+    return this.metasGroup
   }
-) => {
-  const turns = scene_getTurns(_scene, _appState, meta, opts)
-  const index = turns.findIndex((turn) => turn.id === meta.id)
-  return index === -1 ? undefined : turns[index + 1]
-}
-
-/** get all turns for this meta (parent + children) excluding itself */
-export const scene_getTurnsExcludingThis = (
-  _scene: ObjectiveMetas,
-  _appState: AppState,
-  meta: ObjectiveMeta,
-  opts?: {
-    isSelected?: boolean
+  getMetasList() {
+    return [...this.metasMap.values()]
   }
-): ObjectiveMeta[] => scene_getTurns(_scene, _appState, meta, opts).filter((m) => m.id != meta.id)
-
-export const scene_getMetaByElement = (
-  _scene: ObjectiveMetas,
-  element: ExcalidrawElement
-): ObjectiveMeta | undefined => {
-  if (!isObjective(element)) return
-  for (const gr of objectValues(_scene)) {
-    const res = gr.find((m) => m.elements.find((e) => e.id === element.id))
-    if (res) return res
+  getMeta(id: ObjectiveMeta['id']) {
+    return this.metasMap.get(id)
   }
-}
-
-export const scene_getMetaByBasis = (
-  _scene: ObjectiveMetas,
-  element: ExcalidrawElement
-): ObjectiveMeta | undefined => {
-  if (!isObjective(element)) return
-  for (const gr of objectValues(_scene)) {
-    const res = gr.find((m) => m.basis!.id == element.id)
-    if (res) return res
+  getMetaByElement(element: ExcalidrawElement) {
+    if (!isObjective(element)) return
+    return this.getMeta(getObjectiveId(element))
   }
-}
+  getMetaByBasis(element: ExcalidrawElement) {
+    const meta = this.getMetaByElement(element)
+    if (meta && meta.basis!.id === element.id) return meta
+    return undefined
+  }
 
-export const scene_getAllMetas = (_scene: ObjectiveMetas): ObjectiveMeta[] => {
-  const result = []
-  for (const gr of objectValues(_scene)) result.push(...gr)
-  return result
-}
+  //////////////////////////// NAME REPRESENTATION //////////////////
 
-export const scene_getMetaByNameReprId = (
-  _scene: ObjectiveMetas,
-  containerId: ObjectiveMeta['nameRepr']
-) => scene_getAllMetas(_scene).find((meta) => meta.nameRepr === containerId)
+  getMetaByNameReprId(containerId: ObjectiveMeta['nameRepr']) {
+    return this.getMetasList().find((meta) => meta.nameRepr === containerId)
+  }
 
-export const scene_getMetasByElements = (_scene: ObjectiveMetas, elements: ElementsMapOrArray) => {
-  // ??? implement map: element -> meta, use Set to return single metas
-  return getObjectiveMetas(elements)
-}
+  //////////////////////////// TURNS ////////////////////////////////
 
-export const scene_getSelectedMetas = (_scene: ObjectiveMetas, _appState: AppState) => {
-  return scene_getAllMetas(_scene).filter((m) => isElementSelected(_appState, m.basis!))
+  getTurnParent(
+    child: ObjectiveMeta,
+    opts?: {
+      isSelected?: boolean
+    }
+  ): ObjectiveMeta | undefined {
+    if (!isSupportsTurn(child)) return
+    if (!child.turnParentId) return
+
+    const turnParentItem = this.getMeta(child.turnParentId)
+    if (!turnParentItem) return
+
+    if (
+      opts?.isSelected !== undefined &&
+      isElementSelected(this.appState, turnParentItem.basis!) !== opts.isSelected
+    )
+      return
+
+    return turnParentItem
+  }
+
+  getTurnChildren(
+    parent: ObjectiveMeta,
+    opts?: {
+      isSelected?: boolean
+    }
+  ): ObjectiveMeta[] {
+    if (!isSupportsTurn(parent)) return []
+    return this.metasGroup[parent.kind].filter(
+      (m) =>
+        isSupportsTurn(m) &&
+        m.turnParentId === parent.id &&
+        (opts?.isSelected === undefined || isElementSelected(this.appState, m.basis!))
+    )
+  }
+
+  /**
+   * get all turns for this meta (parent + children)
+   * @returns [] if no turns for this meta (do not return self meta in that case)
+   */
+  getTurns(
+    meta: ObjectiveMeta,
+    opts?: {
+      isSelected?: boolean
+    }
+  ): ObjectiveMeta[] {
+    if (!isSupportsTurn(meta)) return []
+
+    // looking for all parent's children
+    if (meta.turnParentId) {
+      const parent = this.getTurnParent(meta)
+      if (!parent) return []
+      return [parent, ...this.getTurnChildren(parent, opts)]
+    }
+
+    // probably current meta is parent
+    const children = this.getTurnChildren(meta)
+    if (children.length) return [meta, ...children] // yep, its parent
+
+    // meta has not child turns and it's not child itself
+    return []
+  }
+
+  // TODO CACHE (populate map[meta.id, value] that once on every render loop and use populated value)
+  getTurnNumber(
+    meta: ObjectiveMeta,
+    opts?: {
+      isSelected?: boolean
+    }
+  ) {
+    const index = this.getTurns(meta, opts).findIndex((turn) => turn.id === meta.id)
+    return index === -1 ? undefined : index + 1
+  }
+
+  getNextTurn(
+    meta: ObjectiveMeta,
+    opts?: {
+      isSelected?: boolean
+    }
+  ) {
+    const turns = this.getTurns(meta, opts)
+    const index = turns.findIndex((turn) => turn.id === meta.id)
+    return index === -1 ? undefined : turns[index + 1]
+  }
+  /** get all turns for this meta (parent + children) excluding itself */
+  getTurnsExcludingThis(
+    meta: ObjectiveMeta,
+    opts?: {
+      isSelected?: boolean
+    }
+  ) {
+    return this.getTurns(meta, opts).filter((m) => m.id != meta.id)
+  }
+
+  getSelectedMetas() {
+    const metas: ObjectiveMeta[] = []
+    const metaIds = new Set<ObjectiveMeta['id']>([])
+    getSelectedSceneEls(this.eScene, this.appState).forEach((el) => {
+      if (isObjective(el)) {
+        const objectiveId = getObjectiveId(el)
+        if (!metaIds.has(objectiveId)) {
+          metaIds.add(objectiveId)
+          const m = this.getMeta(objectiveId)
+          if (m) metas.push(m)
+        }
+      }
+    })
+    return metas
+  }
 }

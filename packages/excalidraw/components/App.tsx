@@ -694,7 +694,7 @@ class App extends React.Component<AppProps, AppState> {
       () => this.scene.getElementsIncludingDeleted(),
       this,
     );
-    this.scene = new Scene();
+    this.scene = new Scene(this); // WARNING: it also initialized at componentWillUnmount
 
     this.canvas = document.createElement("canvas");
     this.rc = rough.canvas(this.canvas);
@@ -2513,7 +2513,7 @@ class App extends React.Component<AppProps, AppState> {
 
   public componentWillUnmount() {
     this.renderer.destroy();
-    this.scene = new Scene();
+    this.scene = new Scene(this); // WARNING: it weird, but actually this scene is used
     this.renderer = new Renderer(this.scene);
     this.files = {};
     this.imageCache.clear();
@@ -4434,7 +4434,6 @@ class App extends React.Component<AppProps, AppState> {
         x,
         y,
         this.scene.getNonDeletedElementsMap(),
-        this.scene.getObjectiveMetas(),
       )
         ? allHitElements[allHitElements.length - 2]
         : elementWithHighestZIndex;
@@ -4470,7 +4469,6 @@ class App extends React.Component<AppProps, AppState> {
         x,
         y,
         this.scene.getNonDeletedElementsMap(),
-        this.scene.getObjectiveMetas(),
       ),
     ).filter((element) => {
       // hitting a frame's element from outside the frame is not considered a hit
@@ -5437,7 +5435,6 @@ class App extends React.Component<AppProps, AppState> {
           scenePointerX,
           scenePointerY,
           elementsMap,
-          this.scene.getObjectiveMetas(),
         )
       ) {
         setCursor(this.interactiveCanvas, CURSOR_TYPE.MOVE);
@@ -5450,7 +5447,6 @@ class App extends React.Component<AppProps, AppState> {
           scenePointerX,
           scenePointerY,
           this.scene.getNonDeletedElementsMap(),
-          this.scene.getObjectiveMetas(),
         )
       ) {
         setCursor(this.interactiveCanvas, CURSOR_TYPE.MOVE);
@@ -8295,7 +8291,6 @@ class App extends React.Component<AppProps, AppState> {
             pointerDownState.origin.x,
             pointerDownState.origin.y,
             this.scene.getNonDeletedElementsMap(),
-            this.scene.getObjectiveMetas(),
           )) ||
           (!hitElement &&
             pointerDownState.hit.hasHitCommonBoundingBoxOfSelectedElements))

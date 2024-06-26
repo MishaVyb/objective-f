@@ -64,7 +64,6 @@ import { handleMetaRepresentation } from '../elements/_metaRepr'
 import { mutateSelectedElsMeta, mutateMeta } from '../elements/_mutateElements'
 import clsx from 'clsx'
 import { isElementsScalable } from '../elements/_resizeElements'
-import { scene_getSelectedMetas, scene_getTurnNumber } from '../meta/_scene'
 
 export const KbdLabel: FC<{ children: ReactNode; style?: any }> = ({ children, style }) => (
   <Kbd style={style}>
@@ -88,7 +87,7 @@ export const actionDisplayMetaHeader = register({
       null
     )
     const singleMeta = getObjectiveSingleMeta(getSelectedSceneEls(app.scene, app.state))
-    const turnNumber = singleMeta && scene_getTurnNumber(oScene, appState, singleMeta)
+    const turnNumber = singleMeta && oScene.getTurnNumber(singleMeta)
 
     // Objective tools
     const selected = getSelectedSceneEls(app.scene, appState)
@@ -430,9 +429,9 @@ export const actionToggleScalable = register({
 
   PanelComponent: ({ elements, appState, updateData, app }: PanelComponentProps) => {
     const { oScene } = getCore()
-    const disableResizeAlways = scene_getSelectedMetas(oScene, appState).some(
-      (meta) => meta?.coreOpts?.disableResizeAlways
-    )
+    const disableResizeAlways = oScene
+      .getSelectedMetas()
+      .some((meta) => meta?.coreOpts?.disableResizeAlways)
     if (disableResizeAlways) return <></>
 
     const isScalable = isElementsScalable(getSelectedSceneEls(app.scene, appState))

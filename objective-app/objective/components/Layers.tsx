@@ -33,7 +33,7 @@ import {
   actionChangeOpacityObjective,
   actionToggleElementLockObjective,
 } from '../actions/actionElements'
-import { getNotInternalElementsFromMeta } from '../meta/_selectors'
+import { getCore, getNotInternalElementsFromMeta } from '../meta/_selectors'
 import { isBoundToContainer } from '../../../packages/excalidraw/element/typeChecks'
 
 const getElementTypesMap = (els: readonly ExcalidrawElement[] | ElementsMap) => {
@@ -50,7 +50,7 @@ const Layer: FC<{
   kind: ObjectiveKinds[] | ExcalidrawElementType[]
   name?: string
 }> = ({ close, kind, name }) => {
-  const app = useApp()
+  const { oScene, app } = getCore()
   const elsMap = app.scene.getNonDeletedElementsMap()
   const appState = useExcalidrawAppState()
   const setAppState = useExcalidrawSetAppState()
@@ -66,7 +66,7 @@ const Layer: FC<{
 
   for (const k of kind) {
     if (isKindValue(k)) {
-      const currentKindMetas = app.scene.getObjectiveMetas()[k]!
+      const currentKindMetas = oScene.getMetasGroups()[k]!
       for (const meta of currentKindMetas) {
         metas.push(meta)
         elements.push(...meta.elements)
@@ -220,7 +220,7 @@ const Layer: FC<{
   )
 }
 
-export const Layers: FC<{shrink?: boolean}> = ({shrink}) => {
+export const Layers: FC<{ shrink?: boolean }> = ({ shrink }) => {
   const [open, setOpen] = useState(false)
   const app = useApp()
   const elsMap = app.scene.getNonDeletedElementsMap()
