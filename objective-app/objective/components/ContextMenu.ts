@@ -124,8 +124,6 @@ export const getObjectiveContextMenuItems = (
   const disableFlip = metas.some((meta) => meta?.coreOpts?.disableFlip)
   const disableResizeAlways = metas.some((meta) => meta?.coreOpts?.disableResizeAlways)
 
-  console.log({ singleMeta: singleMetaStrict, metas, hitElements })
-
   if (appState.viewModeEnabled) {
     return [actionCopy, copyText, actionCopyAsPng]
   }

@@ -26,8 +26,6 @@ export class ObjectiveMetaScene {
   private eScene: Scene
   /** WARNING: undefined at Export context or after App unmount */
   private app: App
-  /** WARNING: undefined at Export context or after App unmount */
-  private appState: AppState
   private created_at?: string
 
   private metasGroup = {} as ObjectiveMetasGroups
@@ -35,7 +33,6 @@ export class ObjectiveMetaScene {
 
   constructor(app: App | undefined, eScene: Scene) {
     this.app = app as App
-    this.appState = app?.state as AppState
     this.eScene = eScene
   }
 
@@ -104,7 +101,7 @@ export class ObjectiveMetaScene {
 
     if (
       opts?.isSelected !== undefined &&
-      isElementSelected(this.appState, turnParentItem.basis!) !== opts.isSelected
+      isElementSelected(this.app.state, turnParentItem.basis!) !== opts.isSelected
     )
       return
 
@@ -122,7 +119,7 @@ export class ObjectiveMetaScene {
       (m) =>
         isSupportsTurn(m) &&
         m.turnParentId === parent.id &&
-        (opts?.isSelected === undefined || isElementSelected(this.appState, m.basis!))
+        (opts?.isSelected === undefined || isElementSelected(this.app.state, m.basis!))
     )
   }
 
@@ -187,7 +184,7 @@ export class ObjectiveMetaScene {
   getSelectedMetas() {
     const metas: ObjectiveMeta[] = []
     const metaIds = new Set<ObjectiveMeta['id']>([])
-    getSelectedSceneEls(this.eScene, this.appState).forEach((el) => {
+    getSelectedSceneEls(this.eScene, this.app.state).forEach((el) => {
       if (isObjective(el)) {
         const objectiveId = getObjectiveId(el)
         if (!metaIds.has(objectiveId)) {
