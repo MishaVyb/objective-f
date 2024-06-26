@@ -11,7 +11,7 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
-import { POINTER_COMMON, newPointerBeetween } from '../elements/_newElement'
+import { POINTER_COMMON, newPointerBeetween } from '../elements/_newElementObjectiveConstructors'
 import {
   getObjectiveBasis,
   getCameraMetas,

@@ -1,10 +1,7 @@
 import { getElementAbsoluteCoords } from ".";
 import { __DEBUG_DISABLE_APPLY_DEFAULTS } from "../../../objective-app/objective-plus/constants";
 import { duplicateObjectiveEventHandler } from "../../../objective-app/objective/elements/_duplicateElements";
-import {
-  duplicateMeta,
-  getInitialMeta,
-} from "../../../objective-app/objective/meta/_initial";
+import { getInitialMeta } from "../../../objective-app/objective/meta/_initial";
 import {
   ObjectiveKinds,
   isWall,
@@ -601,7 +598,8 @@ export const duplicateElement = <TElement extends ExcalidrawElement>(
     copy = Object.assign(copy, overrides);
   }
 
-  duplicateMeta(copy);
+  // NOTE: do not duplicateMeta here, it is happining at `duplicateObjectiveEventHandler`
+  // duplicateMeta(copy);
   return copy;
 };
 
@@ -718,8 +716,13 @@ export const duplicateElements = (
     clonedElements.push(clonedElement);
   }
 
-  clonedElements.forEach((e) => duplicateMeta(e));
-  const extraNewEls = duplicateObjectiveEventHandler(clonedElements);
+  // VBRN
+  // NOTE: do not duplicateMeta here, it is happining at `duplicateObjectiveEventHandler` below
+  const extraNewEls = duplicateObjectiveEventHandler(
+    elements,
+    clonedElements,
+    {},
+  );
   clonedElements.push(...extraNewEls);
   return clonedElements;
 };

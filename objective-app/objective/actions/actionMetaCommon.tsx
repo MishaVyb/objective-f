@@ -8,7 +8,7 @@ import {
   POINTER_COMMON,
   newMetaReprElement,
   newPointerBeetween,
-} from '../elements/_newElement'
+} from '../elements/_newElementObjectiveConstructors'
 import {
   getCore,
   getMetaSimple,

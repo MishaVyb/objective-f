@@ -8,7 +8,7 @@ import {
   getCameraLensAngleElements,
   getPushpinArrowElements,
   getPushpinElements,
-} from './_newElement'
+} from './_newElementObjectiveConstructors'
 import { isPushbinHandlePotential } from './_transformHandles'
 
 export const renderObjectiveScene = (

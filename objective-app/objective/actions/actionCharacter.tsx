@@ -1,6 +1,6 @@
 import { EnterIcon, ExitIcon, ReloadIcon } from '@radix-ui/react-icons'
 import { PanelComponentProps } from '../../../packages/excalidraw/actions/types'
-import { getObjectiveSingleMeta, getSelectedSceneEls } from '../meta/_selectors'
+import { getCore, getObjectiveSingleMeta, getSelectedSceneEls } from '../meta/_selectors'
 
 import { register } from './register'
 import { AppClassProperties } from '../../../packages/excalidraw/types'
@@ -18,11 +18,12 @@ export const actionCharacterMovement = register({
   name: 'actionCharacterMovement',
   trackEvent: false,
   perform: (elements, appState, actionType: TChangeVersionActionValue, app: AppClassProperties) => {
-    let newEls: ReturnType<typeof handleMetaRepresentation> = []
+    const { oScene } = getCore()
     const character = getObjectiveSingleMeta(getSelectedSceneEls(app.scene, appState))
     if (!character || !isKind(character, ObjectiveKinds.CHARACTER)) return false
 
     const basisCenter = getElementCenter(character.basis!)
+    const parentOrSelf = oScene.getTurnParent(character) || character
 
     switch (actionType) {
       case 'moveTo':
@@ -31,6 +32,12 @@ export const actionCharacterMovement = register({
             shift: { x: 150, y: 0 },
             addPointerWith: character,
             addPointerSubkind: 'characterMovementPointer',
+            newElementsOverrides: {
+              backgroundColor: parentOrSelf.basis!.backgroundColor,
+            },
+            addPointerOverrides: {
+              strokeColor: parentOrSelf.basis!.backgroundColor,
+            },
           }),
           commitToHistory: true,
         }
@@ -41,6 +48,12 @@ export const actionCharacterMovement = register({
             addPointerWith: character,
             addPointerSubkind: 'characterMovementPointer',
             addPointerReverseDirection: true,
+            newElementsOverrides: {
+              backgroundColor: parentOrSelf.basis!.backgroundColor,
+            },
+            addPointerOverrides: {
+              strokeColor: parentOrSelf.basis!.backgroundColor,
+            },
           }),
           commitToHistory: true,
         }
@@ -64,19 +77,15 @@ export const actionCharacterMovement = register({
           },
         })
         if (!res) return false
-        res.extra.newEls.forEach((e) => mutateElement(e, { backgroundColor: 'transparent' }))
-        res.extra.extraNewEls.forEach((e) => mutateElement(e, { backgroundColor: 'transparent' }))
+        const newMeta = getObjectiveSingleMeta(res.extra.newEls)
+        if (newMeta) mutateElement(newMeta.elements[1], { backgroundColor: 'transparent' })
         return {
           elements: res.elements,
           appState: res.appState,
           commitToHistory: true,
         }
     }
-
-    return {
-      elements: [...elements, ...newEls],
-      commitToHistory: true,
-    }
+    return false
   },
 
   PanelComponent: ({

@@ -7365,10 +7365,17 @@ class App extends React.Component<AppProps, AppState> {
             // BUG: Storyboard's POINT are pointing to previous camera, but related to new dragged...
             // BUG: Creates extra label (that we do not needed)
             const extraNewElements = duplicateObjectiveEventHandler(
+              // FIXME
+              // !!!!!! THIS SHOULD BE COMPLITELY REFACTORED !!!!!!
               nextElements.filter(
                 // handle only new elements
                 (e) => !this.scene.getElementsMapIncludingDeleted().has(e.id),
               ),
+              nextElements.filter(
+                // handle only new elements
+                (e) => !this.scene.getElementsMapIncludingDeleted().has(e.id),
+              ),
+              {},
             );
             elementsToAppend.push(...extraNewElements);
             const nextSceneElements = arrangeElements(

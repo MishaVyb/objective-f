@@ -40,6 +40,7 @@ import {
   ensureArray,
   ensureMap,
 } from "../../../objective-app/objective/meta/_types";
+import { getCore } from "../../../objective-app/objective/meta/_selectors";
 
 export const actionDuplicateSelection = register({
   name: "duplicateSelection",
@@ -100,6 +101,7 @@ export const duplicateElements = (
   opts?: DuplicateHandlerOpts,
 ): Partial<ActionResult> & { extra: TActionResultExtraInfo } => {
   // ---------------------------------------------------------------------------
+  const { oScene } = getCore();
 
   // step (1)
 
@@ -122,6 +124,7 @@ export const duplicateElements = (
       {
         x: element.x + shift.x,
         y: element.y + shift.y,
+        ...opts?.newElementsOverrides,
       },
     );
     oldIdToDuplicatedId.set(element.id, newElement.id);
@@ -130,7 +133,7 @@ export const duplicateElements = (
     return newElement;
   };
 
-  const idsOfElementsToDuplicate = duplicateObjectiveEventHandlerFilter(
+  const elementsToDuplicate = duplicateObjectiveEventHandlerFilter(
     arrayToMap(
       getSelectedElements(sortedElements, appState, {
         includeBoundTextElement: true,
@@ -173,7 +176,7 @@ export const duplicateElements = (
     const boundTextElement = getBoundTextElement(element, arrayToMap(elements));
     const isElementAFrameLike = isFrameLikeElement(element);
 
-    if (idsOfElementsToDuplicate.get(element.id)) {
+    if (elementsToDuplicate.get(element.id)) {
       // if a group or a container/bound-text or frame, duplicate atomically
       if (element.groupIds.length || boundTextElement || isElementAFrameLike) {
         const groupId = getSelectedGroupForElement(appState, element);
@@ -234,7 +237,7 @@ export const duplicateElements = (
       // now, for elements do not belong any frames or elements whose frames
       // are selected (or elements that are left out from the above
       // steps for whatever reason) we (should at least) duplicate them here
-      if (!element.frameId || !idsOfElementsToDuplicate.has(element.frameId)) {
+      if (!element.frameId || !elementsToDuplicate.has(element.frameId)) {
         elementsWithClones.push(
           ...markAsProcessed([element, duplicateAndOffsetElement(element)]),
         );
@@ -267,18 +270,19 @@ export const duplicateElements = (
   let finalElements = finalElementsReversed.reverse();
 
   // VBRN
-  // handle only new elements // HACK do not use NonDeleted elements here!!!
-  const newEls = finalElements.filter(
+  const _newElements = finalElements.filter(
+    // HACK do not use NonDeleted elements here!!!
     (e) => !app.scene.getElementsMapIncludingDeleted().has(e.id),
   );
-  const newElsMap = ensureMap(newEls);
-  const prevEls = finalElements.filter((e) => !newElsMap.has(e.id));
-  const affectedEls = ensureArray(idsOfElementsToDuplicate);
-  const extraNewEls = duplicateObjectiveEventHandler(newEls, {
-    scene: app.scene,
-    ...opts,
-  });
-  finalElements = arrangeElements(finalElements, extraNewEls);
+  const _newElementsMap = ensureMap(_newElements);
+  const _prevElements = finalElements.filter((e) => !_newElementsMap.has(e.id));
+  const _affectedEls = ensureArray(elementsToDuplicate);
+  const _extraNewElements = duplicateObjectiveEventHandler(
+    _affectedEls,
+    _newElements,
+    opts,
+  );
+  finalElements = arrangeElements(finalElements, _extraNewElements);
   // VBRN
 
   // ---------------------------------------------------------------------------
@@ -325,10 +329,10 @@ export const duplicateElements = (
       ),
     },
     extra: {
-      prevEls,
-      affectedEls,
-      newEls,
-      extraNewEls,
+      prevEls: _prevElements,
+      affectedEls: _affectedEls,
+      newEls: _newElements,
+      extraNewEls: _extraNewElements,
     },
   };
 };

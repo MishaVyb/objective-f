@@ -14,7 +14,7 @@ import { getFormValue } from '../../../packages/excalidraw/actions/actionPropert
 import { ActionResultEnsure, PanelComponentProps } from '../../../packages/excalidraw/actions/types'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { getSelectedElements } from '../../../packages/excalidraw/scene'
-import { newMetaReprElement } from '../elements/_newElement'
+import { newMetaReprElement } from '../elements/_newElementObjectiveConstructors'
 
 import {
   getCameraMetas,

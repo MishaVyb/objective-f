@@ -3,7 +3,7 @@ import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { Point } from '../../../packages/excalidraw/types'
 import { getCore, getMetaOrNone } from '../meta/_selectors'
 import { ObjectiveMeta, WeekMeta, isSupportsTurn } from '../meta/_types'
-import { getPushpinHeadElements } from './_newElement'
+import { getPushpinHeadElements } from './_newElementObjectiveConstructors'
 import { isPushbinHandlePotential } from './_transformHandles'
 
 export const isObjectiveElementHit = (element: ExcalidrawElement, point: Point) => {
