@@ -20,7 +20,7 @@ import {
   selectUserAPIErrors,
 } from '../../objective-plus/store/projects/reducer'
 import { isImageElement } from '../../../packages/excalidraw/element/typeChecks'
-import { ExcalidrawImperativeAPI } from '../../../packages/excalidraw/types'
+import { AppState, ExcalidrawImperativeAPI } from '../../../packages/excalidraw/types'
 
 import { objectValues } from '../utils/types'
 
@@ -34,7 +34,78 @@ import { ERROR_REPR_DELTA_SEC, ObjectiveErrorCollout } from '../../objective-plu
 
 // import after all others
 import { OBJECTIVE_LIB as OBJECTIVE_LIB_ITEMS } from '../lib'
-import { getShotCameraMetas } from '../meta/_selectors'
+import { getObjectiveMetas, getShotCameraMetas } from '../meta/_selectors'
+import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
+import { ObjectiveMeta } from '../meta/_types'
+import { mutateElement } from '../../../packages/excalidraw'
+
+const serializeElements = (scene: ISceneFull) => {
+  // NOTE: deep copy is required here in order to resolve this issue:
+  //   TypeError: Cannot assign to read only property 'x' of object '#<Object>'
+  //
+  // Maybe `fetch()` method return read-only objects...
+  const elements = scene.elements.map((e) => deepCopyElement(e))
+  const metas = getObjectiveMetas(elements, { includingDelited: true })
+  metas.forEach((m) => serializeMetaAndItsElements(m))
+
+  return elements
+}
+
+const serializeMetaAndItsElements = (meta: ObjectiveMeta) => {
+  if (!meta.version) {
+    // from 0.0.0 => 1.0.0
+    if (meta.subkind === 'cameraMovementPointer' || meta.subkind === 'characterMovementPointer')
+      meta.elements.forEach((el) =>
+        mutateElement(el, {
+          strokeWidth: 2,
+        })
+      )
+
+    //
+  } else if (meta.version === '1.0.0') {
+    // latest version nothing to do
+  } else {
+    console.warn('Invalid meta version: ', meta)
+  }
+}
+
+const serializeAppState = (
+  scene: ISceneFull,
+  serializedElements: readonly ExcalidrawElement[],
+  excalidrawApi: ExcalidrawImperativeAPI,
+  navigationOverrides: Partial<AppState>,
+  isMyScene: boolean
+) => {
+  const appState: RestoredAppState = {
+    // current
+    ...excalidrawApi.getAppState(),
+
+    // from server
+    ...clearAppStateForDatabase(scene.appState),
+
+    // overrides
+    name: scene.name,
+    collaborators: new Map([]),
+
+    // overrides (debug)
+    theme: __DEBUG_ENSURE_THEME ? __DEBUG_ENSURE_THEME : excalidrawApi.getAppState().theme,
+
+    // overrides (from navigation)
+    ...(navigationOverrides || {}),
+  }
+
+  // ensure objective settings
+  if (getGridMode(appState) === -1) {
+    appState.gridSizeConfig = DEFAULT_GRID_MODE.size
+    appState.gridBoldLineFrequency = DEFAULT_GRID_MODE.freq
+  }
+  if (!isMyScene) {
+    if (getShotCameraMetas(serializedElements).length) appState.openSidebar = { name: 'ShotList' }
+    else appState.openSidebar = null
+  }
+
+  return appState
+}
 
 /**
  * saving...
@@ -122,42 +193,14 @@ const ObjectiveOuterWrapper: FC<{
         .unwrap()
         .then((scene) => {
           // Data serialization. Ensure types.
-
-          // NOTE: deep copy is required here in order to resolve this issue:
-          //   TypeError: Cannot assign to read only property 'x' of object '#<Object>'
-          //
-          // Maybe `fetch()` method return read-only objects...
-          const serializedElements = scene.elements.map((e) => deepCopyElement(e))
-
-          const serializedAppState: RestoredAppState = {
-            // current
-            ...excalidrawApi.getAppState(),
-
-            // from server
-            ...clearAppStateForDatabase(scene.appState),
-
-            // overrides
-            name: scene.name,
-            collaborators: new Map([]),
-
-            // overrides (debug)
-            theme: __DEBUG_ENSURE_THEME ? __DEBUG_ENSURE_THEME : excalidrawApi.getAppState().theme,
-
-            // overrides (from navigation)
-            ...(state?.appStateOverrides || {}),
-          }
-
-          // ensure objective settings
-          if (getGridMode(serializedAppState) === -1) {
-            serializedAppState.gridSizeConfig = DEFAULT_GRID_MODE.size
-            serializedAppState.gridBoldLineFrequency = DEFAULT_GRID_MODE.freq
-          }
-          if (!isMyScene) {
-            if (getShotCameraMetas(serializedElements).length)
-              serializedAppState.openSidebar = { name: 'ShotList' }
-            else serializedAppState.openSidebar = null
-          }
-
+          const serializedElements = serializeElements(scene)
+          const serializedAppState = serializeAppState(
+            scene,
+            serializedElements,
+            excalidrawApi,
+            state?.appStateOverrides,
+            isMyScene
+          )
           excalidrawApi.updateScene({
             elements: serializedElements,
             appState: opts?.updateAppState ? serializedAppState : undefined,
