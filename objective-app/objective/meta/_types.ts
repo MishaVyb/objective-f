@@ -179,7 +179,7 @@ type _TKindSpecificationFields = {
     /** How much elements represent Objective item. Set by library. */
 
     readonly isSnappedToWalls?: boolean
-    readonly isBoundsTakenFromBasis?: boolean
+    // readonly isBoundsTakenFromBasis?: boolean // UNUSED
 
     readonly isPushpinRotation?: boolean
     readonly pushpinRotationShiftAngle?: number

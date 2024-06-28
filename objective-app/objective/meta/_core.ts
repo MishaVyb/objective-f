@@ -1,5 +1,4 @@
 import { MarkOptional } from '../../../packages/excalidraw/utility-types'
-import { DOOR_CLOSED_IMAGE, DOOR_OPENNED_IMAGE, WINDOW_IMAGE } from '../lib/location.library'
 import { ObjectiveKinds, ObjectiveMeta, ObjectiveSubkinds } from './_types'
 
 const _DEFAULT: ObjectiveMeta['core'] = { basisIndex: 0, isInternalBasis: false }
@@ -35,22 +34,18 @@ const _METAS_CORE_DEFINITION: MarkOptional<
   // per Subkind:
   window: {
     ..._DEFAULT,
-    isBoundsTakenFromBasis: true,
-
+    // isBoundsTakenFromBasis: true, // UNUSED
   },
   doorClosed: {
     ..._DEFAULT,
     basisIndex: 1, // dashed line
-    isBoundsTakenFromBasis: true,
-
+    // isBoundsTakenFromBasis: true, // UNUSED
   },
   doorOpen: {
     ..._DEFAULT,
     basisIndex: 1, // dashed line
-    isBoundsTakenFromBasis: true,
-
+    // isBoundsTakenFromBasis: true, // UNUSED
   },
-
 }
 
 export const getMetaCore = (
