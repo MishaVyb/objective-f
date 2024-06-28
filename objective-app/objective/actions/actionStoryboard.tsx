@@ -31,10 +31,11 @@ import { register } from './register'
 import { Button, Flex, IconButton, Popover, Separator, Text } from '@radix-ui/themes'
 import { CameraIcon, CircleBackslashIcon, EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
 import { ImageIcon, TrashIcon } from '../../../packages/excalidraw/components/icons'
-import { changeElementMeta, changeElementProperty, mutateMeta } from '../elements/_mutateElements'
+import { mutateMeta } from '../elements/_mutateElements'
 import { arrangeElements } from '../elements/_zIndex'
 import { CameraBadge } from '../components/ShotListSidebarContent'
 import { useCamerasImages } from '../meta/_hooks'
+import { mutateElement } from '../../../packages/excalidraw'
 
 export const actionInitStoryboard = register({
   name: 'actionInitStoryboard',
@@ -74,10 +75,10 @@ export const actionInitStoryboard = register({
       if (pointer) {
         // [1.1] unbind and delete
         unbindLinearElements([pointer])
-        elements = changeElementProperty(elements, pointer, { isDeleted: true })
+        mutateElement(pointer, { isDeleted: true })
       }
       // [1.2] unlink
-      elements = changeElementMeta(elements, camera, {
+      mutateMeta(camera, {
         relatedImages: [...camera.relatedImages].filter((id) => id !== image.id), // remove prev
       })
     } else {
@@ -176,23 +177,24 @@ export const actionStoryboard = register({
     const cameraBasis = getObjectiveBasis<ExcalidrawEllipseElement>(camera)
     const pointers = getPointers(app.scene.getNonDeletedElementsMap(), image, cameraBasis)
     const pointer = pointers[0] // TODO handle many pointers
+    const displayed = isDisplayed(image)
 
-    const otherCamerasRelatedToImage = getCameraMetas(elements, {
-      extraPredicate: (c) => c.relatedImages.includes(image.id),
-    })
+    const otherCamerasRelatedToImage = app.scene.oScene
+      .getCamerasRelatedToImage(image.id)
+      .filter((c) => c.id !== camera.id)
 
     switch (action) {
       case 'display':
         // [1] change display for pointer
         if (pointer)
-          elements = changeElementProperty(elements, pointer, {
-            opacity: isDisplayed(image) ? 0 : POINTER_COMMON().opacity,
-            locked: isDisplayed(image),
+          mutateElement(pointer, {
+            opacity: displayed ? 0 : POINTER_COMMON().opacity,
+            locked: displayed,
           })
         // [2] change display for image
-        elements = changeElementProperty(elements, image, {
-          opacity: isDisplayed(image) ? 0 : 100,
-          locked: isDisplayed(image),
+        mutateElement(image, {
+          opacity: displayed ? 0 : 100,
+          locked: displayed,
         })
         // [3] change display for other pointers
         otherCamerasRelatedToImage.forEach((camera) => {
@@ -201,38 +203,34 @@ export const actionStoryboard = register({
           const pointer = pointers[0] // TODO handle many pointers
 
           if (pointer)
-            elements = changeElementProperty(elements, pointer, {
-              opacity: isDisplayed(image) ? 0 : POINTER_COMMON().opacity,
-              locked: isDisplayed(image),
+            mutateElement(pointer, {
+              opacity: displayed ? 0 : POINTER_COMMON().opacity,
+              locked: displayed,
             })
         })
         break
       case 'unlink':
         // [1] remove target image in related camera images
-        elements = changeElementMeta(elements, camera, {
+        mutateMeta(camera, {
           relatedImages: camera.relatedImages.filter((id) => id !== image.id),
         })
         // [2] remove pointer
         if (pointer)
-          elements = changeElementProperty(elements, pointer, {
+          mutateElement(pointer, {
             isDeleted: true,
           })
         // [3] make target image visible, if not
-        elements = changeElementProperty(elements, image, {
-          opacity: isDisplayed(image) ? image.opacity : 100,
-          locked: isDisplayed(image) ? image.locked : false,
+        mutateElement(image, {
+          opacity: displayed ? image.opacity : 100,
+          locked: displayed ? image.locked : false,
         })
         break
       case 'remove':
         // [1] remove image
-        elements = deleteEventHandler([image])
+        deleteEventHandler([image])
         break
     }
-    return {
-      elements,
-      appState,
-      commitToHistory: true,
-    }
+    return { commitToHistory: true } // no need to return `elements` as mutate directly at Scene
   },
   PanelComponent: ({
     elements,

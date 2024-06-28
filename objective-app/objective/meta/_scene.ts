@@ -1,5 +1,8 @@
 import App from '../../../packages/excalidraw/components/App'
-import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
+import {
+  ExcalidrawElement,
+  ExcalidrawImageElement,
+} from '../../../packages/excalidraw/element/types'
 import Scene from '../../../packages/excalidraw/scene/Scene'
 import { AppState } from '../../../packages/excalidraw/types'
 import {
@@ -83,6 +86,12 @@ export class ObjectiveMetaScene {
 
   getMetaByNameReprId(containerId: ObjectiveMeta['nameRepr']) {
     return this.getMetasList().find((meta) => meta.nameRepr === containerId)
+  }
+
+  //////////////////////////// CAMERA ///////////////////////////////
+
+  getCamerasRelatedToImage(id: ExcalidrawImageElement['id']) {
+    return this.metasGroup.camera.filter((c) => c.relatedImages.some((imageId) => imageId === id))
   }
 
   //////////////////////////// TURNS ////////////////////////////////

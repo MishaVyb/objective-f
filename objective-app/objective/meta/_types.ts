@@ -294,7 +294,7 @@ export type _CameraExtraMeta = {
   /**
    * Storyboard images. Source `ExcalidrawImage.id` (not `fileId`).
    */
-  relatedImages: readonly string[] // images id
+  relatedImages: readonly ExcalidrawImageElement['id'][]
 }
 export type CameraMeta = ObjectiveMeta & SupportsTurnMeta & Readonly<_CameraExtraMeta>
 export type ShotCameraMeta = CameraMeta & {

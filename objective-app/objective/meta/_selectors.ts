@@ -57,11 +57,9 @@ export const getCoreSafe = () => ({
 /**
  * Get Simple Meta: week meta + core opts. No relation fields.
  */
-export const getMeta = <TMeta extends ObjectiveMeta>(
-  el: ObjectiveElement<TMeta>
-): SimpleMeta<TMeta> => {
+export const getMeta = (el: ObjectiveElement): SimpleMeta => {
   const m = el.customData
-  // @ts-ignore // FIXME 'TMeta' could be instantiated with an arbitrary type which could be unrelated to 'WeekMeta<TMeta>'
+  //// @ts-ignore // FIXME 'TMeta' could be instantiated with an arbitrary type which could be unrelated to 'WeekMeta<TMeta>'
   return {
     ...el.customData,
     core: getMetaCore(m.kind, m.subkind),
@@ -70,10 +68,8 @@ export const getMeta = <TMeta extends ObjectiveMeta>(
 /**
  * Get week meta reference. Simplified version of {@link getMeta}.
  */
-export const getMetaOrNone = <TMeta extends ObjectiveMeta>(
-  el: MaybeExcalidrawElement
-): SimpleMeta<TMeta> | undefined =>
-  isObjective(el) ? getMeta<TMeta>(el as ObjectiveElement<TMeta>) : undefined
+export const getMetaOrNone = (el: MaybeExcalidrawElement): SimpleMeta | undefined =>
+  isObjective(el) ? getMeta(el as ObjectiveElement) : undefined
 
 // EXPEREMENTAL (unused)
 // /**
@@ -181,7 +177,7 @@ export const extractObjectiveMetas = (opts?: {
   const finalizeCallback = <TMeta extends ObjectiveMeta>(): ReadonlyMetasMap<TMeta> => {
     const resultMetas = new Map([]) as MetasMap<TMeta>
     for (const e of uniqueMetaElement) {
-      const simpleMeta = getMeta<TMeta>(e as ObjectiveElement<TMeta>)
+      const simpleMeta = getMeta(e as ObjectiveElement<TMeta>)
       const els = elementsByGroups.get(getObjectiveId(e))
       const ids = idsByGroup.get(getObjectiveId(e))
       const isComplite = simpleMeta.elementsRequiredLength
@@ -194,14 +190,14 @@ export const extractObjectiveMetas = (opts?: {
 
       // NOTE: new API for accessing basis, replacement for `getObjectdiveBasis`
       const basis = els && els[simpleMeta.core.basisIndex || 0] // TODO basis validation ???
-      const metaFull = _getMetaFull<TMeta>(simpleMeta, {
+      const metaFull = _getMetaFull(simpleMeta, {
         id: getObjectiveId(e),
         elementIds: ids,
         elements: els,
         basis,
       })
 
-      resultMetas.set(metaFull.id, metaFull)
+      resultMetas.set(metaFull.id, metaFull as TMeta)
     }
 
     return resultMetas
@@ -215,11 +211,10 @@ export const extractObjectiveMetas = (opts?: {
 
 export const _copyElementWithoutObjectiveMeta = (e: ExcalidrawElement) => ({ ...e, customData: {} })
 
-export const _getMetaFull = <TMeta extends ObjectiveMeta>(
-  metaSimple: SimpleMeta<TMeta>,
+export const _getMetaFull = (
+  metaSimple: SimpleMeta,
   autopopulatedFields: Pick<TAnyMeta, 'id' | 'elementIds' | 'elements' | 'basis'>
-): TMeta => {
-  // @ts-ignore // FIXME 'TMeta' could be instantiated with an arbitrary type which could be unrelated to 'WeekMeta<TMeta>'
+) => {
   return {
     ...metaSimple,
     ...autopopulatedFields, //
