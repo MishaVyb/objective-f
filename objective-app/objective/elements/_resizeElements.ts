@@ -50,7 +50,7 @@ export const transformElementsEventHandler = (
 
 // pure elements doesn't support disabling resize
 export const isResizeDisabled = (meta: ObjectiveMeta) =>
-  (!isPure(meta) && meta.disableResize) || meta?.coreOpts?.disableResizeAlways
+  (!isPure(meta) && meta.disableResize) || meta?.core?.disableResizeAlways
 
 export const isElementsScalable = (selectedEls: readonly NonDeletedExcalidrawElement[]) => {
   const metas = getObjectiveMetas(selectedEls)
@@ -68,7 +68,7 @@ export const getObjectiveRotationCenter = (
   const { oScene } = getCore()
   if (!meta) return ensureVector([centerX, centerY])
 
-  const factor = meta.coreOpts?.pushpinRotationCenterShiftFactor
+  const factor = meta.core.pushpinRotationCenterShiftFactor
   const turns = oScene.getTurns(meta)
   if (factor && (turns.length || opts?.force)) {
     const newRotattionCenter = rotate(

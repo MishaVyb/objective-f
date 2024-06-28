@@ -1,7 +1,4 @@
-import {
-  MaybeMeta,
-  isMeta,
-} from "../../../objective-app/objective/meta/_types";
+import { isMeta } from "../../../objective-app/objective/meta/_types";
 import { isNotSelectableOnGroupSelection } from "../../../objective-app/objective/elements/_selection";
 import { getElementAbsoluteCoords, getElementBounds } from "../element";
 import { isElementInViewport } from "../element/sizeHelpers";
@@ -177,9 +174,6 @@ export const getCommonAttributeOfSelectedElements = <T>(
   const attributes = Array.from(
     new Set(selected.map((element) => getAttribute(element))),
   );
-
-  if (attributes.some((v) => isMeta(v as MaybeMeta)))
-    throw Error("For meta, you have to access attributes directly. Not all. ");
 
   return attributes.length === 1 ? attributes[0] : null;
 };

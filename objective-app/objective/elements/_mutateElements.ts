@@ -3,6 +3,7 @@ import { changeProperty } from '../../../packages/excalidraw/actions/actionPrope
 import { newElementWith } from '../../../packages/excalidraw/element/mutateElement'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { AppClassProperties, AppState } from '../../../packages/excalidraw/types'
+import { getMeta } from '../meta/_selectors'
 import {
   ObjectiveElement,
   ObjectiveMeta,
@@ -30,6 +31,7 @@ export const newMetaWith = <TMeta extends ObjectiveMeta>(
       // WARNING
       // Deep copy here ?
       ...el.customData,
+      // @ts-ignore // FIXME 'TMeta' could be instantiated with an arbitrary type which could be unrelated to 'WeekMeta<TMeta>'
       ...(typeof newProperties === 'function' ? newProperties(el.customData) : newProperties),
     },
   })
@@ -43,12 +45,20 @@ export const mutateElementMeta = <TMeta extends ObjectiveMeta>(
     {
       customData: {
         ...el.customData, // WARNING Deep copy here ?
+        // @ts-ignore // FIXME 'TMeta' could be instantiated with an arbitrary type which could be unrelated to 'WeekMeta<TMeta>'
         ...(typeof newMeta === 'function' ? newMeta(el.customData) : newMeta),
       },
     },
     false // do not infrom mutation
   )
 }
+// export const mutateElementMetaCore = <TMeta extends ObjectiveMeta>(
+//   el: ObjectiveElement<TMeta>,
+//   newMetaCore: Partial<ObjectiveMeta['core']>
+// ) => {
+//   const meta = getMetaSimple<TMeta>(el)
+//   return mutateElementMeta(el, (prevWeekMeta) => ({ ...prevWeekMeta, core: {...newMetaCore} }))
+// }
 
 /**
  * Mutate all **selected**.

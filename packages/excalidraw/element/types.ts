@@ -1,4 +1,4 @@
-import { ObjectiveMeta } from "../../../objective-app/objective/meta/_types";
+import { WeekMeta } from "../../../objective-app/objective/meta/_types";
 import {
   FONT_FAMILY,
   ROUNDNESS,
@@ -67,7 +67,7 @@ type _ExcalidrawElementBase = Readonly<{
   updated: number;
   link: string | null;
   locked: boolean;
-  customData?: ObjectiveMeta;
+  customData?: Record<string, any>;
 }>;
 
 export type ExcalidrawSelectionElement = _ExcalidrawElementBase & {
@@ -95,7 +95,7 @@ export type ExcalidrawIframeElement = _ExcalidrawElementBase &
   Readonly<{
     type: "iframe";
     // TODO move later to AI-specific frame
-    // customData?: { generationData?: MagicCacheData }; // VBRN disable this annotation as it breaks down the whole Objective TS logic
+    customData?: { generationData?: MagicCacheData };
   }>;
 
 export type ExcalidrawIframeLikeElement =

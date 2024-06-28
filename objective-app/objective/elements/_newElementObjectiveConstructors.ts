@@ -14,7 +14,7 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import { getCore, getObjectiveBasis, getPointerIds, isElementSelected } from '../meta/_selectors'
 import { CameraMeta, ObjectiveKinds, ObjectiveMeta, PointerMeta } from '../meta/_types'
-import { getInitialMeta } from '../meta/_initial'
+import { buildWeekMeta } from '../meta/_initial'
 
 import { randomId } from '../../../packages/excalidraw/random'
 import { DEFAULT_FONT_SIZE } from '../../../packages/excalidraw/constants'
@@ -51,8 +51,7 @@ export const POINTER_COMMON = (): Partial<ExcalidrawArrowElement> => ({
 const CAMERA_MOVEMENT_POINTER = (
   ref: ExcalidrawBindableElement
 ): Partial<ExcalidrawArrowElement> => ({
-  customData: getInitialMeta(ObjectiveKinds.POINTER, {
-    subkind: 'cameraMovementPointer',
+  customData: buildWeekMeta(ObjectiveKinds.POINTER, 'cameraMovementPointer', {
     name: 'Camera Movement',
   }),
   strokeColor: ref.backgroundColor,
@@ -68,8 +67,7 @@ const CAMERA_MOVEMENT_POINTER = (
 const CHARACTER_MOVEMENT_POINTER = (
   ref: ExcalidrawBindableElement
 ): Partial<ExcalidrawArrowElement> => ({
-  customData: getInitialMeta(ObjectiveKinds.POINTER, {
-    subkind: 'characterMovementPointer',
+  customData: buildWeekMeta(ObjectiveKinds.POINTER, 'characterMovementPointer', {
     name: 'Character Movement',
   }),
   strokeColor: ref.backgroundColor,
@@ -83,7 +81,7 @@ const CHARACTER_MOVEMENT_POINTER = (
 })
 
 const LABEL_POINTER = (): Partial<ExcalidrawArrowElement> => ({
-  customData: getInitialMeta(ObjectiveKinds.POINTER, { subkind: 'labelPointer' }),
+  customData: buildWeekMeta(ObjectiveKinds.POINTER, 'labelPointer', {}),
   strokeColor: '#868e96',
   strokeWidth: 0.5,
   strokeStyle: 'solid',
@@ -92,7 +90,7 @@ const LABEL_POINTER = (): Partial<ExcalidrawArrowElement> => ({
 })
 
 const STORYBOARD_POINTER = (): Partial<ExcalidrawArrowElement> => ({
-  customData: getInitialMeta(ObjectiveKinds.POINTER, { subkind: 'storyboardPointer' }),
+  customData: buildWeekMeta(ObjectiveKinds.POINTER, 'storyboardPointer', {}),
   strokeColor: '#868e96',
   strokeWidth: 0.5,
   strokeStyle: 'solid',
@@ -101,7 +99,7 @@ const STORYBOARD_POINTER = (): Partial<ExcalidrawArrowElement> => ({
 })
 
 const CAMERA_LENS_ANGLE_LINE = (): Partial<ExcalidrawArrowElement> => ({
-  customData: getInitialMeta(ObjectiveKinds.POINTER, { subkind: 'cameraLensAngle' }),
+  customData: buildWeekMeta(ObjectiveKinds.POINTER, 'cameraLensAngle', {}),
   strokeWidth: 1,
   // strokeStyle: 'dashed',
   startArrowhead: null,
@@ -222,7 +220,7 @@ export const getPushpinLineElement = (meta: ObjectiveMeta) => {
 
   const { start, end, center } = getPushpinLineDemensions(meta, zoomValue)
   const pushpinLine = newLinearElement({
-    customData: getInitialMeta(ObjectiveKinds.PUSHPIN),
+    customData: buildWeekMeta(ObjectiveKinds.PUSHPIN, 'pushpinLine'),
     type: 'arrow',
     strokeWidth: 0.7 / zoomValue,
     strokeColor: isSelected ? PUSHPIN_ACTIVE_COLOR : COLOR_PALETTE.black,
@@ -355,10 +353,10 @@ export const getPushpinArrowElements = (meta: ObjectiveMeta) => {
   }
 
   let pushpinArrow = newLinearElement({
-    customData: getInitialMeta(ObjectiveKinds.PUSHPIN, {
-      excalidrawExtra: {
-        arrowheadSize: 7 / zoomValue, //
-      },
+    customData: buildWeekMeta(ObjectiveKinds.PUSHPIN, 'pushpinArrow', {
+      // excalidrawExtra: {
+      //   arrowheadSize: 7 / zoomValue, //
+      // },
     }),
     type: 'arrow',
     strokeWidth: 0.7 / zoomValue,
@@ -376,7 +374,7 @@ export const getPushpinArrowElements = (meta: ObjectiveMeta) => {
   pushpinArrow = rotateElementOnAngle(
     pushpinArrow,
     rotationCenter,
-    normalizeAngle(meta.basis!.angle - PI / 2 + (meta.coreOpts?.pushpinRotationShiftAngle || 0))
+    normalizeAngle(meta.basis!.angle - PI / 2 + (meta.core.pushpinRotationShiftAngle || 0))
   )
   return [pushpinArrow]
 }
@@ -389,7 +387,7 @@ export const getPushpinHeadElements = (meta: ObjectiveMeta) => {
   const [rx, ry, rw, rh] = getPushpinHeadDemensions(meta, zoomValue)
   return [
     newElement({
-      customData: getInitialMeta(ObjectiveKinds.PUSHPIN),
+      customData: buildWeekMeta(ObjectiveKinds.PUSHPIN, 'pushpinHead'),
       type: 'ellipse',
       strokeWidth: 0.7 / zoomValue,
       strokeColor: isSelected ? PUSHPIN_ACTIVE_COLOR : COLOR_PALETTE.black,
@@ -400,7 +398,7 @@ export const getPushpinHeadElements = (meta: ObjectiveMeta) => {
       width: rh,
     }),
     newTextElement({
-      customData: getInitialMeta(ObjectiveKinds.PUSHPIN),
+      customData: buildWeekMeta(ObjectiveKinds.PUSHPIN),
       text: number ? String(number) : '',
       x: rx + 3 / zoomValue,
       y: ry + 1 / zoomValue,
@@ -422,7 +420,7 @@ const getCameraLensFocusLine = (
   const [rightX, rightY] = LinearElementEditor.getPointAtIndexGlobalCoordinates(rightSide, 1)
   const pointsEnd = { x: rightX - leftX, y: rightY - leftY }
   return newLinearElement({
-    customData: getInitialMeta(ObjectiveKinds.CAMERA_LENS),
+    customData: buildWeekMeta(ObjectiveKinds.CAMERA_LENS),
     type: 'arrow',
     ...overrides,
     //
@@ -443,7 +441,7 @@ const getCameraLensAngleSide = (
   const lineEnd = { x: distance, y: 0 }
 
   const element = newLinearElement({
-    customData: getInitialMeta(ObjectiveKinds.CAMERA_LENS),
+    customData: buildWeekMeta(ObjectiveKinds.CAMERA_LENS),
     type: 'arrow',
     ...overrides,
     //
@@ -480,7 +478,7 @@ export const newMetaReprElement = (meta: ObjectiveMeta, initialValue: string | u
 
   //@ts-ignore
   const container = newElement({
-    customData: getInitialMeta(ObjectiveKinds.LABEL, { labelOf: meta.id }),
+    customData: buildWeekMeta(ObjectiveKinds.LABEL, 'labelContainer', { labelOf: meta.id }),
 
     width: w,
     height: h,
@@ -494,7 +492,7 @@ export const newMetaReprElement = (meta: ObjectiveMeta, initialValue: string | u
   // All other props generated dynamically inside
   const widthExtension = 12
   const text = newTextElement({
-    customData: getInitialMeta(ObjectiveKinds.LABEL_TEXT),
+    customData: buildWeekMeta(ObjectiveKinds.LABEL_TEXT),
 
     x: container.x + container.width / 2,
     y: container.y + container.height / 2,

@@ -7,9 +7,9 @@ import {
 
 import { Mutable } from '../../../packages/excalidraw/utility-types'
 import { newMetaReprElement, newPointerBeetween } from './_newElementObjectiveConstructors'
-import { getObjectiveBasis, getObjectiveMetas, getMetaSimple, getCore } from '../meta/_selectors'
+import { getObjectiveBasis, getObjectiveMetas, getMeta, getCore } from '../meta/_selectors'
 import {
-  AnyObjectiveMeta,
+  TAnyMeta,
   ObjectiveKinds,
   ObjectiveMeta,
   PointerMeta,
@@ -34,7 +34,7 @@ export type DuplicateHandlerOpts = {
   rotate?: { center: Vector; angle: number }
 
   newElementsOverrides?: Partial<ExcalidrawElement>
-  newElementsMeta?: Partial<AnyObjectiveMeta>
+  newElementsMeta?: Partial<TAnyMeta>
 
   addPointerWith?: ObjectiveMeta
   addPointerSubkind?: PointerMeta['subkind']
@@ -55,7 +55,7 @@ export const duplicateObjectiveEventHandlerFilter = (
 
   for (const e of selectedElements.values()) {
     if (!isObjective(e)) continue
-    const weekMeta = getMetaSimple(e)
+    const weekMeta = getMeta(e)
 
     if (isKind(weekMeta, ObjectiveKinds.LABEL) && metasMap.has(weekMeta.labelOf))
       excludeElementIds.add(e.id)
@@ -63,7 +63,7 @@ export const duplicateObjectiveEventHandlerFilter = (
     if (isKind(weekMeta, ObjectiveKinds.LABEL_TEXT)) {
       //@ts-ignore
       const container = getContainerElement(e, scene.getNonDeletedElementsMap())
-      const containerWeekMeta = isObjective(container) ? getMetaSimple(container) : null
+      const containerWeekMeta = isObjective(container) ? getMeta(container) : null
       if (
         isKind(containerWeekMeta, ObjectiveKinds.LABEL) &&
         metasMap.has(containerWeekMeta.labelOf)

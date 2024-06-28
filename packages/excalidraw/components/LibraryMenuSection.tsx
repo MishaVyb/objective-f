@@ -1,11 +1,4 @@
-import React, {
-  FC,
-  memo,
-  ReactElement,
-  ReactNode,
-  useEffect,
-  useState,
-} from "react";
+import React, { memo, ReactElement, useEffect, useState } from "react";
 import { EmptyLibraryUnit, LibraryUnit } from "./LibraryUnit";
 import { LibraryItem } from "../types";
 import { ExcalidrawElement, NonDeleted } from "../element/types";
@@ -23,7 +16,6 @@ type LibraryOrPendingItem = (
       elements: readonly NonDeleted<ExcalidrawElement>[];
     }
 )[];
-
 
 interface Props {
   items: LibraryOrPendingItem;
@@ -85,7 +77,7 @@ export const LibraryMenuSection = memo(
               onToggle={onItemSelectToggle}
               onDrag={onItemDrag}
               key={subkind + item.id}
-              title={meta?.library?.mainTitle}
+              title={meta?.lib?.mainTitle}
             />
           );
 
@@ -101,7 +93,7 @@ export const LibraryMenuSection = memo(
                   selected={isItemSelected(item.id)}
                   onToggle={onItemSelectToggle}
                   onDrag={onItemDrag}
-                  title={meta?.library?.mainTitle}
+                  title={meta?.lib?.mainTitle}
                 />
               </div>
             </HoverCard.Trigger>
@@ -117,7 +109,7 @@ export const LibraryMenuSection = memo(
                   selected={isItemSelected(item.id)}
                   onToggle={onItemSelectToggle}
                   onDrag={onItemDrag}
-                  title={meta?.library?.mainTitle}
+                  title={meta?.lib?.mainTitle}
                 />
                 <Separator orientation={"vertical"} size={"2"} />
                 {objectiveItems.map((item, i) => {
@@ -136,7 +128,7 @@ export const LibraryMenuSection = memo(
                         selected={isItemSelected(item.id)}
                         onToggle={onItemSelectToggle}
                         onDrag={onItemDrag}
-                        title={meta?.library?.subTitle}
+                        title={meta?.lib?.subTitle}
                       />
                     </div>
                   );

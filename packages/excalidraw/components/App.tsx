@@ -423,7 +423,6 @@ import {
   ensureArray,
   ensureMap,
 } from "../../../objective-app/objective/meta/_types";
-import { getInitialMeta } from "../../../objective-app/objective/meta/_initial";
 import {
   duplicateObjectiveEventHandler,
   duplicateObjectiveEventHandlerFilter,
@@ -1829,23 +1828,13 @@ class App extends React.Component<AppProps, AppState> {
       // generationData set previously)
       mutateElement(
         frameElement,
-        {
-          customData: {
-            ...(frameElement.customData || getInitialMeta(ObjectiveKinds.PROP)), // only for TS supports
-            generationData: undefined,
-          },
-        },
+        { customData: { generationData: undefined } },
         false,
       );
     } else {
       mutateElement(
         frameElement,
-        {
-          customData: {
-            ...(frameElement.customData || getInitialMeta(ObjectiveKinds.PROP)), // only for TS supports
-            generationData: data,
-          },
-        },
+        { customData: { generationData: data } },
         false,
       );
     }

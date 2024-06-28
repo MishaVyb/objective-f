@@ -1,7 +1,7 @@
 import { getElementAbsoluteCoords } from ".";
 import { __DEBUG_DISABLE_APPLY_DEFAULTS } from "../../../objective-app/objective-plus/constants";
 import { duplicateObjectiveEventHandler } from "../../../objective-app/objective/elements/_duplicateElements";
-import { getInitialMeta } from "../../../objective-app/objective/meta/_initial";
+import { buildWeekMeta } from "../../../objective-app/objective/meta/_initial";
 import {
   ObjectiveKinds,
   isWall,
@@ -431,8 +431,9 @@ export const newLinearElement = (
     startArrowhead: opts.startArrowhead || null,
     endArrowhead: opts.endArrowhead || null,
 
+    // VBRN
     customData: isWall(opts)
-      ? getInitialMeta(ObjectiveKinds.WALL, opts.customData)
+      ? buildWeekMeta(ObjectiveKinds.WALL)
       : opts.customData,
 
     ...elementInitialOverrides,

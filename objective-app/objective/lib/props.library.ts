@@ -1,7 +1,7 @@
 import { ElementsClipboard } from '../../../packages/excalidraw/clipboard'
 import { LibraryItem, LibraryItems } from '../../../packages/excalidraw/types'
 import { ObjectiveKinds } from '../meta/_types'
-import { getInitialObjectiveItem } from './objectiveInitial'
+import { buildObjectiveLibraryItem } from './base'
 
 import bottle from './props/bottle'
 import cat from './props/cat'
@@ -23,7 +23,7 @@ import ring from './props/ring'
 import lightBulb from './props/light-bulb'
 
 const createObj = (clipboardObj: ElementsClipboard, name: string): LibraryItem => {
-  return getInitialObjectiveItem(clipboardObj, name, ObjectiveKinds.PROP, {})
+  return buildObjectiveLibraryItem(clipboardObj, name, ObjectiveKinds.PROP, {})
 }
 
 export const LIB_PROPS: LibraryItems = [

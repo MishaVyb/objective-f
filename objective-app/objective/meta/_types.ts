@@ -1,4 +1,3 @@
-import { MagicCacheData } from '../../../packages/excalidraw/data/magic'
 import {
   ElementsMapOrArray,
   ExcalidrawElement,
@@ -12,6 +11,10 @@ import { ActiveTool, BinaryFileData } from '../../../packages/excalidraw/types'
 import { arrayToMap } from '../../../packages/excalidraw/utils'
 import { Vector } from '../elements/_math'
 import { enumKeyTypeGuardFactory, enumValueTypeGuardFactory } from '../utils/types'
+
+// NAMING CONVENTSION
+type Entity = {} // declare Entity itself
+type TEntity = {} // define some TS helpers / alias / etc
 
 export enum ObjectiveKinds {
   CAMERA = 'camera',
@@ -57,12 +60,12 @@ export type ObjectiveMetasGroups = Omit<
 
 /** Subkind is ONLY for declare different on canvas item style, not any special logic or behavior */
 export type ObjectiveSubkinds =
-  // pointer:
+  // label repr and pointers:
+  | 'labelContainer'
   | 'labelPointer'
   | 'storyboardPointer'
   | 'cameraMovementPointer'
   | 'characterMovementPointer'
-  | 'cameraLensAngle'
 
   // location:
   | 'window'
@@ -87,84 +90,52 @@ export type ObjectiveSubkinds =
   | 'Apple Box'
   | 'Sun'
 
+  // UI elements (only at render context)
+  | 'pushpinLine'
+  | 'pushpinArrow'
+  | 'pushpinHead'
+  | 'cameraLensAngle'
+
 export type TObjectiveKind = `${ObjectiveKinds}`
 
 export type MaybeExcalidrawElement<T extends ExcalidrawElement = ExcalidrawElement> =
   | T
   | undefined
   | null
-export type MaybeMeta<T extends ObjectiveMeta = ObjectiveMeta> = T | WeekMeta<T> | undefined | null
+export type MaybeMeta<T extends ObjectiveMeta = ObjectiveMeta> =
+  | Record<string, any>
+  | T
+  | WeekMeta<T>
+  | undefined
+  | null
 
-export type _ObjectiveMetaBase<Kind extends ObjectiveKinds = ObjectiveKinds> = {
-  //
-  // CONSTANT (INITIAL) FIELDS
-
+type _TIdentityFields<Kind extends ObjectiveKinds> = {
   kind: Kind
   subkind?: ObjectiveSubkinds
-  basisIndex: number
-  libraryImg?: {
-    readonly src: string
-    readonly title: string
-    readonly w: number
-    readonly h: number
-  }
+  version?: '1.0.0'
+}
 
-  library?: {
+export type LibraryImage = {
+  readonly src: string
+  readonly title: string
+  readonly w: number
+  readonly h: number
+}
+
+/** Initialized once at building Library and attached to specific Objective Item */
+type _TLibraryFields = {
+  elementsRequiredLength?: number
+
+  readonly lib?: {
+    readonly img?: LibraryImage
     readonly groupTitle?: string // or meta.kind
     readonly mainTitle?: string // or meta.name
     readonly subTitle?: string
-    // ... TODO refactor other fields
   }
+}
 
-  // TODO move all core opts from root level into `meta.coreOpts` field
-  // TODO as separate Readonly<> Type
-  /**
-   * Core object options to determine deferent behavior on handleing actions, rendering, etc.
-   * It's static and always equals for any instance of specific meta kind.
-   * (like class attributes)
-   * @see {@link _METAS_CORE_DEFINITION}
-   * */
-  coreOpts?: {
-    readonly isSnappedToWalls?: boolean
-    readonly isBoundsTakenFromBasis?: boolean
-
-    readonly isPushpinRotation?: boolean
-    readonly pushpinRotationShiftAngle?: number
-    readonly pushpinRotationShiftFactor?: number // factor = default_basis_size / shift_in_points_if_size_is_default
-    readonly pushpinRotationCenterShiftFactor?: number
-
-    readonly disableResizeAlways?: boolean
-    readonly disableFlip?: boolean
-  }
-
-  excalidrawExtra?: {
-    readonly arrowheadSize?: number
-  }
-
-  // TODO do not depends on Meta.kind -- it's too generic...
-  // other configuration, like
-  // - doSnapToWall
-  // - renderActions: string[...]
-  // - ...
-
-  /** How much elements represent Objective item. NOTE: for some dynamic Object that property could not be defined */
-  elementsRequiredLength?: number
-  /** is invisible bases that used only to make custom bounding borders */
-  isInternalBasis?: boolean
-
-  // CHANGEABLE BY USEAR'S ACTIONS FIELDS
-
-  /** Aka Title / Label. Populated by User from `actionProps` panel. */
-  name?: string
-  /** Relation to Meta representation `rectangle.id` that nested Text has as `containderId`*/
-  nameRepr?: ExcalidrawElement['id']
-  /** long object description */
-  description?: string
-  /** opposite to scalable flag */
-  disableResize: boolean
-
-  // AUTO POPULATED FIELDS:
-
+/** Relations. Autopopulated by internal selectors fields. */
+type _TAutopopulatedFields = {
   /** Excalidraw group id for all primitives of this Objective element. Populated by `getMetas`. */
   id: GroupId
   /**
@@ -176,16 +147,79 @@ export type _ObjectiveMetaBase<Kind extends ObjectiveKinds = ObjectiveKinds> = {
   elements: readonly ObjectiveElement[]
   /** Excalidraw primitive element. Populated by `getMetas` regarding to `basisIndex` */
   basis: ExcalidrawElement | undefined
-
-  //
-  //
-  /** HACK: as TS support for internal Excalidraw properties for IFrames. Objective do not use that. */
-  generationData?: MagicCacheData
 }
 
-export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readonly<
-  _ObjectiveMetaBase<Kind>
->
+/** Changeable by usear's actions fields */
+type _TAffectedFields = {
+  /** Aka Title / Label. Populated by User from `actionProps` panel. */
+  name?: string
+  /** Relation to Meta representation `rectangle.id` that nested Text has as `containderId`*/
+  nameRepr?: ExcalidrawElement['id']
+  /** long object description */
+  description?: string
+  /** opposite to scalable flag */
+  disableResize: boolean
+
+  // HACK its affected by library actually...
+  elementsRequiredLength?: number
+}
+
+type _TKindSpecificationFields = {
+  /**
+   * coreOpts
+   *
+   * Core object CONSTANT options to determine deferent behavior on handleing actions, rendering, etc.
+   * It's static and common between all instances of single Kind (and Version)
+   * (like class attributes)
+   * */
+  core: {
+    readonly basisIndex: number // required! (default 0)
+    /** is invisible bases that used only to make custom bounding borders */
+    readonly isInternalBasis: boolean
+    /** How much elements represent Objective item. Set by library. */
+
+    readonly isSnappedToWalls?: boolean
+    readonly isBoundsTakenFromBasis?: boolean
+
+    readonly isPushpinRotation?: boolean
+    readonly pushpinRotationShiftAngle?: number
+    readonly pushpinRotationShiftFactor?: number // factor = default_basis_size / shift_in_points_if_size_is_default
+    readonly pushpinRotationCenterShiftFactor?: number
+
+    readonly disableResizeAlways?: boolean
+    readonly disableFlip?: boolean
+
+    // render opts (could be changeable by User in future, but now it's static)
+    readonly arrowheadSize?: number
+  }
+
+  // excalidrawExtra: {
+  // }
+}
+
+type _MetaBase<Kind extends ObjectiveKinds = ObjectiveKinds> = //
+  _TIdentityFields<Kind> &
+    _TKindSpecificationFields &
+    _TAutopopulatedFields &
+    _TAffectedFields &
+    _TLibraryFields
+
+export type ObjectiveMeta<Kind extends ObjectiveKinds = ObjectiveKinds> = Readonly<_MetaBase<Kind>>
+
+/**
+ * Meta without autopopulated fields. Only Identity & User changes.
+ * NOTE: exactly this information is stored on backend.
+ * */
+export type WeekMeta<Meta extends ObjectiveMeta = ObjectiveMeta> = //
+  Omit<Meta, keyof _TAutopopulatedFields | keyof _TKindSpecificationFields>
+export type WeekMeta__KG<Kind extends ObjectiveKinds = ObjectiveKinds> = //
+  WeekMeta<ObjectiveMeta<Kind>>
+
+/**
+ * As WeekMeta + core opts.
+ * */
+export type SimpleMeta<Meta extends ObjectiveMeta = ObjectiveMeta> = //
+  Omit<Meta, keyof _TAutopopulatedFields>
 
 export type MetasMap<TMeta extends ObjectiveMeta = ObjectiveMeta> = Map<
   ObjectiveMeta['id'],
@@ -196,11 +230,10 @@ export type ReadonlyMetasMap<TMeta extends ObjectiveMeta = ObjectiveMeta> = Read
   TMeta
 >
 
-/** simple meta without autopopulated fields */
-export type WeekMeta<TMeta extends ObjectiveMeta = ObjectiveMeta> = Omit<
-  TMeta,
-  'elements' | 'elementIds' | 'basis' | 'id'
->
+// export type WeekMeta<TMeta extends ObjectiveMeta = ObjectiveMeta> = Omit<
+//   TMeta,
+//   keyof _ObjectiveKindSpecificationFields | keyof _ObjectiveAutopopulatedFields
+// >
 
 export type SupportsTurnMeta = {
   /**
@@ -210,14 +243,9 @@ export type SupportsTurnMeta = {
    * - turns order simple depends on elements order in Excalidraw scene (no custom order logic yet)
    * */
   turnParentId?: ObjectiveMeta['id']
-  /**
-   * external relationship
-   * @deprecated // EXPEREMENTAL
-   */
-  turnParent?: ObjectiveMeta
 }
 
-export type LabelMeta = _ObjectiveMetaBase & {
+export type LabelMeta = _MetaBase & {
   kind: ObjectiveKinds.LABEL
   /** back ref main Objective meta id that has this meta as represention */
   readonly labelOf: ObjectiveMeta['id']
@@ -226,7 +254,7 @@ export type LabelMeta = _ObjectiveMetaBase & {
   description: never
 }
 
-export type PointerMeta = _ObjectiveMetaBase & {
+export type PointerMeta = _MetaBase & {
   kind: ObjectiveKinds.POINTER
   subkind?:
     | 'labelPointer'
@@ -243,7 +271,7 @@ export type PointerMeta = _ObjectiveMetaBase & {
 /** It's always "arrow" ExcalidrawElement */
 export type PointerElement = ObjectiveElement<PointerMeta>
 
-export type LocationMeta = _ObjectiveMetaBase & {
+export type LocationMeta = _MetaBase & {
   kind: ObjectiveKinds.LOCATION
   subkind: 'window' | 'doorClosed' | 'doorOpen'
 }
@@ -289,9 +317,9 @@ export type _CameraFormat = {
 export type CameraFormat = Readonly<_CameraFormat>
 
 // TODO https://www.typescriptlang.org/docs/handbook/2/types-from-types.html
-export type AnyObjectiveMeta = ObjectiveMeta &
+export type TAnyMeta = ObjectiveMeta &
   Pick<LabelMeta, 'labelOf'> &
-  Pick<SupportsTurnMeta, 'turnParentId' | 'turnParent'> &
+  Pick<SupportsTurnMeta, 'turnParentId'> &
   Pick<
     CameraMeta,
     | 'isShot'
@@ -304,6 +332,15 @@ export type AnyObjectiveMeta = ObjectiveMeta &
     | 'relatedImages'
     | 'lensAngleRepr'
   >
+export type TAnyWeekMeta = Omit<
+  TAnyMeta,
+  keyof _TAutopopulatedFields | keyof _TKindSpecificationFields
+>
+// UNUSED ???
+// export type TMetaOverrides = Omit<Partial<AnyObjectiveMeta>, 'kind' | 'core'> & {
+//   core?: Partial<AnyObjectiveMeta['core']>
+// }
+export type TWeekMetaOverrides = Omit<Partial<TAnyWeekMeta>, 'kind'>
 
 export type CameraElement = ObjectiveElement<CameraMeta>
 export type ShotCameraElement = ObjectiveElement<ShotCameraMeta>
@@ -322,13 +359,14 @@ export type _ObjectiveElement<TMeta extends ObjectiveMeta = ObjectiveMeta> =
   // Extend both ExcalidrawElement and ExcalidrawFrameElement, otherwise TS is confused about Frame,
   // and complains ObjectiveElement hos no `name` property.
   Omit<ExcalidrawElement, 'customData'> &
-    Omit<ExcalidrawFrameElement, 'customData'> & { readonly customData: TMeta }
+    Omit<ExcalidrawFrameElement, 'customData'> & { readonly customData: WeekMeta<TMeta> }
 
 /** Readonly `ExcalidrawElement` with explicity meta (customData) type. */
 export type ObjectiveElement<TMeta extends ObjectiveMeta = ObjectiveMeta> = _ObjectiveElement<TMeta>
 export type ObjectiveWallElement = ExcalidrawLinearElement & { customData: WallMeta }
 
-export const isMeta = (meta: MaybeMeta): meta is ObjectiveMeta => !!meta?.kind
+export const isMeta = (meta: MaybeMeta): meta is ObjectiveMeta =>
+  meta ? 'kind' in meta && Boolean(meta.kind) : false
 export const isObjective = (el: MaybeExcalidrawElement): el is ObjectiveElement =>
   isMeta(el?.customData)
 
@@ -346,7 +384,7 @@ export const isKind = <T extends ObjectiveKinds>(
   : T extends ObjectiveKinds.LABEL
   ? LabelMeta
   : ObjectiveMeta<T> => {
-  return arg?.kind === kind
+  return isMeta(arg) && arg.kind === kind
 }
 
 export const isKindEl = <T extends ObjectiveKinds>(
@@ -391,7 +429,7 @@ export const isElementTarget = <TElement extends ExcalidrawElement>(
 ): el is TElement => el.id === (typeof target === 'string' ? target : target.id)
 
 export const isCameraMeta = (meta: MaybeMeta): meta is CameraMeta =>
-  meta?.kind === ObjectiveKinds.CAMERA
+  isKind(meta, ObjectiveKinds.CAMERA)
 export const isCameraElement = (el: MaybeExcalidrawElement): el is CameraElement =>
   isCameraMeta(el?.customData)
 export const isSupportsTurn = (meta: MaybeMeta): meta is CameraMeta | CharacterMeta =>
@@ -412,7 +450,7 @@ export const isWallToolOrWallDrawing = (t: ActiveTool, selected: readonly Excali
   (!selected.length || (selected.length === 1 && selected[0].type === 'line')) && isWallTool(t)
 
 export const isLocationMeta = (meta: MaybeMeta): meta is LocationMeta =>
-  meta?.kind === ObjectiveKinds.LOCATION
+  isKind(meta, ObjectiveKinds.LOCATION)
 
 /**
  * Is element a camera and is it `shot` camera (camera added to shot list).
@@ -429,7 +467,7 @@ export const isImageRelatedToCamera = (camera: CameraMeta, image: ExcalidrawImag
   camera.relatedImages.includes(image.id)
 
 export const isPointerMeta = (meta: MaybeMeta): meta is PointerMeta =>
-  meta?.kind === ObjectiveKinds.POINTER
+  isKind(meta, ObjectiveKinds.POINTER)
 
 export const isPointerElement = (el: MaybeExcalidrawElement): el is PointerElement =>
   isPointerMeta(el?.customData)

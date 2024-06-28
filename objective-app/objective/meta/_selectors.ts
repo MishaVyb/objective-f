@@ -13,7 +13,7 @@ import {
 import Scene from '../../../packages/excalidraw/scene/Scene'
 import { AppClassProperties, AppState, Primitive } from '../../../packages/excalidraw/types'
 import {
-  AnyObjectiveMeta,
+  TAnyMeta,
   CameraMeta,
   MaybeExcalidrawElement,
   MetasMap,
@@ -24,7 +24,7 @@ import {
   ObjectiveWallElement,
   ReadonlyMetasMap,
   ShotCameraMeta,
-  WeekMeta,
+  SimpleMeta,
   isKindEl,
   isObjective,
   isWallElement,
@@ -32,6 +32,7 @@ import {
 import { randomId } from '../../../packages/excalidraw/random'
 import { groupBy } from '../utils/helpers'
 import { objectValues } from '../utils/types'
+import { getMetaCore } from './_core'
 
 let _APP: AppClassProperties | undefined
 export const setCore = (app: AppClassProperties) => (_APP = app)
@@ -54,18 +55,25 @@ export const getCoreSafe = () => ({
 })
 
 /**
- * Get week meta reference. Simplified version of {@link getMeta}.
+ * Get Simple Meta: week meta + core opts. No relation fields.
  */
-export const getMetaSimple = <TMeta extends ObjectiveMeta>(
+export const getMeta = <TMeta extends ObjectiveMeta>(
   el: ObjectiveElement<TMeta>
-): WeekMeta<TMeta> => el.customData
+): SimpleMeta<TMeta> => {
+  const m = el.customData
+  // @ts-ignore // FIXME 'TMeta' could be instantiated with an arbitrary type which could be unrelated to 'WeekMeta<TMeta>'
+  return {
+    ...el.customData,
+    core: getMetaCore(m.kind, m.subkind),
+  }
+}
 /**
  * Get week meta reference. Simplified version of {@link getMeta}.
  */
 export const getMetaOrNone = <TMeta extends ObjectiveMeta>(
   el: MaybeExcalidrawElement
-): WeekMeta<TMeta> | undefined =>
-  isObjective(el) ? getMetaSimple<TMeta>(el as ObjectiveElement<TMeta>) : undefined
+): SimpleMeta<TMeta> | undefined =>
+  isObjective(el) ? getMeta<TMeta>(el as ObjectiveElement<TMeta>) : undefined
 
 // EXPEREMENTAL (unused)
 // /**
@@ -173,11 +181,11 @@ export const extractObjectiveMetas = (opts?: {
   const finalizeCallback = <TMeta extends ObjectiveMeta>(): ReadonlyMetasMap<TMeta> => {
     const resultMetas = new Map([]) as MetasMap<TMeta>
     for (const e of uniqueMetaElement) {
-      const weekMeta = getMetaSimple(e)
+      const simpleMeta = getMeta<TMeta>(e as ObjectiveElement<TMeta>)
       const els = elementsByGroups.get(getObjectiveId(e))
       const ids = idsByGroup.get(getObjectiveId(e))
-      const isComplite = weekMeta.elementsRequiredLength
-        ? els?.length === weekMeta.elementsRequiredLength
+      const isComplite = simpleMeta.elementsRequiredLength
+        ? els?.length === simpleMeta.elementsRequiredLength
         : true
 
       if (!ids || !els || !isComplite) {
@@ -185,15 +193,15 @@ export const extractObjectiveMetas = (opts?: {
       }
 
       // NOTE: new API for accessing basis, replacement for `getObjectdiveBasis`
-      const basis = els && els[weekMeta.basisIndex || 0] // TODO basis validation ???
-      const meta = _getMeta<TMeta>(e as ObjectiveElement<TMeta>, {
+      const basis = els && els[simpleMeta.core.basisIndex || 0] // TODO basis validation ???
+      const metaFull = _getMetaFull<TMeta>(simpleMeta, {
         id: getObjectiveId(e),
         elementIds: ids,
         elements: els,
         basis,
       })
 
-      resultMetas.set(meta.id, meta)
+      resultMetas.set(metaFull.id, metaFull)
     }
 
     return resultMetas
@@ -207,14 +215,15 @@ export const extractObjectiveMetas = (opts?: {
 
 export const _copyElementWithoutObjectiveMeta = (e: ExcalidrawElement) => ({ ...e, customData: {} })
 
-export const _getMeta = <TMeta extends ObjectiveMeta>(
-  el: ObjectiveElement<TMeta>,
-  autopopulatedFields: Pick<
-    AnyObjectiveMeta,
-    'id' | 'elementIds' | 'elements' | 'basis' | 'turnParent'
-  >
+export const _getMetaFull = <TMeta extends ObjectiveMeta>(
+  metaSimple: SimpleMeta<TMeta>,
+  autopopulatedFields: Pick<TAnyMeta, 'id' | 'elementIds' | 'elements' | 'basis'>
 ): TMeta => {
-  return { ...el.customData, ...autopopulatedFields }
+  // @ts-ignore // FIXME 'TMeta' could be instantiated with an arbitrary type which could be unrelated to 'WeekMeta<TMeta>'
+  return {
+    ...metaSimple,
+    ...autopopulatedFields, //
+  }
 }
 
 export const groupByKind = (metas: readonly Readonly<ObjectiveMeta>[]): ObjectiveMetasGroups => {
@@ -356,21 +365,20 @@ export const getShotCameraMetas = (
 /** @deprecated use `meta.basis` */
 export const getObjectiveBasis = <T extends ExcalidrawElement>(
   meta: ObjectiveMeta | undefined | null
-): T | undefined =>
-  (meta?.elements?.length && (meta.elements[meta.basisIndex || 0] as T)) || undefined
+): T | undefined => (meta && meta.basis) as T | undefined
 
 export const getInternalElementsSet = (elements: readonly ExcalidrawElement[]) =>
   new Set(
     getObjectiveMetas(elements)
-      .filter((m) => m.isInternalBasis)
+      .filter((m) => m.core.isInternalBasis)
       .map((m) => m.basis)
   )
 
 export const getInternalElementsFromMetas = (metas: readonly ObjectiveMeta[]) =>
-  new Set(metas.filter((m) => m.isInternalBasis).map((m) => m.basis))
+  new Set(metas.filter((m) => m.core.isInternalBasis).map((m) => m.basis))
 
 export const getNotInternalElementsFromMeta = (meta: ObjectiveMeta) =>
-  meta.isInternalBasis ? meta.elements.filter((e) => e !== meta.basis) : meta.elements
+  meta.core.isInternalBasis ? meta.elements.filter((e) => e !== meta.basis) : meta.elements
 
 /**
  * we do not store ids of pointer at any special meta field,

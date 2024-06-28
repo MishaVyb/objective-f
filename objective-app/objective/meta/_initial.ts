@@ -1,121 +1,76 @@
+import { deepCopyElement } from '../../../packages/excalidraw/element/newElement'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
-import { randomId } from '../../../packages/excalidraw/random'
-import { MarkOptional, Mutable } from '../../../packages/excalidraw/utility-types'
+import { Mutable } from '../../../packages/excalidraw/utility-types'
 
-import { getMetaSimple } from './_selectors'
+import { getMeta } from './_selectors'
 import {
-  AnyObjectiveMeta,
   ObjectiveKinds,
-  ObjectiveMeta,
   isCameraMeta,
   isKind,
   isObjective,
+  TAnyWeekMeta,
+  ObjectiveSubkinds,
+  ObjectiveElement,
 } from './_types'
 
-type TMetaOverrides = Record<ObjectiveKinds, Partial<Omit<AnyObjectiveMeta, 'kind'>>>
-type TOptionalMetaOverrides = MarkOptional<TMetaOverrides, keyof TMetaOverrides>
-
-/**
- * Metas Core Opts Delcaration.
- * @see {@link ObjectiveMeta.coreOpts}
- */
-const _METAS_CORE_DEFINITION: TOptionalMetaOverrides = {
-  camera: {
-    isInternalBasis: true,
-    relatedImages: [],
-    coreOpts: {
-      isPushpinRotation: true,
-      pushpinRotationShiftAngle: 1.5708, // 90˚
-      pushpinRotationShiftFactor: 50 / 14,
-      pushpinRotationCenterShiftFactor: 50 / 13.5,
-
-      disableFlip: true, // FIXME now it does'n work good for cameras because of Turns (but OK for characters)
-      disableResizeAlways: true, // FIXME now it does'n work good for cameras/characeter because of Turns
-    },
-  },
-  character: {
-    isInternalBasis: true,
-    coreOpts: {
-      isPushpinRotation: true,
-      pushpinRotationShiftAngle: 0,
-      pushpinRotationShiftFactor: 50 / 16,
-      disableResizeAlways: true, // FIXME now it does'n work good for cameras/characeter because of Turns
-    },
-  },
-  light: {
-    isInternalBasis: true,
-  },
-}
-
-/**
- * NOTE: dont forget apply all defaults here and at duplicateMeta function bellow
- *
- * @return default meta with overrides
- * */
-export const getInitialMeta = <T extends ObjectiveKinds>(
-  kind: T,
-  overriddes: Omit<Partial<AnyObjectiveMeta>, 'kind'> = {}
-): ObjectiveMeta<T> => ({
+/** Get initital `element.customData` */
+export const buildWeekMeta = (
+  kind: ObjectiveKinds,
+  subkind: ObjectiveSubkinds | undefined = undefined,
+  extra: Pick<
+    Partial<TAnyWeekMeta>,
+    'name' | 'labelOf' | 'elementsRequiredLength' | 'lib' | 'relatedImages'
+  > = {}
+): TAnyWeekMeta => ({
+  // identity
+  version: '1.0.0',
   kind: kind,
-  id: '',
-  elementIds: [],
-  elements: [],
-  basis: undefined,
-  name: undefined,
-  nameRepr: undefined,
-  basisIndex: 0,
-  isInternalBasis: false,
+  subkind: subkind,
+
+  // affected fields (defaults)
   disableResize: true,
-  ..._METAS_CORE_DEFINITION[kind],
-  ...overriddes,
+  labelOf: '',
+  relatedImages: [],
+
+  ...extra,
 })
 
 /**
  * Initialize new meta. Some values are copied, some other taken from initial Meta.
  * MUTATE PROVIDED ELEMENT's META
  *
- * It's Objective replacement of Excalidraw deepCopyElement.
+ * Reset some values, that should not be copied. Apply some defaults.
+ * Element.customData already copied be `deepCopyElement`. @see {@link deepCopyElement}
  */
 export const duplicateMeta = (newElement: Mutable<ExcalidrawElement>) => {
   if (!isObjective(newElement)) return
-  const weekMeta = getMetaSimple(newElement)
-  const newMeta = newElement.customData
+  const originalMeta = getMeta(newElement)
 
   // common:
-  Object.assign(
-    newMeta,
-    getInitialMeta(weekMeta.kind, {
-      name: weekMeta.name,
-      description: weekMeta.description,
-      disableResize: weekMeta.disableResize,
-
-      // HACK
-      // pass here TMP id in order to tell `duplicateObjectiveEventHandler` hat Object has nameRep.
-      // So it will recreate Label with new id and provide that id here as well.
-      nameRepr: weekMeta.nameRepr ? randomId() : undefined,
-      turnParentId: undefined, // dissociate any Turns
-    })
-  )
+  Object.assign(newElement.customData, {
+    // dissociate any Turns
+    turnParentId: undefined,
+  })
 
   // per kind:
-  if (isCameraMeta(weekMeta))
-    Object.assign(
-      newMeta,
-      getInitialMeta(ObjectiveKinds.CAMERA, {
-        ...newMeta, // ???
+  if (isCameraMeta(originalMeta))
+    Object.assign(newElement.customData, {
+      // dissociate any Storyboards
+      relatedImages: [],
+      // do not incrase shot number atomatecly, user will do it by himself
+      shotNumber: originalMeta.shotNumber,
+    })
 
-        isShot: weekMeta.isShot,
-        shotNumber: weekMeta.shotNumber, // do not incrase shot number atomatecly, user will do it by himself
-        shotVersion: weekMeta.shotVersion,
-        focalLength: weekMeta.focalLength,
-        focusDistance: weekMeta.focusDistance,
-        cameraFormat: weekMeta.cameraFormat,
-        aspectRatio: weekMeta.aspectRatio,
-        lensAngleRepr: weekMeta.lensAngleRepr,
-      })
-    )
-
-  if (isKind(weekMeta, ObjectiveKinds.LABEL) || isKind(weekMeta, ObjectiveKinds.LABEL_TEXT))
-    // @ts-ignore // HACK if we copy LABEL/LABEL_TEXT directly it's no Objective anymore
-    newElement.customData = {}
+  if (isKind(originalMeta, ObjectiveKinds.LABEL) || isKind(originalMeta, ObjectiveKinds.LABEL_TEXT))
+    // NOTE if we copy LABEL/LABEL_TEXT directly it's no Objective anymore
+    removeMeta(newElement)
 }
+
+export const removeMeta = (element: ObjectiveElement) => {
+  const el = element as Mutable<ExcalidrawElement>
+  el.customData = undefined
+}
+
+// ------------------------ ts tests -----------------------------------------
+
+const aaa = () => {}

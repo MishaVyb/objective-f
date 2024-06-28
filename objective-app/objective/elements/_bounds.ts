@@ -1,5 +1,5 @@
 import { Arrowhead, ElementsMapOrArray } from '../../../packages/excalidraw/element/types'
-import { getMetaSimple, getObjectiveSingleMetaStrict } from '../meta/_selectors'
+import { getMeta, getObjectiveSingleMetaStrict } from '../meta/_selectors'
 import { ObjectiveElement } from '../meta/_types'
 
 export const getObjectiveCommonBounds = (elements: ElementsMapOrArray) => {
@@ -7,7 +7,7 @@ export const getObjectiveCommonBounds = (elements: ElementsMapOrArray) => {
 
   // makes door rotate around bases center
   // so door won't shift while rotation and leaves fixed to its basis
-  if (meta?.coreOpts?.isBoundsTakenFromBasis) {
+  if (meta?.core?.isBoundsTakenFromBasis) {
     // FIXME elements[0]
     // we need at least 2 elements to respond, otherwise Excalidraw fails on resize
     const extraBasis = meta.elements[0]
@@ -17,4 +17,4 @@ export const getObjectiveCommonBounds = (elements: ElementsMapOrArray) => {
 }
 
 export const getObjectiveArrowheadSize = (arrowhead: Arrowhead, element: ObjectiveElement) =>
-  getMetaSimple(element).excalidrawExtra?.arrowheadSize
+  getMeta(element).core.arrowheadSize

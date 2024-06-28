@@ -31,7 +31,7 @@ export const actionFlipHorizontal = register({
   perform: (elements, appState, _, app) => {
     // VBRN
     const metas = getObjectiveMetas(getSelectedSceneEls(app.scene, app.state));
-    const disableFlip = metas.some((meta) => meta?.coreOpts?.disableFlip);
+    const disableFlip = metas.some((meta) => meta?.core?.disableFlip);
     if (disableFlip) return false;
 
     return {
@@ -70,7 +70,7 @@ export const actionFlipVertical = register({
   perform: (elements, appState, _, app) => {
     // VBRN
     const metas = getObjectiveMetas(getSelectedSceneEls(app.scene, app.state));
-    const disableFlip = metas.some((meta) => meta?.coreOpts?.disableFlip);
+    const disableFlip = metas.some((meta) => meta?.core?.disableFlip);
     if (disableFlip) return false;
 
     return {

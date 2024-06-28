@@ -24,7 +24,7 @@ import { ensurePoint, getElementCenter } from './_math'
 const PUSHPIN_DISTANCE_MARGIN = 10
 
 export const getPushpinLineStart = (meta: ObjectiveMeta) =>
-  meta.basis!.width / (meta.coreOpts?.pushpinRotationShiftFactor || 1)
+  meta.basis!.width / (meta.core.pushpinRotationShiftFactor || 1)
 
 export const getPushpinLineDistance = (meta: ObjectiveMeta, zoomValue: NormalizedZoomValue) =>
   meta.basis!.width + PUSHPIN_DISTANCE_MARGIN / Math.sqrt(zoomValue)
@@ -35,8 +35,8 @@ export const getPushpinLineDistance = (meta: ObjectiveMeta, zoomValue: Normalize
 export const getPushpinAng = (target: ElementsMapOrArray | ObjectiveMeta | undefined) => {
   if (!target) return undefined
   const meta = 'kind' in target ? target : getObjectiveSingleMetaStrict(target)
-  if (meta?.coreOpts?.isPushpinRotation)
-    return meta.basis!.angle + (meta.coreOpts.pushpinRotationShiftAngle || 0)
+  if (meta?.core?.isPushpinRotation)
+    return meta.basis!.angle + (meta.core.pushpinRotationShiftAngle || 0)
   return undefined
 }
 /**
@@ -45,7 +45,7 @@ export const getPushpinAng = (target: ElementsMapOrArray | ObjectiveMeta | undef
 export const getPushpinAngNoShift = (target: ElementsMapOrArray | ObjectiveMeta | undefined) => {
   if (!target) return undefined
   const meta = 'kind' in target ? target : getObjectiveSingleMetaStrict(target)
-  if (meta?.coreOpts?.isPushpinRotation) return meta.basis!.angle
+  if (meta?.core?.isPushpinRotation) return meta.basis!.angle
   return undefined
 }
 

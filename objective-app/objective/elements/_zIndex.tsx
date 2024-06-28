@@ -16,7 +16,7 @@ import {
 } from '../../../packages/excalidraw/element/types'
 import { arrayToMap } from '../../../packages/excalidraw/utils'
 import { __DEBUG_DISABLE_ARRANGE } from '../../objective-plus/constants'
-import { getMetaSimple } from '../meta/_selectors'
+import { getMeta } from '../meta/_selectors'
 import { ObjectiveKinds, isKindEl, isObjective, isSubkindEl } from '../meta/_types'
 
 // TODO
@@ -55,7 +55,7 @@ export const arrangeElements = (elements: ElementsMapOrArray, newEls: ElementsMa
     const els = [el]
 
     if (isObjective(el)) {
-      const meta = getMetaSimple(el)
+      const meta = getMeta(el)
       if (meta.nameRepr) {
         const container = elsMap.get(meta.nameRepr) as ExcalidrawTextContainer | undefined
 

@@ -6,15 +6,15 @@ import { useDevice } from "./App";
 import "./LibraryUnit.scss";
 import { PlusIcon } from "./icons";
 import { Flex, Text, Tooltip } from "@radix-ui/themes";
-import { getMetaSimple } from "../../../objective-app/objective/meta/_selectors";
+import { getMeta } from "../../../objective-app/objective/meta/_selectors";
 import {
+  LibraryImage,
   ObjectiveElement,
-  ObjectiveMeta,
 } from "../../../objective-app/objective/meta/_types";
 
 //@ts-ignore
 export const LibraryUnitAsImage: FC<{
-  libraryImg: ObjectiveMeta["libraryImg"];
+  libraryImg: LibraryImage;
 }> = ({ libraryImg }) => {
   if (!libraryImg) return;
 
@@ -57,13 +57,13 @@ export const LibraryUnit = memo(
     title?: string;
   }) => {
     const element = elements![0] as ObjectiveElement;
-    const meta = getMetaSimple(element);
-    const asImage = meta.libraryImg;
+    const meta = getMeta(element);
+    const asImage = meta.lib?.img;
 
     title = title || meta?.subkind;
     const toolTip = title
       ? undefined
-      : (!meta.libraryImg?.title && meta.name) || undefined;
+      : (!meta.lib?.img?.title && meta.name) || undefined;
 
     const ref = useRef<HTMLDivElement | null>(null);
     const svg = useLibraryItemSvg(id, elements, svgCache);
@@ -121,7 +121,7 @@ export const LibraryUnit = memo(
               onDrag(id, event);
             }}
           >
-            <LibraryUnitAsImage libraryImg={meta.libraryImg} />
+            <LibraryUnitAsImage libraryImg={meta.lib?.img} />
           </div>
         </Tooltip>
       );

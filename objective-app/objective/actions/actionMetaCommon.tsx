@@ -11,7 +11,7 @@ import {
 } from '../elements/_newElementObjectiveConstructors'
 import {
   getCore,
-  getMetaSimple,
+  getMeta,
   getMetasCommonValue,
   getObjectiveBasis,
   getObjectiveMetas,
@@ -286,7 +286,7 @@ export const actionChangeMetaName = register({
       elements,
       appState,
       (element) => {
-        const meta = getMetaSimple(element as ObjectiveElement)
+        const meta = getMeta(element as ObjectiveElement)
         if (!meta.nameRepr) return false
         const container = elsMap.get(meta.nameRepr)
         if (!container) return false
@@ -431,7 +431,7 @@ export const actionToggleScalable = register({
     const { oScene } = getCore()
     const disableResizeAlways = oScene
       .getSelectedMetas()
-      .some((meta) => meta?.coreOpts?.disableResizeAlways)
+      .some((meta) => meta?.core?.disableResizeAlways)
     if (disableResizeAlways) return <></>
 
     const isScalable = isElementsScalable(getSelectedSceneEls(app.scene, appState))

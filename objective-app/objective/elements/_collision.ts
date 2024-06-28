@@ -2,7 +2,7 @@ import { isHittingElementNotConsideringBoundingBox } from '../../../packages/exc
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { Point } from '../../../packages/excalidraw/types'
 import { getCore, getMetaOrNone } from '../meta/_selectors'
-import { ObjectiveMeta, WeekMeta, isSupportsTurn } from '../meta/_types'
+import { ObjectiveMeta, SimpleMeta, isSupportsTurn } from '../meta/_types'
 import { getPushpinHeadElements } from './_newElementObjectiveConstructors'
 import { isPushbinHandlePotential } from './_transformHandles'
 
@@ -17,7 +17,7 @@ export const isObjectiveElementHit = (element: ExcalidrawElement, point: Point) 
     return isObjectiveNotBasisElementHit(getMetaOrNone(element), point)
   }
 }
-export const isObjectiveNotBasisElementHit = (meta: WeekMeta | undefined, point: Point) => {
+export const isObjectiveNotBasisElementHit = (meta: SimpleMeta | undefined, point: Point) => {
   if (!meta) return undefined
   if (isSupportsTurn(meta)) {
     if (meta.turnParentId) return false // prevent selecting child by NOT Pushpin

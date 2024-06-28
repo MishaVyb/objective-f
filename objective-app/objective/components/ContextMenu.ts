@@ -39,14 +39,14 @@ import { actionToggleScalable } from '../actions/actionMetaCommon'
 import { actionToggleGridSnapMode } from '../actions/actionSettings'
 import {
   getCore,
-  getMetaSimple,
+  getMeta,
   getObjectiveMetas,
   getObjectiveSingleMetaStrict,
 } from '../meta/_selectors'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import {
   ObjectiveKinds,
-  WeekMeta,
+  SimpleMeta,
   isCameraMeta,
   isKind,
   isObjective,
@@ -105,12 +105,12 @@ export const getObjectiveContextMenuItems = (
 
   // element contextMenu
   // -------------------------------------------------------------------------
-  let metas: readonly WeekMeta[]
-  let singleMetaStrict: WeekMeta | undefined
+  let metas: readonly SimpleMeta[]
+  let singleMetaStrict: SimpleMeta | undefined
   if (hitElements.length === 1 && isObjective(hitElements[0])) {
     // Objective Item is not selected, but is hitting, we got 1 element at this point
-    metas = [getMetaSimple(hitElements[0])]
-    singleMetaStrict = getMetaSimple(hitElements[0])
+    metas = [getMeta(hitElements[0])]
+    singleMetaStrict = getMeta(hitElements[0])
   }
   //
   else {
@@ -121,8 +121,8 @@ export const getObjectiveContextMenuItems = (
 
   const isChildTurn =
     singleMetaStrict && isSupportsTurn(singleMetaStrict) && singleMetaStrict.turnParentId
-  const disableFlip = metas.some((meta) => meta?.coreOpts?.disableFlip)
-  const disableResizeAlways = metas.some((meta) => meta?.coreOpts?.disableResizeAlways)
+  const disableFlip = metas.some((meta) => meta?.core?.disableFlip)
+  const disableResizeAlways = metas.some((meta) => meta?.core?.disableResizeAlways)
 
   if (appState.viewModeEnabled) {
     return [actionCopy, copyText, actionCopyAsPng]

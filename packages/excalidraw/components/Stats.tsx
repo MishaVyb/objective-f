@@ -84,7 +84,17 @@ export const Stats = (props: {
     singleMeta && (
       <div>
         <div>
-          <RecordComponent value={singleMeta} />
+          <Text weight={"bold"} mt={"1"}>
+            {"Meta"}
+          </Text>
+          <RecordComponent value={singleMeta} filter={(k) => k !== "core"} />
+          <Separator size={"4"} mt={"1"} />
+          <Text weight={"bold"}>{"Meta Core"}</Text>
+          <RecordComponent value={singleMeta.core} />
+          <Separator size={"4"} />
+          <Text weight={"bold"}>{"Meta Week"}</Text>
+          <RecordComponent value={singleMeta.basis!.customData!} />
+
           {basis && basis.boundElements?.length && (
             <>
               <div>

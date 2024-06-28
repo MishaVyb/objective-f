@@ -5,7 +5,7 @@ import { ObjectiveKinds } from '../meta/_types'
 import one from './characters/one'
 import two from './characters/two'
 
-import { getInitialObjectiveItem } from './objectiveInitial'
+import { buildObjectiveLibraryItem } from './base'
 const OBJ_COLOR_SHADE_INDEX = 2 // min: 0; max: 5
 const OBJ_COLORS = [
   COLOR_PALETTE.green[OBJ_COLOR_SHADE_INDEX],
@@ -19,7 +19,7 @@ const OBJ_COLORS = [
 ]
 
 const createObj = (clipboardObj: ElementsClipboard, primaryColor: string): LibraryItem => {
-  return getInitialObjectiveItem(clipboardObj, '', ObjectiveKinds.CHARACTER, {
+  return buildObjectiveLibraryItem(clipboardObj, '', ObjectiveKinds.CHARACTER, {
     backgroundColor: primaryColor,
   })
 }

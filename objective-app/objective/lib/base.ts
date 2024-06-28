@@ -5,19 +5,26 @@ import { newElement } from '../../../packages/excalidraw/element'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { randomId, randomInteger } from '../../../packages/excalidraw/random'
 import { LibraryItem } from '../../../packages/excalidraw/types'
-import { getInitialMeta } from '../meta/_initial'
-import { ObjectiveElement, ObjectiveKinds, ObjectiveMeta } from '../meta/_types'
-import { mutateElementMeta } from '../elements/_mutateElements'
-import { getMetaSimple } from '../meta/_selectors'
+import { buildWeekMeta } from '../meta/_initial'
+import { ObjectiveElement, ObjectiveKinds, ObjectiveMeta, TAnyWeekMeta } from '../meta/_types'
+import { getMeta } from '../meta/_selectors'
 
 const OBJ_COLOR_SHADE_INDEX = 2 // min: 0; max: 5
 const INTERNAL_INDEX_COLOR = COLOR_PALETTE.yellow[OBJ_COLOR_SHADE_INDEX]
 
-type ObjectiveInitOpts = {
+type TLibraryItemInitOpts = {
   addInternalBasis?: boolean
 }
+export type TLibraryItemInitialMeta = Pick<
+  Partial<TAnyWeekMeta>,
+  'subkind' | 'labelOf' | 'disableResize' | 'lib'
+>
 
-const _objectivePreInit = (elements: ObjectiveElement[], opts: ObjectiveInitOpts) => {
+const _objectiveItemElementsExtend = (
+  id: ObjectiveMeta['id'],
+  elements: ObjectiveElement[],
+  opts: TLibraryItemInitOpts
+) => {
   if (opts?.addInternalBasis) {
     const padding = 10
     const [minX, minY, maxX, maxY] = getCommonBounds(elements)
@@ -38,24 +45,24 @@ const _objectivePreInit = (elements: ObjectiveElement[], opts: ObjectiveInitOpts
   return elements
 }
 
-const _objectiveInit = (
+const _objectiveItemBuild = (
+  id: ObjectiveMeta['id'],
   elements: ObjectiveElement[],
-  name: string,
-  kind: ObjectiveKinds,
   elOverrides: Partial<ExcalidrawElement>,
-  groupId: string,
-  metaOverrides: Omit<Partial<ObjectiveMeta>, 'kind' | 'name'>,
-  opts: ObjectiveInitOpts
+  name: ObjectiveMeta['name'],
+  kind: ObjectiveKinds,
+  metaInitial: TLibraryItemInitialMeta,
+  opts: TLibraryItemInitOpts
 ) => {
-  const meta = getInitialMeta(kind, {
-    name: name,
-    ...metaOverrides,
-  })
   return elements.map((el) => ({
     ...el,
     ...elOverrides,
 
-    customData: meta,
+    customData: buildWeekMeta(kind, metaInitial.subkind, {
+      name: name,
+      elementsRequiredLength: elements.length,
+      ...metaInitial,
+    }),
 
     // do not change BG color if it's transparent:
     backgroundColor:
@@ -67,22 +74,20 @@ const _objectiveInit = (
     versionNonce: 0,
     id: randomId(),
     seed: randomInteger(),
-    groupIds: [groupId],
+    groupIds: [id],
     isDeleted: false,
   })) as ObjectiveElement[]
 }
 
-const _objectivePostInit = (elements: ObjectiveElement[], opts: ObjectiveInitOpts) => {
-  const elementsRequiredLength = elements.length
-  elements.forEach((el) => mutateElementMeta(el, { elementsRequiredLength }))
-  return elements
-}
-
-const _objectiveValidate = (elements: ObjectiveElement[], opts: ObjectiveInitOpts) => {
+const _objectiveValidate = (
+  id: ObjectiveMeta['id'],
+  elements: ObjectiveElement[],
+  opts: TLibraryItemInitOpts
+) => {
   elements.forEach((el) => {
-    const m = getMetaSimple(el)
+    const m = getMeta(el)
 
-    if (m.coreOpts?.isPushpinRotation) {
+    if (m.core.isPushpinRotation) {
       if (el.angle) throw new Error('Angle should be 0 for isPushpinRotation. ')
     }
   })
@@ -91,27 +96,32 @@ const _objectiveValidate = (elements: ObjectiveElement[], opts: ObjectiveInitOpt
 }
 
 /**
- * Build Objective Item from raw Excalidraw elements
- * - handle element props
- * - call for getInitialMeta(...)
+ * Build Objective Single Item + Meta from raw Excalidraw elements
  */
-export const getInitialObjectiveItem = (
+export const buildObjectiveLibraryItem = (
   clipboardObj: ElementsClipboard,
-  name: string,
+  name: ObjectiveMeta['name'],
   kind: ObjectiveKinds,
   elOverrides: Partial<ExcalidrawElement>,
-  metaOverrides: Omit<Partial<ObjectiveMeta>, 'kind' | 'name'> = {},
+  metaInitial?: TLibraryItemInitialMeta,
   opts?: {
     addInternalBasis?: boolean
   }
 ): LibraryItem => {
   let elements = clipboardObj.elements as ObjectiveElement[]
-  const groupId = randomId()
+  const id = randomId()
 
-  elements = _objectivePreInit(elements, opts || {})
-  elements = _objectiveInit(elements, name, kind, elOverrides, groupId, metaOverrides, opts || {})
-  elements = _objectivePostInit(elements, opts || {})
-  elements = _objectiveValidate(elements, opts || {})
+  elements = _objectiveItemElementsExtend(id, elements, opts || {})
+  elements = _objectiveItemBuild(
+    id,
+    elements,
+    elOverrides,
+    name,
+    kind,
+    metaInitial || {},
+    opts || {}
+  )
+  elements = _objectiveValidate(id, elements, opts || {})
 
   return {
     status: 'unpublished',
