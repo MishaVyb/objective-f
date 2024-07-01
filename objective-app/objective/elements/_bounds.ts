@@ -1,5 +1,5 @@
 import { Arrowhead, ElementsMapOrArray } from '../../../packages/excalidraw/element/types'
-import { getMeta } from '../meta/_selectors'
+import { getCoreSafe, getMeta } from '../meta/_selectors'
 import { ObjectiveElement } from '../meta/_types'
 
 export const getObjectiveCommonBounds = (elements: ElementsMapOrArray) => {
@@ -17,5 +17,9 @@ export const getObjectiveCommonBounds = (elements: ElementsMapOrArray) => {
   return elements
 }
 
-export const getObjectiveArrowheadSize = (arrowhead: Arrowhead, element: ObjectiveElement) =>
-  getMeta(element).core.arrowheadSize
+export const getObjectiveArrowheadSize = (arrowhead: Arrowhead, element: ObjectiveElement) => {
+  const { appState } = getCoreSafe()
+  const zoomValue = appState?.zoom.value || 1
+  const size = getMeta(element).core.arrowheadSize
+  return size ? size / zoomValue : undefined
+}

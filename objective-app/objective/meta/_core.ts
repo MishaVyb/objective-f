@@ -46,6 +46,10 @@ const _METAS_CORE_DEFINITION: MarkOptional<
     basisIndex: 1, // dashed line
     // isBoundsTakenFromBasis: true, // UNUSED
   },
+  pushpinArrow: {
+    ..._DEFAULT,
+    arrowheadSize: 7,
+  },
 }
 
 export const getMetaCore = (

@@ -591,10 +591,7 @@ export const getArrowheadPoints = (
   const nx = (x2 - x1) / distance;
   const ny = (y2 - y1) / distance;
 
-  let size = getArrowheadSize(arrowhead, element);
-  if (isObjective(element))
-    size = getObjectiveArrowheadSize(arrowhead, element) || size;
-
+  const size = getArrowheadSize(arrowhead, element);
   let length = 0;
 
   {
@@ -617,7 +614,10 @@ export const getArrowheadPoints = (
   // This value is selected by minimizing a minimum size with the last segment of the arrowhead
   const lengthMultiplier =
     arrowhead === "diamond" || arrowhead === "diamond_outline" ? 0.25 : 0.5;
-  const minSize = Math.min(size, length * lengthMultiplier);
+  let minSize = Math.min(size, length * lengthMultiplier);
+  if (isObjective(element))
+    minSize = getObjectiveArrowheadSize(arrowhead, element) || minSize;
+
   const xs = x2 - nx * minSize;
   const ys = y2 - ny * minSize;
 

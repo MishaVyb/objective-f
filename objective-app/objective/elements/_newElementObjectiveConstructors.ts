@@ -353,11 +353,7 @@ export const getPushpinArrowElements = (meta: ObjectiveMeta) => {
   }
 
   let pushpinArrow = newLinearElement({
-    customData: buildWeekMeta(ObjectiveKinds.PUSHPIN, 'pushpinArrow', {
-      // excalidrawExtra: {
-      //   arrowheadSize: 7 / zoomValue, //
-      // },
-    }),
+    customData: buildWeekMeta(ObjectiveKinds.PUSHPIN, 'pushpinArrow'),
     type: 'arrow',
     strokeWidth: 0.7 / zoomValue,
     strokeColor: isSelected ? PUSHPIN_ACTIVE_COLOR : COLOR_PALETTE.black,
