@@ -38,6 +38,7 @@ import { getObjectiveMetas, getShotCameraMetas } from '../meta/_selectors'
 import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { ObjectiveMeta } from '../meta/_types'
 import { mutateElement } from '../../../packages/excalidraw'
+import { mutateMeta } from '../elements/_mutateElements'
 
 const serializeElements = (scene: ISceneFull) => {
   // NOTE: deep copy is required here in order to resolve this issue:
@@ -61,6 +62,7 @@ const serializeMetaAndItsElements = (meta: ObjectiveMeta) => {
         })
       )
 
+    mutateMeta(meta, { version: '1.0.0' })
     //
   } else if (meta.version === '1.0.0') {
     // latest version nothing to do
