@@ -11,9 +11,18 @@ import {
   TAnyWeekMeta,
   ObjectiveSubkinds,
   ObjectiveElement,
+  WeekMeta,
+  CameraMeta,
+  LabelMeta,
+  isObjectiveKind,
+  META_VERSION,
 } from './_types'
 
-/** Get initital `element.customData` */
+/**
+ * Get initital `element.customData`
+ * - building initial Library Objective Item
+ * - building extra Objective Item on fly programatecly during some user action
+ * */
 export const buildWeekMeta = (
   kind: ObjectiveKinds,
   subkind: ObjectiveSubkinds | undefined = undefined,
@@ -21,19 +30,38 @@ export const buildWeekMeta = (
     Partial<TAnyWeekMeta>,
     'name' | 'labelOf' | 'elementsRequiredLength' | 'lib' | 'relatedImages'
   > = {}
-): TAnyWeekMeta => ({
-  // identity
-  version: '1.0.0',
-  kind: kind,
-  subkind: subkind,
-
-  // affected fields (defaults)
-  disableResize: true,
-  labelOf: '',
-  relatedImages: [],
-
-  ...extra,
-})
+): WeekMeta | WeekMeta<CameraMeta> | WeekMeta<LabelMeta> => {
+  if (isObjectiveKind(kind, ObjectiveKinds.CAMERA)) {
+    const CAMERA: WeekMeta<CameraMeta> = {
+      version: META_VERSION,
+      kind: kind,
+      subkind: subkind,
+      disableResize: true,
+      relatedImages: [],
+    }
+    return CAMERA
+  }
+  if (isObjectiveKind(kind, ObjectiveKinds.LABEL)) {
+    const LABEL: WeekMeta<LabelMeta> = {
+      version: META_VERSION,
+      kind: kind,
+      subkind: subkind,
+      //
+      labelOf: extra.labelOf || '',
+      disableResize: false,
+    }
+    return LABEL
+  }
+  const COMMON: WeekMeta = {
+    version: META_VERSION,
+    kind: kind,
+    subkind: subkind,
+    //
+    disableResize: true,
+    ...extra,
+  }
+  return COMMON
+}
 
 /**
  * Initialize new meta. Some values are copied, some other taken from initial Meta.

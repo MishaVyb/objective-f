@@ -307,6 +307,7 @@ const useSceneThumbnailURL = (scene: ISceneSimplified) => {
   // build thumbnail on mount
   useEffect(() => {
     if (!sceneFullInfo) return
+    if (!sceneFullInfo.elements?.length) return // TMP
     const fileIds = getSceneVisibleFileIds(sceneFullInfo)
     if (fileIds.length) fetchFiles(scene.id, fileIds, addFilesCallback)
     else buildThumbnailURL([])

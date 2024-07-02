@@ -59,7 +59,6 @@ export const getCoreSafe = () => ({
  */
 export const getMeta = (el: ObjectiveElement): SimpleMeta => {
   const m = el.customData
-  //// @ts-ignore // FIXME 'TMeta' could be instantiated with an arbitrary type which could be unrelated to 'WeekMeta<TMeta>'
   return {
     ...el.customData,
     core: getMetaCore(m.kind, m.subkind),
@@ -70,26 +69,6 @@ export const getMeta = (el: ObjectiveElement): SimpleMeta => {
  */
 export const getMetaOrNone = (el: MaybeExcalidrawElement): SimpleMeta | undefined =>
   isObjective(el) ? getMeta(el as ObjectiveElement) : undefined
-
-// EXPEREMENTAL (unused)
-// /**
-//  * Get full meta reference.
-//  */
-// export const getMeta = <TMeta extends ObjectiveMeta>(el: ObjectiveElement<TMeta>): TMeta => {
-//   if (!el.customData.elements.length)
-//     throw new Error('Cannot get full meta info from week meta reference. ')
-//   return el.customData
-// }
-// export const getMetaOrUndefined = <TMeta extends ObjectiveMeta>(
-//   el: MaybeExcalidrawElement | ObjectiveElement<TMeta>
-// ): TMeta | undefined => {
-//   if (!isObjective(el)) return undefined
-
-//   if (!el.customData.elements.length)
-//     throw new Error('Cannot get full meta info from week meta reference. ')
-
-//   return el.customData as TMeta
-// }
 
 /**
  * Any Objective is always a group of excalidraw element and it is always first group id.

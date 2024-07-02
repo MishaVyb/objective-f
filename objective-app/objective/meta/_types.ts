@@ -16,6 +16,9 @@ import { enumKeyTypeGuardFactory, enumValueTypeGuardFactory } from '../utils/typ
 type Entity = {} // declare Entity itself
 type TEntity = {} // define some TS helpers / alias / etc
 
+/** latest ver */
+export const META_VERSION = '1.0.0' as const
+
 export enum ObjectiveKinds {
   CAMERA = 'camera',
   CHARACTER = 'character',
@@ -112,26 +115,29 @@ export type MaybeMeta<T extends ObjectiveMeta = ObjectiveMeta> =
 type _TIdentityFields<Kind extends ObjectiveKinds> = {
   kind: Kind
   subkind?: ObjectiveSubkinds
-  version?: '1.0.0'
+  version?: typeof META_VERSION
 }
 
 export type LibraryImage = {
-  readonly src: string
-  readonly title: string
-  readonly w: number
-  readonly h: number
+  src: string
+  title: string
+  w: number
+  h: number
 }
 
-/** Initialized once at building Library and attached to specific Objective Item */
+type _MetaLib = {
+  img?: Readonly<LibraryImage>
+  groupTitle?: string // or meta.kind
+  mainTitle?: string // or meta.name
+  subTitle?: string
+}
+
 type _TLibraryFields = {
+  /** Initialized once at building Library and attached to specific Objective Item */
   elementsRequiredLength?: number
 
-  readonly lib?: {
-    readonly img?: LibraryImage
-    readonly groupTitle?: string // or meta.kind
-    readonly mainTitle?: string // or meta.name
-    readonly subTitle?: string
-  }
+  /** Initialized once at building Library and attached to specific Objective Item */
+  lib?: Readonly<_MetaLib>
 }
 
 /** Relations. Autopopulated by internal selectors fields. */
@@ -164,6 +170,27 @@ type _TAffectedFields = {
   elementsRequiredLength?: number
 }
 
+type _MetaCore = {
+  basisIndex: number // required! (default 0)
+  /** is invisible bases that used only to make custom bounding borders */
+  isInternalBasis: boolean
+  /** How much elements represent Objective item. Set by library. */
+
+  isSnappedToWalls?: boolean
+  isBoundsTakenFromBasis?: boolean // UNUSED
+
+  isPushpinRotation?: boolean
+  pushpinRotationShiftAngle?: number
+  pushpinRotationShiftFactor?: number // factor = default_basis_size / shift_in_points_if_size_is_default
+  pushpinRotationCenterShiftFactor?: number
+
+  disableResizeAlways?: boolean
+  disableFlip?: boolean
+
+  // render opts (could be changeable by User in future, but now it's static)
+  arrowheadSize?: number
+}
+
 type _TKindSpecificationFields = {
   /**
    * coreOpts
@@ -172,29 +199,7 @@ type _TKindSpecificationFields = {
    * It's static and common between all instances of single Kind (and Version)
    * (like class attributes)
    * */
-  core: {
-    readonly basisIndex: number // required! (default 0)
-    /** is invisible bases that used only to make custom bounding borders */
-    readonly isInternalBasis: boolean
-    /** How much elements represent Objective item. Set by library. */
-
-    readonly isSnappedToWalls?: boolean
-    // readonly isBoundsTakenFromBasis?: boolean // UNUSED
-
-    readonly isPushpinRotation?: boolean
-    readonly pushpinRotationShiftAngle?: number
-    readonly pushpinRotationShiftFactor?: number // factor = default_basis_size / shift_in_points_if_size_is_default
-    readonly pushpinRotationCenterShiftFactor?: number
-
-    readonly disableResizeAlways?: boolean
-    readonly disableFlip?: boolean
-
-    // render opts (could be changeable by User in future, but now it's static)
-    readonly arrowheadSize?: number
-  }
-
-  // excalidrawExtra: {
-  // }
+  core: Readonly<_MetaCore>
 }
 
 type _MetaBase<Kind extends ObjectiveKinds = ObjectiveKinds> = //
@@ -249,9 +254,9 @@ export type LabelMeta = _MetaBase & {
   kind: ObjectiveKinds.LABEL
   /** back ref main Objective meta id that has this meta as represention */
   readonly labelOf: ObjectiveMeta['id']
-  name: never
-  nameRepr: never
-  description: never
+  name?: never
+  nameRepr?: never
+  description?: never
 }
 
 export type PointerMeta = _MetaBase & {
@@ -264,9 +269,9 @@ export type PointerMeta = _MetaBase & {
     | 'cameraLensAngle'
 
   // pointerOf: do not populate back ref as we take it from parent `element.boundElements`
-  name: never
-  nameRepr: never
-  description: never
+  name?: never
+  nameRepr?: never
+  description?: never
 }
 /** It's always "arrow" ExcalidrawElement */
 export type PointerElement = ObjectiveElement<PointerMeta>
@@ -296,7 +301,7 @@ export type _CameraExtraMeta = {
    */
   relatedImages: readonly ExcalidrawImageElement['id'][]
 }
-export type CameraMeta = ObjectiveMeta & SupportsTurnMeta & Readonly<_CameraExtraMeta>
+export type CameraMeta = ObjectiveMeta & Readonly<SupportsTurnMeta> & Readonly<_CameraExtraMeta>
 export type ShotCameraMeta = CameraMeta & {
   isShot: true
   shotNumber: number // Cam A / Cam B
@@ -372,6 +377,9 @@ export const isObjective = (el: MaybeExcalidrawElement): el is ObjectiveElement 
 
 /** is meta pure objective item that contains only ONE excalidraw element */
 export const isPure = (m: ObjectiveMeta) => m.elements.length === 1
+
+export const isObjectiveKind = <T extends ObjectiveKinds>(arg: any, kindToCheck: T): arg is T =>
+  arg === kindToCheck
 
 /** generic type guard function */
 export const isKind = <T extends ObjectiveKinds>(
@@ -498,15 +506,16 @@ const __test = () => {
   const wall = {} as ObjectiveWallElement
   const metas = {} as ObjectiveMetasGroups
   const week = {} as WeekMeta
+  const simple = {} as SimpleMeta
   const loc = {} as LocationMeta
 
   const typeGuard = (el: ExcalidrawElement): el is ObjectiveElement => {
     return true
   }
   // if (meta.libraryImg) meta.libraryImg.h = 123
-  const func = (m: CameraMeta) => {}
+  const func = (m: ObjectiveMeta['core']) => m
 
-  // func(loc)
+  func(simple.core)
 
   // isSupportsTurn(element)
 

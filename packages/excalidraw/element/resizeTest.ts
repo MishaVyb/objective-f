@@ -141,9 +141,6 @@ export const getCursorForResizingElement = (resizingElement: {
   transformHandleType: MaybeTransformHandleType;
 }): string => {
   const { element, transformHandleType } = resizingElement;
-  if (transformHandleType === "ne") {
-    console.log(transformHandleType);
-  }
   const shouldSwapCursors =
     element && Math.sign(element.height) * Math.sign(element.width) === -1;
   let cursor = null;
