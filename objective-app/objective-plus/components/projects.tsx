@@ -31,10 +31,7 @@ import {
   discardProject,
   loadCreateProject,
   loadDeleteProject,
-  loadProject,
   loadProjects,
-  loadScene,
-  loadScenes,
   loadUpdateProject,
 } from '../store/projects/actions'
 import {
@@ -42,7 +39,6 @@ import {
   selectMyProjects,
   selectIsPending,
   selectProject,
-  selectAllProjects,
   selectOtherProjects,
   selectMyDeletedProjects,
 } from '../store/projects/reducer'

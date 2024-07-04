@@ -137,7 +137,6 @@ export type TResetRequestStatusAction = ReturnType<typeof resetRequestStatusActi
 export const resetAPIError = createAction('projects/resetAPIError')
 export type TResetAPIError = ReturnType<typeof resetAPIError>
 
-export const toggleProject = createAction<IProject['id']>('projects/toggleProject')
 export const discardProject = createAction<IProject['id']>('projects/discardProject')
 
 export const setInitialSceneLoadingIsPending = createAction<boolean>(

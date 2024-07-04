@@ -115,8 +115,11 @@ export const safeAsyncThunk = async <TResponse>(
 }
 
 /** WARNING order is missing here*/
-export const mergeArraysById = <T extends { id: string }>(prev: Array<T>, next: Array<T>) => {
-  const prevMap = ensureMap(prev)
+export const mergeArraysById = <T extends { id: string }>(
+  prev: Array<T> | undefined,
+  next: Array<T>
+) => {
+  const prevMap = ensureMap(prev || [])
   const nextMap = ensureMap(next)
   const onlyPrevItems = []
   for (const [k, v] of prevMap.entries()) {

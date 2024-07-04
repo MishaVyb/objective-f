@@ -1,7 +1,7 @@
 import { Provider } from 'react-redux'
 import { BrowserRouter as Router } from 'react-router-dom'
 import ObjectivePlusApp from './components/app'
-import { store } from './store/store'
+import { localStoragePersistor, store } from './store/store'
 
 // !!! order matters
 import '@radix-ui/themes/styles.css'
@@ -13,13 +13,17 @@ import './../objective/scss/radix.scss'
 
 // TMP
 import './scss/debug.scss'
+import { PersistGate } from 'redux-persist/integration/react'
+import { Spinner } from '@radix-ui/themes'
 
 const ObjectivePlusAppIndex = () => {
   return (
     <Provider store={store}>
-      <Router>
-        <ObjectivePlusApp />
-      </Router>
+      <PersistGate loading={<Spinner />} persistor={localStoragePersistor}>
+        <Router>
+          <ObjectivePlusApp />
+        </Router>
+      </PersistGate>
     </Provider>
   )
 }

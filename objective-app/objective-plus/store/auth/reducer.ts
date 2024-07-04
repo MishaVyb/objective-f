@@ -1,6 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit'
 
-import { LOCAL_STORAGE, removeFromLocalStorage, saveToLocalStorage } from '../../utils/persistence'
 import { RootState } from '../store'
 import {
   TFulfilledAction,
@@ -14,7 +13,6 @@ import {
 } from './actions'
 import { APIError } from '../projects/reducer'
 import { mergeArraysById } from '../helpers'
-import { orderBy } from '../../../objective/utils/helpers'
 
 export interface ITokens {
   /** no 'Bearer' prefix */
@@ -79,15 +77,14 @@ export const initialState: IAuthState = {
   error: undefined,
   pendingRequest: false,
 }
+export const AUTH_PERSISTENCE_FIELDS: (keyof IAuthState)[] = ['user', 'access_token', 'token_type']
 
 // UNUSED user info should be included into project/scene as nested object
 const reducer = createReducer(initialState, (builder) => {
-  builder.addCase(loadUser.fulfilled, (state, action) =>
-    saveToLocalStorage(LOCAL_STORAGE.AUTH, {
-      ...state,
-      users: mergeArraysById(state.users, [action.payload]),
-    })
-  )
+  builder.addCase(loadUser.fulfilled, (state, action) => ({
+    ...state,
+    users: mergeArraysById(state.users, [action.payload]),
+  }))
 
   // COMMON REQUEST LIFECYCLE
   builder.addMatcher<TPendingAction>(
@@ -131,7 +128,7 @@ const reducer = createReducer(initialState, (builder) => {
       !action.type.endsWith('/loadUserMe'), //  except getUser
     (state, action) => {
       if (action.payload) {
-        return saveToLocalStorage(LOCAL_STORAGE.AUTH, { ...state, ...action.payload })
+        return { ...state, ...action.payload }
       }
     }
   )
@@ -144,7 +141,6 @@ const reducer = createReducer(initialState, (builder) => {
     (action): action is TResetAuth => resetAuth.match(action),
     (store) => {
       const logoutState = { ...initialState, user: store.user } // leave user info, but remove token
-      saveToLocalStorage(LOCAL_STORAGE.AUTH, logoutState)
       return logoutState
     }
   )

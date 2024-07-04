@@ -36,6 +36,7 @@
     "react-redux": "8.1.3",
     "react-router-dom": "6.17.0",
     "react-scripts": "5.0.1",
+    "redux-persist": "6.0.0",
     "roughjs": "4.5.2",
     "sass": "1.51.0",
     "socket.io-client": "4.7.2",

@@ -9,7 +9,6 @@ import {
   loadSceneContinuos,
   loadSceneInitial,
   loadUpdateSceneContinuos,
-  toggleProject,
 } from '../../objective-plus/store/projects/actions'
 import {
   selectCurrentScene,

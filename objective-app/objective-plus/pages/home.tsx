@@ -5,7 +5,7 @@ import { useViewport } from '../../objective/hooks/useVieport'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useDispatch } from '../hooks/redux'
 import { useSelector } from 'react-redux'
-import { IProject, selectAllProjects } from '../store/projects/reducer'
+import { IProject, selectAllProjects, selectMyProjects } from '../store/projects/reducer'
 import { useEffect } from 'react'
 import { loadProject, loadProjects, loadScene, loadScenes } from '../store/projects/actions'
 
@@ -19,8 +19,8 @@ const ProjectsPage = () => {
 
   // [1] set projectId to path param, if it's not there
   // NOTE: this logic is only for not isSmallViewPort
-  const allProjects = useSelector(selectAllProjects())
-  const defaultProject = allProjects[0] as IProject | undefined
+  const projects = useSelector(selectMyProjects)
+  const defaultProject = projects[0] as IProject | undefined
   useEffect(() => {
     if (!isSmallViewPort && !projectId && defaultProject) navigate(`/projects/${defaultProject.id}`)
   }, [isSmallViewPort, projectId, defaultProject])

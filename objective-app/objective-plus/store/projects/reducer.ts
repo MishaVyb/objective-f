@@ -1,6 +1,6 @@
 import { createReducer, createSelector } from '@reduxjs/toolkit'
 import { ExcalidrawElement } from '../../../../packages/excalidraw/element/types'
-import { LOCAL_STORAGE, removeFromLocalStorage, saveToLocalStorage } from '../../utils/persistence'
+
 import { RootState } from '../store'
 import {
   TFulfilledAction,
@@ -11,7 +11,6 @@ import {
   loadProjects,
   loadSceneInitial,
   resetRequestStatusAction,
-  toggleProject,
   loadScenes,
   setContinuousSceneUpdateIsPending,
   resetAPIError,
@@ -25,7 +24,6 @@ import {
 import { selectAuth } from '../auth/reducer'
 import { AppState, BinaryFileData } from '../../../../packages/excalidraw/types'
 import { TRadixColor } from '../../../objective/UI/colors'
-import { TResetAuth, resetAuth } from '../auth/actions'
 import { orderBy } from '../../../objective/utils/helpers'
 import { mergeArraysById } from '../helpers'
 
@@ -78,61 +76,51 @@ export type APIError = {
   }
 }
 export interface IProjectsState {
-  /** user's projects */
-  projects: IProject[]
-  toggledProjectId: IProject['id'] | undefined // TODO use URL Path param instead
+  /** my and other projects with nested simple scene info */
+  projects?: IProject[]
   projectsMeta?: {
     order?: OrderMode
   }
 
   /** full scenes info for thumbnails render only (scene elements could be outdated) */
-  scenes: ISceneFull[]
+  scenes?: ISceneFull[]
   scenesMeta?: {
     view?: 'list' | 'icons'
     order?: OrderMode
   }
 
   /** target scene to request full scene info and pass it to Excalidraw state */
-  currentScene: ISceneSimplified | undefined
+  currentScene?: ISceneSimplified
 
-  error: APIError | undefined
-  pendingRequest: boolean
-  /** Pending initial loading */
+  error?: APIError
+  pendingRequest?: boolean
+  /** Pending initial loading of currentScene */
   initialSceneLoadingIsPending: boolean
-  continuousSceneUpdateIsPending: boolean
+  continuousSceneUpdateIsPending?: boolean
 }
+export const PROJECTS_PERSISTENCE_FIELDS: (keyof IProjectsState)[] = [
+  'projects',
+  'projectsMeta',
+  'scenesMeta',
+]
 
 export const initialState: IProjectsState = {
-  projects: [],
-  toggledProjectId: undefined,
-  scenes: [],
-  currentScene: undefined,
-  error: undefined,
-  pendingRequest: false,
-  initialSceneLoadingIsPending: true, // default true so when component is mounted for the fist time, it will render Loader immediately
-  continuousSceneUpdateIsPending: false,
+  // NOTE
+  // default true so when component is mounted for the fist time,
+  // it will render Loader immediately
+  initialSceneLoadingIsPending: true,
 }
 
 const reducer = createReducer(initialState, (builder) => {
   // -------------------- Regular Actions -----------------------------------------------
-  builder.addCase(setObjectivePlusStore, (state, action) =>
-    saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
-      ...state,
-      ...action.payload,
-    })
-  )
-  builder.addCase(toggleProject, (state, action) =>
-    saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
-      ...state,
-      toggledProjectId: action.payload,
-    })
-  )
-  builder.addCase(discardProject, (state, action) =>
-    saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
-      ...state,
-      projects: state.projects.filter((p) => p.id !== action.payload),
-    })
-  )
+  builder.addCase(setObjectivePlusStore, (state, action) => ({
+    ...state,
+    ...action.payload,
+  }))
+  builder.addCase(discardProject, (state, action) => ({
+    ...state,
+    projects: state.projects?.filter((p) => p.id !== action.payload),
+  }))
 
   // -------------------- Regular Actions - requests lifecycle ----------------------------
 
@@ -151,39 +139,29 @@ const reducer = createReducer(initialState, (builder) => {
 
   // -------------------- Thunk Actions -----------------------------------------------
 
-  builder.addCase(loadProject.fulfilled, (state, action) =>
-    saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
-      ...state,
-      projects: mergeArraysById(state.projects, [action.payload]).sort((a, b) =>
-        orderBy(undefined, a, b)
-      ),
-    })
-  )
-  builder.addCase(loadProjects.fulfilled, (state, action) =>
-    saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
-      ...state,
-      projects: mergeArraysById(state.projects, action.payload).sort((a, b) =>
-        orderBy(undefined, a, b)
-      ),
-    })
-  )
+  builder.addCase(loadProject.fulfilled, (state, action) => ({
+    ...state,
+    projects: mergeArraysById(state.projects, [action.payload]).sort((a, b) =>
+      orderBy(undefined, a, b)
+    ),
+  }))
+  builder.addCase(loadProjects.fulfilled, (state, action) => ({
+    ...state,
+    projects: mergeArraysById(state.projects, action.payload).sort((a, b) =>
+      orderBy(undefined, a, b)
+    ),
+  }))
   // Scenes REQUEST LIFECYCLE
-  builder.addCase(loadScene.fulfilled, (state, action) =>
-    saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
-      ...state,
-      scenes: mergeArraysById(state.scenes, [action.payload]).sort((a, b) =>
-        orderBy(undefined, a, b)
-      ),
-    })
-  )
-  builder.addCase(loadScenes.fulfilled, (state, action) =>
-    saveToLocalStorage(LOCAL_STORAGE.PROJECTS, {
-      ...state,
-      scenes: mergeArraysById(state.scenes, action.payload).sort((a, b) =>
-        orderBy(undefined, a, b)
-      ),
-    })
-  )
+  builder.addCase(loadScene.fulfilled, (state, action) => ({
+    ...state,
+    scenes: mergeArraysById(state.scenes, [action.payload]).sort((a, b) =>
+      orderBy(undefined, a, b)
+    ),
+  }))
+  builder.addCase(loadScenes.fulfilled, (state, action) => ({
+    ...state,
+    scenes: mergeArraysById(state.scenes, action.payload).sort((a, b) => orderBy(undefined, a, b)),
+  }))
 
   // DO NOT CHANGE state.initialSceneLoadingIsPending here, we do it in separate action above
   // and we call that action in proper time scene would be fully initialized
@@ -263,15 +241,6 @@ const reducer = createReducer(initialState, (builder) => {
   // NOTE
   // We do not handle any logic of saving Scenes to Redux Store / Local Browser Storage.
   // Just load it from backend and pas to Excalidraw directly.
-
-  // auth - on reset auth (dispatched by loadlogout thunk)
-  builder.addMatcher(
-    (action): action is TResetAuth => resetAuth.match(action),
-    () => {
-      removeFromLocalStorage(LOCAL_STORAGE.PROJECTS)
-      return initialState
-    }
-  )
 })
 
 // TODO all selector should be with args or empty args () to avoid confusing
@@ -283,9 +252,11 @@ export const selectContinuousSceneUpdateIsPending = (state: RootState) =>
 export const selectInitialSceneLoadingIsPending = (state: RootState) =>
   state.projects.initialSceneLoadingIsPending
 
+const _EMPTY_LIST: IProject[] = []
+
 export const selectError = (state: RootState) => state.projects.error
 export const selectProjectsMeta = () => (state: RootState) => state.projects.projectsMeta
-export const selectAllProjects = () => (state: RootState) => state.projects.projects
+export const selectAllProjects = () => (state: RootState) => state.projects.projects || _EMPTY_LIST
 export const selectMyProjects = createSelector(
   [selectAllProjects(), selectProjectsMeta(), selectAuth],
   (projects, meta, auth) =>
@@ -309,7 +280,7 @@ export const selectOtherProjects = createSelector(
 )
 
 export const selectProject = (projectId: string | undefined) => (state: RootState) =>
-  state.projects.projects.find((p) => p.id === projectId)
+  state.projects.projects?.find((p) => p.id === projectId)
 
 export const selectScenesMeta = () => (state: RootState) => state.projects.scenesMeta
 
@@ -322,7 +293,7 @@ export const selectScenes = (projectId: string | undefined) =>
   })
 
 export const selectSceneFullInfo = (id: ISceneFull['id']) => (state: RootState) =>
-  state.projects.scenes.find((s) => s.id === id)
+  state.projects.scenes?.find((s) => s.id === id)
 
 /**
  * Get current openned Scene meta info.
