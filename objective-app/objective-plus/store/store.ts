@@ -114,14 +114,7 @@ export const store = configureStore({
           PERSIST,
           PURGE,
           REGISTER,
-
-          // ???
-          'projects/renderSceneAction/fulfilled',
-          'projects/loadScenesFromLocalOrServer/fulfilled',
         ],
-        //
-        // ??? How bad it is ? https://redux-toolkit.js.org/api/serializabilityMiddleware
-        ignoredPaths: [new RegExp('projects.sceneRenders..*.renderBlob')],
       },
     }),
 })

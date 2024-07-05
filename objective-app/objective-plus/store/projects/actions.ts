@@ -336,7 +336,8 @@ export const renderSceneAction = createAsyncThunk<
   const sceneRenderRepo = await ScenesRenderRepository.get(key)
   if (sceneRenderRepo && !isInvalidateSceneRender(sceneRenderRepo, sceneFullInfo, [], []))
     return {
-      ...sceneRenderRepo,
+      ...sceneRenderRepo, // FIXME only wanted fields
+      renderBlob: sceneRenderRepo.renderBlob ? undefined : undefined,
       renderWeekUrl: URL.createObjectURL(sceneRenderRepo.renderBlob),
     }
 
