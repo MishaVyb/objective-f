@@ -191,6 +191,8 @@ export const fetchScenes = async (query: TGetScenesThunkArg, auth: IAuthFull) =>
   const urlParams = new URLSearchParams()
   if (query.is_deleted === true) urlParams.append('is_deleted', 'True')
   if (query.is_deleted === false) urlParams.append('is_deleted', 'False')
+  if (query.user_id !== undefined) urlParams.append('user_id', query.user_id)
+  if (query.project_id !== undefined) urlParams.append('project_id', query.project_id)
   const urlParamsStr = urlParams ? `?${urlParams}` : ''
 
   const res = await fetch(ROOT + ENDPOINTS.SCENES + urlParamsStr, {

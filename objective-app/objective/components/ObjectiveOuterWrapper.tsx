@@ -28,7 +28,7 @@ import { RestoredAppState } from '../../../packages/excalidraw/data/restore'
 import { clearAppStateForDatabase } from '../../../packages/excalidraw/appState'
 import { deepCopyElement } from '../../../packages/excalidraw/element/newElement'
 import { LocalData } from '../../../excalidraw-app/data/LocalData'
-import { useFilesFromLocalOrServer } from '../../objective-plus/store/projects/helpers'
+import { useFilesFromLocalOrServer } from '../../objective-plus/store/projects/hooks'
 import { ERROR_REPR_DELTA_SEC, ObjectiveErrorCollout } from '../../objective-plus/components/errors'
 
 // import after all others

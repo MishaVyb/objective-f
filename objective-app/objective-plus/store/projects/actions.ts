@@ -16,9 +16,11 @@ import {
 } from '../../utils/objective-api'
 import { selectAuth } from '../auth/reducer'
 import { ThunkApiConfig, safeAsyncThunk } from '../helpers'
-import { IProject, IProjectsState, ISceneFull } from './reducer'
+import { IProject, IProjectsState, ISceneFull, ISceneSimplified } from './reducer'
 import { BinaryFileData } from '../../../../packages/excalidraw/types'
 import { MarkOptional } from '../../../../packages/excalidraw/utility-types'
+import { ScenesRepository } from '../../utils/objective-local-db'
+import { ensureArray, ensureMap } from '../../../objective/meta/_types'
 
 // Responses
 export type TGetProjectResponse = IProject
@@ -39,6 +41,7 @@ export type TCreateFileResponse = Pick<BinaryFileData, 'id' | 'mimeType'>
 // Payloads (query params, body, formData ...)
 export type TQueryBase = {
   is_deleted?: boolean
+  user_id?: string
 }
 
 export type TCreateProjectPayload = Pick<IProject, 'name'>
@@ -74,7 +77,7 @@ export type TUpdateProjectThunkArg = TUpdateProjectPayload & Pick<IProject, 'id'
 export type TDeleteProjectThunkArg = Pick<IProject, 'id'>
 
 export type TGetSceneThunkArg = Pick<ISceneFull, 'id'>
-export type TGetScenesThunkArg = TQueryBase
+export type TGetScenesThunkArg = TQueryBase & { project_id?: string }
 export type TCreateSceneThunkArg = TCreateScenePayload
 export type TUpdateSceneThunkArg = TUpdateScenePayload & Pick<ISceneFull, 'id'>
 export type TCopySceneThunkArg = TUpdateScenePayload & Pick<ISceneFull, 'id'>
@@ -190,19 +193,122 @@ export const loadDeleteProject = createAsyncThunk<
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/** for Objective Plus logic (for generating thumbnail images) */
+/** for Objective Plus logic (copy/duplicate/etc) */
 export const loadScene = createAsyncThunk<TGetSceneResponse, TGetSceneThunkArg, ThunkApiConfig>(
   'projects/loadScene',
   (arg, thunkApi) =>
     safeAsyncThunk(thunkApi, () => fetchScene(arg.id, selectAuth(thunkApi.getState())))
 )
 
-/** for Objective Plus logic (for generating thumbnail images) */
+/**
+ * for Objective Plus logic (for generating thumbnail images)
+ * @deprecated use {@link loadScenesFromLocalOrServer}
+ * */
 export const loadScenes = createAsyncThunk<TGetScenesResponse, TGetScenesThunkArg, ThunkApiConfig>(
   'projects/loadScenes',
   (query, thunkApi) =>
     safeAsyncThunk(thunkApi, () => fetchScenes(query, selectAuth(thunkApi.getState())))
 )
+
+const isSuccessListResponse = (v: any): v is TGetScenesResponse => 'length' in v
+const isSuccessOneResponse = (v: any): v is TGetSceneResponse => 'id' in v
+const isInvalidateLocalScene = (local: ISceneSimplified | undefined, latest: ISceneSimplified) =>
+  !local ||
+  new Date(local.updated_at || local.created_at) < new Date(latest.updated_at || latest.created_at)
+
+/** for Objective Plus logic (for generating thumbnail images) */
+export const loadScenesFromLocalOrServer = createAsyncThunk<
+  TGetScenesResponse,
+  TGetScenesThunkArg,
+  ThunkApiConfig
+>('projects/loadScenesFromLocalOrServer', async (query, thunkApi) => {
+  try {
+    const projectId = query.project_id
+    const state = thunkApi.getState()
+    const auth = selectAuth(state)
+
+    // HACK circular imports
+    const project: IProject | undefined = state.projects.projects?.find((p) => p.id === projectId)
+    if (!project) return []
+
+    const scenesRef = ensureMap(project.scenes.filter((s) => !s.is_deleted))
+    const scenesRefInclDeleted = ensureMap(project.scenes)
+    const scenesRepo = await ScenesRepository.getMany([...scenesRefInclDeleted.keys()])
+    const scenesRepoMap = ensureMap(scenesRepo)
+
+    const scenesRepoRemove = [...scenesRepoMap.values()].filter(
+      (s) => !scenesRef.has(s.id) || project.is_deleted
+    )
+    if (scenesRepoRemove.length) {
+      console.debug(
+        `Removing scene from local: ${project.name}. `,
+        scenesRepoRemove.map((s) => s.name)
+      )
+      await ScenesRepository.delMany(scenesRepoRemove.map((s) => s.id))
+    }
+    if (project.is_deleted) return []
+
+    // scenes to invalidate in repository
+    const scenesRepoInv = [...scenesRef.values()].filter((s) =>
+      isInvalidateLocalScene(scenesRepoMap.get(s.id), s)
+    )
+    const scenesRepoInvMap = ensureMap(scenesRepoInv)
+    const scenesRepoPending = new Map<ISceneFull['id'], ISceneFull>([])
+
+    if (scenesRepoInv.length === 1) {
+      const oneSceneInv = scenesRepoInv[0]
+      console.debug(
+        `Fetch one scene info for project: ${project.name}. `,
+        `Invalidate cache: ${oneSceneInv.name}`
+      )
+
+      // re-fetching 1 scene
+      // (the most common case when coming from scene canvas back to projects dashaboard)
+      const s = await safeAsyncThunk(thunkApi, () => fetchScene(oneSceneInv.id, auth))
+      if (!isSuccessOneResponse(s)) return s
+      scenesRepoPending.set(s.id, s)
+
+      //
+    } else if (scenesRepoInv.length > 1) {
+      console.debug(
+        `Fetch all scenes info for project: ${project.name}. Invalidate cache: `,
+        scenesRepoInv.map((s) => s.name)
+      )
+
+      // re-fetching all scenes in case of many scene invalidation (not only required ids)
+      // (simple implementation)
+      const ss = await safeAsyncThunk(thunkApi, () =>
+        fetchScenes({ project_id: query.project_id!, user_id: '' }, auth)
+      )
+      if (!isSuccessListResponse(ss)) return ss
+      ss.forEach((s) => (scenesRepoInvMap.has(s.id) ? scenesRepoPending.set(s.id, s) : null))
+
+      //
+    } else {
+      console.debug(`Do not fetch scenes info: ${project.name}. Cache is valid: `)
+    }
+
+    // perform pending scenes
+    if (scenesRepoPending.size) await ScenesRepository.setMany([...scenesRepoPending.entries()])
+
+    const scenesRedux = ensureMap(state.projects.scenes || [])
+    const scenesReduxInv = new Map<ISceneFull['id'], ISceneFull>([])
+    for (const ref of scenesRef.values()) {
+      // pending scene to invalidate in Redux always
+      if (scenesRepoPending.has(ref.id)) scenesReduxInv.set(ref.id, scenesRepoPending.get(ref.id)!)
+      // scene from Repo to invalidate only if Redux dont have it
+      else if (scenesRepoMap.has(ref.id) && !scenesRedux.has(ref.id))
+        scenesReduxInv.set(ref.id, scenesRepoMap.get(ref.id)!)
+    }
+
+    return ensureArray(scenesReduxInv)
+
+    //
+  } catch (e) {
+    console.error(e)
+    throw e
+  }
+})
 
 /** for ObjectiveOuterWrapper logic */
 export const loadSceneInitial = createAsyncThunk<

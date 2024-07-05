@@ -5,9 +5,9 @@ import { useViewport } from '../../objective/hooks/useVieport'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useDispatch } from '../hooks/redux'
 import { useSelector } from 'react-redux'
-import { IProject, selectAllProjects, selectMyProjects } from '../store/projects/reducer'
+import { IProject, selectMyProjects, selectProject } from '../store/projects/reducer'
 import { useEffect } from 'react'
-import { loadProject, loadProjects, loadScene, loadScenes } from '../store/projects/actions'
+import { loadProject, loadProjects, loadScenesFromLocalOrServer } from '../store/projects/actions'
 
 const ProjectsPage = () => {
   const { projectId } = useParams()
@@ -21,6 +21,8 @@ const ProjectsPage = () => {
   // NOTE: this logic is only for not isSmallViewPort
   const projects = useSelector(selectMyProjects)
   const defaultProject = projects[0] as IProject | undefined
+  const currentProject = useSelector(selectProject(projectId))
+
   useEffect(() => {
     if (!isSmallViewPort && !projectId && defaultProject) navigate(`/projects/${defaultProject.id}`)
   }, [isSmallViewPort, projectId, defaultProject])
@@ -31,29 +33,21 @@ const ProjectsPage = () => {
   // bu it's needed for now to invalidate external (other user's) scene data stored at local storage
 
   // load all user's projects (incl deleted)
+  // it's required in order to set projectId in path parameters, if there no projects at all
   useEffect(() => {
     dispatch(loadProjects({ is_deleted: false }))
-      .unwrap()
-      .then((projects) => {
-        // load full scenes info here for thumbnails render only
-        dispatch(loadScenes({}))
-      })
     dispatch(loadProjects({ is_deleted: true }))
   }, [dispatch])
 
-  // load current project from path parameters
-  // (means it's other user project access via external link)
-
+  // load project from path parameters (curren/other user project)
   useEffect(() => {
-    if (projectId)
-      dispatch(loadProject({ id: projectId }))
-        .unwrap()
-        .then((project) => {
-          // Load full scenes info here for thumbnails render only
-          if (!project.is_deleted)
-            project.scenes.forEach((scene) => dispatch(loadScene({ id: scene.id })))
-        })
+    if (projectId) dispatch(loadProject({ id: projectId }))
   }, [projectId, dispatch])
+
+  // load scenes full info for thumbnails (from project from path parameter)
+  useEffect(() => {
+    if (currentProject) dispatch(loadScenesFromLocalOrServer({ project_id: currentProject.id }))
+  }, [currentProject, dispatch])
 
   return (
     <Flex style={{ height: 'calc(100% - 40px)' }}>

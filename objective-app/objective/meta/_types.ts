@@ -493,7 +493,8 @@ export const isObjectiveHidden = (el: ExcalidrawElement) =>
 
 // ---------------------------------------------------------------------- helper functions
 
-export const ensureArray = (els: ElementsMapOrArray) => ('values' in els ? [...els.values()] : els)
+export const ensureArray = <T extends { id: string }>(els: Map<string, T>): T[] =>
+  'values' in els ? [...els.values()] : els
 export const ensureMap = arrayToMap // alias
 
 //--------------------- TS tests ------------------------ //

@@ -20,6 +20,7 @@ import {
   loadProject,
   loadScene,
   discardProject,
+  loadScenesFromLocalOrServer,
 } from './actions'
 import { selectAuth } from '../auth/reducer'
 import { AppState, BinaryFileData } from '../../../../packages/excalidraw/types'
@@ -162,6 +163,10 @@ const reducer = createReducer(initialState, (builder) => {
     ...state,
     scenes: mergeArraysById(state.scenes, action.payload).sort((a, b) => orderBy(undefined, a, b)),
   }))
+  builder.addCase(loadScenesFromLocalOrServer.fulfilled, (state, action) => ({
+    ...state,
+    scenes: mergeArraysById(state.scenes, action.payload).sort((a, b) => orderBy(undefined, a, b)),
+  }))
 
   // DO NOT CHANGE state.initialSceneLoadingIsPending here, we do it in separate action above
   // and we call that action in proper time scene would be fully initialized
@@ -202,11 +207,13 @@ const reducer = createReducer(initialState, (builder) => {
       state.pendingRequest = false
 
       if (action.payload) state.error = action.payload
-      else
+      else {
+        console.error(action.error)
         state.error = {
           type: 'InternalError',
           message: action.error.message || 'Internal app error',
         }
+      }
 
       // special options for continuous requests
       if (action.type === loadSceneContinuos.rejected.type) {
