@@ -83,3 +83,11 @@ export const orderBy = (
   }
   return compareDates(a.created_at, b.created_at) // default sorting
 }
+
+export const setEq = <T>(x: Iterable<T>, y: Iterable<T>) => {
+  if (x === y) return true // the same objects
+
+  const xs = new Set(x)
+  const ys = new Set(y)
+  return xs.size === ys.size && [...xs].every((x) => ys.has(x))
+}

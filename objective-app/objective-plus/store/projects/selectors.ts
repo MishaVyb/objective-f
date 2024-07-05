@@ -1,9 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit'
 import { RootState } from '../store'
-import { orderBy } from '../../../objective/utils/helpers'
+import { mapOmitNone, orderBy } from '../../../objective/utils/helpers'
 import { APIError, IProject, ISceneFull } from './reducer'
 import { TSceneRenderKey } from '../../utils/objective-local-db'
 import { selectAuth } from '../auth/reducer'
+import { getSceneVisibleFileIds } from './hooks'
+import { ensureMap } from '../../../objective/meta/_types'
+import { BinaryFileData } from '../../../../packages/excalidraw/types'
 
 export const selectIsPending = (state: RootState) => state.projects.pendingRequest
 export const selectContinuousSceneUpdateIsPending = (state: RootState) =>
@@ -55,14 +58,24 @@ export const selectScenes = (projectId: string | undefined) =>
 export const selectSceneFullInfo = (id: ISceneFull['id']) => (state: RootState) =>
   state.projects.scenes?.find((s) => s.id === id)
 
-// UNUSED
-export const selectSceneRenderBlob =
+export const selectSceneRender =
   ([kind, id]: TSceneRenderKey) =>
-  (state: RootState) => {
-    return state.projects.sceneRenders?.find((s) => s.renderKind === kind && s.id === id)
-    // if (!ref) return
-    // return ScenesBlobInMemoryRepository.get([ref.renderKind, ref.id])
-  }
+  (state: RootState) =>
+    state.projects.sceneRenders?.find((s) => s.renderKind === kind && s.id === id)
+
+export const selectSceneFile = (id: BinaryFileData['id']) => (state: RootState) =>
+  state.projects.sceneFiles?.find((f) => f.id === id)
+
+export const selectSceneFiles = (id: ISceneFull['id']) =>
+  createSelector(
+    [(state: RootState) => state.projects.sceneFiles, selectSceneFullInfo(id)],
+    (allFiles, sceneFullInfo) => {
+      if (!sceneFullInfo) return []
+      const allFilesMap = ensureMap(allFiles || [])
+      const fileIds = getSceneVisibleFileIds(sceneFullInfo)
+      return mapOmitNone(fileIds, (fileId) => allFilesMap.get(fileId))
+    }
+  )
 
 /**
  * Get current openned Scene meta info.

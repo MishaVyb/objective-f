@@ -28,7 +28,7 @@ import { FileManager } from "./FileManager";
 import { Locker } from "./Locker";
 import { updateBrowserStateVersion } from "./tabSync";
 
-const filesStore = createStore("files-db", "files-store");
+export const filesStore = createStore("files-db", "files-store");
 
 class LocalFileManager extends FileManager {
   clearObsoleteFiles = async (opts: { currentFileIds: FileId[] }) => {

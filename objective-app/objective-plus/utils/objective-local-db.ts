@@ -1,5 +1,7 @@
 import { createStore, getMany, set, setMany, get, delMany } from 'idb-keyval'
 import { ISceneFull, ISceneSimplified } from '../store/projects/reducer'
+import { filesStore } from '../../../excalidraw-app/data/LocalData'
+import { BinaryFileData } from '../../../packages/excalidraw/types'
 
 export class ScenesRepositoryClass {
   private db = createStore('objective-db-scenes', 'base')
@@ -47,7 +49,6 @@ export class ScenesRepositoryClass {
   //   return await update<ISceneFull>(id, (current) => scene, this.db)
   // }
 }
-
 export const ScenesRepository = new ScenesRepositoryClass()
 
 export type SceneRenderKind = 'thumbnail' | 'export'
@@ -56,6 +57,8 @@ export type TSceneRenderVal = ISceneSimplified & {
   renderKind: SceneRenderKind
   renderMaxWidthOrHeight: number
   renderMimeType: string
+  /** files that included in blob render */
+  renderFileIds: BinaryFileData['id'][]
   renderBlob: Blob
 }
 export type TSceneRenderSerializable = Omit<TSceneRenderVal, 'renderBlob'>
@@ -106,6 +109,53 @@ export class ScenesRenderRepositoryClass {
   //   return await update<ISceneFull>(id, (current) => scene, this.db)
   // }
 }
-
-
 export const ScenesRenderRepository = new ScenesRenderRepositoryClass()
+
+export class ScenesFileRepositoryClass {
+  private db = filesStore
+
+  async get(id: BinaryFileData['id']) {
+    try {
+      console.debug('[REPO][FILE] Getting instance: ', id)
+      return await get<BinaryFileData>(id, this.db)
+    } catch (e) {
+      console.warn(e)
+      return undefined
+    }
+  }
+  async getMany(ids: BinaryFileData['id'][]) {
+    try {
+      return (await getMany<BinaryFileData>(ids, this.db)).filter((s) => s)
+    } catch (e) {
+      console.warn(e)
+      return []
+    }
+  }
+  async set(id: BinaryFileData['id'], scene: BinaryFileData) {
+    try {
+      return await set(id, scene, this.db)
+    } catch (e) {
+      console.warn(e)
+    }
+  }
+  async setMany(entries: [BinaryFileData['id'], BinaryFileData][]) {
+    try {
+      return await setMany(entries, this.db)
+    } catch (e) {
+      console.warn(e)
+    }
+  }
+  async delMany(ids: BinaryFileData['id'][]) {
+    try {
+      return await delMany(ids, this.db)
+    } catch (e) {
+      console.warn(e)
+    }
+  }
+
+  // UNUSED
+  // async update(id: ISceneSimplified['id'], scene: ISceneFull) {
+  //   return await update<ISceneFull>(id, (current) => scene, this.db)
+  // }
+}
+export const ScenesFileRepository = new ScenesFileRepositoryClass()

@@ -21,6 +21,7 @@ import {
   discardProject,
   loadScenesFromLocalOrServer,
   renderSceneAction,
+  loadFileFromLocalOrServer,
 } from './actions'
 import { AppState, BinaryFileData } from '../../../../packages/excalidraw/types'
 import { TRadixColor } from '../../../objective/UI/colors'
@@ -90,6 +91,7 @@ export interface IProjectsState {
     order?: OrderMode
   }
   sceneRenders?: TSceneRenderVal[]
+  sceneFiles?: BinaryFileData[]
 
   /** target scene to request full scene info and pass it to Excalidraw state */
   currentScene?: ISceneSimplified
@@ -170,9 +172,11 @@ const reducer = createReducer(initialState, (builder) => {
   }))
   builder.addCase(renderSceneAction.fulfilled, (state, action) => ({
     ...state,
-    sceneRenders: mergeArraysById(state.sceneRenders, [action.payload]).sort((a, b) =>
-      orderBy(undefined, a, b)
-    ),
+    sceneRenders: mergeArraysById(state.sceneRenders, [action.payload]),
+  }))
+  builder.addCase(loadFileFromLocalOrServer.fulfilled, (state, action) => ({
+    ...state,
+    sceneFiles: mergeArraysById(state.sceneFiles, action.payload ? [action.payload] : []),
   }))
 
   // DO NOT CHANGE state.initialSceneLoadingIsPending here, we do it in separate action above
