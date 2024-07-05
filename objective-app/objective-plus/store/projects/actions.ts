@@ -19,8 +19,15 @@ import { ThunkApiConfig, safeAsyncThunk } from '../helpers'
 import { IProject, IProjectsState, ISceneFull, ISceneSimplified } from './reducer'
 import { BinaryFileData } from '../../../../packages/excalidraw/types'
 import { MarkOptional } from '../../../../packages/excalidraw/utility-types'
-import { ScenesRepository } from '../../utils/objective-local-db'
-import { ensureArray, ensureMap } from '../../../objective/meta/_types'
+import {
+  ScenesRenderRepository,
+  ScenesRepository,
+  TSceneRenderKey,
+  TSceneRenderSerializable,
+  TSceneRenderVal,
+} from '../../utils/objective-local-db'
+import { ensureArray, ensureMap, isObjectiveHidden } from '../../../objective/meta/_types'
+import { exportToBlob, MIME_TYPES } from '../../../../packages/excalidraw'
 
 // Responses
 export type TGetProjectResponse = IProject
@@ -212,9 +219,10 @@ export const loadScenes = createAsyncThunk<TGetScenesResponse, TGetScenesThunkAr
 
 const isSuccessListResponse = (v: any): v is TGetScenesResponse => 'length' in v
 const isSuccessOneResponse = (v: any): v is TGetSceneResponse => 'id' in v
-const isInvalidateLocalScene = (local: ISceneSimplified | undefined, latest: ISceneSimplified) =>
-  !local ||
-  new Date(local.updated_at || local.created_at) < new Date(latest.updated_at || latest.created_at)
+const isInvalidateScene = (cached: ISceneSimplified | undefined, latest: ISceneSimplified) =>
+  !cached ||
+  new Date(cached.updated_at || cached.created_at) <
+    new Date(latest.updated_at || latest.created_at)
 
 /** for Objective Plus logic (for generating thumbnail images) */
 export const loadScenesFromLocalOrServer = createAsyncThunk<
@@ -222,93 +230,146 @@ export const loadScenesFromLocalOrServer = createAsyncThunk<
   TGetScenesThunkArg,
   ThunkApiConfig
 >('projects/loadScenesFromLocalOrServer', async (query, thunkApi) => {
-  try {
-    const projectId = query.project_id
+  const projectId = query.project_id
+  const state = thunkApi.getState()
+  const auth = selectAuth(state)
+
+  // HACK circular imports
+  const project: IProject | undefined = state.projects.projects?.find((p) => p.id === projectId)
+  if (!project) return []
+
+  const scenesRef = ensureMap(project.scenes.filter((s) => !s.is_deleted))
+  const scenesRefInclDeleted = ensureMap(project.scenes)
+  const scenesRepo = await ScenesRepository.getMany([...scenesRefInclDeleted.keys()])
+  const scenesRepoMap = ensureMap(scenesRepo)
+
+  const scenesRepoRemove = [...scenesRepoMap.values()].filter(
+    (s) => !scenesRef.has(s.id) || project.is_deleted
+  )
+  if (scenesRepoRemove.length) {
+    console.debug(
+      `Removing scene from local: ${project.name}. `,
+      scenesRepoRemove.map((s) => s.name)
+    )
+    await ScenesRepository.delMany(scenesRepoRemove.map((s) => s.id))
+  }
+  if (project.is_deleted) return []
+
+  // scenes to invalidate in repository
+  const scenesRepoInv = [...scenesRef.values()].filter((s) =>
+    isInvalidateScene(scenesRepoMap.get(s.id), s)
+  )
+  const scenesRepoInvMap = ensureMap(scenesRepoInv)
+  const scenesRepoPending = new Map<ISceneFull['id'], ISceneFull>([])
+
+  if (scenesRepoInv.length === 1) {
+    const oneSceneInv = scenesRepoInv[0]
+    console.debug(
+      `Fetch one scene info for project: ${project.name}. `,
+      `Invalidate cache: ${oneSceneInv.name}`
+    )
+
+    // re-fetching 1 scene
+    // (the most common case when coming from scene canvas back to projects dashaboard)
+    const s = await safeAsyncThunk(thunkApi, () => fetchScene(oneSceneInv.id, auth))
+    if (!isSuccessOneResponse(s)) return s
+    scenesRepoPending.set(s.id, s)
+
+    //
+  } else if (scenesRepoInv.length > 1) {
+    console.debug(
+      `Fetch all scenes info for project: ${project.name}. Invalidate cache: `,
+      scenesRepoInv.map((s) => s.name)
+    )
+
+    // re-fetching all scenes in case of many scene invalidation (not only required ids)
+    // (simple implementation)
+    const ss = await safeAsyncThunk(thunkApi, () =>
+      fetchScenes({ project_id: query.project_id!, user_id: '' }, auth)
+    )
+    if (!isSuccessListResponse(ss)) return ss
+    ss.forEach((s) => (scenesRepoInvMap.has(s.id) ? scenesRepoPending.set(s.id, s) : null))
+
+    //
+  } else {
+    console.debug(`Do not fetch scenes info: ${project.name}. Cache is valid: `)
+  }
+
+  // perform pending scenes
+  if (scenesRepoPending.size) await ScenesRepository.setMany([...scenesRepoPending.entries()])
+
+  const scenesRedux = ensureMap(state.projects.scenes || [])
+  const scenesReduxInv = new Map<ISceneFull['id'], ISceneFull>([])
+  for (const ref of scenesRef.values()) {
+    // pending scene to invalidate in Redux always
+    if (scenesRepoPending.has(ref.id)) scenesReduxInv.set(ref.id, scenesRepoPending.get(ref.id)!)
+    // scene from Repo to invalidate only if Redux dont have it
+    else if (scenesRepoMap.has(ref.id) && !scenesRedux.has(ref.id))
+      scenesReduxInv.set(ref.id, scenesRepoMap.get(ref.id)!)
+  }
+
+  return ensureArray(scenesReduxInv)
+})
+
+const THUMBNAIL_DEMENSIONS_MAX = 500
+
+export const renderSceneAction = createAsyncThunk<TSceneRenderVal, TSceneRenderKey, ThunkApiConfig>(
+  'projects/renderSceneAction',
+  async (key, thunkApi) => {
+    const [kind, id] = key
     const state = thunkApi.getState()
-    const auth = selectAuth(state)
+    const sceneFullInfo = state.projects.scenes?.find((s) => s.id === id)
+    if (!sceneFullInfo) throw Error('no sceneFullInfo') // TMP
 
-    // HACK circular imports
-    const project: IProject | undefined = state.projects.projects?.find((p) => p.id === projectId)
-    if (!project) return []
-
-    const scenesRef = ensureMap(project.scenes.filter((s) => !s.is_deleted))
-    const scenesRefInclDeleted = ensureMap(project.scenes)
-    const scenesRepo = await ScenesRepository.getMany([...scenesRefInclDeleted.keys()])
-    const scenesRepoMap = ensureMap(scenesRepo)
-
-    const scenesRepoRemove = [...scenesRepoMap.values()].filter(
-      (s) => !scenesRef.has(s.id) || project.is_deleted
+    const sceneRenderRedux = state.projects.sceneRenders?.find(
+      (s) => s.renderKind === kind && s.id === id
     )
-    if (scenesRepoRemove.length) {
-      console.debug(
-        `Removing scene from local: ${project.name}. `,
-        scenesRepoRemove.map((s) => s.name)
-      )
-      await ScenesRepository.delMany(scenesRepoRemove.map((s) => s.id))
+    if (sceneRenderRedux && !isInvalidateScene(sceneRenderRedux, sceneFullInfo))
+      return sceneRenderRedux
+
+    // REFRESH
+    const sceneRenderFreshSerializable: TSceneRenderSerializable = {
+      ...sceneFullInfo,
+      renderKind: kind,
+      renderMaxWidthOrHeight: THUMBNAIL_DEMENSIONS_MAX, // TODO other sized
+      renderMimeType: MIME_TYPES.png,
     }
-    if (project.is_deleted) return []
 
-    // scenes to invalidate in repository
-    const scenesRepoInv = [...scenesRef.values()].filter((s) =>
-      isInvalidateLocalScene(scenesRepoMap.get(s.id), s)
-    )
-    const scenesRepoInvMap = ensureMap(scenesRepoInv)
-    const scenesRepoPending = new Map<ISceneFull['id'], ISceneFull>([])
+    let blob
+    const sceneRenderRepo = await ScenesRenderRepository.get(key)
 
-    if (scenesRepoInv.length === 1) {
-      const oneSceneInv = scenesRepoInv[0]
-      console.debug(
-        `Fetch one scene info for project: ${project.name}. `,
-        `Invalidate cache: ${oneSceneInv.name}`
-      )
-
-      // re-fetching 1 scene
-      // (the most common case when coming from scene canvas back to projects dashaboard)
-      const s = await safeAsyncThunk(thunkApi, () => fetchScene(oneSceneInv.id, auth))
-      if (!isSuccessOneResponse(s)) return s
-      scenesRepoPending.set(s.id, s)
-
-      //
-    } else if (scenesRepoInv.length > 1) {
-      console.debug(
-        `Fetch all scenes info for project: ${project.name}. Invalidate cache: `,
-        scenesRepoInv.map((s) => s.name)
-      )
-
-      // re-fetching all scenes in case of many scene invalidation (not only required ids)
-      // (simple implementation)
-      const ss = await safeAsyncThunk(thunkApi, () =>
-        fetchScenes({ project_id: query.project_id!, user_id: '' }, auth)
-      )
-      if (!isSuccessListResponse(ss)) return ss
-      ss.forEach((s) => (scenesRepoInvMap.has(s.id) ? scenesRepoPending.set(s.id, s) : null))
+    if (sceneRenderRepo && !isInvalidateScene(sceneRenderRepo, sceneFullInfo)) {
+      blob = sceneRenderRepo!.renderBlob
 
       //
     } else {
-      console.debug(`Do not fetch scenes info: ${project.name}. Cache is valid: `)
+      const files: BinaryFileData[] = [] // TODO from Redux store
+
+      console.debug('Rendering blob: ', key)
+      blob = await exportToBlob({
+        elements: sceneFullInfo.elements.filter((e) => !isObjectiveHidden(e)),
+        appState: {
+          ...sceneFullInfo.appState,
+          exportBackground: true,
+          viewBackgroundColor: '#fdfcfd', // var(--gray-1)
+        },
+        maxWidthOrHeight: THUMBNAIL_DEMENSIONS_MAX, // TODO other sized
+        files: Object.fromEntries(files.map((f) => [f.id, f])),
+        mimeType: MIME_TYPES.png,
+      })
+
+      await ScenesRenderRepository.set(key, {
+        ...sceneRenderFreshSerializable,
+        renderBlob: blob,
+      })
     }
 
-    // perform pending scenes
-    if (scenesRepoPending.size) await ScenesRepository.setMany([...scenesRepoPending.entries()])
-
-    const scenesRedux = ensureMap(state.projects.scenes || [])
-    const scenesReduxInv = new Map<ISceneFull['id'], ISceneFull>([])
-    for (const ref of scenesRef.values()) {
-      // pending scene to invalidate in Redux always
-      if (scenesRepoPending.has(ref.id)) scenesReduxInv.set(ref.id, scenesRepoPending.get(ref.id)!)
-      // scene from Repo to invalidate only if Redux dont have it
-      else if (scenesRepoMap.has(ref.id) && !scenesRedux.has(ref.id))
-        scenesReduxInv.set(ref.id, scenesRepoMap.get(ref.id)!)
+    return {
+      ...sceneRenderFreshSerializable,
+      renderBlob: blob,
     }
-
-    return ensureArray(scenesReduxInv)
-
-    //
-  } catch (e) {
-    console.error(e)
-    throw e
   }
-})
+)
 
 /** for ObjectiveOuterWrapper logic */
 export const loadSceneInitial = createAsyncThunk<

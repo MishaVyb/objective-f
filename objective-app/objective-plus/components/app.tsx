@@ -18,9 +18,10 @@ import { ObjectiveHeader } from './header'
 import RouteDispatch from './route-dispatch'
 import DebugPage from '../pages/debug'
 import { ObjectiveErrorCollout } from './errors'
-import { IProject, ISceneFull, selectNotUserAPIErrors } from '../store/projects/reducer'
+import { selectNotUserAPIErrors } from '../../objective-plus/store/projects/selectors'
 import { useSelector } from '../hooks/redux'
 import { useViewport } from '../../objective/hooks/useVieport'
+import { IProject, ISceneFull } from '../store/projects/reducer'
 
 const ScheckSentry: FC = () => {
   console.info('ScheckSentry: info log')

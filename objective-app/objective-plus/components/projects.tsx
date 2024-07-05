@@ -35,19 +35,19 @@ import {
   loadUpdateProject,
 } from '../store/projects/actions'
 import {
-  IProject,
   selectMyProjects,
   selectIsPending,
   selectProject,
   selectOtherProjects,
   selectMyDeletedProjects,
-} from '../store/projects/reducer'
+} from '../../objective-plus/store/projects/selectors'
 import { ACCENT_COLOR } from '../constants'
 import { CustomDropDownMenuItem } from '../UI'
 import { useNavigate, useParams } from 'react-router-dom'
 import { selectAuth } from '../store/auth/reducer'
 import { buildProjectUrl } from './app'
 import { useViewport } from '../../objective/hooks/useVieport'
+import { IProject } from '../store/projects/reducer'
 
 const ProjectNewItem: FC = () => {
   const dispatch = useDispatch()

@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from '../../objective-plus/hooks/redux'
 import {
   selectIsMyScene,
   selectInitialSceneLoadingIsPending,
-} from '../../objective-plus/store/projects/reducer'
+} from '../../objective-plus/store/projects/selectors'
 import { actionToggleViewMode } from '../../../packages/excalidraw/actions/actionToggleViewMode'
 import App, {
   useApp,

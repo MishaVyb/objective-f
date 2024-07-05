@@ -25,7 +25,7 @@ import { ExportIcon, usersIcon } from '../../../packages/excalidraw/components/i
 import { ACCENT_COLOR } from '../../objective-plus/constants'
 import { actionSaveFileToDisk } from '../../../packages/excalidraw/actions'
 import { MySceneShareOptions, OtherSceneShareOptions } from './TopRightUI'
-import { selectIsOtherScene } from '../../objective-plus/store/projects/reducer'
+import { selectIsOtherScene } from '../../objective-plus/store/projects/selectors'
 
 const NewScene: FC = () => {
   const navigate = useNavigate()

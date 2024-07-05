@@ -5,9 +5,10 @@ import { useViewport } from '../../objective/hooks/useVieport'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useDispatch } from '../hooks/redux'
 import { useSelector } from 'react-redux'
-import { IProject, selectMyProjects, selectProject } from '../store/projects/reducer'
+import { selectMyProjects, selectProject } from '../../objective-plus/store/projects/selectors'
 import { useEffect } from 'react'
 import { loadProject, loadProjects, loadScenesFromLocalOrServer } from '../store/projects/actions'
+import { IProject } from '../store/projects/reducer'
 
 const ProjectsPage = () => {
   const { projectId } = useParams()

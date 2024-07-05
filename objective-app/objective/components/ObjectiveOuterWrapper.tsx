@@ -14,10 +14,8 @@ import {
   selectCurrentScene,
   selectIsMyScene,
   selectInitialSceneLoadingIsPending,
-  ISceneFull,
-  APIError,
   selectUserAPIErrors,
-} from '../../objective-plus/store/projects/reducer'
+} from '../../objective-plus/store/projects/selectors'
 import { isImageElement } from '../../../packages/excalidraw/element/typeChecks'
 import { AppState, ExcalidrawImperativeAPI } from '../../../packages/excalidraw/types'
 
@@ -38,6 +36,7 @@ import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { ObjectiveMeta } from '../meta/_types'
 import { mutateElement } from '../../../packages/excalidraw'
 import { mutateMeta } from '../elements/_mutateElements'
+import { APIError, ISceneFull } from '../../objective-plus/store/projects/reducer'
 
 const serializeElements = (scene: ISceneFull) => {
   // NOTE: deep copy is required here in order to resolve this issue:

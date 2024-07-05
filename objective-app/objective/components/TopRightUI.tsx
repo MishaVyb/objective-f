@@ -29,7 +29,7 @@ import {
   selectCurrentScene,
   selectIsOtherScene,
   selectMyProjects,
-} from '../../objective-plus/store/projects/reducer'
+} from '../../objective-plus/store/projects/selectors'
 import { Sidebar } from '../../../packages/excalidraw'
 import { ACCENT_COLOR } from '../../objective-plus/constants'
 import { getFullPath } from '../../objective-plus/components/app'

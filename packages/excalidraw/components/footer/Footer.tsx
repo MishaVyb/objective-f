@@ -14,7 +14,7 @@ import Stack from "../Stack";
 import { UIAppState } from "../../types";
 import { Layers } from "../../../../objective-app/objective/components/Layers";
 import { useSelector } from "../../../../objective-app/objective-plus/hooks/redux";
-import { selectAPIErrors } from "../../../../objective-app/objective-plus/store/projects/reducer";
+import { selectAPIErrors } from "../../../../objective-app/objective-plus/store/projects/selectors";
 import { useViewport } from "../../../../objective-app/objective/hooks/useVieport";
 
 const Footer = ({

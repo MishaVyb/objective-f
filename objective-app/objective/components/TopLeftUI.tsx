@@ -7,7 +7,7 @@ import {
   selectContinuousSceneUpdateIsPending,
   selectCurrentScene,
   selectIsMyScene,
-} from '../../objective-plus/store/projects/reducer'
+} from '../../objective-plus/store/projects/selectors'
 import { useExcalidrawAppState } from '../../../packages/excalidraw/components/App'
 import { ToolButton } from '../../../packages/excalidraw/components/ToolButton'
 import clsx from 'clsx'

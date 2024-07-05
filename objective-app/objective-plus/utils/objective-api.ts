@@ -22,7 +22,7 @@ import {
   TUpdateScenePayload,
   TUpdateSceneResponse,
 } from '../store/projects/actions'
-import { IProject, ISceneFull } from '../store/projects/reducer'
+import { IProject, ISceneFull } from '../../objective-plus/store/projects/reducer'
 
 type IUserResponse = IUser
 type ILoginResponse = ITokens

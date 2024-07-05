@@ -36,7 +36,7 @@ import { LIB_CAMERAS } from '../lib/cameras.library'
 import { numberToStr } from '../elements/_math'
 import { useCameraImages } from '../meta/_hooks'
 import { useSelector } from '../../objective-plus/hooks/redux'
-import { selectIsMyScene } from '../../objective-plus/store/projects/reducer'
+import { selectIsMyScene } from '../../objective-plus/store/projects/selectors'
 
 const ShotListSidebarContent: FC = () => {
   const app = useApp()

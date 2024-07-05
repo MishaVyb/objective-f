@@ -31,7 +31,7 @@ import {
   TextField,
 } from '@radix-ui/themes'
 import clsx from 'clsx'
-import { FC, ReactNode, useRef, useState } from 'react'
+import { FC, ReactNode, useEffect, useRef, useState } from 'react'
 import EditableTextInput from '../UI/editable-text'
 import { useDispatch, useSelector } from '../hooks/redux'
 import {
@@ -43,30 +43,30 @@ import {
   loadScene,
   loadUpdateProject,
   loadUpdateScene,
+  renderSceneAction,
   setObjectivePlusStore,
 } from '../store/projects/actions'
 import {
-  IProject,
-  ISceneSimplified,
-  OrderMode,
   selectMyProjects,
   selectScenes,
   selectScenesMeta,
   selectProject,
-} from '../store/projects/reducer'
+  selectSceneRenderBlob,
+  selectSceneFullInfo,
+} from '../../objective-plus/store/projects/selectors'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ACCENT_COLOR, DATE_FORMAT_OPTS } from '../constants'
 import { getDefaultAppState } from '../../../packages/excalidraw/appState'
 import { AppState } from '../../../packages/excalidraw/types'
 import { RestoredAppState } from '../../../packages/excalidraw/data/restore'
 import { loadFromJSON } from '../../../packages/excalidraw/data'
-import { useSceneThumbnailURL } from '../store/projects/hooks'
 import { CustomDropDownMenuItem } from '../UI'
 import { MySceneShareOptions } from '../../objective/components/TopRightUI'
 import { selectAuth } from '../store/auth/reducer'
 import { objectValues } from '../../objective/utils/types'
 import { buildSceneUrl } from './app'
 import { useViewport } from '../../objective/hooks/useVieport'
+import { IProject, ISceneSimplified, OrderMode } from '../store/projects/reducer'
 
 const DEFAULT_SCENE_NAME = 'Untitled Scene'
 
@@ -483,7 +483,19 @@ const SceneDropDownMenu: FC<{ scene: ISceneSimplified; onRename: () => void }> =
 }
 
 const SceneThumbnail: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
-  const thumbnailURL = useSceneThumbnailURL(scene)
+  const dispatch = useDispatch()
+  const thumbnailRender = useSelector(selectSceneRenderBlob(['thumbnail', scene.id]))
+  const sceneFullInfo = useSelector(selectSceneFullInfo(scene.id))
+
+  useEffect(() => {
+    if (sceneFullInfo) {
+      dispatch(renderSceneAction(['thumbnail', scene.id]))
+    }
+  }, [dispatch, sceneFullInfo])
+
+  if (!thumbnailRender) return <></>
+  const url = URL.createObjectURL(thumbnailRender.renderBlob)
+
   return (
     <Flex
       style={{
@@ -499,7 +511,7 @@ const SceneThumbnail: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
           maxHeight: 120,
           maxWidth: 165,
         }}
-        src={thumbnailURL}
+        src={url}
         alt=''
       />
     </Flex>

@@ -19,7 +19,7 @@ import { jotaiScope, jotaiStore } from "./jotai";
 import { AppProps, ExcalidrawProps } from "./types";
 
 import { useSelector } from "../../objective-app/objective-plus/hooks/redux";
-import { selectIsMyScene } from "../../objective-app/objective-plus/store/projects/reducer";
+import { selectIsMyScene } from "../../objective-app/objective-plus/store/projects/selectors";
 
 polyfill();
 
