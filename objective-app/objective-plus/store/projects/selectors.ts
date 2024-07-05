@@ -63,19 +63,19 @@ export const selectSceneRender =
   (state: RootState) =>
     state.projects.sceneRenders?.find((s) => s.renderKind === kind && s.id === id)
 
-export const selectSceneFile = (id: BinaryFileData['id']) => (state: RootState) =>
-  state.projects.sceneFiles?.find((f) => f.id === id)
-
-export const selectSceneFiles = (id: ISceneFull['id']) =>
-  createSelector(
-    [(state: RootState) => state.projects.sceneFiles, selectSceneFullInfo(id)],
-    (allFiles, sceneFullInfo) => {
-      if (!sceneFullInfo) return []
-      const allFilesMap = ensureMap(allFiles || [])
-      const fileIds = getSceneVisibleFileIds(sceneFullInfo)
-      return mapOmitNone(fileIds, (fileId) => allFilesMap.get(fileId))
-    }
-  )
+// UNUSED
+// export const selectSceneFile = (id: BinaryFileData['id']) => (state: RootState) =>
+//   state.projects.sceneFiles?.find((f) => f.id === id)
+// export const selectSceneFiles = (id: ISceneFull['id']) =>
+//   createSelector(
+//     [(state: RootState) => state.projects.sceneFiles, selectSceneFullInfo(id)],
+//     (allFiles, sceneFullInfo) => {
+//       if (!sceneFullInfo) return []
+//       const allFilesMap = ensureMap(allFiles || [])
+//       const fileIds = getSceneVisibleFileIds(sceneFullInfo)
+//       return mapOmitNone(fileIds, (fileId) => allFilesMap.get(fileId))
+//     }
+//   )
 
 /**
  * Get current openned Scene meta info.

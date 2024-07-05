@@ -21,13 +21,12 @@ import {
   discardProject,
   loadScenesFromLocalOrServer,
   renderSceneAction,
-  loadFileFromLocalOrServer,
 } from './actions'
 import { AppState, BinaryFileData } from '../../../../packages/excalidraw/types'
 import { TRadixColor } from '../../../objective/UI/colors'
 import { orderBy } from '../../../objective/utils/helpers'
 import { mergeArraysById } from '../helpers'
-import { TSceneRenderVal } from '../../utils/objective-local-db'
+import { TSceneRenderRedux } from '../../utils/objective-local-db'
 
 export interface IBase {
   id: string
@@ -90,8 +89,10 @@ export interface IProjectsState {
     view?: 'list' | 'icons'
     order?: OrderMode
   }
-  sceneRenders?: TSceneRenderVal[]
-  sceneFiles?: BinaryFileData[]
+  sceneRenders?: TSceneRenderRedux[]
+
+  // UNUSED
+  // sceneFiles?: BinaryFileData[]
 
   /** target scene to request full scene info and pass it to Excalidraw state */
   currentScene?: ISceneSimplified
@@ -174,10 +175,12 @@ const reducer = createReducer(initialState, (builder) => {
     ...state,
     sceneRenders: mergeArraysById(state.sceneRenders, [action.payload]),
   }))
-  builder.addCase(loadFileFromLocalOrServer.fulfilled, (state, action) => ({
-    ...state,
-    sceneFiles: mergeArraysById(state.sceneFiles, action.payload ? [action.payload] : []),
-  }))
+
+  // UNUSED
+  // builder.addCase(loadFileFromLocalOrServer.fulfilled, (state, action) => ({
+  //   ...state,
+  //   sceneFiles: mergeArraysById(state.sceneFiles, action.payload ? [action.payload] : []),
+  // }))
 
   // DO NOT CHANGE state.initialSceneLoadingIsPending here, we do it in separate action above
   // and we call that action in proper time scene would be fully initialized

@@ -38,7 +38,6 @@ import {
   loadCopyScene,
   loadCreateScene,
   loadDeleteScene,
-  loadFileFromLocalOrServer,
   loadProject,
   loadProjects,
   loadScene,
@@ -54,7 +53,6 @@ import {
   selectProject,
   selectSceneRender,
   selectSceneFullInfo,
-  selectSceneFiles,
 } from '../../objective-plus/store/projects/selectors'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ACCENT_COLOR, DATE_FORMAT_OPTS } from '../constants'
@@ -69,7 +67,6 @@ import { objectValues } from '../../objective/utils/types'
 import { buildSceneUrl } from './app'
 import { useViewport } from '../../objective/hooks/useVieport'
 import { IProject, ISceneSimplified, OrderMode } from '../store/projects/reducer'
-import { getSceneVisibleFileIds } from '../store/projects/hooks'
 
 const DEFAULT_SCENE_NAME = 'Untitled Scene'
 
@@ -490,25 +487,25 @@ const SceneThumbnail: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
   const dispatch = useDispatch()
   const thumbnailRender = useSelector(selectSceneRender(['thumbnail', scene.id]))
   const sceneFullInfo = useSelector(selectSceneFullInfo(scene.id))
-  const files = useSelector(selectSceneFiles(scene.id))
 
-  // [1] load all files
-  useEffect(() => {
-    if (sceneFullInfo) {
-      const fileIds = getSceneVisibleFileIds(sceneFullInfo) // needed files
-      fileIds.forEach((fileId) => dispatch(loadFileFromLocalOrServer({ sceneId, fileId })))
-    }
-  }, [dispatch, sceneFullInfo])
+  // UNUSED load all files, file will be loaded inside `renderSceneAction`
+  //
+  // useEffect(() => {
+  //   if (sceneFullInfo) {
+  //     const fileIds = getSceneVisibleFileIds(sceneFullInfo) // needed files
+  //     fileIds.forEach((fileId) => dispatch(loadFileFromLocalOrServer({ sceneId, fileId })))
+  //   }
+  // }, [dispatch, sceneFullInfo])
 
-  // [2] render thumbnail // NOTE: triggered on 'files' changes
+  // render thumbnail
   useEffect(() => {
     if (sceneFullInfo) {
       dispatch(renderSceneAction(['thumbnail', sceneId]))
     }
-  }, [dispatch, sceneFullInfo, files])
+  }, [dispatch, sceneFullInfo])
 
   if (!thumbnailRender) return <></>
-  const url = URL.createObjectURL(thumbnailRender.renderBlob)
+  const url = thumbnailRender.renderWeekUrl
 
   return (
     <Flex

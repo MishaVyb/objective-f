@@ -53,22 +53,35 @@ export const ScenesRepository = new ScenesRepositoryClass()
 
 export type SceneRenderKind = 'thumbnail' | 'export'
 export type TSceneRenderKey = [SceneRenderKind, ISceneSimplified['id']]
-export type TSceneRenderVal = ISceneSimplified & {
+
+type _TSceneRenderBase = ISceneSimplified & {
   renderKind: SceneRenderKind
   renderMaxWidthOrHeight: number
   renderMimeType: string
-  /** files that included in blob render */
+
+  /**
+   * UNUSED we render scene only with all files present
+   *
+   * files that included in blob render
+   * @deprecated
+   * */
   renderFileIds: BinaryFileData['id'][]
+}
+export type TSceneRenderRepo = _TSceneRenderBase & {
+  /** blob to store in IndexedDB */
   renderBlob: Blob
 }
-export type TSceneRenderSerializable = Omit<TSceneRenderVal, 'renderBlob'>
+export type TSceneRenderRedux = _TSceneRenderBase & {
+  /** created in browser locally from current blob */
+  renderWeekUrl: string
+}
 
 export class ScenesRenderRepositoryClass {
   private db = createStore('objective-db-renders', 'base')
 
   async get(id: TSceneRenderKey) {
     try {
-      return await get<TSceneRenderVal>(id, this.db)
+      return await get<TSceneRenderRepo>(id, this.db)
     } catch (e) {
       console.warn(e)
       return undefined
@@ -76,20 +89,20 @@ export class ScenesRenderRepositoryClass {
   }
   async getMany(ids: TSceneRenderKey[]) {
     try {
-      return (await getMany<TSceneRenderVal>(ids, this.db)).filter((s) => s)
+      return (await getMany<TSceneRenderRepo>(ids, this.db)).filter((s) => s)
     } catch (e) {
       console.warn(e)
       return []
     }
   }
-  async set(id: TSceneRenderKey, scene: TSceneRenderVal) {
+  async set(id: TSceneRenderKey, scene: TSceneRenderRepo) {
     try {
       return await set(id, scene, this.db)
     } catch (e) {
       console.warn(e)
     }
   }
-  async setMany(entries: [TSceneRenderKey, TSceneRenderVal][]) {
+  async setMany(entries: [TSceneRenderKey, TSceneRenderRepo][]) {
     try {
       return await setMany(entries, this.db)
     } catch (e) {

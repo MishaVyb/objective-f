@@ -24,18 +24,12 @@ import {
   ScenesRenderRepository,
   ScenesRepository,
   TSceneRenderKey,
-  TSceneRenderSerializable,
-  TSceneRenderVal,
+  TSceneRenderRedux,
 } from '../../utils/objective-local-db'
 import { ensureArray, ensureMap, isObjectiveHidden } from '../../../objective/meta/_types'
 import { exportToBlob, MIME_TYPES } from '../../../../packages/excalidraw'
-import {
-  selectSceneFile,
-  selectSceneFiles,
-  selectSceneFullInfo,
-  selectSceneRender,
-} from './selectors'
-import { setEq } from '../../../objective/utils/helpers'
+import { selectSceneFullInfo, selectSceneRender } from './selectors'
+import { getSceneVisibleFileIds } from './hooks'
 
 // Responses
 export type TGetProjectResponse = IProject
@@ -237,7 +231,8 @@ const isInvalidateSceneRender = (
   latest: ISceneSimplified,
   cachedFileIds: BinaryFileData['id'][],
   latestFileIds: BinaryFileData['id'][]
-) => isInvalidateScene(cached, latest) || !setEq(cachedFileIds, latestFileIds)
+) =>
+  isInvalidateScene(cached, latest) || !new Set(cachedFileIds).isSupersetOf(new Set(latestFileIds))
 
 /** for Objective Plus logic (for generating thumbnail images) */
 export const loadScenesFromLocalOrServer = createAsyncThunk<
@@ -324,81 +319,70 @@ export const loadScenesFromLocalOrServer = createAsyncThunk<
 
 const THUMBNAIL_DEMENSIONS_MAX = 500
 
-export const renderSceneAction = createAsyncThunk<TSceneRenderVal, TSceneRenderKey, ThunkApiConfig>(
-  'projects/renderSceneAction',
-  async (key, thunkApi) => {
-    const [kind, id] = key
-    const state = thunkApi.getState()
-    const sceneFullInfo = selectSceneFullInfo(id)(state)
-    if (!sceneFullInfo) throw Error('RuntimeError: no sceneFullInfo')
+export const renderSceneAction = createAsyncThunk<
+  TSceneRenderRedux,
+  TSceneRenderKey,
+  ThunkApiConfig
+>('projects/renderSceneAction', async (key, thunkApi) => {
+  const [kind, id] = key
+  const state = thunkApi.getState()
+  const sceneFullInfo = selectSceneFullInfo(id)(state)
+  if (!sceneFullInfo) throw Error('RuntimeError: no sceneFullInfo')
 
-    const reduxFiles = selectSceneFiles(id)(state)
-    const reduxFileIds = reduxFiles.map((f) => f.id)
+  const sceneRenderRedux = selectSceneRender(key)(state)
+  if (sceneRenderRedux && !isInvalidateSceneRender(sceneRenderRedux, sceneFullInfo, [], []))
+    return sceneRenderRedux
 
-    const sceneRenderRedux = selectSceneRender(key)(state)
-
-    if (
-      sceneRenderRedux &&
-      !isInvalidateSceneRender(
-        sceneRenderRedux,
-        sceneFullInfo,
-        sceneRenderRedux.renderFileIds,
-        reduxFileIds
-      )
-    )
-      return sceneRenderRedux
-
-    // REFRESH
-    const sceneRenderFreshSerializable: TSceneRenderSerializable = {
-      ...sceneFullInfo, // FIXME only wanted fields
-      renderKind: kind,
-      renderMaxWidthOrHeight: THUMBNAIL_DEMENSIONS_MAX, // TODO other sized
-      renderMimeType: MIME_TYPES.png,
-      renderFileIds: reduxFileIds,
-    }
-
-    let blob
-    const sceneRenderRepo = await ScenesRenderRepository.get(key)
-
-    if (
-      sceneRenderRepo &&
-      !isInvalidateSceneRender(
-        sceneRenderRepo,
-        sceneFullInfo,
-        sceneRenderRepo.renderFileIds,
-        reduxFileIds
-      )
-    ) {
-      blob = sceneRenderRepo!.renderBlob
-
-      //
-    } else {
-      console.debug('Exporting scene: ', kind, sceneFullInfo.name, 'Files: ', reduxFiles)
-
-      blob = await exportToBlob({
-        elements: sceneFullInfo.elements.filter((e) => !isObjectiveHidden(e)),
-        appState: {
-          ...sceneFullInfo.appState,
-          exportBackground: true,
-          viewBackgroundColor: '#fdfcfd', // var(--gray-1)
-        },
-        maxWidthOrHeight: THUMBNAIL_DEMENSIONS_MAX, // TODO other sized
-        files: Object.fromEntries(ensureMap(reduxFiles).entries()),
-        mimeType: MIME_TYPES.png,
-      })
-
-      await ScenesRenderRepository.set(key, {
-        ...sceneRenderFreshSerializable,
-        renderBlob: blob,
-      })
-    }
-
+  const sceneRenderRepo = await ScenesRenderRepository.get(key)
+  if (sceneRenderRepo && !isInvalidateSceneRender(sceneRenderRepo, sceneFullInfo, [], []))
     return {
-      ...sceneRenderFreshSerializable,
-      renderBlob: blob,
+      ...sceneRenderRepo,
+      renderWeekUrl: URL.createObjectURL(sceneRenderRepo.renderBlob),
     }
+
+  // NOTE
+  // we could render scene without files and re-render it when it will be ready
+  // but it triggers so many re-renders...
+  // therefore do no render until we got all files
+  const requiredFileIds = getSceneVisibleFileIds(sceneFullInfo)
+  const files: BinaryFileData[] = []
+  for (const fileId of requiredFileIds) {
+    const action = await thunkApi.dispatch(loadFileFromLocalOrServer({ sceneId: id, fileId }))
+    if (!isSuccessOneResponse(action.payload)) continue
+    files.push(action.payload)
   }
-)
+
+  console.debug('Exporting scene: ', kind, sceneFullInfo.name, 'Files: ', files)
+  const blob = await exportToBlob({
+    elements: sceneFullInfo.elements.filter((e) => !isObjectiveHidden(e)),
+    appState: {
+      ...sceneFullInfo.appState,
+      exportBackground: true,
+      viewBackgroundColor: '#fdfcfd', // var(--gray-1)
+    },
+    maxWidthOrHeight: THUMBNAIL_DEMENSIONS_MAX, // TODO other sized
+    files: Object.fromEntries(ensureMap(files).entries()),
+    mimeType: MIME_TYPES.png,
+  })
+
+  const freshRender = {
+    ...sceneFullInfo, // FIXME only wanted fields
+    renderKind: kind,
+    renderMaxWidthOrHeight: THUMBNAIL_DEMENSIONS_MAX, // TODO other sizes
+    renderMimeType: MIME_TYPES.png,
+    renderFileIds: requiredFileIds,
+  }
+
+  await ScenesRenderRepository.set(key, {
+    ...freshRender,
+    renderBlob: blob,
+  })
+
+  return {
+    ...freshRender,
+    renderWeekUrl: URL.createObjectURL(blob),
+  }
+})
 
 /** for ObjectiveOuterWrapper logic */
 export const loadSceneInitial = createAsyncThunk<
@@ -487,9 +471,10 @@ export const loadFileFromLocalOrServer = createAsyncThunk<
   TGetFileThunkArg,
   ThunkApiConfig
 >('projects/loadFileFromLocalOrServer', async ({ sceneId, fileId }, thunkApi) => {
-  const state = thunkApi.getState()
-  const sceneFileRedux = selectSceneFile(fileId)(state)
-  if (sceneFileRedux) return sceneFileRedux
+  // UNUSED
+  // const state = thunkApi.getState()
+  // const sceneFileRedux = selectSceneFile(fileId)(state)
+  // if (sceneFileRedux) return sceneFileRedux
 
   // REFRESH
   const sceneFileRepo = await ScenesFileRepository.get(fileId)
