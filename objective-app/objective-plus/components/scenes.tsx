@@ -25,6 +25,7 @@ import {
   IconButton,
   Select,
   Separator,
+  Spinner,
   Table,
   Tabs,
   Text,
@@ -67,6 +68,7 @@ import { objectValues } from '../../objective/utils/types'
 import { buildSceneUrl } from './app'
 import { useViewport } from '../../objective/hooks/useVieport'
 import { IProject, ISceneSimplified, OrderMode } from '../store/projects/reducer'
+import { useInView } from 'react-intersection-observer'
 
 const DEFAULT_SCENE_NAME = 'Untitled Scene'
 
@@ -258,6 +260,7 @@ const AddSceneItem: FC = () => {
 }
 
 const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
+  const { ref, inView, entry } = useInView()
   const navigate = useNavigate()
   const { projectId } = useParams()
   const dispatch = useDispatch()
@@ -288,9 +291,11 @@ const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
     ? new Date(scene.updated_at.endsWith('Z') ? scene.updated_at : scene.updated_at + 'Z')
     : null
 
+  // if (!inView) return <></>
+
   if (meta?.view === 'list')
     return (
-      <Table.Row onClick={() => onClick()} className='scene-row '>
+      <Table.Row ref={ref} onClick={() => onClick()} className='scene-row '>
         <Table.RowHeaderCell>
           <EditableTextInput
             ref={nameRef}
@@ -317,7 +322,17 @@ const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
     )
 
   return (
-    <SceneCard onClick={() => onClick()}>
+    <Box
+      ref={ref}
+      className={clsx('scene-card', '')}
+      m={'2'}
+      p={'2'}
+      style={{
+        width: 170,
+        height: 170,
+      }}
+      onClick={onClick}
+    >
       <Flex ref={sceneRef} justify={'between'}>
         <EditableTextInput
           style={{ width: 123 }}
@@ -330,8 +345,8 @@ const SceneItem: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
         <SceneDropDownMenu scene={scene} onRename={onRenameActivate} />
       </Flex>
       <Separator size={'4'} mt='1' />
-      <SceneThumbnail scene={scene} />
-    </SceneCard>
+      <SceneThumbnail scene={scene} inView={inView} />
+    </Box>
   )
 }
 
@@ -482,7 +497,7 @@ const SceneDropDownMenu: FC<{ scene: ISceneSimplified; onRename: () => void }> =
   )
 }
 
-const SceneThumbnail: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
+const SceneThumbnail: FC<{ scene: ISceneSimplified; inView: boolean }> = ({ scene, inView }) => {
   const sceneId = scene.id
   const dispatch = useDispatch()
   const thumbnailRender = useSelector(selectSceneRender(['thumbnail', scene.id]))
@@ -499,13 +514,10 @@ const SceneThumbnail: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
 
   // render thumbnail
   useEffect(() => {
-    if (sceneFullInfo) {
+    if (inView && sceneFullInfo) {
       dispatch(renderSceneAction(['thumbnail', sceneId]))
     }
-  }, [dispatch, sceneFullInfo])
-
-  if (!thumbnailRender) return <></>
-  const url = thumbnailRender.renderWeekUrl
+  }, [dispatch, sceneFullInfo, inView])
 
   return (
     <Flex
@@ -517,14 +529,18 @@ const SceneThumbnail: FC<{ scene: ISceneSimplified }> = ({ scene }) => {
       justify={'center'}
       align={'center'}
     >
-      <img
-        style={{
-          maxHeight: 120,
-          maxWidth: 165,
-        }}
-        src={url}
-        alt=''
-      />
+      {inView && thumbnailRender ? (
+        <img
+          style={{
+            maxHeight: 120,
+            maxWidth: 165,
+          }}
+          src={thumbnailRender.renderWeekUrl}
+          alt=''
+        />
+      ) : (
+        <Spinner />
+      )}
     </Flex>
   )
 }
