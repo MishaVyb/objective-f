@@ -74,7 +74,7 @@ export const ProjectExportDialogContent: FC = () => {
     dispatch(renderScenesListExportAction({ projectId }))
       .unwrap()
       .then(() => {
-        dispatch(isExportCtxReadyAction(true))
+        setTimeout(() => dispatch(isExportCtxReadyAction(true)), 1500)
       })
     return () => {
       dispatch(isExportCtxReadyAction(false))
