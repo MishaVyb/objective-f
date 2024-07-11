@@ -314,7 +314,7 @@ const ProjectItem: FC<{ project: IProject; toggled: boolean }> = ({ project, tog
 
 export type ProjectsSectionTabs = 'my_projects' | 'other_projects' | 'deleted_projects'
 
-const ProjectsSection = () => {
+export const ProjectsSection = () => {
   const { width } = useViewport()
   const isSmallViewPort = width <= 576
 
@@ -419,4 +419,4 @@ const ProjectsSection = () => {
   )
 }
 
-export default ProjectsSection
+

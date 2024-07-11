@@ -1,6 +1,6 @@
 import { Flex } from '@radix-ui/themes'
-import ProjectsSection from '../components/projects'
-import ScenesSection from '../components/scenes'
+import { ProjectsSection } from '../components/projects'
+import { ScenesSection } from '../components/scenes-section'
 import { useViewport } from '../../objective/hooks/useVieport'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useDispatch } from '../hooks/redux'

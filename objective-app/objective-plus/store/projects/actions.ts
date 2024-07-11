@@ -150,6 +150,7 @@ export const resetAPIError = createAction('projects/resetAPIError')
 export type TResetAPIError = ReturnType<typeof resetAPIError>
 
 export const discardProject = createAction<IProject['id']>('projects/discardProject')
+export const isExportCtxReadyAction = createAction<boolean>('projects/isExportCtxReadyAction')
 
 export const setInitialSceneLoadingIsPending = createAction<boolean>(
   'projects/setInitialLoadingSceneStatus'
@@ -317,7 +318,14 @@ export const loadScenesFromLocalOrServer = createAsyncThunk<
   return ensureArray(scenesReduxInv)
 })
 
-const THUMBNAIL_DEMENSIONS_MAX = 500
+const _RENDER_DEMENSIONS = {
+  thumbnail: 500,
+  export: 500,
+}
+const _RENDER_BG_COLORS = {
+  thumbnail: '#fdfcfd', // var(--gray-1)
+  export: '#ffffff',
+}
 
 export const renderSceneAction = createAsyncThunk<
   TSceneRenderRedux,
@@ -359,9 +367,9 @@ export const renderSceneAction = createAsyncThunk<
     appState: {
       ...sceneFullInfo.appState,
       exportBackground: true,
-      viewBackgroundColor: '#fdfcfd', // var(--gray-1)
+      viewBackgroundColor: _RENDER_BG_COLORS[kind],
     },
-    maxWidthOrHeight: THUMBNAIL_DEMENSIONS_MAX, // TODO other sized
+    maxWidthOrHeight: _RENDER_DEMENSIONS[kind],
     files: Object.fromEntries(ensureMap(files).entries()),
     mimeType: MIME_TYPES.png,
   })
@@ -369,7 +377,7 @@ export const renderSceneAction = createAsyncThunk<
   const freshRender = {
     ...sceneFullInfo, // FIXME only wanted fields
     renderKind: kind,
-    renderMaxWidthOrHeight: THUMBNAIL_DEMENSIONS_MAX, // TODO other sizes
+    renderMaxWidthOrHeight: _RENDER_DEMENSIONS[kind],
     renderMimeType: MIME_TYPES.png,
     renderFileIds: requiredFileIds,
   }

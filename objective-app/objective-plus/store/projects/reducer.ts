@@ -21,6 +21,7 @@ import {
   discardProject,
   loadScenesFromLocalOrServer,
   renderSceneAction,
+  isExportCtxReadyAction,
 } from './actions'
 import { AppState, BinaryFileData } from '../../../../packages/excalidraw/types'
 import { TRadixColor } from '../../../objective/UI/colors'
@@ -89,10 +90,12 @@ export interface IProjectsState {
     view?: 'list' | 'icons'
     order?: OrderMode
   }
+  // sceneFiles?: BinaryFileData[] // TODO
+  sceneThumbnails?: TSceneRenderRedux[]
   sceneRenders?: TSceneRenderRedux[]
-
   // UNUSED
   // sceneFiles?: BinaryFileData[]
+  isExportCtxReady?: boolean
 
   /** target scene to request full scene info and pass it to Excalidraw state */
   currentScene?: ISceneSimplified
@@ -126,6 +129,11 @@ const reducer = createReducer(initialState, (builder) => {
     ...state,
     projects: state.projects?.filter((p) => p.id !== action.payload),
   }))
+  builder.addCase(isExportCtxReadyAction, (state, action) => ({
+    ...state,
+    isExportCtxReady: action.payload,
+  }))
+
 
   // -------------------- Regular Actions - requests lifecycle ----------------------------
 
@@ -171,16 +179,33 @@ const reducer = createReducer(initialState, (builder) => {
     ...state,
     scenes: mergeArraysById(state.scenes, action.payload).sort((a, b) => orderBy(undefined, a, b)),
   }))
-  builder.addCase(renderSceneAction.fulfilled, (state, action) => ({
-    ...state,
-    sceneRenders: mergeArraysById(state.sceneRenders, [action.payload]),
-  }))
+  builder.addCase(renderSceneAction.fulfilled, (state, action) => {
+    const [kind, id] = action.meta.arg
+    if (kind === 'thumbnail')
+      return {
+        ...state,
+        sceneThumbnails: mergeArraysById(state.sceneThumbnails, [action.payload]),
+      }
+    if (kind === 'export')
+      return {
+        ...state,
+        sceneRenders: mergeArraysById(state.sceneRenders, [action.payload]),
+      }
+  })
 
-  // UNUSED
-  // builder.addCase(loadFileFromLocalOrServer.fulfilled, (state, action) => ({
-  //   ...state,
-  //   sceneFiles: mergeArraysById(state.sceneFiles, action.payload ? [action.payload] : []),
-  // }))
+  // TODO
+  // builder.addCase(loadFileFromLocalOrServer.fulfilled, (state, action) => {
+  //   if (!action.payload) return state
+  //   // const weekUrl = URL.createObjectURL(b64toBlob(action.payload.dataURL))
+  //   // const payload: BinaryFileData = {
+  //   //   ...action.payload,
+  //   //   dataURL: weekUrl as any as DataURL,
+  //   // }
+  //   return {
+  //     ...state,
+  //     // sceneFiles: mergeArraysById(state.sceneFiles, action.payload ? [payload] : []),
+  //   }
+  // })
 
   // DO NOT CHANGE state.initialSceneLoadingIsPending here, we do it in separate action above
   // and we call that action in proper time scene would be fully initialized
