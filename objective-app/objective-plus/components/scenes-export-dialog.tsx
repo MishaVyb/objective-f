@@ -1,6 +1,6 @@
 import { DownloadIcon } from '@radix-ui/react-icons'
 import { Button, Dialog, Flex, Spinner } from '@radix-ui/themes'
-import { FC, useEffect, useState } from 'react'
+import { FC, useEffect } from 'react'
 import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer'
 import { useParams } from 'react-router-dom'
 import {
@@ -13,44 +13,54 @@ import {
 import { useDispatch, useSelector } from '../hooks/redux'
 import { ScenesTableForExportDialog } from './scenes-list'
 import { ScenesDocument } from './scenes-pdf'
-import { isExportCtxReadyAction, renderSceneAction } from '../store/projects/actions'
+import { isExportCtxReadyAction, renderScenesListExportAction } from '../store/projects/actions'
 
 const ProjectExportPreview: FC = () => {
   const { projectId } = useParams()
   const ctx = useSelector(selectScenesExportCtx(projectId))
+  const isReady = useSelector(selectIsExportCtxReady())
+  if (isReady) console.log('Render PDF preview: ')
 
-  return (
+  return isReady ? (
     <PDFViewer width={400}>
       <ScenesDocument ctx={ctx} />
     </PDFViewer>
-  )
-}
-
-const PDFLink: FC = () => {
-  console.log('!!! PDFLink !!!')
-  const { projectId } = useParams()
-  const ctx = useSelector(selectScenesExportCtx(projectId))
-  // const project = useSelector(selectProject(projectId))
-
-  return (
-    <></>
-    // <PDFDownloadLink
-    //   document={<ScenesDocument ctx={ctx} />}
-    //   fileName={`${project?.name}.objective.pdf`}
-    // >
-    //   {({ blob, url, loading, error }) => (
-    //     <Button variant={'soft'} loading={loading}>
-    //       {'Download'}
-    //     </Button>
-    //   )}
-    // </PDFDownloadLink>
+  ) : (
+    <Flex
+      style={{
+        height: '100%',
+        width: '100%',
+      }}
+      justify={'center'}
+      align={'center'}
+    >
+      <Spinner />
+    </Flex>
   )
 }
 
 const DownloadButton: FC = () => {
+  const { projectId } = useParams()
+  const ctx = useSelector(selectScenesExportCtx(projectId))
+  const project = useSelector(selectProject(projectId))
   const isReady = useSelector(selectIsExportCtxReady())
-  // const isReady = true
-  return isReady ? <PDFLink /> : <Button variant={'soft'} loading />
+
+  return isReady ? (
+    <PDFDownloadLink
+      document={<ScenesDocument ctx={ctx} />}
+      fileName={`${project?.name}.objective.pdf`}
+    >
+      {({ blob, url, loading, error }) => (
+        <Button variant={'soft'} loading={loading}>
+          {'Download'}
+        </Button>
+      )}
+    </PDFDownloadLink>
+  ) : (
+    <Button variant={'soft'} loading>
+      {'Download'}
+    </Button>
+  )
 }
 
 export const ProjectExportDialogContent: FC = () => {
@@ -58,25 +68,18 @@ export const ProjectExportDialogContent: FC = () => {
   const dispatch = useDispatch()
   const project = useSelector(selectProject(projectId))
   const scenesFullInfo = useSelector(selectScenesFullInfoList(projectId))
-  // const [isExportCtxReady, setIsExportCtxReady] = useState(false)
 
-  // useEffect(() => {
-  //   Promise.all(
-  //     (scenesFullInfo || [])?.map((s) => {
-  //       return [
-  //         dispatch(renderSceneAction(['export', s.id])).unwrap(),
-  //         // TODO files
-  //         // ...getSceneVisibleFileIds(s).map((fileId) =>
-  //         //   dispatch(loadFileFromLocalOrServer({ sceneId: s.id, fileId })).unwrap()
-  //         // ),
-  //       ]
-  //     })
-  //   ).then((v) => {
-  //     console.log('isExportCtxReady')
-  //     dispatch(isExportCtxReadyAction(true))
-  //     // setIsExportCtxReady(true)
-  //   })
-  // }, [dispatch, scenesFullInfo])
+  useEffect(() => {
+    console.log('Prepare PDF context. ')
+    dispatch(renderScenesListExportAction({ projectId }))
+      .unwrap()
+      .then(() => {
+        dispatch(isExportCtxReadyAction(true))
+      })
+    return () => {
+      dispatch(isExportCtxReadyAction(false))
+    }
+  }, [dispatch, scenesFullInfo])
 
   if (!project) return
 
@@ -88,7 +91,7 @@ export const ProjectExportDialogContent: FC = () => {
           <ScenesTableForExportDialog />
         </Flex>
         <Flex style={{ height: '60vh', width: '50%' }} justify={'center'}>
-          {/* <ProjectExportPreview /> */}
+          <ProjectExportPreview />
         </Flex>
       </Flex>
 

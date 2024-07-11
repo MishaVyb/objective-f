@@ -22,6 +22,7 @@ import {
   loadScenesFromLocalOrServer,
   renderSceneAction,
   isExportCtxReadyAction,
+  renderScenesListExportAction,
 } from './actions'
 import { AppState, BinaryFileData } from '../../../../packages/excalidraw/types'
 import { TRadixColor } from '../../../objective/UI/colors'
@@ -134,7 +135,6 @@ const reducer = createReducer(initialState, (builder) => {
     isExportCtxReady: action.payload,
   }))
 
-
   // -------------------- Regular Actions - requests lifecycle ----------------------------
 
   builder.addCase(setInitialSceneLoadingIsPending, (state, action) => {
@@ -186,11 +186,15 @@ const reducer = createReducer(initialState, (builder) => {
         ...state,
         sceneThumbnails: mergeArraysById(state.sceneThumbnails, [action.payload]),
       }
-    if (kind === 'export')
-      return {
-        ...state,
-        sceneRenders: mergeArraysById(state.sceneRenders, [action.payload]),
-      }
+    if (kind === 'export') {
+      // NOTE: do nothing here as we change all export renders at action below
+    }
+  })
+  builder.addCase(renderScenesListExportAction.fulfilled, (state, action) => {
+    return {
+      ...state,
+      sceneRenders: mergeArraysById(state.sceneRenders, action.payload),
+    }
   })
 
   // TODO

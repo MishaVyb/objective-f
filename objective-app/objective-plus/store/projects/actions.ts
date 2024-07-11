@@ -28,7 +28,7 @@ import {
 } from '../../utils/objective-local-db'
 import { ensureArray, ensureMap, isObjectiveHidden } from '../../../objective/meta/_types'
 import { exportToBlob, MIME_TYPES } from '../../../../packages/excalidraw'
-import { selectSceneFullInfo, selectSceneRender } from './selectors'
+import { selectSceneFullInfo, selectSceneRender, selectScenesFullInfoList } from './selectors'
 import { getSceneVisibleFileIds } from './hooks'
 
 // Responses
@@ -320,7 +320,7 @@ export const loadScenesFromLocalOrServer = createAsyncThunk<
 
 const _RENDER_DEMENSIONS = {
   thumbnail: 500,
-  export: 500,
+  export: 1500,
 }
 const _RENDER_BG_COLORS = {
   thumbnail: '#fdfcfd', // var(--gray-1)
@@ -391,6 +391,24 @@ export const renderSceneAction = createAsyncThunk<
     ...freshRender,
     renderWeekUrl: URL.createObjectURL(blob),
   }
+})
+
+export const renderScenesListExportAction = createAsyncThunk<
+  TSceneRenderRedux[],
+  any,
+  ThunkApiConfig
+>('projects/renderScenesListExportAction', async ({ projectId }, thunkApi) => {
+  const state = thunkApi.getState()
+  const scenesFullInfo = selectScenesFullInfoList(projectId)(state)
+  const res = await Promise.all(
+    (scenesFullInfo || [])?.map((s) => {
+      // TODO files
+      // ...getSceneVisibleFileIds(s).map((fileId) =>
+      //   dispatch(loadFileFromLocalOrServer({ sceneId: s.id, fileId })).unwrap()
+      return thunkApi.dispatch(renderSceneAction(['export', s.id])).unwrap()
+    })
+  )
+  return res
 })
 
 /** for ObjectiveOuterWrapper logic */
