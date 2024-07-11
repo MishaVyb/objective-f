@@ -81,7 +81,7 @@ export const ProjectExportDialogContent: FC = () => {
     }
   }, [dispatch, scenesFullInfo])
 
-  if (!project) return
+  if (!project) return null
 
   return (
     <>

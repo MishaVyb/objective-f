@@ -233,6 +233,7 @@ const isInvalidateSceneRender = (
   cachedFileIds: BinaryFileData['id'][],
   latestFileIds: BinaryFileData['id'][]
 ) =>
+  //@ts-ignore
   isInvalidateScene(cached, latest) || !new Set(cachedFileIds).isSupersetOf(new Set(latestFileIds))
 
 /** for Objective Plus logic (for generating thumbnail images) */

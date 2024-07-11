@@ -118,7 +118,13 @@ const SceneShotList: FC<{ sceneCtx: TSceneDocumentContext }> = ({ sceneCtx }) =>
   if (!render) return <></>
   const cameras = getShotCameraMetas(scene.elements)
 
-  return cameras.map((camera) => <SceneShotItem sceneCtx={sceneCtx} camera={camera} />)
+  return (
+    <>
+      {cameras.map((camera) => (
+        <SceneShotItem sceneCtx={sceneCtx} camera={camera} />
+      ))}
+    </>
+  )
 }
 
 const SceneShotItem: FC<{ sceneCtx: TSceneDocumentContext; camera: CameraMeta }> = ({
