@@ -136,6 +136,7 @@ export type ActionName =
   | "setEmbeddableAsActiveTool"
   | "createContainerFromText"
   | "wrapTextInContainer"
+  | "cropImage"
 
   // VBRN:
   // common:

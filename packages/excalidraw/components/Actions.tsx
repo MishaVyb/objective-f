@@ -274,6 +274,7 @@ export const SelectedShapeActions = ({
       (showOBJStyle && !metasSet.has(ObjectiveKinds.LABEL)),
 
     duplicate: isOnlyExcali || isObjAndExcali || showOBJStyle,
+    cropImage: true,
 
     flip:
       singleMeta &&
@@ -485,6 +486,8 @@ export const SelectedShapeActions = ({
             {actionsToRender.duplicate &&
               !device.editor.isMobile &&
               renderAction("duplicateSelection")}
+
+            {actionsToRender.cropImage && renderAction("cropImage")}
 
             {actionsToRender.delete &&
               !device.editor.isMobile &&

@@ -252,6 +252,20 @@ const restoreElement = (
         status: element.status || "pending",
         fileId: element.fileId,
         scale: element.scale || [1, 1],
+        widthAtCreation: element.widthAtCreation,
+        heightAtCreation: element.heightAtCreation,
+        underlyingImageWidth: element.underlyingImageWidth,
+        underlyingImageHeight: element.underlyingImageHeight,
+        xToPullFromImage: element.xToPullFromImage,
+        yToPullFromImage: element.yToPullFromImage,
+        wToPullFromImage: element.wToPullFromImage,
+        hToPullFromImage: element.hToPullFromImage,
+        westCropAmount: element.westCropAmount,
+        eastCropAmount: element.eastCropAmount,
+        northCropAmount: element.northCropAmount,
+        southCropAmount: element.southCropAmount,
+        rescaleX: element.rescaleX,
+        rescaleY: element.rescaleY,
       });
     case "line":
     // @ts-ignore LEGACY type
