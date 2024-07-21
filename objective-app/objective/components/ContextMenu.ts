@@ -16,6 +16,7 @@ import {
   actionCopy,
   actionCopyAsPng,
   actionCopyStyles,
+  actionCropImage,
   actionCut,
   actionDeleteSelected,
   actionDuplicateSelection,
@@ -172,6 +173,7 @@ export const getObjectiveContextMenuItems = (
       ? []
       : [
           CONTEXT_MENU_SEPARATOR,
+          actionCropImage,
           actionFlipHorizontal,
           actionFlipVertical, //
         ]),

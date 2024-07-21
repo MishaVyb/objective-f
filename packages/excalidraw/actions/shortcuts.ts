@@ -35,6 +35,7 @@ export type ShortcutName =
       | "stats"
       | "addToLibrary"
       | "viewMode"
+      | "cropImage" // VBRN
       | "flipHorizontal"
       | "flipVertical"
       | "hyperlink"
@@ -84,6 +85,7 @@ const shortcutMap: Record<ShortcutName, string[]> = {
   objectsSnapMode: [getShortcutKey("Alt+S")],
   stats: [getShortcutKey("Alt+/")],
   addToLibrary: [],
+  cropImage: [getShortcutKey("Shift+C")], // VBRN
   flipHorizontal: [getShortcutKey("Shift+H")],
   flipVertical: [getShortcutKey("Shift+V")],
   viewMode: [getShortcutKey("Alt+R")],

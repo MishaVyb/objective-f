@@ -64,6 +64,7 @@ import { handleMetaRepresentation } from '../elements/_metaRepr'
 import { mutateSelectedElsMeta, mutateMeta } from '../elements/_mutateElements'
 import clsx from 'clsx'
 import { isElementsScalable } from '../elements/_resizeElements'
+import { getShortcutFromShortcutName } from '../../../packages/excalidraw/actions/shortcuts'
 
 export const KbdLabel: FC<{ children: ReactNode; style?: any }> = ({ children, style }) => (
   <Kbd style={style}>
@@ -440,7 +441,7 @@ export const actionToggleScalable = register({
         size={'2'}
         variant={'soft'}
         className={clsx('objective-toggled-icon-button', { toggled: isScalable })}
-        title={'Scalable'}
+        title={`Scalable — ${getShortcutFromShortcutName("actionToggleScalable")}`}
         onClick={() => updateData()} //
       >
         <TransformIcon />

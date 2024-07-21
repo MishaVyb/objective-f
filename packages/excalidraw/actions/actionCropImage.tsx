@@ -1,38 +1,35 @@
 import { getSelectedElements, isSomeElementSelected } from "../scene";
-import { ToolButton } from "../components/ToolButton";
-import { t } from "../i18n";
 import { register } from "./register";
 import { getNonDeletedElements } from "../element";
-import { updateActiveTool } from "../utils";
-import { CropIcon } from "../components/icons";
+
+import { IconButton } from "@radix-ui/themes";
+import { CropIcon } from "@radix-ui/react-icons";
+import clsx from "clsx";
+import { getSelectedSceneEls } from "../../../objective-app/objective/meta/_selectors";
+import { CODES } from "../keys";
+import { getShortcutFromShortcutName } from "./shortcuts";
+import { ExcalidrawElement } from "../element/types";
+
+const isSupportCropping = (selectedElements: ExcalidrawElement[]) =>
+  selectedElements.length === 1 && selectedElements[0].type === "image";
 
 export const actionCropImage = register({
   name: "cropImage",
   trackEvent: { category: "element", action: "crop" },
-  perform: (elements, appState) => {
+  perform: (elements, appState, _, app) => {
     let croppingModeEnabled = appState.croppingModeEnabled;
-
-    const selectedElements = getSelectedElements(
-      getNonDeletedElements(elements),
-      appState,
-    );
-    if (selectedElements.length === 1 && selectedElements[0].type === "image") {
+    const selectedElements = getSelectedSceneEls(app.scene, appState);
+    if (isSupportCropping(selectedElements)) {
       croppingModeEnabled = !croppingModeEnabled;
     } else {
       croppingModeEnabled = false;
     }
 
-    const nextAppState = {
-      ...appState,
-      croppingModeEnabled,
-    };
-
     return {
       elements,
       appState: {
-        ...nextAppState,
-        activeTool: updateActiveTool(appState, { type: "selection" }),
-        multiElement: null,
+        ...appState,
+        croppingModeEnabled,
       },
       commitToHistory: isSomeElementSelected(
         getNonDeletedElements(elements),
@@ -40,30 +37,28 @@ export const actionCropImage = register({
       ),
     };
   },
+  predicate(elements, appState, appProps, app) {
+    const selectedElements = getSelectedSceneEls(app.scene, appState);
+    return isSupportCropping(selectedElements);
+  },
+  keyTest: (event) => event.shiftKey && event.code === CODES.C,
   contextItemLabel: "labels.crop",
-
-  keyTest: (event, appState, elements) => false,
-
-  PanelComponent: ({ elements, appState, updateData }) => {
-    let visible = false;
-
-    const selectedElements = getSelectedElements(
-      getNonDeletedElements(elements),
-      appState,
-    );
-    if (selectedElements.length === 1 && selectedElements[0].type === "image") {
-      visible = true;
-    }
-
+  PanelComponent: ({ elements, appState, updateData, app }) => {
+    const selectedElements = getSelectedSceneEls(app.scene, appState);
+    if (!isSupportCropping(selectedElements)) return null;
     return (
-      <ToolButton
-        type="button"
-        icon={CropIcon}
-        title={t("labels.crop")}
-        aria-label={t("labels.crop")}
+      <IconButton
+        className={clsx("objective-toggled-icon-button", {
+          toggled: appState.croppingModeEnabled,
+        })}
+        size={"2"}
+        variant={"soft"}
+        color={"gray"}
         onClick={() => updateData(null)}
-        visible={visible}
-      />
+        title={`Crop image — ${getShortcutFromShortcutName("cropImage")}`}
+      >
+        <CropIcon />
+      </IconButton>
     );
   },
 });

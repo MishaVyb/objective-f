@@ -24,6 +24,7 @@ import {
   getObjectiveMetas,
   getSelectedSceneEls,
 } from "../../../objective-app/objective/meta/_selectors";
+import { getShortcutFromShortcutName } from "./shortcuts";
 
 export const actionFlipHorizontal = register({
   name: "flipHorizontal",
@@ -55,7 +56,9 @@ export const actionFlipHorizontal = register({
       variant={"soft"}
       color={"gray"}
       onClick={() => updateData()}
-      title={"Flip horizontal"}
+      title={`Flip horizontal — ${getShortcutFromShortcutName(
+        "flipHorizontal",
+      )}`}
     >
       <ColumnSpacingIcon />
     </IconButton>
@@ -94,7 +97,7 @@ export const actionFlipVertical = register({
       variant={"soft"}
       color={"gray"}
       onClick={() => updateData()}
-      title={"Flip vertical"}
+      title={`Flip vertical — ${getShortcutFromShortcutName("flipVertical")}`}
     >
       <RowSpacingIcon />
     </IconButton>
