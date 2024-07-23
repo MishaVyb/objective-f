@@ -9458,7 +9458,7 @@ class App extends React.Component<AppProps, AppState> {
     const [x, y] = getGridPoint(
       pointerCoords.x - pointerDownState.crop.offset.x,
       pointerCoords.y - pointerDownState.crop.offset.y,
-      this.state.gridSize,
+      null, // VBRN never snap crop to grid, it makes no sense
     );
 
     const elementToCrop = selectedElements[0] as ExcalidrawImageElement;
