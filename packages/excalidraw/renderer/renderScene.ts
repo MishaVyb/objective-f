@@ -92,7 +92,7 @@ import { renderObjectiveScene } from "../../../objective-app/objective/elements/
 import { getPushpinAng } from "../../../objective-app/objective/elements/_transformHandles";
 import { isElementsScalable } from "../../../objective-app/objective/elements/_resizeElements";
 import {
-  getObjectiveMetas,
+  getCoreSafe,
   getObjectiveSingleMetaStrict,
 } from "../../../objective-app/objective/meta/_selectors";
 
@@ -617,6 +617,7 @@ const _renderInteractiveScene = ({
         if (selectionColors.length) {
           const [elementX1, elementY1, elementX2, elementY2, cx, cy] =
             getElementAbsoluteCoords(element, true);
+          const isCropping = getCoreSafe().app?.state.croppingModeEnabled; // VBRN
           selections.push({
             angle: element.angle,
             elementX1,
@@ -624,7 +625,8 @@ const _renderInteractiveScene = ({
             elementX2,
             elementY2,
             selectionColors,
-            dashed: !!renderConfig.remoteSelectedElementIds[element.id],
+            dashed:
+              !!renderConfig.remoteSelectedElementIds[element.id] || isCropping,
             cx,
             cy,
             activeEmbeddable:
@@ -633,7 +635,6 @@ const _renderInteractiveScene = ({
           });
         }
       }
-
       const addSelectionForGroupId = (groupId: GroupId) => {
         const groupElements = getElementsInGroup(elementsMap, groupId);
         const [elementX1, elementY1, elementX2, elementY2] =
