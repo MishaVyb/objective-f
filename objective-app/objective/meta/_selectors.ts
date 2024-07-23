@@ -49,7 +49,7 @@ export const getCore = () => ({
 export const getCoreSafe = () => ({
   app: _APP,
   appState: _APP?.state,
-  scene: _APP?.scene,
+  scene: _APP?.scene, // FIXME scene from element if there are no _APP
   oScene: _APP?.scene.oScene,
   objectiveProps: _APP?.objectiveProps,
 })

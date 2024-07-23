@@ -1,4 +1,4 @@
-import { getSelectedElements, isSomeElementSelected } from "../scene";
+import { isSomeElementSelected } from "../scene";
 import { register } from "./register";
 import { getNonDeletedElements } from "../element";
 
