@@ -233,7 +233,7 @@ export const SelectedShapeActions = ({
     /** unknown and do nothing??? */
     strokeShape: isOnlyExcali,
 
-    // only for movement arrows
+    // only for movement arrows or images or pure Excal elements
     roundness: isObjectiveTool
       ? showOBJStyle
       : isOnlyExcali ||
@@ -243,6 +243,7 @@ export const SelectedShapeActions = ({
             m.subkind === "cameraMovementPointer" ||
             m.subkind === "characterMovementPointer",
         ),
+    cropImage: true, // handled at action internally
 
     arrowheads: isObjectiveTool
       ? showOBJStyle
@@ -274,7 +275,6 @@ export const SelectedShapeActions = ({
       (showOBJStyle && !metasSet.has(ObjectiveKinds.LABEL)),
 
     duplicate: isOnlyExcali || isObjAndExcali || showOBJStyle,
-    cropImage: true,
 
     flip:
       singleMeta &&
@@ -354,7 +354,6 @@ export const SelectedShapeActions = ({
       <div>
         {actionsToRender.strokeColor &&
           ((hasStrokeColor(appState.activeTool.type) &&
-            appState.activeTool.type !== "image" &&
             commonSelectedType !== "image" &&
             commonSelectedType !== "frame" &&
             commonSelectedType !== "magicframe") ||
@@ -394,6 +393,8 @@ export const SelectedShapeActions = ({
           targetElements.some((element) =>
             canChangeRoundness(element.type),
           )) && <>{renderAction("changeRoundness")}</>}
+
+      {actionsToRender.cropImage && renderAction("cropImage")}
 
       {actionsToRender.textStyle &&
         (appState.activeTool.type === "text" ||
@@ -486,8 +487,6 @@ export const SelectedShapeActions = ({
             {actionsToRender.duplicate &&
               !device.editor.isMobile &&
               renderAction("duplicateSelection")}
-
-            {actionsToRender.cropImage && renderAction("cropImage")}
 
             {actionsToRender.delete &&
               !device.editor.isMobile &&

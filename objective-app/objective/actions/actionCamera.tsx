@@ -483,6 +483,7 @@ export const CAMERA_ASPECT_RATIOS = [
   1.33, // 4/3
   1.0,
 ]
+export const CAMERA_ASPECT_RATIOS_STR = CAMERA_ASPECT_RATIOS.map((v) => numberToStr(v))
 
 export const DEFAULT_CAMERA_FORMAT = CAMERA_FORMATS.find((f) => f.isDefault)!
 export const DEFAULT_FOCAL_LENGTH = 35 // mm

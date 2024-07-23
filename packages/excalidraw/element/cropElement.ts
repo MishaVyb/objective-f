@@ -1,10 +1,15 @@
 import { Point } from "points-on-curve";
-import { centerPoint, rotatePoint } from "../math";
+import { centerPoint, rotate, rotatePoint } from "../math";
 import { updateBoundElements } from "./binding";
 import { mutateElement } from "./mutateElement";
 import { TransformHandleType } from "./transformHandles";
 import { ExcalidrawElement, ExcalidrawImageElement, NonDeleted } from "./types";
 import { getResizedElementAbsoluteCoords } from "./bounds";
+import {
+  ensureVector,
+  getElementCenter,
+  Vector,
+} from "../../../objective-app/objective/elements/_math";
 
 // i split out these 'internal' functions so that this functionality can be easily unit tested
 export function cropElementInternal(
@@ -258,3 +263,48 @@ export function onElementCropped(
   );
   mutateElement(element, mutation);
 }
+
+export const cropElementProgramatecly = (
+  el: ExcalidrawImageElement,
+  cropOnValue: Vector,
+  mode: "nw" | "se",
+) => {
+  const cropPointer =
+    mode === "nw"
+      ? {
+          // from top-left
+          x: el.x + cropOnValue.x,
+          y: el.y + cropOnValue.y,
+        }
+      : {
+          // from bottom-right
+          x: el.x + el.width - cropOnValue.x,
+          y: el.y + el.height - cropOnValue.y,
+        };
+
+  const rotateCenter = getElementCenter(el);
+  const cropPointerRotated = ensureVector(
+    rotate(
+      cropPointer.x,
+      cropPointer.y,
+      rotateCenter.x,
+      rotateCenter.y,
+      el.angle,
+    ),
+  );
+  cropElement(el, mode, el, cropPointerRotated.x, cropPointerRotated.y);
+  onElementCropped(el, mode, el);
+};
+
+export const cropElementRestore = (el: ExcalidrawImageElement) => {
+  cropElementProgramatecly(
+    el,
+    { x: -el.westCropAmount, y: -el.northCropAmount },
+    "nw",
+  );
+  cropElementProgramatecly(
+    el,
+    { x: -el.eastCropAmount, y: -el.southCropAmount },
+    "se",
+  );
+};
