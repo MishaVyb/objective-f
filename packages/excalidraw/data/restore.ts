@@ -266,6 +266,7 @@ const restoreElement = (
         southCropAmount: element.southCropAmount,
         rescaleX: element.rescaleX,
         rescaleY: element.rescaleY,
+        holdAspectRatio: element.holdAspectRatio,
       });
     case "line":
     // @ts-ignore LEGACY type

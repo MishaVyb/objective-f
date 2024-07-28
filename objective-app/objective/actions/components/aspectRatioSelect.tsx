@@ -15,8 +15,6 @@ export const AspectRatioSelect: FC<TProps> = ({ value, updateData, hasBeenChange
   const isCustom = hasBeenChanged && !CAMERA_ASPECT_RATIOS_STR.includes(valueStr)
   const isInitial = !hasBeenChanged
 
-  console.log({ hasBeenChanged, isCustom, isInitial })
-
   return (
     <Select.Root
       size={'1'}

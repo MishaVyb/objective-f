@@ -14,6 +14,7 @@ import {
 } from "../element/cropElement";
 import { deepCopyElement } from "../element/newElement";
 import { getShortcutFromShortcutName } from "./shortcuts";
+import { mutateElement } from "..";
 
 const isSupportCropping = (selectedElements: ExcalidrawElement[]) =>
   selectedElements.length === 1 && selectedElements[0].type === "image";
@@ -63,10 +64,8 @@ export const actionCropImage = register({
       };
     }
 
-    // reset to original
+    // reset to original & crop on value
     cropElementReset(el);
-
-    // crop on value
     const underlyingEl = deepCopyElement(el);
     const underlyingAspectRatio = underlyingEl.width / underlyingEl.height;
     const nextAspectRatio = Number(value);
@@ -86,6 +85,7 @@ export const actionCropImage = register({
 
     cropElementProgramatecly(el, cropOn, "nw");
     cropElementProgramatecly(el, cropOn, "se");
+    mutateElement(el, { holdAspectRatio: true });
 
     return {
       elements,

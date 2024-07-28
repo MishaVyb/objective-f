@@ -127,6 +127,8 @@ export function cropElement(
   pointerX: number,
   pointerY: number,
 ) {
+  const elementVersion = element.version;
+
   const mutation = cropElementInternal(
     element,
     transformHandle,
@@ -136,6 +138,18 @@ export function cropElement(
   );
 
   mutateElement(element, mutation);
+
+  // VBRN
+  const doesChange = elementVersion !== element.version;
+  if (element.holdAspectRatio && doesChange) {
+    cropElementInternalHoldAspectRatio(
+      element,
+      transformHandle,
+      stateAtCropStart,
+      pointerX,
+      pointerY,
+    );
+  }
 
   updateBoundElements(element, {
     newSize: { width: element.width, height: element.height },
@@ -256,13 +270,90 @@ export function onElementCropped(
   handleType: TransformHandleType,
   stateAtCropStart: NonDeleted<ExcalidrawElement>,
 ) {
-  const mutation = onElementCroppedInternal(
+  let mutation = onElementCroppedInternal(
     element,
     handleType,
     stateAtCropStart,
   );
   mutateElement(element, mutation);
+
+  // VBRN
+  if (element.holdAspectRatio) {
+    if (handleType.includes("n"))
+      mutation = onElementCroppedInternal(element, "w", stateAtCropStart);
+    if (handleType.includes("s"))
+      mutation = onElementCroppedInternal(element, "e", stateAtCropStart);
+    if (handleType.includes("w"))
+      mutation = onElementCroppedInternal(element, "n", stateAtCropStart);
+    if (handleType.includes("e"))
+      mutation = onElementCroppedInternal(element, "s", stateAtCropStart);
+    mutateElement(element, mutation);
+  }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////
+// VBRN
+///////////////////////////////////////////////////////////////////////////////////////
+
+const cropElementInternalHoldAspectRatio = (
+  element: ExcalidrawImageElement,
+  transformHandle: TransformHandleType,
+  stateAtCropStart: NonDeleted<ExcalidrawElement>,
+  pointerX: number,
+  pointerY: number,
+) => {
+  const ar = stateAtCropStart.width / stateAtCropStart.height;
+  let mutation;
+
+  if (transformHandle.includes("n")) {
+    const mouseMovementY = pointerY - stateAtCropStart.y;
+    const shiftX = mouseMovementY * ar;
+    mutation = cropElementInternal(
+      element,
+      "w",
+      stateAtCropStart,
+      stateAtCropStart.x + shiftX,
+      pointerY, // does not matter
+    );
+  }
+  if (transformHandle.includes("s")) {
+    const mouseMovementY =
+      stateAtCropStart.y + stateAtCropStart.height - pointerY;
+    const shiftX = mouseMovementY * ar;
+    mutation = cropElementInternal(
+      element,
+      "e",
+      stateAtCropStart,
+      stateAtCropStart.x + stateAtCropStart.width - shiftX,
+      pointerY, // does not matter
+    );
+  }
+  if (transformHandle.includes("w")) {
+    const mouseMovementX = pointerX - stateAtCropStart.x;
+    const shiftY = mouseMovementX / ar;
+    mutation = cropElementInternal(
+      element,
+      "n",
+      stateAtCropStart,
+      pointerX, // does not matter
+      stateAtCropStart.y + shiftY,
+    );
+  }
+  if (transformHandle.includes("e")) {
+    const mouseMovementX =
+      stateAtCropStart.x + stateAtCropStart.width - pointerX;
+    const shiftY = mouseMovementX / ar;
+    mutation = cropElementInternal(
+      element,
+      "s",
+      stateAtCropStart,
+      pointerX, // does not matter
+      stateAtCropStart.y + stateAtCropStart.height - shiftY,
+    );
+  }
+
+  mutateElement(element, mutation!);
+};
 
 export const cropElementProgramatecly = (
   el: ExcalidrawImageElement,
@@ -292,8 +383,16 @@ export const cropElementProgramatecly = (
       el.angle,
     ),
   );
-  cropElement(el, mode, el, cropPointerRotated.x, cropPointerRotated.y);
-  onElementCropped(el, mode, el);
+  const mutation = cropElementInternal(
+    el,
+    mode,
+    el,
+    cropPointerRotated.x,
+    cropPointerRotated.y,
+  );
+  mutateElement(el, mutation);
+  const mutation_ = onElementCroppedInternal(el, mode, el);
+  mutateElement(el, mutation_);
 };
 
 export const cropElementRestore = (el: ExcalidrawImageElement) => {

@@ -138,6 +138,9 @@ export type ExcalidrawImageElement = _ExcalidrawElementBase &
     eastCropAmount: number;
     northCropAmount: number;
     southCropAmount: number;
+
+    // VBRN
+    holdAspectRatio: boolean | undefined;
   }>;
 
 export type InitializedExcalidrawImageElement = MarkNonNullable<

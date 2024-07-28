@@ -470,6 +470,7 @@ export const newImageElement = (
     southCropAmount: 0,
     rescaleX: 1,
     rescaleY: 1,
+    holdAspectRatio: undefined,
   };
 };
 
