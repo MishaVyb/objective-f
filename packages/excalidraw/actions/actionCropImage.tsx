@@ -117,8 +117,7 @@ export const actionCropImage = register({
     }
     //////////////////
 
-    // reset to original & crop on value
-    cropElementReset(el);
+    // crop on value (do not reset to original, use user prev changes)
     const underlyingEl = deepCopyElement(el);
     const underlyingAspectRatio = underlyingEl.width / underlyingEl.height;
     const nextAspectRatio = Number(value);

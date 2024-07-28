@@ -17,7 +17,6 @@ export const AspectRatioSelect: FC<TProps> = ({ el, value, updateData, hasBeenCh
   const valueStr = numberToStr(value)
   const isInitial = !hasBeenChanged
 
-  console.log({ value })
   const isCustomPlaceholder =
     hasBeenChanged && valueStr !== originalValueStr && !CAMERA_ASPECT_RATIOS_STR.includes(valueStr)
 
