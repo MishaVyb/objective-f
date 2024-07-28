@@ -71,7 +71,7 @@ export const actionCropImage = register({
     //////////////////
     if (value === "original") {
       cropElementReset(el);
-      mutateElement(el, { holdAspectRatio: true });
+      // mutateElement(el, { holdAspectRatio: true }); // FIXME
       return {
         elements,
         appState,
@@ -108,7 +108,7 @@ export const actionCropImage = register({
       };
     }
     if (value === "lockAspectRatio") {
-      mutateElement(el, { holdAspectRatio: true });
+      // mutateElement(el, { holdAspectRatio: true }); // FIXME
       return {
         elements,
         appState,
@@ -137,7 +137,7 @@ export const actionCropImage = register({
 
     cropElementProgramatecly(el, cropOn, "nw");
     cropElementProgramatecly(el, cropOn, "se");
-    mutateElement(el, { holdAspectRatio: true });
+    // mutateElement(el, { holdAspectRatio: true }); // FIXME
 
     return {
       elements,
@@ -177,6 +177,9 @@ export const actionCropImage = register({
           >
             <CropIcon />
           </ExcalRadixIconButton>
+          {/*
+
+          FIXME
           <ExcalRadixIconButton
             title={
               isLockAspectRatio ? "Unlock aspect ratio" : "Lock aspect ratio"
@@ -191,6 +194,8 @@ export const actionCropImage = register({
           >
             {isLockAspectRatio ? <LockClosedIcon /> : <LockOpen1Icon />}
           </ExcalRadixIconButton>
+
+          */}
           <ExcalRadixIconButton
             title={"Reset"}
             onClick={() => updateData("reset")}
