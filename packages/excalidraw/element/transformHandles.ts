@@ -8,13 +8,18 @@ import { Bounds, getElementAbsoluteCoords } from "./bounds";
 import { rotate } from "../math";
 import { InteractiveCanvasAppState, Zoom } from "../types";
 import { isTextElement } from ".";
-import { isFrameLikeElement, isLinearElement } from "./typeChecks";
+import {
+  isFrameLikeElement,
+  isImageElement,
+  isLinearElement,
+} from "./typeChecks";
 import { DEFAULT_TRANSFORM_HANDLE_SPACING } from "../constants";
 import {
   getPushpinAng,
   getPushpinLineDistance,
 } from "../../../objective-app/objective/elements/_transformHandles";
 import { ObjectiveMeta } from "../../../objective-app/objective/meta/_types";
+import { getCoreSafe } from "../../../objective-app/objective/meta/_selectors";
 
 export type TransformHandleDirection =
   | "n"
@@ -58,8 +63,8 @@ export const OMIT_SIDES_FOR_FRAME = {
   rotation: true,
 };
 
+// VBRN
 export const OMIT_SIDES_LEAVE_ANGLE = {
-  // VBRN
   n: true,
   s: true,
   w: true,
@@ -69,6 +74,13 @@ export const OMIT_SIDES_LEAVE_ANGLE = {
   sw: true,
   se: true,
 };
+export const OMIT_SIDES_FOR_CROPPING_WITH_FIXED_ASPECT_RATIO = {
+  nw: true,
+  ne: true,
+  sw: true,
+  se: true,
+};
+////
 
 const OMIT_SIDES_FOR_TEXT_ELEMENT = {
   e: true,
@@ -302,6 +314,13 @@ export const getTransformHandles = (
     omitSides = {
       rotation: true,
     };
+  } else if (
+    // VBRN
+    getCoreSafe().app?.state.croppingModeEnabled &&
+    isImageElement(element) &&
+    element.holdAspectRatio
+  ) {
+    omitSides = OMIT_SIDES_FOR_CROPPING_WITH_FIXED_ASPECT_RATIO;
   }
   const dashedLineMargin = isLinearElement(element)
     ? DEFAULT_TRANSFORM_HANDLE_SPACING + 8

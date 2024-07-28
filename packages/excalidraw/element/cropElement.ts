@@ -133,6 +133,7 @@ export function cropElement(
   let elementVersion;
   let doesCropApplied;
   elementVersion = element.version;
+  if (element.holdAspectRatio) throw new Error("Not Implemented");
 
   const mutation = cropElementInternal(
     element,
