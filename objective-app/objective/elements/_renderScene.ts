@@ -31,23 +31,32 @@ export const renderObjectiveScene = (
   const extraEls: ExcalidrawElement[] = []
 
   visibleElements.forEach((el) => {
+    // original image on cropping
     if (
       isInitializedImageElement(el) &&
       app &&
       app.state.croppingModeEnabled &&
       isElementSelected(app.state, el)
     ) {
-      // original image on cropping
+      // HACK
+      // el.scale -- equals 1 on creates and DOES NOT modifies during transfor (it's used only fo flip)
+      // el.rescaleX -- equals 1 on creation and modifies during transfor
+      // onCreationRescaleX --
+      //    if image was too big. it was scaled down on creation, and we need that factor
+      //    to modify x/y properly
+      const onCreationRescaleY = el.underlyingImageHeight / el.heightAtCreation
+      const onCreationRescaleX = el.underlyingImageWidth / el.widthAtCreation
+
       const fullImageOverlay = newElementWith(el, {
         opacity: el.opacity / 2,
         xToPullFromImage: 0,
         yToPullFromImage: 0,
         wToPullFromImage: el.underlyingImageWidth,
         hToPullFromImage: el.underlyingImageHeight,
-        x: el.x - el.xToPullFromImage * el.rescaleX,
-        y: el.y - el.yToPullFromImage * el.rescaleY,
-        width: el.underlyingImageWidth * el.rescaleX,
-        height: el.underlyingImageHeight * el.rescaleY,
+        x: el.x - el.xToPullFromImage / onCreationRescaleX,
+        y: el.y - el.yToPullFromImage / onCreationRescaleY,
+        width: el.widthAtCreation * el.rescaleX,
+        height: el.heightAtCreation * el.rescaleY,
         angle: 0, // perfrom custom rotate in order to handle XY shift properly
       })
 

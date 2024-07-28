@@ -34,8 +34,8 @@ const RecordComponent: FC<{
     <>
       {objectKeys(value)
         .filter((key) => !filter || filter(key))
-        //@ts-ignore
-        .toSorted()
+        // @ts-ignore
+        // .toSorted()
         .map((k: string) => {
           const v = value[k];
           const repr =
