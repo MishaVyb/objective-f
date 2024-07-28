@@ -2,23 +2,31 @@ import { Select } from '@radix-ui/themes'
 import { FC } from 'react'
 import { CAMERA_ASPECT_RATIOS_STR } from '../actionCamera'
 import { numberToStr } from '../../elements/_math'
-import { ExcalidrawImageElement } from '../../../../packages/excalidraw/element/types'
 
 type TProps = {
-  el: ExcalidrawImageElement
+  originalValue: number | undefined
   value: number | undefined
   updateData: (v: string) => void //
   hasBeenChanged: boolean
 }
 
 // TODO use for camera actions also
-export const AspectRatioSelect: FC<TProps> = ({ el, value, updateData, hasBeenChanged }) => {
-  const originalValueStr = numberToStr(el.underlyingImageWidth / el.underlyingImageHeight)
+export const AspectRatioSelect: FC<TProps> = ({
+  originalValue,
+  value,
+  updateData,
+  hasBeenChanged,
+}) => {
+  const originalValueStr = numberToStr(originalValue)
   const valueStr = numberToStr(value)
   const isInitial = !hasBeenChanged
 
+  const isOriginalPlaceholder = originalValueStr !== ''
   const isCustomPlaceholder =
-    hasBeenChanged && valueStr !== originalValueStr && !CAMERA_ASPECT_RATIOS_STR.includes(valueStr)
+    valueStr !== '' &&
+    hasBeenChanged &&
+    valueStr !== originalValueStr &&
+    !CAMERA_ASPECT_RATIOS_STR.includes(valueStr)
 
   return (
     <Select.Root
@@ -40,19 +48,19 @@ export const AspectRatioSelect: FC<TProps> = ({ el, value, updateData, hasBeenCh
       <Select.Content position={'popper'}>
         <Select.Group>
           <Select.Label>{'Pick aspect ratio'}</Select.Label>
-          <Select.Separator />
           <Select.Group>
-            <Select.Item value={originalValueStr} className={'objective-select-item'}>
-              {`${originalValueStr} (Original)`}
-            </Select.Item>
-          </Select.Group>
-          {isCustomPlaceholder && (
-            <Select.Group>
-              <Select.Item value={valueStr} className={'objective-select-item'} disabled>
-                {`${valueStr} (Custom)`}
+            {isOriginalPlaceholder || isCustomPlaceholder ? <Select.Separator /> : <></>}
+            {isOriginalPlaceholder && (
+              <Select.Item value={originalValueStr || '...'} className={'objective-select-item'}>
+                {`${originalValueStr || '...'} (Original)`}
               </Select.Item>
-            </Select.Group>
-          )}
+            )}
+            {isCustomPlaceholder && (
+              <Select.Item value={valueStr || '...'} className={'objective-select-item'} disabled>
+                {`${valueStr || '...'} (Custom)`}
+              </Select.Item>
+            )}
+          </Select.Group>
 
           <Select.Separator />
           {CAMERA_ASPECT_RATIOS_STR.filter((v) => v !== originalValueStr).map((v) => (

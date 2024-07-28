@@ -1,12 +1,7 @@
 import { register } from "./register";
 
 import { Flex } from "@radix-ui/themes";
-import {
-  CropIcon,
-  LockClosedIcon,
-  LockOpen1Icon,
-  ResetIcon,
-} from "@radix-ui/react-icons";
+import { CropIcon, ResetIcon } from "@radix-ui/react-icons";
 import { getSelectedSceneEls } from "../../../objective-app/objective/meta/_selectors";
 import { CODES } from "../keys";
 import { ExcalidrawElement, ExcalidrawImageElement } from "../element/types";
@@ -20,11 +15,20 @@ import {
 import { deepCopyElement } from "../element/newElement";
 import { getShortcutFromShortcutName } from "./shortcuts";
 import { mutateElement } from "..";
+import { getFormValue } from "./actionProperties";
+import { MathRound } from "../../../objective-app/objective/elements/_math";
 
-const isSupportCropping = (selectedElements: ExcalidrawElement[]) =>
-  selectedElements.length === 1 && selectedElements[0].type === "image";
+const isSupportChangeAspectRatio = (
+  selectedElements: ExcalidrawElement[],
+): selectedElements is ExcalidrawImageElement[] =>
+  selectedElements.every((e) => isImageElement(e));
 
 const hasBeenCropped = (el: ExcalidrawImageElement) =>
+  // HACK
+  // it relays on fact, that after 'original' buttom click those value is really really small,
+  // but not null.
+  // therefore we could show the original aspect ration at selection placeholder
+  // (aspect ration wasn't visible changed, but it was changed for 0.00001... value)
   Boolean(
     el.holdAspectRatio ||
       el.eastCropAmount ||
@@ -52,92 +56,82 @@ export const actionCropImage = register({
     app,
   ) => {
     const selectedElements = getSelectedSceneEls(app.scene, appState);
-    const el = selectedElements[0];
-    if (!isImageElement(el)) return false;
+    if (!isSupportChangeAspectRatio(selectedElements)) return false;
 
     // from keyTest
     if (!value) value = appState.croppingModeEnabled ? "disable" : "enable";
-
     if (value === "disable" || value === "enable") {
+      let selectedElementIds = appState.selectedElementIds;
+      if (selectedElements.length > 1) {
+        selectedElementIds = {
+          [selectedElements[0].id]: true,
+        };
+      }
       return {
         elements,
         appState: {
           ...appState,
+          selectedElementIds,
           croppingModeEnabled: value === "enable",
         },
         commitToHistory: false,
       };
     }
-    //////////////////
-    if (value === "original") {
-      cropElementReset(el);
-      // mutateElement(el, { holdAspectRatio: true }); // FIXME
-      return {
-        elements,
-        appState,
-        commitToHistory: true,
-      };
-    }
-    if (value === "custom") {
-      mutateElement(el, { holdAspectRatio: false });
-      return {
-        elements,
-        appState: {
-          ...appState,
-          croppingModeEnabled: true,
-        },
-        commitToHistory: false,
-      };
-    }
-    if (value === "reset") {
-      cropElementReset(el);
-      mutateElement(el, { holdAspectRatio: false });
-      return {
-        elements,
-        appState,
-        commitToHistory: true,
-      };
-    }
-    //////////////////
-    if (value === "unlockAspectRatio") {
-      mutateElement(el, { holdAspectRatio: false });
-      return {
-        elements,
-        appState,
-        commitToHistory: true,
-      };
-    }
-    if (value === "lockAspectRatio") {
-      // mutateElement(el, { holdAspectRatio: true }); // FIXME
-      return {
-        elements,
-        appState,
-        commitToHistory: true,
-      };
-    }
-    //////////////////
 
-    // crop on value (do not reset to original, use user prev changes)
-    const underlyingEl = deepCopyElement(el);
-    const underlyingAspectRatio = underlyingEl.width / underlyingEl.height;
-    const nextAspectRatio = Number(value);
-    const coef = underlyingAspectRatio / nextAspectRatio;
-    const nextWidth = underlyingEl.width / coef;
-    const nextHeight = underlyingEl.height * coef;
-    const cropOn =
-      nextAspectRatio < underlyingAspectRatio
-        ? {
-            x: (underlyingEl.width - nextWidth) / 2,
-            y: 0,
-          }
-        : {
-            x: 0,
-            y: (underlyingEl.height - nextHeight) / 2,
-          };
+    selectedElements.forEach((el) => {
+      // //////////////////
+      if (value === "original") {
+        cropElementReset(el);
+        // mutateElement(el, { holdAspectRatio: true }); // FIXME
+      } else if (value === "custom") {
+        mutateElement(el, { holdAspectRatio: false });
+        // TODO enable crop mode
+      } else if (value === "reset") {
+        cropElementReset(el);
+        mutateElement(el, { holdAspectRatio: false });
+      }
+      // //////////////////
+      // if (value === "unlockAspectRatio") {
+      //   mutateElement(el, { holdAspectRatio: false });
+      //   return {
+      //     elements,
+      //     appState,
+      //     commitToHistory: true,
+      //   };
+      // }
+      // if (value === "lockAspectRatio") {
+      //   // mutateElement(el, { holdAspectRatio: true }); // FIXME
+      //   return {
+      //     elements,
+      //     appState,
+      //     commitToHistory: true,
+      //   };
+      // }
+      // //////////////////
+      else {
+        // crop on value (do not reset to original, use user prev changes)
+        const underlyingEl = deepCopyElement(el);
+        const underlyingAspectRatio = underlyingEl.width / underlyingEl.height;
+        const nextAspectRatio = Number(value);
+        const coef = underlyingAspectRatio / nextAspectRatio;
+        const nextWidth = underlyingEl.width / coef;
+        const nextHeight = underlyingEl.height * coef;
+        const cropOn =
+          nextAspectRatio < underlyingAspectRatio
+            ? {
+                x: (underlyingEl.width - nextWidth) / 2,
+                y: 0,
+              }
+            : {
+                x: 0,
+                y: (underlyingEl.height - nextHeight) / 2,
+              };
 
-    cropElementProgramatecly(el, cropOn, "nw");
-    cropElementProgramatecly(el, cropOn, "se");
-    // mutateElement(el, { holdAspectRatio: true }); // FIXME
+        cropElementProgramatecly(el, cropOn, "nw");
+        cropElementProgramatecly(el, cropOn, "se");
+        // mutateElement(el, { holdAspectRatio: true }); // FIXME
+      }
+    });
 
     return {
       elements,
@@ -147,27 +141,61 @@ export const actionCropImage = register({
   },
   predicate(elements, appState, appProps, app) {
     const selectedElements = getSelectedSceneEls(app.scene, appState);
-    return isSupportCropping(selectedElements);
+    return isSupportChangeAspectRatio(selectedElements);
   },
   keyTest: (event) => event.shiftKey && event.code === CODES.C,
   contextItemLabel: "labels.crop",
   PanelComponent: ({ elements, appState, updateData, app }) => {
     const selectedElements = getSelectedSceneEls(app.scene, appState);
-    if (!isSupportCropping(selectedElements)) return null;
-    const el = selectedElements[0];
-    if (!isImageElement(el)) return <></>;
-    const currentAspectRatio = el.width / el.height;
+    if (!isSupportChangeAspectRatio(selectedElements)) return null;
+
     const isCropping = appState.croppingModeEnabled;
-    const isLockAspectRatio = el.holdAspectRatio;
+    const originalValue = getFormValue(
+      elements,
+      appState,
+      (element) =>
+        isImageElement(element)
+          ? MathRound(
+              element.underlyingImageWidth / element.underlyingImageHeight,
+              2,
+            )
+          : undefined,
+      (element) => isImageElement(element),
+      undefined,
+    );
+    const currentAspectRatio = getFormValue(
+      elements,
+      appState,
+      (element) =>
+        isImageElement(element)
+          ? MathRound(element.width / element.height, 2)
+          : undefined,
+      (element) => isImageElement(element),
+      undefined,
+    );
+    const isAllElementsCropped = getFormValue(
+      elements,
+      appState,
+      (element) => (isImageElement(element) ? hasBeenCropped(element) : false),
+      (element) => isImageElement(element),
+      false,
+    );
+    const isAnyElementCropped = getFormValue(
+      elements,
+      appState,
+      (element) => isImageElement(element) && hasBeenCropped(element),
+      (element) => isImageElement(element) && hasBeenCropped(element),
+      false,
+    );
 
     return (
       <Flex direction={"column"}>
         <legend>{"Crop"}</legend>
         <AspectRatioSelect
-          el={el}
+          originalValue={originalValue}
           value={currentAspectRatio}
           updateData={(value) => updateData(value)}
-          hasBeenChanged={hasBeenCropped(el)}
+          hasBeenChanged={isAllElementsCropped}
         />
         <Flex gap={"1"} wrap={"wrap"} mt={"2"}>
           <ExcalRadixIconButton
@@ -177,8 +205,8 @@ export const actionCropImage = register({
           >
             <CropIcon />
           </ExcalRadixIconButton>
-          {/*
 
+          {/*
           FIXME
           <ExcalRadixIconButton
             title={
@@ -194,12 +222,12 @@ export const actionCropImage = register({
           >
             {isLockAspectRatio ? <LockClosedIcon /> : <LockOpen1Icon />}
           </ExcalRadixIconButton>
-
           */}
+
           <ExcalRadixIconButton
             title={"Reset"}
             onClick={() => updateData("reset")}
-            disabled={!hasBeenCropped(el)}
+            disabled={!isAnyElementCropped}
           >
             <ResetIcon />
           </ExcalRadixIconButton>
