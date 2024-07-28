@@ -10,6 +10,7 @@ import {
   getElementCenter,
   Vector,
 } from "../../../objective-app/objective/elements/_math";
+import { deepCopyElement } from "./newElement";
 
 // i split out these 'internal' functions so that this functionality can be easily unit tested
 export function cropElementInternal(
@@ -127,7 +128,11 @@ export function cropElement(
   pointerX: number,
   pointerY: number,
 ) {
-  const elementVersion = element.version;
+  // VBRN
+  const elementStateToRevert = deepCopyElement(element);
+  let elementVersion;
+  let doesCropApplied;
+  elementVersion = element.version;
 
   const mutation = cropElementInternal(
     element,
@@ -139,16 +144,26 @@ export function cropElement(
 
   mutateElement(element, mutation);
 
-  // VBRN
-  const doesChange = elementVersion !== element.version;
-  if (element.holdAspectRatio && doesChange) {
-    cropElementInternalHoldAspectRatio(
-      element,
-      transformHandle,
-      stateAtCropStart,
-      pointerX,
-      pointerY,
-    );
+  if (element.holdAspectRatio) {
+    // VBRN
+    // if we do not reach the border by user's crop above (if crop has been applied),
+    // crop another border in order to hold aspect ration
+    doesCropApplied = elementVersion !== element.version;
+    if (doesCropApplied) {
+      elementVersion = element.version;
+      cropElementInternalHoldAspectRatio(
+        element,
+        transformHandle,
+        stateAtCropStart,
+        pointerX,
+        pointerY,
+      );
+
+      // revert user crop changes in case we reach the border by mutation above
+      // (if aspect ration shift crop has not been applied)
+      doesCropApplied = elementVersion !== element.version;
+      if (!doesCropApplied) mutateElement(element, elementStateToRevert);
+    }
   }
 
   updateBoundElements(element, {
@@ -295,6 +310,20 @@ export function onElementCropped(
 // VBRN
 ///////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Unfortunately, original cropElement implementation does not support mutation
+ * for both West/East or North/South at the same time. Because there are no such
+ * transform handles as 'ns' (North/South) and 'we' (West/East).
+ *
+ * Therefore we impl aspect ration shift crop only for one border change. And mimic these
+ * behavior:
+ *
+ * n --> w (like 'nw')
+ * w --> n (like 'nw')
+ * s --> e (like 'se')
+ * e --> s (like 'se')
+ *
+ */
 const cropElementInternalHoldAspectRatio = (
   element: ExcalidrawImageElement,
   transformHandle: TransformHandleType,
@@ -302,12 +331,12 @@ const cropElementInternalHoldAspectRatio = (
   pointerX: number,
   pointerY: number,
 ) => {
-  const ar = stateAtCropStart.width / stateAtCropStart.height;
+  const aspectRatio = stateAtCropStart.width / stateAtCropStart.height;
   let mutation;
 
   if (transformHandle.includes("n")) {
     const mouseMovementY = pointerY - stateAtCropStart.y;
-    const shiftX = mouseMovementY * ar;
+    const shiftX = mouseMovementY * aspectRatio;
     mutation = cropElementInternal(
       element,
       "w",
@@ -319,7 +348,7 @@ const cropElementInternalHoldAspectRatio = (
   if (transformHandle.includes("s")) {
     const mouseMovementY =
       stateAtCropStart.y + stateAtCropStart.height - pointerY;
-    const shiftX = mouseMovementY * ar;
+    const shiftX = mouseMovementY * aspectRatio;
     mutation = cropElementInternal(
       element,
       "e",
@@ -330,7 +359,7 @@ const cropElementInternalHoldAspectRatio = (
   }
   if (transformHandle.includes("w")) {
     const mouseMovementX = pointerX - stateAtCropStart.x;
-    const shiftY = mouseMovementX / ar;
+    const shiftY = mouseMovementX / aspectRatio;
     mutation = cropElementInternal(
       element,
       "n",
@@ -342,7 +371,7 @@ const cropElementInternalHoldAspectRatio = (
   if (transformHandle.includes("e")) {
     const mouseMovementX =
       stateAtCropStart.x + stateAtCropStart.width - pointerX;
-    const shiftY = mouseMovementX / ar;
+    const shiftY = mouseMovementX / aspectRatio;
     mutation = cropElementInternal(
       element,
       "s",
