@@ -92,6 +92,7 @@ import { renderObjectiveScene } from "../../../objective-app/objective/elements/
 import { getPushpinAng } from "../../../objective-app/objective/elements/_transformHandles";
 import { isElementsScalable } from "../../../objective-app/objective/elements/_resizeElements";
 import {
+  getCore,
   getCoreSafe,
   getObjectiveSingleMetaStrict,
 } from "../../../objective-app/objective/meta/_selectors";
@@ -1268,6 +1269,10 @@ const renderSelectionBorder = (
         spaceWidth + (lineWidth + spaceWidth) * (count - 1),
       ]);
     }
+
+    if (getCoreSafe().app?.state.croppingModeEnabled)
+      context.strokeStyle = "red";
+
     context.lineDashOffset = (lineWidth + spaceWidth) * index;
     strokeRectWithRotation(
       context,
