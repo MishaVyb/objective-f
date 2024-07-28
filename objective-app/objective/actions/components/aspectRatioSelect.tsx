@@ -55,7 +55,7 @@ export const AspectRatioSelect: FC<TProps> = ({ el, value, updateData, hasBeenCh
           )}
 
           <Select.Separator />
-          {CAMERA_ASPECT_RATIOS_STR.map((v) => (
+          {CAMERA_ASPECT_RATIOS_STR.filter((v) => v !== originalValueStr).map((v) => (
             <Select.Item key={v} value={v} className={'objective-select-item'}>
               {v}
             </Select.Item>
