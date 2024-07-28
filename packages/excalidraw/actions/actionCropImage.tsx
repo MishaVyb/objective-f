@@ -1,7 +1,12 @@
 import { register } from "./register";
 
 import { Flex } from "@radix-ui/themes";
-import { CropIcon, ResetIcon } from "@radix-ui/react-icons";
+import {
+  CropIcon,
+  LockClosedIcon,
+  LockOpen1Icon,
+  ResetIcon,
+} from "@radix-ui/react-icons";
 import { getSelectedSceneEls } from "../../../objective-app/objective/meta/_selectors";
 import { CODES } from "../keys";
 import { ExcalidrawElement, ExcalidrawImageElement } from "../element/types";
@@ -21,7 +26,8 @@ const isSupportCropping = (selectedElements: ExcalidrawElement[]) =>
 
 const hasBeenCropped = (el: ExcalidrawImageElement) =>
   Boolean(
-    el.eastCropAmount ||
+    el.holdAspectRatio ||
+      el.eastCropAmount ||
       el.westCropAmount ||
       el.northCropAmount ||
       el.southCropAmount,
@@ -33,7 +39,16 @@ export const actionCropImage = register({
   perform: (
     elements,
     appState,
-    value: "disable" | "enable" | "reset" | "custom" | string | undefined,
+    value:
+      | "disable"
+      | "enable"
+      | "original"
+      | "custom"
+      | "reset"
+      | "unlockAspectRatio"
+      | "lockAspectRatio"
+      | string
+      | undefined,
     app,
   ) => {
     const selectedElements = getSelectedSceneEls(app.scene, appState);
@@ -42,7 +57,6 @@ export const actionCropImage = register({
 
     // from keyTest
     if (!value) value = appState.croppingModeEnabled ? "disable" : "enable";
-    if (value === "custom") value = "enable";
 
     if (value === "disable" || value === "enable") {
       return {
@@ -54,15 +68,54 @@ export const actionCropImage = register({
         commitToHistory: false,
       };
     }
-
-    if (value === "reset") {
+    //////////////////
+    if (value === "original") {
       cropElementReset(el);
+      mutateElement(el, { holdAspectRatio: true });
       return {
         elements,
         appState,
+        commitToHistory: true,
+      };
+    }
+    if (value === "custom") {
+      mutateElement(el, { holdAspectRatio: false });
+      return {
+        elements,
+        appState: {
+          ...appState,
+          croppingModeEnabled: true,
+        },
         commitToHistory: false,
       };
     }
+    if (value === "reset") {
+      cropElementReset(el);
+      mutateElement(el, { holdAspectRatio: false });
+      return {
+        elements,
+        appState,
+        commitToHistory: true,
+      };
+    }
+    //////////////////
+    if (value === "unlockAspectRatio") {
+      mutateElement(el, { holdAspectRatio: false });
+      return {
+        elements,
+        appState,
+        commitToHistory: true,
+      };
+    }
+    if (value === "lockAspectRatio") {
+      mutateElement(el, { holdAspectRatio: true });
+      return {
+        elements,
+        appState,
+        commitToHistory: true,
+      };
+    }
+    //////////////////
 
     // reset to original & crop on value
     cropElementReset(el);
@@ -106,11 +159,18 @@ export const actionCropImage = register({
     if (!isImageElement(el)) return <></>;
     const currentAspectRatio = el.width / el.height;
     const isCropping = appState.croppingModeEnabled;
+    const isLockAspectRatio = el.holdAspectRatio;
 
     return (
       <Flex direction={"column"}>
-        <legend>{"Aspect ratio"}</legend>
-        <Flex gap={"1"}>
+        <legend>{"Crop"}</legend>
+        <AspectRatioSelect
+          el={el}
+          value={currentAspectRatio}
+          updateData={(value) => updateData(value)}
+          hasBeenChanged={hasBeenCropped(el)}
+        />
+        <Flex gap={"1"} wrap={"wrap"} mt={"2"}>
           <ExcalRadixIconButton
             title={`Crop image — ${getShortcutFromShortcutName("cropImage")}`}
             toggled={appState.croppingModeEnabled}
@@ -118,18 +178,27 @@ export const actionCropImage = register({
           >
             <CropIcon />
           </ExcalRadixIconButton>
-
           <ExcalRadixIconButton
+            title={
+              isLockAspectRatio ? "Unlock aspect ratio" : "Lock aspect ratio"
+            }
+            toggled={isLockAspectRatio}
+            onClick={() =>
+              updateData(
+                isLockAspectRatio ? "unlockAspectRatio" : "lockAspectRatio",
+              )
+            }
+            disabled={!hasBeenCropped(el)}
+          >
+            {isLockAspectRatio ? <LockClosedIcon /> : <LockOpen1Icon />}
+          </ExcalRadixIconButton>
+          <ExcalRadixIconButton
+            title={"Reset"}
             onClick={() => updateData("reset")}
             disabled={!hasBeenCropped(el)}
           >
             <ResetIcon />
           </ExcalRadixIconButton>
-          <AspectRatioSelect
-            value={currentAspectRatio}
-            updateData={(value) => updateData(value)}
-            hasBeenChanged={hasBeenCropped(el)}
-          />
         </Flex>
       </Flex>
     );

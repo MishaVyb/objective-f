@@ -133,7 +133,10 @@ export function cropElement(
   let elementVersion;
   let doesCropApplied;
   elementVersion = element.version;
-  if (element.holdAspectRatio) throw new Error("Not Implemented");
+
+  // FIXME tranform by corner handle does not work good enough...
+  if (element.holdAspectRatio && transformHandle.length === 2)
+    throw new Error("Not Implemented");
 
   const mutation = cropElementInternal(
     element,
@@ -436,4 +439,10 @@ export const cropElementRestore = (el: ExcalidrawImageElement) => {
     { x: -el.eastCropAmount, y: -el.southCropAmount },
     "se",
   );
+  mutateElement(el, {
+    eastCropAmount: 0,
+    westCropAmount: 0,
+    northCropAmount: 0,
+    southCropAmount: 0,
+  });
 };

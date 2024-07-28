@@ -2,18 +2,24 @@ import { Select } from '@radix-ui/themes'
 import { FC } from 'react'
 import { CAMERA_ASPECT_RATIOS_STR } from '../actionCamera'
 import { numberToStr } from '../../elements/_math'
+import { ExcalidrawImageElement } from '../../../../packages/excalidraw/element/types'
 
 type TProps = {
+  el: ExcalidrawImageElement
   value: number | undefined
   updateData: (v: string) => void //
   hasBeenChanged: boolean
 }
 
 // TODO use for camera actions also
-export const AspectRatioSelect: FC<TProps> = ({ value, updateData, hasBeenChanged }) => {
+export const AspectRatioSelect: FC<TProps> = ({ el, value, updateData, hasBeenChanged }) => {
+  const originalValueStr = numberToStr(el.underlyingImageWidth / el.underlyingImageHeight)
   const valueStr = numberToStr(value)
-  const isCustom = hasBeenChanged && !CAMERA_ASPECT_RATIOS_STR.includes(valueStr)
   const isInitial = !hasBeenChanged
+
+  console.log({ value })
+  const isCustomPlaceholder =
+    hasBeenChanged && valueStr !== originalValueStr && !CAMERA_ASPECT_RATIOS_STR.includes(valueStr)
 
   return (
     <Select.Root
@@ -28,6 +34,7 @@ export const AspectRatioSelect: FC<TProps> = ({ value, updateData, hasBeenChange
         variant={'soft'}
         style={{
           height: 32, // HACK equals to button size
+          width: 'min-content',
         }}
         radius={'none'}
       />
@@ -35,16 +42,15 @@ export const AspectRatioSelect: FC<TProps> = ({ value, updateData, hasBeenChange
         <Select.Group>
           <Select.Label>{'Pick aspect ratio'}</Select.Label>
           <Select.Separator />
-          {isCustom ? (
+          <Select.Group>
+            <Select.Item value={originalValueStr} className={'objective-select-item'}>
+              {`${originalValueStr} (Original)`}
+            </Select.Item>
+          </Select.Group>
+          {isCustomPlaceholder && (
             <Select.Group>
               <Select.Item value={valueStr} className={'objective-select-item'} disabled>
-                {valueStr}
-              </Select.Item>
-            </Select.Group>
-          ) : (
-            <Select.Group>
-              <Select.Item value={'custom'} className={'objective-select-item'}>
-                {'Custom'}
+                {`${valueStr} (Custom)`}
               </Select.Item>
             </Select.Group>
           )}
