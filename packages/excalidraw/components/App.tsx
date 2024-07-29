@@ -4666,6 +4666,15 @@ class App extends React.Component<AppProps, AppState> {
       }
     }
 
+    // VBRN
+    if (selectedElements.length === 1 && isImageElement(selectedElements[0])) {
+      this.setState((state) => {
+        return { ...state, croppingModeEnabled: true };
+      });
+      return;
+    }
+    ////
+
     resetCursor(this.interactiveCanvas);
 
     let { x: sceneX, y: sceneY } = viewportCoordsToSceneCoords(
