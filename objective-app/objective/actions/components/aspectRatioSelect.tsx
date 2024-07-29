@@ -45,19 +45,19 @@ export const AspectRatioSelect: FC<TProps> = ({
         }}
         radius={'none'}
       />
-      <Select.Content position={'popper'}>
+      <Select.Content position={'popper'} className='objective-select-content'>
         <Select.Group>
           <Select.Label>{'Pick aspect ratio'}</Select.Label>
           <Select.Group>
             {isOriginalPlaceholder || isCustomPlaceholder ? <Select.Separator /> : <></>}
             {isOriginalPlaceholder && (
-              <Select.Item value={originalValueStr || '...'} className={'objective-select-item'}>
-                {`${originalValueStr || '...'} (Original)`}
+              <Select.Item value={originalValueStr} className={'objective-select-item'}>
+                {`${originalValueStr} (Original)`}
               </Select.Item>
             )}
             {isCustomPlaceholder && (
-              <Select.Item value={valueStr || '...'} className={'objective-select-item'} disabled>
-                {`${valueStr || '...'} (Custom)`}
+              <Select.Item value={valueStr} className={'objective-select-item'} disabled>
+                {`${valueStr} (Custom)`}
               </Select.Item>
             )}
           </Select.Group>

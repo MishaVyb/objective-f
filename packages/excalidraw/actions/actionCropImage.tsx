@@ -5,7 +5,7 @@ import { CropIcon, ResetIcon } from "@radix-ui/react-icons";
 import { getSelectedSceneEls } from "../../../objective-app/objective/meta/_selectors";
 import { CODES } from "../keys";
 import { AspectRatioSelect } from "../../../objective-app/objective/actions/components/aspectRatioSelect";
-import { ExcalRadixIconButton } from "../../../objective-app/objective/actions/components/button";
+import { ExcalRadixToggledIconButton } from "../../../objective-app/objective/actions/components/button";
 import { isImageElement } from "../element/typeChecks";
 import {
   cropElementProgramatecly,
@@ -173,20 +173,14 @@ export const actionCropImage = register({
     return (
       <Flex direction={"column"}>
         <legend>{"Crop"}</legend>
-        <AspectRatioSelect
-          originalValue={originalValue}
-          value={currentAspectRatio}
-          updateData={(value) => updateData(value)}
-          hasBeenChanged={isAllElementsCropped}
-        />
-        <Flex gap={"1"} wrap={"wrap"} mt={"2"}>
-          <ExcalRadixIconButton
+        <Flex gap={"1"}>
+          <ExcalRadixToggledIconButton
             title={`Crop image — ${getShortcutFromShortcutName("cropImage")}`}
             toggled={appState.croppingModeEnabled}
             onClick={() => updateData(isCropping ? "disable" : "enable")}
           >
             <CropIcon />
-          </ExcalRadixIconButton>
+          </ExcalRadixToggledIconButton>
 
           {/*
           FIXME
@@ -206,13 +200,19 @@ export const actionCropImage = register({
           </ExcalRadixIconButton>
           */}
 
-          <ExcalRadixIconButton
+          <ExcalRadixToggledIconButton
             title={"Restore"}
             onClick={() => updateData("restore")}
             disabled={!isAnyElementCropped}
           >
             <ResetIcon />
-          </ExcalRadixIconButton>
+          </ExcalRadixToggledIconButton>
+          <AspectRatioSelect
+            originalValue={originalValue}
+            value={currentAspectRatio}
+            updateData={(value) => updateData(value)}
+            hasBeenChanged={isAllElementsCropped}
+          />
         </Flex>
       </Flex>
     );

@@ -65,6 +65,7 @@ import { mutateSelectedElsMeta, mutateMeta } from '../elements/_mutateElements'
 import clsx from 'clsx'
 import { isElementsScalable } from '../elements/_resizeElements'
 import { getShortcutFromShortcutName } from '../../../packages/excalidraw/actions/shortcuts'
+import { ExcalRadixButton } from './components/button'
 
 export const KbdLabel: FC<{ children: ReactNode; style?: any }> = ({ children, style }) => (
   <Kbd style={style}>
@@ -358,10 +359,10 @@ export const actionChangeMetaDescription = register({
                 {singleMeta?.description}
               </Blockquote>
             ) : (
-              <Button variant={'outline'} color={'gray'} size={'1'}>
+              <ExcalRadixButton variant={'outline'} size={'1'}>
                 <Pencil1Icon />
                 {'Edit'}
-              </Button>
+              </ExcalRadixButton>
             )}
           </Dialog.Trigger>
 

@@ -28,7 +28,7 @@ import {
 import { deleteEventHandler } from '../elements/_deleteElements'
 
 import { register } from './register'
-import { Button, Flex, IconButton, Popover, Separator, Text } from '@radix-ui/themes'
+import { Flex, IconButton, Popover, Separator, Text } from '@radix-ui/themes'
 import { CameraIcon, CircleBackslashIcon, EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons'
 import { ImageIcon, TrashIcon } from '../../../packages/excalidraw/components/icons'
 import { mutateMeta } from '../elements/_mutateElements'
@@ -36,6 +36,7 @@ import { arrangeElements } from '../elements/_zIndex'
 import { CameraBadge } from '../components/ShotListSidebarContent'
 import { useCamerasImages } from '../meta/_hooks'
 import { mutateElement } from '../../../packages/excalidraw'
+import { ExcalRadixButton } from './components/button'
 
 export const actionInitStoryboard = register({
   name: 'actionInitStoryboard',
@@ -117,10 +118,10 @@ export const actionInitStoryboard = register({
     return (
       <Popover.Root>
         <Popover.Trigger>
-          <Button color={'gray'} variant='soft' disabled={!cameras.length}>
+          <ExcalRadixButton disabled={!cameras.length}>
             <CameraIcon />
             {'Storyboard'}
-          </Button>
+          </ExcalRadixButton>
         </Popover.Trigger>
         <Popover.Content
           side={device.viewport.isMobile && !device.viewport.isLandscape ? 'bottom' : 'right'}
@@ -308,15 +309,14 @@ export const actionStoryboard = register({
             </fieldset>
           ))
         ) : (
-          <Button
-            size={'2'}
+          <ExcalRadixButton
+            size={'1'}
             style={{
               // HACK fix not native Excalidraw icon inside Radix button
-              paddingLeft: 5,
+              paddingLeft: 0,
               gap: 0,
             }}
             variant={'surface'}
-            color={'gray'}
             onClick={() => onAddImageClick()}
             title={'Add image frame'}
           >
@@ -328,7 +328,7 @@ export const actionStoryboard = register({
             >
               {'Add'}
             </Text>
-          </Button>
+          </ExcalRadixButton>
         )}
       </div>
     )

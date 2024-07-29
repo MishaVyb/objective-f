@@ -127,11 +127,14 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-
+.objective-select-content {
+  border-radius: var(--radius-0);
+}
 .objective-select-item {
-  // border: 1px dashed red;
-  --accent-9: var(--accent-3);
+  border-radius: var(--radius-0);
+  --accent-9: var(--accent-4);
   --accent-9-contrast: black;
+  color: black !important;
 }
 
 .objective-popover-content {

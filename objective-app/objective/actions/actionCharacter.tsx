@@ -11,6 +11,7 @@ import { ObjectiveKinds, isKind } from '../meta/_types'
 import { degreesToRadian, ensureVector, getElementCenter } from '../elements/_math'
 import { getObjectiveRotationCenter } from '../elements/_resizeElements'
 import { mutateElement } from '../../../packages/excalidraw'
+import { ExcalRadixButton } from './components/button'
 
 type TChangeVersionActionValue = 'moveTo' | 'moveFrom' | 'addTurn'
 
@@ -103,38 +104,35 @@ export const actionCharacterMovement = register({
         <Flex direction={'column'} gap={'1'}>
           {singleMeta && (
             <Flex gap={'1'}>
-              <Button
+              <ExcalRadixButton
                 size={'1'}
                 variant={'surface'}
-                color={'gray'}
                 onClick={() => updateData('moveFrom')}
                 title={'Move character from'}
               >
                 {'From'}
                 <EnterIcon />
-              </Button>
+              </ExcalRadixButton>
 
-              <Button
+              <ExcalRadixButton
                 size={'1'}
                 variant={'surface'}
-                color={'gray'}
                 onClick={() => updateData('moveTo')}
                 title={'Move character to'}
               >
                 <ExitIcon />
                 {'To'}
-              </Button>
+              </ExcalRadixButton>
 
-              <Button
+              <ExcalRadixButton
                 size={'1'}
                 variant={'surface'}
-                color={'gray'}
                 onClick={() => updateData('addTurn')}
                 title={'Add turn'}
               >
                 <ReloadIcon />
                 {'Turn'}
-              </Button>
+              </ExcalRadixButton>
             </Flex>
           )}
         </Flex>

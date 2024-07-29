@@ -41,6 +41,11 @@ import { getRadixColor } from '../UI/colors'
 import { EasyInput } from '../UI/InputEasyIn'
 import clsx from 'clsx'
 import { getObjectiveRotationCenter } from '../elements/_resizeElements'
+import {
+  ExcalRadixButton,
+  ExcalRadixIconButton,
+  ExcalRadixToggledIconButton,
+} from './components/button'
 
 type TChangeShotActionValue = 'init' | 'remove' | 'incraseShotNumber' | 'decraseShotNumber'
 
@@ -130,33 +135,26 @@ export const actionChangeMetaCameraShot = register({
         <legend>{'Shot list'}</legend>
         {isShot ? (
           <Flex gap={'1'}>
-            <IconButton
-              size={'2'}
+            <ExcalRadixIconButton
               variant={'outline'}
               color={'red'}
               onClick={() => updateData('remove')}
               title={'Remove from shot list'}
             >
               <CircleBackslashIcon />
-            </IconButton>
-            <IconButton
-              size={'2'}
-              variant={'soft'}
-              color={'gray'}
+            </ExcalRadixIconButton>
+            <ExcalRadixIconButton
               onClick={() => updateData('decraseShotNumber')}
               title={'Decrase shot number'}
             >
               <MinusIcon />
-            </IconButton>
-            <IconButton
-              size={'2'}
-              variant={'soft'}
-              color={'gray'}
+            </ExcalRadixIconButton>
+            <ExcalRadixIconButton
               onClick={() => updateData('incraseShotNumber')}
               title={'Incrase shot number'}
             >
               <PlusIcon />
-            </IconButton>
+            </ExcalRadixIconButton>
           </Flex>
         ) : (
           <Button
@@ -165,6 +163,7 @@ export const actionChangeMetaCameraShot = register({
             color={basisColor}
             onClick={() => updateData('init')}
             title={'Add to shotlist'}
+            radius={'none'}
           >
             <CameraIcon />
             {'Add'}
@@ -351,59 +350,52 @@ export const actionChangeMetaCameraVersion = register({
         <Flex gap={'1'}>
           {isShot ? (
             <>
-              <IconButton
+              <ExcalRadixIconButton
                 size={'1'}
-                variant={'soft'}
-                color={'gray'}
                 onClick={() => updateData('decraseShotVersion')}
                 title={'Decrase shot version'}
               >
                 <MinusIcon />
-              </IconButton>
-              <IconButton
+              </ExcalRadixIconButton>
+              <ExcalRadixIconButton
                 size={'1'}
-                variant={'soft'}
-                color={'gray'}
                 onClick={() => updateData('incraseShotVersion')}
                 title={'Incrase shot version'}
               >
                 <PlusIcon />
-              </IconButton>
+              </ExcalRadixIconButton>
             </>
           ) : null}
           {singleMeta && (
             <>
-              <Button
+              <ExcalRadixButton
                 size={'1'}
                 variant={'surface'}
-                color={'gray'}
                 onClick={() => updateData('moveFrom')}
                 title={'Move camera from'}
               >
                 {'From'}
                 <EnterIcon />
-              </Button>
-              <Button
+              </ExcalRadixButton>
+              <ExcalRadixButton
                 size={'1'}
                 variant={'surface'}
-                color={'gray'}
                 onClick={() => updateData('moveTo')}
                 title={'Move camera to'}
               >
                 <ExitIcon />
                 {'To'}
-              </Button>
+              </ExcalRadixButton>
 
-              <Button
+              <ExcalRadixButton
                 size={'1'}
                 variant={'surface'}
-                color={'gray'}
                 onClick={() => updateData('addTurn')}
                 title={'Add turn'}
               >
                 <ReloadIcon />
                 {isShot ? '' : 'Turn'}
-              </Button>
+              </ExcalRadixButton>
             </>
           )}
         </Flex>
@@ -600,7 +592,7 @@ export const actionChangeCameraDetails = register({
         {/* <legend>{'Specification'}</legend> */}
         <Separator size={'4'} />
         <label className='control-label'>
-          <Flex display={'flex'} gap={'1'} justify={'between'} m={'2'}>
+          <Flex display={'flex'} gap={'1'} justify={'between'} mt={'2'} mb={'2'}>
             <Select.Root
               size={'1'}
               value={format?.title === undefined ? '' : format?.title}
@@ -608,14 +600,20 @@ export const actionChangeCameraDetails = register({
               onValueChange={(v) => updateData({ newCameraFormat: v })}
             >
               {/* @ts-ignore */}
-              <Select.Trigger title={'Camera format'} placeholder='Format' variant='ghost' />
-              <Select.Content>
+              <Select.Trigger
+                title={'Camera format'}
+                placeholder='Camera Format'
+                // variant='ghost'
+                radius={'none'}
+              />
+              <Select.Content position={'popper'} className='objective-select-content'>
                 <Select.Group>
                   <Select.Label>{'Pick camera format'}</Select.Label>
                   <Select.Separator />
                   {CAMERA_FORMATS.map((f) => (
-                    <Flex key={f.title} justify={'between'} align={'baseline'}>
+                    <Flex key={f.title} justify={'between'} align={'baseline'} gap={'1'}>
                       <Select.Item
+                        style={{ width: '100%' }}
                         title={f.description}
                         value={f.title}
                         className={'objective-select-item'}
@@ -639,6 +637,13 @@ export const actionChangeCameraDetails = register({
                 </Select.Group>
               </Select.Content>
             </Select.Root>
+
+            {/*
+              // TODO ASPECT RATIO
+              // - relate to Storyboard image aspect ratio
+              // - relate to Project / Scene settings aspect ratio
+              // ...
+
             <Select.Root
               size={'1'}
               value={aspectRatio === undefined ? '' : String(aspectRatio)}
@@ -654,7 +659,10 @@ export const actionChangeCameraDetails = register({
                 ml={'3'}
                 mr={'2'}
               />
-              <Select.Content>
+              <Select.Content
+                position={'popper'}
+                className='objective-select-content' //
+              >
                 <Select.Group>
                   <Select.Label>{'Pick aspect ratio'}</Select.Label>
                   <Select.Separator />
@@ -664,17 +672,10 @@ export const actionChangeCameraDetails = register({
                     </Select.Item>
                   ))}
                 </Select.Group>
-                <Select.Separator />
-                <Select.Group>
-                  <Select.Item value='Custom' disabled>
-                    Custom
-                  </Select.Item>
-                  {/* <Select.Item value='Disable'>Disable</Select.Item> */}
-                </Select.Group>
               </Select.Content>
             </Select.Root>
-
-            <Flex gap={'2'}>
+              */}
+            <Flex gap={'4'}>
               <IconButton
                 size={'1'}
                 variant={'ghost'}
