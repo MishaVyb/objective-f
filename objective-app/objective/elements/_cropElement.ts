@@ -121,7 +121,7 @@ export const cropElementInternalHoldAspectRatio = (
   pointerY: number
 ) => {
   const aspectRatio = stateAtCropStart.width / stateAtCropStart.height
-  let mutation
+  let mutation: ReturnType<typeof cropElementInternal>
 
   if (transformHandle.includes('n')) {
     const mouseMovementY = pointerY - stateAtCropStart.y
