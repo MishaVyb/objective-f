@@ -449,6 +449,7 @@ import { getObjectiveContextMenuItems } from "../../../objective-app/objective/c
 import { isElementsScalable } from "../../../objective-app/objective/elements/_resizeElements";
 import { getObjectiveCursorOnHoverNotSelectedEls } from "../../../objective-app/objective/elements/_cursor";
 import { isHintingPushpin } from "../../../objective-app/objective/elements/_collision";
+import { reInitializeImageDemensions } from "../../../objective-app/objective/elements/_cropElement";
 
 const AppContext = React.createContext<AppClassProperties>(null!);
 const AppPropsContext = React.createContext<AppProps>(null!);
@@ -3247,6 +3248,7 @@ class App extends React.Component<AppProps, AppState> {
       () => {
         if (opts.files) {
           this.addNewImagesToImageCache();
+          reInitializeImageDemensions(); // VBRN
         }
       },
     );
@@ -8792,7 +8794,7 @@ class App extends React.Component<AppProps, AppState> {
     }
   };
 
-  private initializeImageDimensions = (
+  public initializeImageDimensions = (
     imageElement: ExcalidrawImageElement,
     forceNaturalSize = false,
   ) => {

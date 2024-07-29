@@ -4,38 +4,20 @@ import { Flex } from "@radix-ui/themes";
 import { CropIcon, ResetIcon } from "@radix-ui/react-icons";
 import { getSelectedSceneEls } from "../../../objective-app/objective/meta/_selectors";
 import { CODES } from "../keys";
-import { ExcalidrawElement, ExcalidrawImageElement } from "../element/types";
 import { AspectRatioSelect } from "../../../objective-app/objective/actions/components/aspectRatioSelect";
 import { ExcalRadixIconButton } from "../../../objective-app/objective/actions/components/button";
 import { isImageElement } from "../element/typeChecks";
 import {
   cropElementProgramatecly,
-  cropElementRestore as cropElementReset,
-} from "../element/cropElement";
+  cropElementRestore,
+  hasBeenCropped,
+  isSupportChangeAspectRatio,
+} from "./../../../objective-app/objective/elements/_cropElement";
 import { deepCopyElement } from "../element/newElement";
 import { getShortcutFromShortcutName } from "./shortcuts";
 import { mutateElement } from "..";
 import { getFormValue } from "./actionProperties";
 import { MathRound } from "../../../objective-app/objective/elements/_math";
-
-const isSupportChangeAspectRatio = (
-  selectedElements: ExcalidrawElement[],
-): selectedElements is ExcalidrawImageElement[] =>
-  selectedElements.every((e) => isImageElement(e));
-
-const hasBeenCropped = (el: ExcalidrawImageElement) =>
-  // HACK
-  // it relays on fact, that after 'original' buttom click those value is really really small,
-  // but not null.
-  // therefore we could show the original aspect ration at selection placeholder
-  // (aspect ration wasn't visible changed, but it was changed for 0.00001... value)
-  Boolean(
-    el.holdAspectRatio ||
-      el.eastCropAmount ||
-      el.westCropAmount ||
-      el.northCropAmount ||
-      el.southCropAmount,
-  );
 
 export const actionCropImage = register({
   name: "cropImage",
@@ -48,7 +30,7 @@ export const actionCropImage = register({
       | "enable"
       | "original"
       | "custom"
-      | "reset"
+      | "restore"
       | "unlockAspectRatio"
       | "lockAspectRatio"
       | string
@@ -81,13 +63,13 @@ export const actionCropImage = register({
     selectedElements.forEach((el) => {
       // //////////////////
       if (value === "original") {
-        cropElementReset(el);
+        cropElementRestore(el);
         // mutateElement(el, { holdAspectRatio: true }); // FIXME
       } else if (value === "custom") {
         mutateElement(el, { holdAspectRatio: false });
         // TODO enable crop mode
-      } else if (value === "reset") {
-        cropElementReset(el);
+      } else if (value === "restore") {
+        cropElementRestore(el);
         mutateElement(el, { holdAspectRatio: false });
       }
       // //////////////////
@@ -225,8 +207,8 @@ export const actionCropImage = register({
           */}
 
           <ExcalRadixIconButton
-            title={"Reset"}
-            onClick={() => updateData("reset")}
+            title={"Restore"}
+            onClick={() => updateData("restore")}
             disabled={!isAnyElementCropped}
           >
             <ResetIcon />

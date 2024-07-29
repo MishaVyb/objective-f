@@ -70,6 +70,7 @@ import {
 import { getContainingFrame } from "../frame";
 import { normalizeLink, toValidURL } from "../data/url";
 import { ShapeCache } from "../scene/ShapeCache";
+import { isInitializedDemensionsImage } from "../../../objective-app/objective/elements/_cropElement";
 
 // using a stronger invert (100% vs our regular 93%) and saturate
 // as a temp hack to make images in dark theme look closer to original
@@ -355,17 +356,26 @@ const drawElementOnCanvas = (
           );
           context.clip();
         }
-        context.drawImage(
-          img,
-          element.xToPullFromImage,
-          element.yToPullFromImage,
-          element.wToPullFromImage,
-          element.hToPullFromImage,
-          0 /* hardcoded for the selection box*/,
-          0,
-          element.width,
-          element.height,
-        );
+        if (!isInitializedDemensionsImage(element))
+          context.drawImage(
+            img,
+            0 /* hardcoded for the selection box*/,
+            0,
+            element.width,
+            element.height,
+          );
+        else
+          context.drawImage(
+            img,
+            element.xToPullFromImage,
+            element.yToPullFromImage,
+            element.wToPullFromImage,
+            element.hToPullFromImage,
+            0 /* hardcoded for the selection box*/,
+            0,
+            element.width,
+            element.height,
+          );
       } else {
         drawImagePlaceholder(element, context, appState.zoom.value);
       }

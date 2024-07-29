@@ -33,9 +33,10 @@ import { randomId } from '../../../packages/excalidraw/random'
 import { groupBy } from '../utils/helpers'
 import { objectValues } from '../utils/types'
 import { getMetaCore } from './_core'
+import App from '../../../packages/excalidraw/components/App'
 
-let _APP: AppClassProperties | undefined
-export const setCore = (app: AppClassProperties) => (_APP = app)
+let _APP: App | undefined
+export const setCore = (app: App) => (_APP = app)
 export const unsetCore = () => (_APP = undefined)
 export const getCore = () => ({
   app: _APP!,

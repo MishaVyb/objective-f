@@ -36,7 +36,8 @@ import { ExcalidrawElement } from '../../../packages/excalidraw/element/types'
 import { ObjectiveMeta } from '../meta/_types'
 import { mutateElement } from '../../../packages/excalidraw'
 import { mutateMeta } from '../elements/_mutateElements'
-import { APIError, ISceneFull } from '../../objective-plus/store/projects/reducer'
+import { ISceneFull } from '../../objective-plus/store/projects/reducer'
+import { reInitializeImageDemensions } from '../elements/_cropElement'
 
 const serializeElements = (scene: ISceneFull) => {
   // NOTE: deep copy is required here in order to resolve this issue:
@@ -183,55 +184,59 @@ const ObjectiveOuterWrapper: FC<{
 
   /** loading... */
   const loadingScene = useCallback(
-    (
+    async (
       action: ReturnType<typeof loadSceneContinuos> | ReturnType<typeof loadSceneInitial>,
       opts: { updateAppState?: boolean } = { updateAppState: true }
     ) => {
       if (!excalidrawApi) return
 
-      dispatch(action)
-        .unwrap()
-        .then((scene) => {
-          // Data serialization. Ensure types.
-          const serializedElements = serializeElements(scene)
-          const serializedAppState = serializeAppState(
-            scene,
-            serializedElements,
-            excalidrawApi,
-            state?.appStateOverrides,
-            isMyScene
-          )
-          excalidrawApi.updateScene({
-            elements: serializedElements,
-            appState: opts?.updateAppState ? serializedAppState : undefined,
-            collaborators: serializedAppState.collaborators,
-          })
-          excalidrawApi.updateLibrary({
-            libraryItems: OBJECTIVE_LIB_ITEMS,
-          })
+      let scene
+      try {
+        scene = await dispatch(action).unwrap()
+      } catch (e) {
+        setTimeout(() => {
+          navigate('/projects')
+        }, ERROR_REPR_DELTA_SEC)
+        return
+      }
 
-          // images that we have
-          const localFiles = excalidrawApi.getFiles()
-          const localFileIds = new Set(objectValues(localFiles).map((f) => f.id))
+      // Data serialization. Ensure types.
+      const serializedElements = serializeElements(scene)
+      const serializedAppState = serializeAppState(
+        scene,
+        serializedElements,
+        excalidrawApi,
+        state?.appStateOverrides,
+        isMyScene
+      )
+      excalidrawApi.updateScene({
+        elements: serializedElements,
+        appState: opts?.updateAppState ? serializedAppState : undefined,
+        collaborators: serializedAppState.collaborators,
+      })
+      excalidrawApi.updateLibrary({
+        libraryItems: OBJECTIVE_LIB_ITEMS,
+      })
 
-          // images that we don't have
-          const imageElementsWithFileNotInLocalFileIds = serializedElements
-            .filter(isImageElement)
-            .filter((e) => !e.isDeleted && e.fileId && !localFileIds.has(e.fileId))
-          const fileIds = imageElementsWithFileNotInLocalFileIds.map((e) => e.fileId!)
+      // images that we have
+      const localFiles = excalidrawApi.getFiles()
+      const localFileIds = new Set(objectValues(localFiles).map((f) => f.id))
 
-          // scene has been load from server, but we need a little bit more for Excalidraw internal work
-          setTimeout(() => {
-            dispatch(setInitialSceneLoadingIsPending(false))
-          }, 100)
+      // images that we don't have
+      const imageElementsWithFileNotInLocalFileIds = serializedElements
+        .filter(isImageElement)
+        .filter((e) => !e.isDeleted && e.fileId && !localFileIds.has(e.fileId))
+      const fileIds = imageElementsWithFileNotInLocalFileIds.map((e) => e.fileId!)
 
-          fetchFiles(scene.id, fileIds, excalidrawApi.addFiles)
-        })
-        .catch((e: APIError) => {
-          setTimeout(() => {
-            navigate('/projects')
-          }, ERROR_REPR_DELTA_SEC)
-        })
+      // scene has been load from server, but we need a little bit more for Excalidraw internal work
+      setTimeout(() => {
+        dispatch(setInitialSceneLoadingIsPending(false))
+      }, 100)
+
+      // load images from local or server
+      await fetchFiles(scene.id, fileIds, excalidrawApi.addFiles)
+      // 'addNewImagesToImageCache' called internally on app.addFiles
+      await reInitializeImageDemensions()
     },
     [excalidrawApi, dispatch]
   )

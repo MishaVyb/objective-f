@@ -1,16 +1,12 @@
 import { Point } from "points-on-curve";
-import { centerPoint, rotate, rotatePoint } from "../math";
+import { centerPoint, rotatePoint } from "../math";
 import { updateBoundElements } from "./binding";
 import { mutateElement } from "./mutateElement";
 import { TransformHandleType } from "./transformHandles";
 import { ExcalidrawElement, ExcalidrawImageElement, NonDeleted } from "./types";
 import { getResizedElementAbsoluteCoords } from "./bounds";
-import {
-  ensureVector,
-  getElementCenter,
-  Vector,
-} from "../../../objective-app/objective/elements/_math";
 import { deepCopyElement } from "./newElement";
+import { cropElementInternalHoldAspectRatio } from "../../../objective-app/objective/elements/_cropElement";
 
 // i split out these 'internal' functions so that this functionality can be easily unit tested
 export function cropElementInternal(
@@ -309,140 +305,3 @@ export function onElementCropped(
     mutateElement(element, mutation);
   }
 }
-
-///////////////////////////////////////////////////////////////////////////////////////
-// VBRN
-///////////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Unfortunately, original cropElement implementation does not support mutation
- * for both West/East or North/South at the same time. Because there are no such
- * transform handles as 'ns' (North/South) and 'we' (West/East).
- *
- * Therefore we impl aspect ration shift crop only for one border change. And mimic these
- * behavior:
- *
- * n --> w (like 'nw')
- * w --> n (like 'nw')
- * s --> e (like 'se')
- * e --> s (like 'se')
- *
- */
-const cropElementInternalHoldAspectRatio = (
-  element: ExcalidrawImageElement,
-  transformHandle: TransformHandleType,
-  stateAtCropStart: NonDeleted<ExcalidrawElement>,
-  pointerX: number,
-  pointerY: number,
-) => {
-  const aspectRatio = stateAtCropStart.width / stateAtCropStart.height;
-  let mutation;
-
-  if (transformHandle.includes("n")) {
-    const mouseMovementY = pointerY - stateAtCropStart.y;
-    const shiftX = mouseMovementY * aspectRatio;
-    mutation = cropElementInternal(
-      element,
-      "w",
-      stateAtCropStart,
-      stateAtCropStart.x + shiftX,
-      pointerY, // does not matter
-    );
-  }
-  if (transformHandle.includes("s")) {
-    const mouseMovementY =
-      stateAtCropStart.y + stateAtCropStart.height - pointerY;
-    const shiftX = mouseMovementY * aspectRatio;
-    mutation = cropElementInternal(
-      element,
-      "e",
-      stateAtCropStart,
-      stateAtCropStart.x + stateAtCropStart.width - shiftX,
-      pointerY, // does not matter
-    );
-  }
-  if (transformHandle.includes("w")) {
-    const mouseMovementX = pointerX - stateAtCropStart.x;
-    const shiftY = mouseMovementX / aspectRatio;
-    mutation = cropElementInternal(
-      element,
-      "n",
-      stateAtCropStart,
-      pointerX, // does not matter
-      stateAtCropStart.y + shiftY,
-    );
-  }
-  if (transformHandle.includes("e")) {
-    const mouseMovementX =
-      stateAtCropStart.x + stateAtCropStart.width - pointerX;
-    const shiftY = mouseMovementX / aspectRatio;
-    mutation = cropElementInternal(
-      element,
-      "s",
-      stateAtCropStart,
-      pointerX, // does not matter
-      stateAtCropStart.y + stateAtCropStart.height - shiftY,
-    );
-  }
-
-  mutateElement(element, mutation!);
-};
-
-export const cropElementProgramatecly = (
-  el: ExcalidrawImageElement,
-  cropOnValue: Vector,
-  mode: "nw" | "se",
-) => {
-  const cropPointer =
-    mode === "nw"
-      ? {
-          // from top-left
-          x: el.x + cropOnValue.x,
-          y: el.y + cropOnValue.y,
-        }
-      : {
-          // from bottom-right
-          x: el.x + el.width - cropOnValue.x,
-          y: el.y + el.height - cropOnValue.y,
-        };
-
-  const rotateCenter = getElementCenter(el);
-  const cropPointerRotated = ensureVector(
-    rotate(
-      cropPointer.x,
-      cropPointer.y,
-      rotateCenter.x,
-      rotateCenter.y,
-      el.angle,
-    ),
-  );
-  const mutation = cropElementInternal(
-    el,
-    mode,
-    el,
-    cropPointerRotated.x,
-    cropPointerRotated.y,
-  );
-  mutateElement(el, mutation);
-  const mutation_ = onElementCroppedInternal(el, mode, el);
-  mutateElement(el, mutation_);
-};
-
-export const cropElementRestore = (el: ExcalidrawImageElement) => {
-  cropElementProgramatecly(
-    el,
-    { x: -el.westCropAmount, y: -el.northCropAmount },
-    "nw",
-  );
-  cropElementProgramatecly(
-    el,
-    { x: -el.eastCropAmount, y: -el.southCropAmount },
-    "se",
-  );
-  mutateElement(el, {
-    eastCropAmount: 0,
-    westCropAmount: 0,
-    northCropAmount: 0,
-    southCropAmount: 0,
-  });
-};
