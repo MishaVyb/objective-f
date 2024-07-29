@@ -4,12 +4,14 @@ import {
   updateBoundElements,
 } from '../../../packages/excalidraw/element/binding'
 import {
+  Arrowhead,
   ExcalidrawArrowElement,
   ExcalidrawBindableElement,
   ExcalidrawElement,
   ExcalidrawLinearElement,
   ExcalidrawRectangleElement,
   ExcalidrawTextElementWithContainer,
+  NonDeleted,
   NonDeletedSceneElementsMap,
 } from '../../../packages/excalidraw/element/types'
 import { getCore, getObjectiveBasis, getPointerIds, isElementSelected } from '../meta/_selectors'
@@ -17,7 +19,7 @@ import { CameraMeta, ObjectiveKinds, ObjectiveMeta, PointerMeta } from '../meta/
 import { buildWeekMeta } from '../meta/_initial'
 
 import { randomId } from '../../../packages/excalidraw/random'
-import { DEFAULT_FONT_SIZE } from '../../../packages/excalidraw/constants'
+import { DEFAULT_FONT_SIZE, ROUGHNESS } from '../../../packages/excalidraw/constants'
 import Scene from '../../../packages/excalidraw/scene/Scene'
 import { Vector, ensurePoint, ensureVector, getElementCenter } from './_math'
 import { DEFAULT_FOCUS_DISTANCE, getCameraLensAngle } from '../actions/actionCamera'
@@ -33,6 +35,11 @@ import {
 import { getObjectiveRotationCenter, rotateElementOnAngle } from './_resizeElements'
 import { rotate } from '../../../packages/excalidraw/math'
 import { normalizeAngle } from '../../../packages/excalidraw/element/resizeElements'
+import {
+  _newElementBase,
+  ElementConstructorOpts,
+} from '../../../packages/excalidraw/element/newElement'
+import { __DEBUG_DISABLE_APPLY_DEFAULTS } from '../../objective-plus/constants'
 
 export const POINTER_COMMON = (): Partial<ExcalidrawArrowElement> => ({
   // locked: true, // ??? lock for label but not for images...
@@ -516,4 +523,39 @@ export const newMetaReprElement = (meta: ObjectiveMeta, initialValue: string | u
     },
   ]
   return [container, text] as [ExcalidrawRectangleElement, ExcalidrawTextElementWithContainer]
+}
+
+export const newObjectiveWall = (
+  opts: {
+    type: ExcalidrawLinearElement['type']
+    startArrowhead?: Arrowhead | null
+    endArrowhead?: Arrowhead | null
+    points?: ExcalidrawLinearElement['points']
+  } & ElementConstructorOpts
+): NonDeleted<ExcalidrawLinearElement> => {
+  return {
+    ..._newElementBase<ExcalidrawLinearElement>(opts.type, opts),
+    points: opts.points || [],
+    lastCommittedPoint: null,
+    startBinding: null,
+    endBinding: null,
+    startArrowhead: opts.startArrowhead || null,
+    endArrowhead: opts.endArrowhead || null,
+
+    // VBRN wall meta:
+    customData: buildWeekMeta(ObjectiveKinds.WALL),
+    // VBRN wall defaults:
+    ...(!__DEBUG_DISABLE_APPLY_DEFAULTS
+      ? {
+          strokeColor: COLOR_PALETTE.black,
+          backgroundColor: COLOR_PALETTE.transparent,
+          fillStyle: 'solid' as const,
+          strokeWidth: 2,
+          strokeStyle: 'solid' as const,
+          roundness: null,
+          roughness: ROUGHNESS.architect,
+          opacity: 100,
+        }
+      : {}),
+  }
 }

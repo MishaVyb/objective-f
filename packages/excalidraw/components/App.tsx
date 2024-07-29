@@ -423,6 +423,7 @@ import {
   isObjective,
   ensureArray,
   ensureMap,
+  isObjectiveInternalLine,
 } from "../../../objective-app/objective/meta/_types";
 import {
   duplicateObjectiveEventHandler,
@@ -443,7 +444,7 @@ import {
   __DEBUG_DISABLE_APPLY_DEFAULTS,
   __DEBUG_LOG_POINTER_CORDS,
 } from "../../../objective-app/objective-plus/constants";
-import { isGroupEditingDissalawed } from "../../../objective-app/objective/elements/_groups";
+import { isHitSelectedObjectiveItem } from "../../../objective-app/objective/elements/_groups";
 import { handleSelectionOnPointerSingleMetaSelecttedEventListener } from "../../../objective-app/objective/elements/_transformHandles";
 import { getObjectiveContextMenuItems } from "../../../objective-app/objective/components/ContextMenu";
 import { isElementsScalable } from "../../../objective-app/objective/elements/_resizeElements";
@@ -4681,11 +4682,17 @@ class App extends React.Component<AppProps, AppState> {
         hitElement &&
         getSelectedGroupIdForElement(hitElement, this.state.selectedGroupIds);
 
-      const disallowGroupEditing = // VBRN
-        selectedGroupId &&
-        isGroupEditingDissalawed(hitElement, selectedGroupId);
+      // VBRN
+      const isHitObjective = isHitSelectedObjectiveItem(
+        hitElement,
+        selectedGroupId,
+      );
+      if (isHitObjective) {
+        // TODO some special logic on Objective double click
+        return;
+      }
 
-      if (selectedGroupId && !disallowGroupEditing) {
+      if (selectedGroupId) {
         this.setState((prevState) => ({
           ...prevState,
           ...selectGroupsForSelectedElements(
@@ -8346,6 +8353,7 @@ class App extends React.Component<AppProps, AppState> {
             ),
             selectedLinearElement:
               isLinearElement(hitElement) &&
+              !isObjectiveInternalLine(hitElement) && // VBRN
               // Don't set `selectedLinearElement` if its same as the hitElement, this is mainly to prevent resetting the `hoverPointIndex` to -1.
               // Future we should update the API to take care of setting the correct `hoverPointIndex` when initialized
               prevState.selectedLinearElement?.elementId !== hitElement.id

@@ -12,6 +12,11 @@ export const isUngroupDissalawed = (
   return metas.some((meta) => selectedGroupIds.has(meta.id))
 }
 
-export const isGroupEditingDissalawed = (hitElement: ExcalidrawElement, selectedGroupId: string) =>
-  isObjective(hitElement) && getObjectiveId(hitElement) === selectedGroupId
-
+export const isHitSelectedObjectiveItem = (
+  hitElement: ExcalidrawElement | null,
+  selectedGroupId: string | null | undefined
+) =>
+  selectedGroupId &&
+  hitElement &&
+  isObjective(hitElement) &&
+  getObjectiveId(hitElement) === selectedGroupId

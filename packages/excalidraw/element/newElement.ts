@@ -1,19 +1,13 @@
 import { getElementAbsoluteCoords } from ".";
-import { __DEBUG_DISABLE_APPLY_DEFAULTS } from "../../../objective-app/objective-plus/constants";
 import { duplicateObjectiveEventHandler } from "../../../objective-app/objective/elements/_duplicateElements";
-import { buildWeekMeta } from "../../../objective-app/objective/meta/_initial";
-import {
-  ObjectiveKinds,
-  isWall,
-} from "../../../objective-app/objective/meta/_types";
-import { COLOR_PALETTE } from "../colors";
+import { newObjectiveWall } from "../../../objective-app/objective/elements/_newElementObjectiveConstructors";
+import { isCreatingObjectiveWall } from "../../../objective-app/objective/meta/_types";
 import {
   DEFAULT_ELEMENT_PROPS,
   DEFAULT_FONT_FAMILY,
   DEFAULT_FONT_SIZE,
   DEFAULT_TEXT_ALIGN,
   DEFAULT_VERTICAL_ALIGN,
-  ROUGHNESS,
   VERTICAL_ALIGN,
 } from "../constants";
 import { getNewGroupIdsForDuplication } from "../groups";
@@ -79,7 +73,7 @@ export type ElementConstructorOpts = MarkOptional<
   | "opacity"
 >;
 
-const _newElementBase = <T extends ExcalidrawElement>(
+export const _newElementBase = <T extends ExcalidrawElement>(
   type: T["type"],
   {
     x,
@@ -406,21 +400,7 @@ export const newLinearElement = (
     points?: ExcalidrawLinearElement["points"];
   } & ElementConstructorOpts,
 ): NonDeleted<ExcalidrawLinearElement> => {
-  //
-  // VBRN apply new element defaults TODO two deferent tool: line and wall
-  const elementInitialOverrides =
-    isWall(opts) && !__DEBUG_DISABLE_APPLY_DEFAULTS
-      ? {
-          strokeColor: COLOR_PALETTE.black,
-          backgroundColor: COLOR_PALETTE.transparent,
-          fillStyle: "solid" as const,
-          strokeWidth: 2,
-          strokeStyle: "solid" as const,
-          roundness: null,
-          roughness: ROUGHNESS.architect,
-          opacity: 100,
-        }
-      : {};
+  if (isCreatingObjectiveWall(opts)) return newObjectiveWall(opts); // VBRN
 
   return {
     ..._newElementBase<ExcalidrawLinearElement>(opts.type, opts),
@@ -430,13 +410,6 @@ export const newLinearElement = (
     endBinding: null,
     startArrowhead: opts.startArrowhead || null,
     endArrowhead: opts.endArrowhead || null,
-
-    // VBRN
-    customData: isWall(opts)
-      ? buildWeekMeta(ObjectiveKinds.WALL)
-      : opts.customData,
-
-    ...elementInitialOverrides,
   };
 };
 

@@ -451,11 +451,19 @@ export const isWallElement = (
   el: MaybeExcalidrawElement | ObjectiveElement<LocationMeta>
 ): el is ObjectiveWallElement => isKindEl(el, ObjectiveKinds.WALL)
 
-/** TMP solution when any simple line is Wall. */
-export const isWall = (arg?: { type?: string }) => arg?.type === 'line'
+/**
+ * // TMP solution
+ * // TODO two deferent tool: line and wall
+ * @deprecated
+ */
+export const isCreatingObjectiveWall = (arg?: { type?: string }) => arg?.type === 'line'
+
 export const isWallTool = (t: ActiveTool) => t.type === 'line'
 export const isWallToolOrWallDrawing = (t: ActiveTool, selected: readonly ExcalidrawElement[]) =>
   (!selected.length || (selected.length === 1 && selected[0].type === 'line')) && isWallTool(t)
+
+export const isObjectiveInternalLine = (el: ExcalidrawLinearElement) =>
+  isObjective(el) && !isWallElement(el) && !isKindEl(el, ObjectiveKinds.POINTER)
 
 export const isLocationMeta = (meta: MaybeMeta): meta is LocationMeta =>
   isKind(meta, ObjectiveKinds.LOCATION)
