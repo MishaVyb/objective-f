@@ -27,7 +27,8 @@ export const isInitializedDemensionsImage = (el: ExcalidrawImageElement) =>
 
 export const isSupportChangeAspectRatio = (
   selectedElements: ExcalidrawElement[]
-): selectedElements is ExcalidrawImageElement[] => selectedElements.every((e) => isImageElement(e))
+): selectedElements is ExcalidrawImageElement[] =>
+  !!selectedElements.length && selectedElements.every((e) => isImageElement(e))
 
 export const reInitializeImageDemensions = async () => {
   const { app } = getCoreSafe()
